@@ -6,11 +6,11 @@ Fase 0 — Setup técnico (completado o en curso)
 
 [x] Ajustar dependencias compatibles
 
-[ ] Configurar estructura de carpetas
+[x] Configurar estructura de carpetas
 
-[ ] Crear README inicial
+[x] Crear README inicial
 
-[ ] Configurar Git correctamente
+[x] Configurar Git correctamente
 
 Fase 1 — Base del portfolio
 [ ] Crear layout principal (header, footer, theme básico)
