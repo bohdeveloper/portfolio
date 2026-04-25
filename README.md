@@ -1,69 +1,122 @@
-# Portfolio — Next.js + TailwindCSS
+# Portfolio — Next.js + TailwindCSS + Express + Prisma + PostgreSQL
 
-Este es mi portfolio personal desarrollado con Next.js, TypeScript y TailwindCSS.  
-El objetivo del proyecto es mostrar mis habilidades, proyectos y experiencia de forma clara y moderna.
+Este proyecto está compuesto por dos aplicaciones independientes que trabajan juntas:
+
+- **Frontend:** Portfolio personal desarrollado con Next.js, TypeScript y TailwindCSS.  
+- **Backend:** API REST construida con Express, Prisma y PostgreSQL para la gestión de datos.
+
+El objetivo es disponer de un portfolio moderno, rápido y escalable, con un backend real para manejar proyectos y futuras funcionalidades.
 
 ---
 
-## Tecnologías principales
+## 1. Tecnologías principales
 
+### Frontend
 - Next.js 14  
 - React 18  
 - TypeScript  
 - TailwindCSS 4  
 - ESLint  
-- (Opcional) Prisma + PostgreSQL  
+
+### Backend
+- Node.js 20  
+- Express  
+- Prisma 5.15.0  
+- PostgreSQL  
+- TypeScript  
 
 ---
 
-## Estructura del proyecto
+## 2. Estructura del proyecto
 
+/portfolio-frontend
 src/
 app/
 page.tsx
 layout.tsx
 components/
-styles/
 lib/
+styles/
 public/
-prisma/ (si se usa)
+package.json
+
+/portfolio-backend
+prisma/
+schema.prisma
+src/
+server.ts
+lib/
+prisma.ts
+routes/
+projects.routes.ts
+controllers/
+projects.controller.ts
+services/
+projects.service.ts
+package.json
+tsconfig.json
+.env
 
 Código
 
 ---
 
-## Scripts disponibles
+## 3. Instalación
 
+### Frontend
 ```bash
+cd portfolio-frontend
+npm install
+Backend
+bash
+cd portfolio-backend
+npm install
+4. Configuración de la base de datos
+En portfolio-backend/.env:
+
+Código
+DATABASE_URL="postgresql://usuario:password@localhost:5432/portfolio"
+Ejecutar migraciones:
+
+bash
+npx prisma migrate dev
+5. Scripts disponibles
+Frontend
+bash
 npm run dev       # Entorno de desarrollo
 npm run build     # Compilar para producción
 npm run start     # Ejecutar build
 npm run lint      # Linter
-Instalación y uso
+Backend
 bash
-npm install
+npm run dev       # Ejecutar servidor Express con ts-node-dev
+npm run build     # Compilar TypeScript
+npm start         # Ejecutar versión compilada
+npx prisma generate   # Generar cliente Prisma
+npx prisma migrate dev # Migraciones
+6. Puesta en marcha
+Backend
+bash
+cd portfolio-backend
 npm run dev
-El proyecto estará disponible en:
+Disponible en:
+
+Código
+http://localhost:4000
+Frontend
+bash
+cd portfolio-frontend
+npm run dev
+Disponible en:
 
 Código
 http://localhost:3000
-Roadmap inicial
-Crear estructura base del portfolio
-
-Añadir secciones: Home, Sobre mí, Proyectos, Contacto
-
-Añadir contenido real
-
-Optimizar SEO y rendimiento
-
-Despliegue en Vercel
-
-Contacto
+7. Contacto
 GitHub: (añadir enlace)
 
 LinkedIn: (añadir enlace)
 
 Email: (añadir email)
 
-Licencia
+8. Licencia
 Este proyecto es de uso personal.

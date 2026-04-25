@@ -7,11 +7,11 @@ export default function Home() {
         Este es un portafolio simple construido con Next.js.
       </p>
 
-      <button className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800">
+      <button className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-gray-800">
         Botón de prueba
       </button>
 
-      <div className="text-red-500 text-3xl">
+      <div className="text-red-700 text-3xl">
         Tailwind está funcionando
       </div>
     </div>
