@@ -138,3 +138,10 @@ footer {
 .fade-in-up {
   animation: fadeInUp 1s ease-out forwards;
 }
+
+/* ============================
+   OCULTAR LOGO DE NEXT.JS
+============================ */
+#next-logo {
+  display: none !important;
+}
