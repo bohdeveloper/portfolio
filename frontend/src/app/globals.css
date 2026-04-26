@@ -26,6 +26,18 @@ html {
   --text: #1a1a1a;
 }
 
+.text-primary {
+  color: var(--primary);
+}
+
+.border-primary {
+  border-color: var(--primary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
 html.dark {
   --bg: #0d0d0d;
   --text: #f5f5f5;
@@ -102,4 +114,27 @@ footer {
 
 .bg-primary {
   background-color: var(--primary);
+}
+
+/* ============================
+   ANIMACIONES
+============================ */
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(1.05);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 1s ease-out forwards;
 }

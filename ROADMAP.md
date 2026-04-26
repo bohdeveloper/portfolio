@@ -1,5 +1,5 @@
-🧭 ROADMAP Inicial del Proyecto (v0.1 → v1.0)
-Fase 0 — Setup técnico (completado o en curso)
+🧭 ROADMAP del Proyecto — Portfolio v1.0
+Fase 0 — Setup técnico (✔ Completado)
 [x] Crear proyecto con Next.js + TypeScript
 
 [x] Configurar TailwindCSS
@@ -12,69 +12,73 @@ Fase 0 — Setup técnico (completado o en curso)
 
 [x] Configurar Git correctamente
 
-Fase 1 — Base del portfolio
-[ ] Crear layout principal (header, footer, theme básico)
+Fase 1 — Base del portfolio (✔ Completado)
+[x] Crear layout principal (header, footer, theme básico)
 
-[ ] Crear página Home con presentación
+[x] Crear página Home con presentación
 
-[ ] Añadir sección “Sobre mí”
+[x] Añadir sección “Sobre mí”
 
-[ ] Añadir sección “Proyectos”
+[x] Añadir sección “Proyectos”
 
-[ ] Añadir sección “Contacto”
+[x] Añadir sección “Contacto”
 
-[ ] Añadir favicon y metadata básica
+[x] Añadir favicon y metadata básica
 
-Fase 2 — Componentes UI
-[ ] Botones reutilizables
+Fase 2 — Componentes UI (✔ Completado)
+[x] Botones reutilizables
 
-[ ] Tarjetas para proyectos
+[x] Tarjetas para proyectos
 
-[ ] Navbar responsive
+[x] Navbar responsive
 
-[ ] Footer con enlaces
+[x] Footer con enlaces
 
-[ ] Animaciones suaves (Framer Motion opcional)
+[x] Animaciones suaves (sin Framer, pero con CSS + IntersectionObserver)
 
-Fase 3 — Contenido real
-[ ] Añadir proyectos reales con imágenes
+Fase 3 — Contenido real (✔ Completado)
+[x] Añadir proyectos reales con imágenes
 
-[ ] Añadir texto personal y profesional
+[x] Añadir texto personal y profesional
 
-[ ] Añadir enlaces a GitHub, LinkedIn, CV
+[x] Añadir enlaces a GitHub, LinkedIn, CV
 
-[ ] Añadir formulario de contacto (opcional)
+[x] Añadir formulario de contacto (opcional → descartado por ahora)
 
-Fase 4 — Optimización
-[ ] SEO básico (OpenGraph, meta tags, sitemap)
+Fase 4 — Optimización (✔ Completado)
+[x] SEO básico (OpenGraph, meta tags, favicon, manifest)
 
-[ ] Optimizar imágenes con next/image
+[x] Optimizar imágenes
 
-[ ] Lighthouse performance pass
+[x] Lighthouse performance pass
 
-[ ] Accesibilidad (A11y)
+[x] Accesibilidad (A11y) básica
 
-Fase 5 — Backend opcional
+[x] Evitar FOUC y errores de hidratación
+
+[x] Modo oscuro sin parpadeos
+
+Fase 5 — Backend opcional (Pendiente / futuro)
 (Solo si quieres añadir blog, panel o datos dinámicos)
 
-[ ] Añadir Prisma
+[x] Añadir Prisma
 
-[ ] Crear base de datos (PostgreSQL)
+[x] Crear base de datos (PostgreSQL)
 
-[ ] Crear modelos iniciales (ej: Post, Project)
+[ ] Crear modelos iniciales (Post, Project)
 
 [ ] API Routes para CRUD
 
 [ ] Autenticación (si aplica)
 
-Fase 6 — Despliegue
-[ ] Configurar Vercel
+Fase 6 — Despliegue (En curso)
+[x] Configurar Vercel
 
-[ ] Variables de entorno
+[ ] Variables de entorno (si aplica)
 
 [ ] Test final en producción
 
-[ ] Dominio personalizado (opcional)
+[ ] Dominio personalizado bohdeveloper.com
 
 Fase 7 — v1.0 Release
 [ ] Revisión final

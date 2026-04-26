@@ -1,20 +1,32 @@
 export default function Hero() {
   return (
-    <section id="inicio" className="min-h-screen flex flex-col justify-center gap-4">
-      <p className="text-gray-500 dark:text-gray-400">Hola, mi nombre es</p>
+    <section
+      id="inicio"
+      className="min-h-screen flex flex-col justify-center max-w-6xl mx-auto px-6 pt-32"
+    >
+      <p className="text-gray-600 dark:text-gray-400 text-lg">
+        Hola, mi nombre es
+      </p>
 
-      <h1 className="text-5xl font-bold">
-        Borja Olazabal <span className="block text-primary">Desarrollador Web Fullstack</span>
+      <h1 className="text-5xl md:text-6xl font-bold text-black dark:text-white mt-2">
+        Borja Olazabal
+        <span className="block text-cyan-400">y soy programador web</span>
       </h1>
 
-      <p className="max-w-xl text-lg text-gray-600 dark:text-gray-300">
-        Soy ingeniero de software especializado en diseñar y crear páginas web, sistemas de control para mantenimientos de datos e información.
+      <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-6 text-xl leading-relaxed">
+        Especializado en diseñar, desarrollar y mantener:        
       </p>
+
+      <ul className="list-disc list-inside mt-4 text-cyan-400 font-medium">
+        <li>Páginas web estáticas, Landings, CMDs... </li>
+        <li>Sistemas de control y mantenimientos de datos.</li>
+        <li>Manejo de flujos de información, comunicación API.</li>
+      </ul>
 
       <a
         href="https://github.com/bohdeveloper"
         target="_blank"
-        className="mt-4 inline-block px-6 py-3 border rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        className="max-w-xs mt-8 text-center inline-block px-6 py-3 border border-cyan-400 text-cyan-400 rounded hover:bg-cyan-400 hover:text-black transition"
       >
         Accede a mi código
       </a>
