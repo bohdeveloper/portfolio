@@ -4,14 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_DISABLE_TYPECHECK=1 next build && next export",
-    "start": "next start",
-    "lint": "eslint ."
+    "build": "next build && next export",
+    "start": "next start"
   },
   "dependencies": {
-    "next": "^16.2.4",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "next": "15.1.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
