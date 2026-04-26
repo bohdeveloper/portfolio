@@ -1,4 +1,4 @@
-# Portfolio personal (En construcción)
+# Portfolio personal (Landing)
 ### Disponible en --> https://bohdeveloper.com
 ---
 ### Tecnologias utilizadas: Next.js + TailwindCSS + Express + Prisma + PostgreSQL
