@@ -14,9 +14,11 @@
 
 # testing
 /coverage
+/out/
 
 # next.js
 frontend/.next/
+frontend/out/
 
 # production
 /build
