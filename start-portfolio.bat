@@ -1,36 +1,43 @@
 @echo off
+setlocal enabledelayedexpansion
+
 echo ============================
 echo   INICIANDO PORTFOLIO
 echo ============================
 
-REM --- FRONTEND ---
+REM ---------- FRONTEND ----------
 echo.
 echo [FRONTEND] Comprobando dependencias...
 if not exist "frontend\node_modules" (
-    echo [FRONTEND] node_modules no encontrado. Instalando...
-    cd frontend
-    npm install
-    cd ..
+    echo [FRONTEND] Instalando dependencias...
+    pushd frontend
+    call npm install
+    popd
+) else (
+    echo [FRONTEND] Dependencias ya instaladas.
 )
 
-REM --- BACKEND ---
+REM ---------- BACKEND ----------
 echo.
 echo [BACKEND] Comprobando dependencias...
 if not exist "backend\node_modules" (
-    echo [BACKEND] node_modules no encontrado. Instalando...
-    cd backend
-    npm install
-    cd ..
+    echo [BACKEND] Instalando dependencias...
+    pushd backend
+    call npm install
+    popd
+) else (
+    echo [BACKEND] Dependencias ya instaladas.
 )
 
+REM ---------- ARRANQUE ----------
 echo.
-echo Lanzando backend...
-start cmd /k "cd backend && npm run dev"
+echo Arrancando BACKEND...
+start "Backend" cmd /k "cd backend && npm run dev"
 
 echo.
-echo Lanzando frontend...
-start cmd /k "cd frontend && npm run dev"
+echo Arrancando FRONTEND...
+start "Frontend" cmd /k "cd frontend && npm run dev"
 
 echo.
-echo Todo listo.
+echo ✅ Todo configurado y ejecutándose.
 pause
