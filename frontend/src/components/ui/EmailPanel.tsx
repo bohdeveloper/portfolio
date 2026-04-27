@@ -19,7 +19,7 @@ export default function EmailPanel() {
           href="mailto:ohb_1@outlook.com"
           className="text-sm p-2 text-gray-700 dark:text-white hover:text-cyan-400 dark:hover:text-cyan-400 transition"
         >
-          Email
+          ohb_1@outlook.com
         </a>
       </div>
     </>
