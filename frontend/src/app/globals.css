@@ -21,13 +21,21 @@ html {
 ============================ */
 
 :root {
-  --primary: #00e7eb;
-  --bg: #ffffff;
+  --primary: #00a8bf; /* MODO CLARO */
+  --bg: #fdfefe;
   --text: #1a1a1a;
 }
 
+html.dark {
+  --primary: #00e7eb; /* MODO OSCURO */
+  --bg: #0d0d0d;
+  --text: #f5f5f5;
+}
+
 .text-primary {
-  color: var(--primary);
+  color: var(--primary);  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .border-primary {
@@ -36,11 +44,6 @@ html {
 
 .bg-primary {
   background-color: var(--primary);
-}
-
-html.dark {
-  --bg: #0d0d0d;
-  --text: #f5f5f5;
 }
 
 html.light {
@@ -92,6 +95,17 @@ a:hover {
 .navbar {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+html.light .logo-filter {
+  filter:
+    brightness(0.85)
+    saturate(0.85)
+    hue-rotate(-4deg);
+}
+
+html.dark .logo-filter {
+  filter: none; /* mantiene el color brillante original */
 }
 
 /* ============================

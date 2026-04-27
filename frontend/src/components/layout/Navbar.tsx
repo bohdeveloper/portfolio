@@ -16,7 +16,7 @@ export default function Navbar() {
             <img
               src="../../../images/bohdeveloper-desarrollador-web.png"
               alt="logo"
-              className="h-14 w-auto"
+              className="h-14 w-auto logo-filter"
             />
           </Link>
         </div>
