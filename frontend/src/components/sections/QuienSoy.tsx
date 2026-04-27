@@ -64,10 +64,18 @@ export default function QuienSoy() {
           .
         </p>
 
+        
+<p>
+  En <strong>bohdeveloper.com</strong> comparto mi <strong>portfolio profesional</strong>,
+  mis <strong>proyectos de desarrollo web</strong> y mi evolución como
+  programador.
+</p>
+
+
         <p className="font-semibold">Estas son las tecnologías que más he utilizado:</p>
 
         {/* LISTA DE TECNOLOGÍAS */}
-        <ul className="grid grid-cols-2 gap-2 text-primary font-medium">
+        <ul className="grid grid-cols-2 gap-2 text-primary text-xs sm:text-sm md:text-base font-medium">
           <li>HTML / JSP / JSTL</li>
           <li>CSS / Bootstrap</li>
           <li>JavaScript / jQuery</li>

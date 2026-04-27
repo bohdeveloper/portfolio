@@ -9,18 +9,24 @@ export default function Hero() {
       </p>
 
       <h1 className="text-5xl md:text-6xl font-bold text-black dark:text-white mt-2">
-        Borja Olazabal
-        <span className="block text-primary">y soy programador web</span>
+        Borja Olazabal,
+        <span className="block text-primary">
+          programador web
+        </span>
       </h1>
 
       <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-6 text-xl leading-relaxed">
-        Especializado en diseñar, desarrollar y mantener:        
+        Especializado en <strong>desarrollo web</strong>, diseñando, desarrollando y manteniendo:
       </p>
 
-      <ul className="list-disc list-inside mt-4 text-primary font-medium">
-        <li>Páginas web estáticas, Landings, CMDs... </li>
-        <li>Sistemas de control y mantenimientos de datos.</li>
-        <li>Manejo de flujos de información, comunicación API.</li>
+      
+      <ul className="
+        list-disc list-inside mt-4 font-medium text-primary
+        text-xs sm:text-sm md:text-base
+      ">
+        <li>Páginas web estáticas y landings profesionales.</li>
+        <li>Sistemas de gestión y mantenimiento de datos (CMS).</li>
+        <li>Flujos de información y comunicación mediante APIs.</li>
       </ul>
 
       <a

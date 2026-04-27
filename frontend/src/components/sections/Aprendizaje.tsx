@@ -9,98 +9,118 @@ export default function Aprendizaje() {
         "Spring",
         "JSP / JDBC / Thymeleaf",
         "Lombok / Maven",
-        "JavaScript / JQuery",
-        "MySQL Workbench ...",
+        "JavaScript / jQuery",
+        "MySQL Workbench",
       ],
-      link: "/images/diploma_ipartek.jpg"
+      link: "/images/diploma_ipartek.jpg",
     },
     {
       titulo: "Curso de Oracle PL/SQL desde Cero",
-      descripcion:
-        "Curso intensivo de Oracle PL/SQL para principiantes.",
+      descripcion: "Curso intensivo de Oracle PL/SQL para principiantes.",
       tecnologias: [
         "Bloques",
         "Excepciones",
         "Cursores",
-        "Procedimientos Almacenados",
+        "Procedimientos almacenados",
         "Funciones",
         "Paquetes",
-        "Triggers ..."
+        "Triggers",
       ],
-      link: "/images/diploma_PLSQL_udemy.jpg"
+      link: "/images/diploma_PLSQL_udemy.jpg",
     },
     {
-      titulo: "Curso Universidad Java - Cero a Experto - Actualizado (+155 hrs)",
+      titulo: "Universidad Java – Cero a Experto (+155h)",
       descripcion:
-        "Curso intensivo de Java orientado a objetos y bases de datos relacionales.",
+        "Formación avanzada en Java y su ecosistema, desde fundamentos hasta frameworks.",
       tecnologias: [
         "Java",
         "Spring",
         "JSP / JDBC / Thymeleaf",
         "Lombok / Maven",
         "Angular",
-        "Struts ...",
+        "Struts",
       ],
-      link: "https://www.udemy.com/course/universidad-java-especialista-en-java-desde-cero-a-master/learn/lecture/44881751?start=120#overview",
-      estado: "en-curso"
+      link: "https://www.udemy.com/course/universidad-java-especialista-en-java-desde-cero-a-master/",
+      estado: "en-curso",
     },
   ];
 
   const aprendiendo1 = {
-    titulo: "Conocimientos en React y NoSQL",
+    titulo: "React y stack NoSQL",
     descripcion:
-      "Unyona y Nitflex estan desarrolladas con estas tecnologías:",
-    tecnologias: [
-      "React",
-      "TypeScript",
-      "MongoDB",
-      "Express",
-      "Tailwind ...",
-    ]
+      "Tecnologías aplicadas en proyectos personales como Unyona y Nitflex:",
+    tecnologias: ["React", "TypeScript", "MongoDB", "Express", "Tailwind"],
+    estado: "en-curso",
   };
 
   const aprendiendo2 = {
-    titulo: "Conocimientos en Angular y Spring Boot",
+    titulo: "Angular y Spring Boot",
     descripcion:
-      "Diamadmin esta desarrollada con estas tecnologías:",
+      "Tecnologías utilizadas en el desarrollo de la aplicación Diamadmin:",
     tecnologias: [
       "Angular",
       "Spring Boot",
       "PostgreSQL",
-      "Arquitectura modular ..."
-    ]
+      "Arquitectura modular",
+    ],
+    estado: "en-curso",
   };
 
   return (
     <section id="aprendizaje" className="max-w-6xl mx-auto px-6 py-32">
-      <h2 className="text-3xl font-bold text-black dark:text-white mb-12 flex items-center gap-3">
+      <h2 className="text-3xl font-bold text-black dark:text-white mb-4 flex items-center gap-3">
         <span className="text-primary text-4xl">⌁</span>
-        Mis conocimientos
+        Formación y aprendizaje continuo
       </h2>
 
+      {/* TEXTO SEO DISCRETO */}
+      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mb-12">
+        Complemento mi experiencia como <strong>programador web</strong> mediante
+        formación especializada, cursos técnicos y aprendizaje autodidacta,
+        aplicando estos conocimientos directamente en proyectos reales de
+        desarrollo web.
+      </p>
+
       <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-        {/* TARJETAS DE CURSOS */}
+        {/* CURSOS */}
         {cursos.map((c, i) => (
           <a
             key={i}
             href={c.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative block border border-cyan-400 dark:border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:border-cyan-400 hover:scale-[1.02] transition-all cursor-pointer"
+            className="relative block border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all"
           >
-            <div className="flex justify-between items-start">
-              <span className="text-primary text-2xl">📘</span>
-              
-              {c.estado === "en-curso" ? (
-                <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10 dark:bg-cyan-400/20">
-                  En curso
-                </span>
-              ) : (<span className="text-primary text-sm">↗</span>)}
-            </div>
+            <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
+              {c.estado === "en-curso" ? "En curso" : "Completado"}
+            </span>
 
-            <h3 className="text-lg font-semibold text-black dark:text-white mt-3">
-              {c.titulo}
-            </h3>
+            <div className="flex gap-3 items-start mt-6">
+              {/* ICONO FORMACIÓN */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                className="w-6 h-6 text-primary"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 14l9-5-9-5-9 5 9 5z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 14l6.16-3.422A12.083 12.083 0 0112 21.5c-2.28 0-4.418-.636-6.16-1.922L12 14z"
+                />
+              </svg>
+
+              <h3 className="text-lg font-semibold text-black dark:text-white">
+                {c.titulo}
+              </h3>
+            </div>
 
             <p className="text-gray-600 dark:text-gray-400 mt-2">
               {c.descripcion}
@@ -111,68 +131,71 @@ export default function Aprendizaje() {
                 <li key={idx}>{t}</li>
               ))}
             </ul>
+            <span className="mt-1 ml-2 inline-block text-lg text-primary font-medium">
+              ...
+            </span>
           </a>
         ))}
 
-        {/* TARJETA DE CONOCIMIENTOS ACTUALES 1 */}
-        <div
-          className="block border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all cursor-pointer"
-        >
-          <div className="flex justify-between items-start">
-            <span className="text-primary text-2xl">⚡</span>
+        {/* CONOCIMIENTOS ACTUALES */}
+        {[aprendiendo1, aprendiendo2].map((a, i) => (
+          <div
+            key={i}
+            className="relative border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all"
+          >
+            <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
+              {a.estado === "en-curso" ? "En curso" : "Completado"}
+            </span>
+
+            {/* ICONO DESARROLLO */}
+            <div className="flex gap-3 items-start mt-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                className="w-6 h-6 text-primary"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16 18l6-6-6-6M8 6l-6 6 6 6"
+                />
+              </svg>
+
+              <h3 className="text-lg font-semibold text-black dark:text-white">
+                {a.titulo}
+              </h3>
+            </div>
+
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              {a.descripcion}
+            </p>
+
+            <ul className="list-disc pl-5 mt-4 space-y-1 text-gray-700 dark:text-gray-300">
+              {a.tecnologias.map((t, idx) => (
+                <li key={idx}>{t}</li>
+              ))}
+            </ul>
+            <span className="mt-1 ml-2 inline-block text-lg text-primary font-medium">
+              ...
+            </span>
           </div>
+        ))}
 
-          <h3 className="text-lg font-semibold text-black dark:text-white mt-3">
-            {aprendiendo1.titulo}
-          </h3>
-
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            {aprendiendo1.descripcion}
-          </p>
-
-          <ul className="list-disc pl-5 mt-4 space-y-1 text-gray-700 dark:text-gray-300">
-            {aprendiendo1.tecnologias.map((t, idx) => (
-              <li key={idx}>{t}</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* TARJETA DE CONOCIMIENTOS ACTUALES 2 */}
-        <div
-          className="block border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all cursor-pointer"
-        >
-          <div className="flex justify-between items-start">
-            <span className="text-primary text-2xl">⚡</span>
-          </div>
-
-          <h3 className="text-lg font-semibold text-black dark:text-white mt-3">
-            {aprendiendo2.titulo}
-          </h3>
-
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            {aprendiendo2.descripcion}
-          </p>
-
-          <ul className="list-disc pl-5 mt-4 space-y-1 text-gray-700 dark:text-gray-300">
-            {aprendiendo2.tecnologias.map((t, idx) => (
-              <li key={idx}>{t}</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* TARJETA OPACA: FUTURA FP */}
-        <div className="border border-gray-400 dark:border-gray-700 rounded-lg p-6 bg-gray-200/60 dark:bg-gray-800/40 opacity-70 backdrop-blur-sm cursor-not-allowed">
+        {/* FP FUTURA */}
+        <div className="border border-gray-400 dark:border-gray-700 rounded-lg p-6 bg-gray-200/60 dark:bg-gray-800/40 opacity-70">
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
             Próximamente: FP Superior en DAW
           </h3>
 
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            En breves comenzaré la Formación Profesional Superior en Desarrollo
-            de Aplicaciones Web.
+            Formación Profesional Superior en Desarrollo de Aplicaciones Web.
           </p>
 
-          <p className="text-xs text-gray-500 dark:text-gray-500 mt-4 italic">
-            *Esta tarjeta está desactivada porque el curso aún no ha comenzado.
+          <p className="text-xs text-gray-500 mt-4 italic">
+            *Actualmente pendiente de inicio.
           </p>
         </div>
       </div>

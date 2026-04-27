@@ -15,29 +15,59 @@ export const viewport = {
 };
 
 /* ============================
-   METADATA (solo lo necesario)
+   METADATA SEO GLOBAL
 ============================ */
 export const metadata = {
   metadataBase: new URL("https://www.bohdeveloper.com"),
 
-  title: "Borja Olazabal | Desarrollador Web Fullstack",
+  title: "Borja Olazabal | Programador Web y Desarrollador Full Stack",
   description:
-    "Portfolio de Borja Olazabal, desarrollador web fullstack especializado en crear aplicaciones modernas, rápidas y escalables.",
+    "Borja Olazabal, programador web especializado en desarrollo frontend y backend. Descubre mi portfolio, proyectos y experiencia profesional.",
+
   keywords: [
     "Borja Olazabal",
+    "programador web",
     "desarrollador web",
-    "fullstack",
-    "programador",
+    "full stack",
+    "portfolio",
     "Next.js",
     "TypeScript",
-    "Prisma",
-    "portfolio",
+    "Prisma"
   ],
+
   authors: [{ name: "Borja Olazabal" }],
   robots: "index, follow",
 
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }],
+  },
+
+  /* ---------- OPEN GRAPH ---------- */
+  openGraph: {
+    title: "Borja Olazabal | Programador Web",
+    description:
+      "Portfolio profesional de Borja Olazabal, programador web y desarrollador full stack. Proyectos, código y experiencia real.",
+    url: "https://www.bohdeveloper.com",
+    siteName: "bohdeveloper",
+    locale: "es_ES",
+    type: "website",
+    images: [
+      {
+        url: "/images/Borja-Olazabal.png",
+        width: 1200,
+        height: 630,
+        alt: "Borja Olazabal - Programador web",
+      },
+    ],
+  },
+
+  /* ---------- TWITTER ---------- */
+  twitter: {
+    card: "summary_large_image",
+    title: "Borja Olazabal | Programador Web",
+    description:
+      "Portfolio profesional de Borja Olazabal, programador web y desarrollador full stack.",
+    images: ["/images/Borja-Olazabal.png"],
   },
 };
 
@@ -48,8 +78,54 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} transition-colors duration-300`}>
-        
-        {/* SCRIPT ANTI-FLICKER — AHORA EN EL SITIO CORRECTO */}
+
+        {/* ============================
+           JSON-LD: PERSON
+        ============================ */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "name": "Borja Olazabal",
+              "url": "https://www.bohdeveloper.com",
+              "image": "https://www.bohdeveloper.com/images/Borja-Olazabal.png",
+              "jobTitle": "Programador web",
+              "description":
+                "Borja Olazabal es programador web y desarrollador full stack especializado en desarrollo frontend y backend.",
+              "sameAs": [
+                "https://github.com/bohdeveloper",
+                "https://www.linkedin.com/in/bolazabal"
+              ]
+            }),
+          }}
+        />
+
+        {/* ============================
+           JSON-LD: WEBSITE
+        ============================ */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "bohdeveloper",
+              "url": "https://www.bohdeveloper.com",
+              "description":
+                "Portfolio profesional de Borja Olazabal, programador web y desarrollador full stack.",
+              "publisher": {
+                "@type": "Person",
+                "name": "Borja Olazabal",
+              },
+            }),
+          }}
+        />
+
+        {/* ============================
+           SCRIPT ANTI-FLICKER (THEME)
+        ============================ */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -72,10 +148,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main>{children}</main>
 
-        {/* Paneles fijos */}
         <SocialPanel />
         <EmailPanel />
-
         <Footer />
       </body>
     </html>
