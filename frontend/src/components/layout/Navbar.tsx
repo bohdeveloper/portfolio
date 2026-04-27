@@ -7,7 +7,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="navbar fixed top-0 left-0 w-full z-50 bg-white/70 dark:bg-[#0d0d0d]/70 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+    <header className="navbar fixed top-0 left-0 w-full z-50 bg-white/85 dark:bg-[#0d0d0d]/85 backdrop-blur-3xl border-b border-gray-200 dark:border-gray-800">
       <nav className="max-w-full mx-auto flex justify-between items-center py-4 px-6">
 
         {/* LOGO */}
@@ -28,7 +28,7 @@ export default function Navbar() {
           <a
             href="../../../CV_Borja_Olazabal.pdf"
             target="_blank"
-            className="px-3 py-1 text-sm border border-cyan-400 text-cyan-400 rounded hover:bg-cyan-400 hover:text-black transition"
+            className="px-3 py-1 text-sm border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
           >
             CV
           </a>
@@ -70,18 +70,18 @@ export default function Navbar() {
         {/* MENÚ DESKTOP */}
         <div className="links hidden md:flex items-center gap-8">
           <ul className="flex items-center gap-8 text-lg font-medium">
-            <li><a href="#quien-soy" className="hover:text-cyan-400 transition">Quién soy</a></li>
-            <li><a href="#experiencia" className="hover:text-cyan-400 transition">Experiencia</a></li>
-            <li><a href="#proyectos" className="hover:text-cyan-400 transition">Proyectos</a></li>
-            <li><a href="#aprendizaje" className="hover:text-cyan-400 transition">Aprendizaje</a></li>
-            <li><a href="#contacto" className="hover:text-cyan-400 transition">Contacto</a></li>
+            <li><a href="#quien-soy" className="hover:text-primary transition">Quién soy</a></li>
+            <li><a href="#experiencia" className="hover:text-primary transition">Experiencia</a></li>
+            <li><a href="#proyectos" className="hover:text-primary transition">Proyectos</a></li>
+            <li><a href="#aprendizaje" className="hover:text-primary transition">Aprendizaje</a></li>
+            <li><a href="#contacto" className="hover:text-primary transition">Contacto</a></li>
           </ul>
 
           <div className="flex items-center gap-4">
             <a
               href="../../../CV_Borja_Olazabal.pdf"
               target="_blank"
-              className="px-4 py-2 border border-cyan-400 text-cyan-400 rounded hover:bg-cyan-400 hover:text-black transition"
+              className="px-4 py-2 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
             >
               Accede a mi CV
             </a>
@@ -93,15 +93,41 @@ export default function Navbar() {
 
       {/* MENÚ MÓVIL */}
       {open && (
-        <div className="md:hidden bg-white dark:bg-[#0d0d0d] border-t border-gray-300 dark:border-gray-800">
-          <ul className="flex flex-col px-6 py-4 gap-4 text-lg font-medium text-black dark:text-white">
-            <li><a onClick={() => setOpen(false)} href="#quien-soy" className="hover:text-cyan-400 transition">Quién soy</a></li>
-            <li><a onClick={() => setOpen(false)} href="#experiencia" className="hover:text-cyan-400 transition">Experiencia</a></li>
-            <li><a onClick={() => setOpen(false)} href="#proyectos" className="hover:text-cyan-400 transition">Proyectos</a></li>
-            <li><a onClick={() => setOpen(false)} href="#aprendizaje" className="hover:text-cyan-400 transition">Aprendizaje</a></li>
-            <li><a onClick={() => setOpen(false)} href="#contacto" className="hover:text-cyan-400 transition">Contacto</a></li>
-          </ul>
-        </div>
+        <>
+          <div
+            className="fixed left-0 right-0 bottom-0 top-[88px] bg-black/85 backdrop-blur-3xl z-30 md:hidden"
+            onClick={() => setOpen(false)}
+          />
+            <div className="md:hidden fixed top-[88px] left-0 w-full bg-white/95 dark:bg-black/85 backdrop-blur-3xl border-t border-gray-300 dark:border-gray-800 z-40">
+              <ul className="flex flex-col px-6 py-6 gap-4 text-lg font-medium text-black dark:text-white">
+                <li>
+                  <a onClick={() => setOpen(false)} href="#quien-soy" className="hover:text-primary transition">
+                    Quién soy
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => setOpen(false)} href="#experiencia" className="hover:text-primary transition">
+                    Experiencia
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => setOpen(false)} href="#proyectos" className="hover:text-primary transition">
+                    Proyectos
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => setOpen(false)} href="#aprendizaje" className="hover:text-primary transition">
+                    Aprendizaje
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => setOpen(false)} href="#contacto" className="hover:text-primary transition">
+                    Contacto
+                  </a>
+                </li>
+              </ul>
+            </div>
+        </>
       )}
     </header>
   );

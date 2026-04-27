@@ -5,7 +5,7 @@ export default function Contacto() {
         Siguiente paso
       </h2>
 
-      <h3 className="text-4xl font-extrabold mt-2 text-cyan-400">
+      <h3 className="text-4xl font-extrabold mt-2 text-primary">
         Contacta conmigo
       </h3>
 
@@ -22,7 +22,7 @@ export default function Contacto() {
         href="mailto:ohb_1@outlook.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block mt-10 px-8 py-3 rounded-lg border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black dark:hover:text-black transition-all hover:scale-[1.03] cursor-pointer"
+        className="inline-block mt-10 px-8 py-3 rounded-lg border border-cyan-400 text-primary hover:bg-cyan-400 hover:text-black dark:hover:text-black transition-all hover:scale-[1.03] cursor-pointer"
       >
         Dime algo
       </a>

@@ -60,7 +60,7 @@ export default function Proyectos() {
   return (
     <section id="proyectos" className="max-w-6xl mx-auto px-6 py-32">
       <h2 className="text-3xl font-bold text-black dark:text-white mb-12 flex items-center gap-3">
-        <span className="text-cyan-400 text-4xl">⌁</span>
+        <span className="text-primary text-4xl">⌁</span>
         Mis proyectos
       </h2>
 
@@ -74,7 +74,7 @@ export default function Proyectos() {
             className="relative block border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:border-cyan-400 hover:scale-[1.02] transition-all cursor-pointer"
           >
             {/* ETIQUETA “EN DESARROLLO” */}
-            <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-cyan-400 text-cyan-400 bg-cyan-400/10 dark:bg-cyan-400/20">
+            <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10 dark:bg-cyan-400/20">
               En desarrollo
             </span>
 
@@ -86,7 +86,7 @@ export default function Proyectos() {
               {p.descripcion}
             </p>
 
-            <p className="text-sm text-cyan-400 mt-2 font-medium">
+            <p className="text-sm text-primary mt-2 font-medium">
               {p.arquitectura}
             </p>
 

@@ -74,7 +74,7 @@ export default function Aprendizaje() {
   return (
     <section id="aprendizaje" className="max-w-6xl mx-auto px-6 py-32">
       <h2 className="text-3xl font-bold text-black dark:text-white mb-12 flex items-center gap-3">
-        <span className="text-cyan-400 text-4xl">⌁</span>
+        <span className="text-primary text-4xl">⌁</span>
         Mis conocimientos
       </h2>
 
@@ -89,13 +89,13 @@ export default function Aprendizaje() {
             className="relative block border border-cyan-400 dark:border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:border-cyan-400 hover:scale-[1.02] transition-all cursor-pointer"
           >
             <div className="flex justify-between items-start">
-              <span className="text-cyan-400 text-2xl">📘</span>
+              <span className="text-primary text-2xl">📘</span>
               
               {c.estado === "en-curso" ? (
-                <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-cyan-400 text-cyan-400 bg-cyan-400/10 dark:bg-cyan-400/20">
+                <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10 dark:bg-cyan-400/20">
                   En curso
                 </span>
-              ) : (<span className="text-cyan-400 text-sm">↗</span>)}
+              ) : (<span className="text-primary text-sm">↗</span>)}
             </div>
 
             <h3 className="text-lg font-semibold text-black dark:text-white mt-3">
@@ -119,7 +119,7 @@ export default function Aprendizaje() {
           className="block border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all cursor-pointer"
         >
           <div className="flex justify-between items-start">
-            <span className="text-cyan-400 text-2xl">⚡</span>
+            <span className="text-primary text-2xl">⚡</span>
           </div>
 
           <h3 className="text-lg font-semibold text-black dark:text-white mt-3">
@@ -142,7 +142,7 @@ export default function Aprendizaje() {
           className="block border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all cursor-pointer"
         >
           <div className="flex justify-between items-start">
-            <span className="text-cyan-400 text-2xl">⚡</span>
+            <span className="text-primary text-2xl">⚡</span>
           </div>
 
           <h3 className="text-lg font-semibold text-black dark:text-white mt-3">

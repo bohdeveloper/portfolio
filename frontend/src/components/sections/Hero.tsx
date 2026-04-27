@@ -10,14 +10,14 @@ export default function Hero() {
 
       <h1 className="text-5xl md:text-6xl font-bold text-black dark:text-white mt-2">
         Borja Olazabal
-        <span className="block text-cyan-400">y soy programador web</span>
+        <span className="block text-primary">y soy programador web</span>
       </h1>
 
       <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-6 text-xl leading-relaxed">
         Especializado en diseñar, desarrollar y mantener:        
       </p>
 
-      <ul className="list-disc list-inside mt-4 text-cyan-400 font-medium">
+      <ul className="list-disc list-inside mt-4 text-primary font-medium">
         <li>Páginas web estáticas, Landings, CMDs... </li>
         <li>Sistemas de control y mantenimientos de datos.</li>
         <li>Manejo de flujos de información, comunicación API.</li>
@@ -26,7 +26,7 @@ export default function Hero() {
       <a
         href="https://github.com/bohdeveloper"
         target="_blank"
-        className="max-w-xs mt-8 text-center inline-block px-6 py-3 border border-cyan-400 text-cyan-400 rounded hover:bg-cyan-400 hover:text-black transition"
+        className="max-w-xs mt-8 text-center inline-block px-6 py-3 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
       >
         Accede a mi código
       </a>

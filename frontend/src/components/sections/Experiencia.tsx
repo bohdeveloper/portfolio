@@ -15,7 +15,7 @@ const tabs = [
           href="https://www.ejie.euskadi.eus/quienes-somos/-/somos-ejie/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-cyan-400 hover:underline"
+          className="text-primary hover:underline"
         >
           EJIE
         </a>{" "}
@@ -26,16 +26,16 @@ const tabs = [
       </>,
       <>
         He utilizado las siguentes tecnologías:{" "}
-        <a href="https://github.com/UDA-EJIE" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">UDA</a>,{" "}
-        <a href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">Spring Boot</a>,{" "}
-        <a href="https://www.oracle.com/es/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">Oracle</a>...{" "}
+        <a href="https://github.com/UDA-EJIE" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">UDA</a>,{" "}
+        <a href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Spring Boot</a>,{" "}
+        <a href="https://www.oracle.com/es/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Oracle</a>...{" "}
       </>,
       <>
         Actualmente me estoy formando en las siguentes tecnologías:{" "}
-        <a href="https://es.react.dev/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">React y su entorno</a>,{" "}
-        <a href="https://angular.dev/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">Angular y su entorno</a>,{" "}
-        <a href="https://www.postgresql.org/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">PostgreSQL</a>,{" "}
-        <a href="https://www.mongodb.com/es" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">MongoDB</a>...{" "}
+        <a href="https://es.react.dev/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">React y su entorno</a>,{" "}
+        <a href="https://angular.dev/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Angular y su entorno</a>,{" "}
+        <a href="https://www.postgresql.org/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">PostgreSQL</a>,{" "}
+        <a href="https://www.mongodb.com/es" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MongoDB</a>...{" "}
       </>
     ]
   },
@@ -52,7 +52,7 @@ const tabs = [
           href="https://www.ejie.euskadi.eus/quienes-somos/-/somos-ejie/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-cyan-400 hover:underline"
+          className="text-primary hover:underline"
         >
           EJIE
         </a>{" "}
@@ -60,16 +60,16 @@ const tabs = [
       </>,
       <>
         Colaboré en el desarrollo de aplicaciones utilizando tecnologías como{" "}
-        <a href="https://github.com/UDA-EJIE" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">UDA</a>,{" "}
-        <a href="https://www.spri.eus/es/ciberseguridad/hdiv-security-ofrece-herramientas-de-ciberseguridad-para-la-deteccion-proteccion-y-automatizacion-de-procesos/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">HDIV</a>,{" "}
-        <a href="https://iberdok.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">IberDok</a>,{" "}
-        <a href="https://community.jaspersoft.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">JasperReports</a>, JSP, JSTL, Tiles, Java, Spring, JavaScript, JQuery, CSS, Bootstrap, Oracle SQL Developer y Jackson JSON.
+        <a href="https://github.com/UDA-EJIE" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">UDA</a>,{" "}
+        <a href="https://www.spri.eus/es/ciberseguridad/hdiv-security-ofrece-herramientas-de-ciberseguridad-para-la-deteccion-proteccion-y-automatizacion-de-procesos/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">HDIV</a>,{" "}
+        <a href="https://iberdok.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">IberDok</a>,{" "}
+        <a href="https://community.jaspersoft.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">JasperReports</a>, JSP, JSTL, Tiles, Java, Spring, JavaScript, JQuery, CSS, Bootstrap, Oracle SQL Developer y Jackson JSON.
       </>,
       <>
         Gestioné versiones con{" "}
-        <a href="https://subversion.apache.org/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">SVN</a>{" "}
+        <a href="https://subversion.apache.org/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">SVN</a>{" "}
         y seguimientos con{" "}
-        <a href="https://trello.com/es" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">Trello</a>.
+        <a href="https://trello.com/es" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Trello</a>.
       </>,
     ],
   },
@@ -82,7 +82,7 @@ const tabs = [
     tareas: [
       <>
         Encargado del departamento técnico y creación de páginas web con{" "}
-        <a href="https://es.wix.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">WIX</a>, optimizando SEO y estrategias de marketing.
+        <a href="https://es.wix.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">WIX</a>, optimizando SEO y estrategias de marketing.
       </>,
     ],
   },
@@ -114,7 +114,7 @@ export default function Experiencia() {
   return (
     <section id="experiencia" className="max-w-6xl mx-auto px-6 py-32 mb-60">
       <h2 className="text-3xl font-bold text-black dark:text-white mb-12 flex items-center gap-3">
-        <span className="text-cyan-400 text-4xl">⌁</span>
+        <span className="text-primary text-4xl">⌁</span>
         Dónde he trabajado
       </h2>
 
@@ -128,7 +128,7 @@ export default function Experiencia() {
               onClick={() => setActive(tab.id)}
               className={`text-left px-4 py-2 border-l-4 transition-all ${
                 active === tab.id
-                  ? "border-cyan-400 text-cyan-400"
+                  ? "border-cyan-400 text-primary"
                   : "border-gray-400 dark:border-gray-700 hover:border-cyan-400"
               }`}
             >
@@ -145,7 +145,7 @@ export default function Experiencia() {
               href={tabs[active - 1].link}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-cyan-400 hover:underline"
+              className="text-primary hover:underline"
             >
               ↗
             </a>
@@ -165,9 +165,9 @@ export default function Experiencia() {
 
       {/* BOTÓN CV */}
       <a
-        href="/CV-Borja-Olazabal.pdf"
+        href="../../../CV_Borja_Olazabal.pdf"
         target="_blank"
-        className="inline-block mt-12 px-6 py-3 border border-cyan-400 text-cyan-400 rounded hover:bg-cyan-400 hover:text-black transition"
+        className="inline-block mt-12 px-6 py-3 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
       >
         Accede a mi CV
       </a>

@@ -22,7 +22,7 @@ export default function QuienSoy() {
       {/* TEXTO */}
       <div className="flex-1 space-y-6 text-lg leading-relaxed text-gray-700 dark:text-gray-300">
         <h2 className="text-3xl font-bold text-black dark:text-white flex items-center gap-3">
-          <span className="text-cyan-400 text-4xl">⌁</span>
+          <span className="text-primary text-4xl">⌁</span>
           Acerca de mí
         </h2>
 
@@ -48,7 +48,7 @@ export default function QuienSoy() {
             href="https://www.inetum.com/es/servicios/ingenieria-de-software/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-cyan-400 hover:underline"
+            className="text-primary hover:underline"
           >
             formar parte de un equipo profesional dentro de una consultoría e
             ingeniería de software.
@@ -58,7 +58,7 @@ export default function QuienSoy() {
         <p>
           Actualmente, estoy enfocado en aprender nuevas tecnologías en respuesta
           a la demanda de empleo actual. Además, me gusta crear y probar{" "}
-          <a href="#proyectos" className="text-cyan-400 hover:underline">
+          <a href="#proyectos" className="text-primary hover:underline">
             mis propios proyectos
           </a>
           .
@@ -67,7 +67,7 @@ export default function QuienSoy() {
         <p className="font-semibold">Estas son las tecnologías que más he utilizado:</p>
 
         {/* LISTA DE TECNOLOGÍAS */}
-        <ul className="grid grid-cols-2 gap-2 text-cyan-400 font-medium">
+        <ul className="grid grid-cols-2 gap-2 text-primary font-medium">
           <li>HTML / JSP / JSTL</li>
           <li>CSS / Bootstrap</li>
           <li>JavaScript / jQuery</li>
