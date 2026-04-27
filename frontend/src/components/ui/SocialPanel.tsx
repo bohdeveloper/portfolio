@@ -15,7 +15,7 @@ export default function SocialPanel() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 group-hover:text-primary transition"
+                className="w-6 h-6 group-hover:text-teal-400 transition"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -40,7 +40,7 @@ export default function SocialPanel() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 group-hover:text-primary transition"
+                className="w-6 h-6 group-hover:text-teal-400 transition"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -63,7 +63,7 @@ export default function SocialPanel() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 group-hover:text-primary transition"
+                className="w-6 h-6 group-hover:text-teal-400 transition"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -86,7 +86,7 @@ export default function SocialPanel() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 group-hover:text-primary transition"
+                className="w-6 h-6 group-hover:text-teal-400 transition"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -108,7 +108,7 @@ export default function SocialPanel() {
         {/* Scroll arriba */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="text-gray-700 dark:text-white hover:text-primary transition"
+          className="text-gray-700 dark:text-white transition"
           aria-label="Scroll arriba"
         >
           <svg
@@ -128,7 +128,7 @@ export default function SocialPanel() {
           href="https://www.instagram.com/bohdeveloper/"
           target="_blank"
           rel="noreferrer"
-          className="text-gray-700 dark:text-white hover:text-primary transition"
+          className="text-gray-700 dark:text-white transition"
           aria-label="Instagram"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -143,7 +143,7 @@ export default function SocialPanel() {
           href="https://www.linkedin.com/in/bolazaba"
           target="_blank"
           rel="noreferrer"
-          className="text-gray-700 dark:text-white hover:text-primary transition"
+          className="text-gray-700 dark:text-white transition"
           aria-label="LinkedIn"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -158,7 +158,7 @@ export default function SocialPanel() {
           href="https://github.com/bohdeveloper"
           target="_blank"
           rel="noreferrer"
-          className="text-gray-700 dark:text-white hover:text-primary transition"
+          className="text-gray-700 dark:text-white transition"
           aria-label="GitHub"
         >
          <svg
