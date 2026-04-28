@@ -79,14 +79,14 @@ export default function QuienSoy() {
           <li>HTML / JSP / JSTL</li>
           <li>CSS / Bootstrap</li>
           <li>JavaScript / jQuery</li>
-          <li>Java / Spring Boot</li>
-          <li>UDA (Ejie)</li>
           <li>React</li>
           <li>Angular</li>
+          <li>Java / Spring Boot</li>
+          <li>UDA (Ejie)</li>
           <li>Oracle SQL</li>
           <li>PLSQL</li>
-          <li>MongoDB</li>
           <li>PostgreSQL</li>
+          <li>MongoDB</li>
           <li>Git</li>
           <li>Eclipse</li>
           <li>VSC</li>
