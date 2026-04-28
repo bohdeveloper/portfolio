@@ -58,25 +58,25 @@ Cambiar de datos estáticos a API no implica cambios en los componentes.
 
 src/<br>
 ├── app/<br>
-│   ├── page.tsx<br>
-│   ├── projects/<br>
-│   │   ├── page.tsx<br>
-│   │   └── [slug]/page.tsx<br>
+│  &nbsp ├── page.tsx<br>
+│  &nbsp ├── projects/<br>
+│ &nbsp │ &nbsp ├── page.tsx<br>
+│ &nbsp │ &nbsp └── [slug]/page.tsx<br>
 ├── data/<br>
-│   └── projects.ts<br>
+│ &nbsp └── projects.ts<br>
 ├── services/<br>
-│   └── projects.service.ts<br>
+│ &nbsp └── projects.service.ts<br>
 ├── types/<br>
-│   └── project.ts
+│ &nbsp └── project.ts
 
 ---
 
 ## 5. Estado actual del proyecto
 
-✅ Portfolio productivo en Cloudflare Pages
-✅ SEO técnico optimizado
-✅ Datos desacoplados de la UI
-✅ Arquitectura preparada para backend
+✅ Portfolio productivo en Cloudflare Pages<br>
+✅ SEO técnico optimizado<br>
+✅ Datos desacoplados de la UI<br>
+✅ Arquitectura preparada para backend<br>
 ✅ Páginas de proyectos con enfoque escaparate
 
 ---
