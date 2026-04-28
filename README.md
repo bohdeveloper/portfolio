@@ -78,6 +78,7 @@ npm run dev     # Entorno de desarrollo
 npm run build   # Compilación para producción
 npm run start   # Ejecutar build
 npm run lint    # Linter
+```
 
 ## 6. Estado actual del proyecto
 
@@ -114,5 +115,3 @@ Frontend
 cd portfolio-frontend
 npm run dev
 ```
-Disponible en:
-http://localhost:3000
