@@ -1,11 +1,11 @@
 🗺️ ROADMAP
 
-✅ FASE 1 — Preparar frontend (sin backend)
+:: FASE 1 — Preparar frontend (sin backend)
 · Objetivo: dejar el portfolio limpio, escalable y listo para API.
 
 ### Eliminar backend actual
-# Borrar carpeta /backend del repo
-# Evitar ruido y falsa complejidad
+# ✅ Borrar carpeta /backend del repo
+# ✅ Evitar ruido y falsa complejidad
 
 ### Refactor de datos hardcodeados
 # Mover proyectos a /data
@@ -24,7 +24,7 @@
 # Documentar decisiones técnicas
 
 
-✅ FASE 2 — Crear backend real (Cloudflare Workers + D1)
+:: FASE 2 — Crear backend real (Cloudflare Workers + D1)
 · Objetivo: introducir Full Stack solo cuando aporta valor.
 
 ### Nuevo repo backend
@@ -42,7 +42,7 @@
 # (Opcional) emails de notificación
 
 
-✅ FASE 3 — Backend orientado a SEO
+:: FASE 3 — Backend orientado a SEO
 · Objetivo: contenido dinámico + posicionamiento.
 
 ### Gestión dinámica de proyectos
@@ -59,7 +59,7 @@
 # Enlaces
 
 
-✅ FASE 4 — Blog técnico (opcional pero potente)
+:: FASE 4 — Blog técnico (opcional pero potente)
 · Objetivo: autoridad + tráfico orgánico.
 
 ### Blog con backend
@@ -68,7 +68,7 @@
 # URLs SEO-friendly (/blog/post-slug)
 
 
-✅ FASE 5 — Retos backend que suman valor
+:: FASE 5 — Retos backend que suman valor
 · Objetivo: demostrar profundidad Full Stack.
 
 ### Features escalables:
@@ -83,7 +83,7 @@
 # Tests de API
 
 
-✅ FASE 6 — SEO avanzado
+:: FASE 6 — SEO avanzado
 · Objetivo: que el portfolio trabaje por ti.
 
 ### Optimización continua:
@@ -109,13 +109,13 @@ Hoy vienen de ficheros locales.
 Mañana vendrán de una API.
 El componente no debería notar la diferencia.
 
-✅ Estado ideal del frontend (antes del backend)
+:: Estado ideal del frontend (antes del backend)
 🔹 Separar datos, lógica y UI
 No tener proyectos así:
 const projects = [...]Mostrar más líneas
 Dentro del componente ❌
 
-✅ Estructura recomendada
+:: Estructura recomendada
 src/
 ├── data/
 │   ├── projects.ts
@@ -168,13 +168,13 @@ getProjects(): Promise<Project[]>getProjectBySlug(slug): Promise<Project>Mostrar
 No importa cómo esté implementado por debajo.
 
 🔹 Resultado
-✅ Frontend desacoplado
-✅ Migración suave a backend
-✅ Demuestras criterio arquitectónico
-✅ No introduces complejidad prematura
+:: Frontend desacoplado
+:: Migración suave a backend
+:: Demuestras criterio arquitectónico
+:: No introduces complejidad prematura
 Esto es exactamente lo que se hace en producto real.
 
-✅ /data/projects.ts → /api/projects explicado bien
+:: /data/projects.ts → /api/projects explicado bien
 Lo que estás diciendo con ese ejemplo es:
 
 “Hoy los datos viven en el frontend, pero la app ya está preparada para que mañana vivan en una API sin reescribir la UI”.
@@ -185,7 +185,7 @@ Eso es una frase muy potente para entrevistas y README.
 Esto NO es documentación pesada.
 Es explicar decisiones, no código.
 
-✅ Dónde documentarlo
+:: Dónde documentarlo
 Opciones correctas:
 
 README.md en el repo principal
@@ -193,7 +193,7 @@ Sección /architecture en la web
 O ambas (top tier)
 
 
-✅ Qué explicar (estructura clara)
+:: Qué explicar (estructura clara)
 1. Visión general
 
 Qué es el portfolio
@@ -227,14 +227,14 @@ El backend no es “postureo”
 
 👉 Esto suma MUCHO a nivel seniority.
 
-✅ Frase clave que deberías poder escribir
+:: Frase clave que deberías poder escribir
 
 “El backend se introduce únicamente cuando aporta valor al producto, priorizando siempre simplicidad, rendimiento y SEO.”
 
 Eso es mentalidad producto.
 
 3️⃣ Repo nuevo para backend (confirmación y explicación)
-Sí ✅
+Sí ::
 Lo correcto es:
 🆕 Nuevo repo
 portfolio-backend
@@ -268,14 +268,14 @@ Te lo dejo pulido y definitivo, incorporando todo lo anterior 👇
 
 🔹 FASE 1 — Preparar el terreno (sin backend)
 Objetivo: frontend desacoplado y listo para API real.
-✅ Borrado de backend actual
+:: Borrado de backend actual
 
 Eliminar carpeta /backend
 Justificar la decisión en README
 Evitar ruido y deuda innecesaria
 
 
-✅ Refactor de datos hardcodeados
+:: Refactor de datos hardcodeados
 
 Proyectos movidos a /data
 Tipos claros en /types
@@ -288,7 +288,7 @@ Concepto clave:
 
 👉 La UI nunca accede directamente a los datos.
 
-✅ Arquitectura documentada
+:: Arquitectura documentada
 Añadir README o sección /architecture explicando:
 
 Stack actual
@@ -298,7 +298,7 @@ Motivo de introducir backend progresivamente
 
 
 🔹 FASE 2 — Introducir Backend (Cloudflare Workers + D1)
-✅ Backend en repo independiente
+:: Backend en repo independiente
 
 portfolio-backend
 Workers + D1
@@ -313,7 +313,7 @@ API (Cloudflare Workers)
 D1 (SQLite)
 
 
-✅ Primer caso real: formulario de contacto
+:: Primer caso real: formulario de contacto
 
 POST /contact
 Validación
@@ -323,14 +323,14 @@ Emails opcionales
 
 
 🔹 FASE 3 — Backend que aporta SEO
-✅ Proyectos dinámicos
+:: Proyectos dinámicos
 
 Proyectos en D1
 /projects
 Páginas SEO por proyecto
 
 
-✅ Página individual de proyecto
+:: Página individual de proyecto
 
 Contenido largo
 Retos
