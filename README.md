@@ -71,16 +71,7 @@ src/<br>
 
 ---
 
-## 5. Scripts disponibles
-
-```bash
-npm run dev     # Entorno de desarrollo
-npm run build   # Compilación para producción
-npm run start   # Ejecutar build
-npm run lint    # Linter
-```
-
-## 6. Estado actual del proyecto
+## 5. Estado actual del proyecto
 
 ✅ Portfolio productivo en Cloudflare Pages
 ✅ SEO técnico optimizado
@@ -90,7 +81,7 @@ npm run lint    # Linter
 
 ---
 
-## 2. Instalación
+## 6. Instalación
 
 Frontend
 ```bash
@@ -98,7 +89,7 @@ cd frontend
 npm install
 ```
 
-## 5. Scripts disponibles
+## 7. Scripts disponibles
 
 Frontend
 ```bash
@@ -108,7 +99,7 @@ npm run start     # Ejecutar build
 npm run lint      # Linter
 ```
 
-## 6. Puesta en marcha
+## 8. Puesta en marcha
 
 Frontend
 ```bash
