@@ -1,88 +1,366 @@
-🧭 ROADMAP del Proyecto — Portfolio v1.0
-Fase 0 — Setup técnico (✔ Completado)
-[x] Crear proyecto con Next.js + TypeScript
+🗺️ ROADMAP
 
-[x] Configurar TailwindCSS
+✅ FASE 1 — Preparar frontend (sin backend)
+· Objetivo: dejar el portfolio limpio, escalable y listo para API.
 
-[x] Ajustar dependencias compatibles
+### Eliminar backend actual
+# Borrar carpeta /backend del repo
+# Evitar ruido y falsa complejidad
 
-[x] Configurar estructura de carpetas
+### Refactor de datos hardcodeados
+# Mover proyectos a /data
+# Crear tipos en /types
+# Acceso a datos vía /services
+# La UI no depende de la fuente de datos
 
-[x] Crear README inicial
+/data/projects.ts  → hoy
+/services/projects → siempre
+/api/projects      → mañana
 
-[x] Configurar Git correctamente
+### Arquitectura documentada
+# Explicar stack actual (Next.js + Pages)
+# Justificar por qué no hay backend aún
+# Definir arquitectura futura (Pages + Workers + D1)
+# Documentar decisiones técnicas
 
-Fase 1 — Base del portfolio (✔ Completado)
-[x] Crear layout principal (header, footer, theme básico)
 
-[x] Crear página Home con presentación
+✅ FASE 2 — Crear backend real (Cloudflare Workers + D1)
+· Objetivo: introducir Full Stack solo cuando aporta valor.
 
-[x] Añadir sección “Sobre mí”
+### Nuevo repo backend
+# portfolio-backend
+# Cloudflare Workers
+# D1 (SQLite)
+# Zod + Fetch API
+# Backend desacoplado del frontend
 
-[x] Añadir sección “Proyectos”
+### Primer caso real: formulario de contacto
+# Endpoint /contact
+# Validación
+# Guardar mensajes en D1
+# Rate limit / anti-spam
+# (Opcional) emails de notificación
 
-[x] Añadir sección “Contacto”
 
-[x] Añadir favicon y metadata básica
+✅ FASE 3 — Backend orientado a SEO
+· Objetivo: contenido dinámico + posicionamiento.
 
-Fase 2 — Componentes UI (✔ Completado)
-[x] Botones reutilizables
+### Gestión dinámica de proyectos
+# Proyectos en D1
+# Endpoint /projects
+# El frontend consume API
 
-[x] Tarjetas para proyectos
+### Página individual por proyecto
+# URL SEO (/projects/slug)
+# Descripción larga
+# Tecnologías
+# Retos y decisiones técnicas
+# Screenshots / mockups
+# Enlaces
 
-[x] Navbar responsive
 
-[x] Footer con enlaces
+✅ FASE 4 — Blog técnico (opcional pero potente)
+· Objetivo: autoridad + tráfico orgánico.
 
-[x] Animaciones suaves (sin Framer, pero con CSS + IntersectionObserver)
+### Blog con backend
+# Posts en D1
+# Tags, fechas, lecturas
+# URLs SEO-friendly (/blog/post-slug)
 
-Fase 3 — Contenido real (✔ Completado)
-[x] Añadir proyectos reales con imágenes
 
-[x] Añadir texto personal y profesional
+✅ FASE 5 — Retos backend que suman valor
+· Objetivo: demostrar profundidad Full Stack.
 
-[x] Añadir enlaces a GitHub, LinkedIn, CV
+### Features escalables:
+# Analytics propios
+# Dashboard privado
+# Cache con KV
+# API pública de proyectos
+# Feature flags
+# Newsletter simple
+# Logs y auditoría
+# Migraciones D1
+# Tests de API
 
-[x] Añadir formulario de contacto (opcional → descartado por ahora)
 
-Fase 4 — Optimización (✔ Completado)
-[x] SEO básico (OpenGraph, meta tags, favicon, manifest)
+✅ FASE 6 — SEO avanzado
+· Objetivo: que el portfolio trabaje por ti.
 
-[x] Optimizar imágenes
+### Optimización continua:
+# Clusters de contenido
+# Enlaces internos (proyectos ↔ blog)
+# Schema.org
+# Rich snippets
+# Lighthouse continuo
 
-[x] Lighthouse performance pass
+## ############################################################ ##
+🗺️ ROADMAP EXPLICADO
 
-[x] Accesibilidad (A11y) básica
+####  Preparar el terreno para backend (sin usarlo aún) ####  
+Objetivo: que el frontend esté listo para consumir una API real.
 
-[x] Evitar FOUC y errores de hidratación
+## Borrado de backend actual
+Borrar la carpeta backend
 
-[x] Modo oscuro sin parpadeos
+1️⃣ Refactor de datos hardcodeados (explicación profunda)
+🎯 Objetivo real
+Que el frontend no dependa de “de dónde vienen los datos”.
+Hoy vienen de ficheros locales.
+Mañana vendrán de una API.
+El componente no debería notar la diferencia.
 
-Fase 5 — Backend opcional (Pendiente / futuro)
-(Solo si quieres añadir blog, panel o datos dinámicos)
+✅ Estado ideal del frontend (antes del backend)
+🔹 Separar datos, lógica y UI
+No tener proyectos así:
+const projects = [...]Mostrar más líneas
+Dentro del componente ❌
 
-[x] Añadir Prisma
+✅ Estructura recomendada
+src/
+├── data/
+│   ├── projects.ts
+│
+├── services/
+│   ├── projects.service.ts
+│
+├── types/
+│   ├── project.ts
+│
+├── app/projects/
+│   ├── page.tsx
+│   └── [slug]/page.tsx
 
-[x] Crear base de datos (PostgreSQL)
 
-[ ] Crear modelos iniciales (Post, Project)
+🔹 Tipos claros (shared mental model)
+types/project.ts
 
-[ ] API Routes para CRUD
+id
+slug
+title
+description
+longDescription
+techStack
+images
+featured
+createdAt
 
-[ ] Autenticación (si aplica)
+👉 Este tipo será igual:
 
-Fase 6 — Despliegue (En curso)
-[x] Configurar Vercel
+en frontend
+en backend
+en BBDD
 
-[ ] Variables de entorno (si aplica)
+Eso es arquitectura limpia.
 
-[ ] Test final en producción
+🔹 Fuente de datos intercambiable
+services/projects.service.ts
+Hoy:
 
-[ ] Dominio personalizado bohdeveloper.com
+Importa datos desde data/projects.ts
 
-Fase 7 — v1.0 Release
-[ ] Revisión final
+Mañana:
 
-[ ] Publicación
+Hace fetch('/api/projects')
 
-[ ] Compartir en redes / LinkedIn
+El resto del código no cambia.
+Ejemplo conceptual:
+getProjects(): Promise<Project[]>getProjectBySlug(slug): Promise<Project>Mostrar más líneas
+No importa cómo esté implementado por debajo.
+
+🔹 Resultado
+✅ Frontend desacoplado
+✅ Migración suave a backend
+✅ Demuestras criterio arquitectónico
+✅ No introduces complejidad prematura
+Esto es exactamente lo que se hace en producto real.
+
+✅ /data/projects.ts → /api/projects explicado bien
+Lo que estás diciendo con ese ejemplo es:
+
+“Hoy los datos viven en el frontend, pero la app ya está preparada para que mañana vivan en una API sin reescribir la UI”.
+
+Eso es una frase muy potente para entrevistas y README.
+
+2️⃣ Arquitectura documentada (qué y cómo)
+Esto NO es documentación pesada.
+Es explicar decisiones, no código.
+
+✅ Dónde documentarlo
+Opciones correctas:
+
+README.md en el repo principal
+Sección /architecture en la web
+O ambas (top tier)
+
+
+✅ Qué explicar (estructura clara)
+1. Visión general
+
+Qué es el portfolio
+Qué problema resuelve
+Qué tipo de desarrollador eres
+
+
+2. Arquitectura actual
+Next.js + Cloudflare PagesStatic-firstSEO-orientedMostrar más líneas
+Explicar:
+
+Por qué no hay backend aún
+Por qué es una decisión consciente
+
+
+3. Arquitectura futura (key point)
+Frontend → Cloudflare PagesBackend  → Cloudflare WorkersBBDD     → D1``Mostrar más líneas
+Explicar:
+
+Por qué Workers y no Express
+Por qué D1
+Por qué repos separados
+
+
+4. Evolución progresiva
+Explicar que:
+
+El portfolio empieza estático
+Escala cuando hay valor
+El backend no es “postureo”
+
+👉 Esto suma MUCHO a nivel seniority.
+
+✅ Frase clave que deberías poder escribir
+
+“El backend se introduce únicamente cuando aporta valor al producto, priorizando siempre simplicidad, rendimiento y SEO.”
+
+Eso es mentalidad producto.
+
+3️⃣ Repo nuevo para backend (confirmación y explicación)
+Sí ✅
+Lo correcto es:
+🆕 Nuevo repo
+portfolio-backend
+
+Contenido:
+
+Cloudflare Workers
+D1
+API REST
+BBDD schema
+Tests
+README técnico
+
+
+🔗 Relación frontend ↔ backend
+
+Frontend: no sabe cómo está hecho el backend
+Solo consume endpoints
+
+Esto te permite:
+
+Cambiar backend sin romper frontend
+Mostrar arquitectura profesional
+Escalar features sin tocar el core
+
+
+4️⃣ ROADMAP MODIFICADO Y MEJORADO
+Te lo dejo pulido y definitivo, incorporando todo lo anterior 👇
+
+🗺️ ROADMAP EVOLUCIÓN PORTFOLIO FULL STACK (versión final)
+
+🔹 FASE 1 — Preparar el terreno (sin backend)
+Objetivo: frontend desacoplado y listo para API real.
+✅ Borrado de backend actual
+
+Eliminar carpeta /backend
+Justificar la decisión en README
+Evitar ruido y deuda innecesaria
+
+
+✅ Refactor de datos hardcodeados
+
+Proyectos movidos a /data
+Tipos claros en /types
+Acceso a datos vía /services
+
+Concepto clave:
+/data/projects.ts  → hoy
+/services/projects → siempre
+/api/projects      → mañana
+
+👉 La UI nunca accede directamente a los datos.
+
+✅ Arquitectura documentada
+Añadir README o sección /architecture explicando:
+
+Stack actual
+Decisiones técnicas
+Arquitectura futura
+Motivo de introducir backend progresivamente
+
+
+🔹 FASE 2 — Introducir Backend (Cloudflare Workers + D1)
+✅ Backend en repo independiente
+
+portfolio-backend
+Workers + D1
+Zod
+API REST
+
+Arquitectura:
+Frontend (Next.js / Pages)
+↓
+API (Cloudflare Workers)
+↓
+D1 (SQLite)
+
+
+✅ Primer caso real: formulario de contacto
+
+POST /contact
+Validación
+Persistencia
+Rate limit
+Emails opcionales
+
+
+🔹 FASE 3 — Backend que aporta SEO
+✅ Proyectos dinámicos
+
+Proyectos en D1
+/projects
+Páginas SEO por proyecto
+
+
+✅ Página individual de proyecto
+
+Contenido largo
+Retos
+Decisiones técnicas
+Screenshots y mockups
+
+
+🔹 FASE 4 — Blog técnico (opcional pero potente)
+
+Posts en D1
+Tags
+Lecturas
+URLs SEO-friendly
+
+
+🔹 FASE 5 — Retos backend que suman
+
+Analytics propios
+Dashboard privado
+Cache (KV)
+Feature flags
+Tests
+Migrations
+Logs
+API pública
+
+
+🔹 FASE 6 — SEO avanzado
+
+Clusters de contenido
+Enlaces internos
+Schema.org
+Lighthouse continuo
