@@ -58,16 +58,16 @@ Cambiar de datos estáticos a API no implica cambios en los componentes.
 
 src/<br>
 ├── app/<br>
-│  &nbsp ├── page.tsx<br>
-│  &nbsp ├── projects/<br>
-│ &nbsp │ &nbsp ├── page.tsx<br>
-│ &nbsp │ &nbsp └── [slug]/page.tsx<br>
+│       ├── page.tsx<br>
+│       ├── projects/<br>
+│      │      ├── page.tsx<br>
+│      │      └── [slug]/page.tsx<br>
 ├── data/<br>
-│ &nbsp └── projects.ts<br>
+│      └── projects.ts<br>
 ├── services/<br>
-│ &nbsp └── projects.service.ts<br>
+│      └── projects.service.ts<br>
 ├── types/<br>
-│ &nbsp └── project.ts
+│      └── project.ts
 
 ---
 
