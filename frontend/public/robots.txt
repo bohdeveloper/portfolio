@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.bohdeveloper.com/sitemap.xml
+Sitemap: https://bohdeveloper.com/sitemap.xml
