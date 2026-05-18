@@ -78,7 +78,8 @@ export default function Aprendizaje() {
         Complemento mi experiencia como <strong>programador web</strong> mediante
         formación especializada, cursos técnicos y aprendizaje autodidacta,
         aplicando estos conocimientos directamente en proyectos reales de
-        desarrollo web.
+        desarrollo web. Actualmente también exploro la integración de{" "}
+        <strong>inteligencia artificial</strong> como parte activa del desarrollo.
       </p>
 
       <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
@@ -183,6 +184,47 @@ export default function Aprendizaje() {
             </span>
           </div>
         ))}
+
+        {/* CLAUDE IA */}
+        <div className="relative border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all">
+          <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
+            En curso
+          </span>
+
+          <div className="flex gap-3 items-start mt-6">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              className="w-6 h-6 text-primary"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"
+              />
+            </svg>
+            <h3 className="text-lg font-semibold text-black dark:text-white">
+              Desarrollo con IA — Claude
+            </h3>
+          </div>
+
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Integración de inteligencia artificial en el flujo de trabajo diario de desarrollo web.
+          </p>
+
+          <ul className="list-disc pl-5 mt-4 space-y-1 text-gray-700 dark:text-gray-300">
+            <li>Claude (Anthropic)</li>
+            <li>Agentes y automatización</li>
+            <li>Claude Code — desarrollo asistido</li>
+            <li>Integración IA en productos reales</li>
+          </ul>
+          <span className="mt-1 ml-2 inline-block text-lg text-primary font-medium">
+            ...
+          </span>
+        </div>
 
         {/* FP FUTURA */}
         <div className="border border-gray-400 dark:border-gray-700 rounded-lg p-6 bg-gray-200/60 dark:bg-gray-800/40 opacity-70">

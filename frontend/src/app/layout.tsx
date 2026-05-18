@@ -20,9 +20,9 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL("https://bohdeveloper.com"),
 
-  title: "Borja Olazabal | Programador Web y Desarrollador Full Stack",
+  title: "Borja Olazabal | Programador Web Full Stack & Desarrollo con IA",
   description:
-    "Borja Olazabal, programador web especializado en desarrollo frontend y backend. Descubre mi portfolio, proyectos y experiencia profesional.",
+    "Borja Olazabal, programador web full stack especializado en desarrollo frontend, backend e integración de inteligencia artificial con Claude. Portfolio, proyectos y experiencia profesional.",
 
   keywords: [
     "Borja Olazabal",
@@ -32,7 +32,14 @@ export const metadata = {
     "portfolio",
     "Next.js",
     "TypeScript",
-    "Prisma"
+    "Prisma",
+    "inteligencia artificial",
+    "Claude AI",
+    "desarrollo web con IA",
+    "agentes IA",
+    "automatización desarrollo",
+    "IA developer",
+    "Claude Anthropic"
   ],
 
   authors: [{ name: "Borja Olazabal" }],
@@ -44,9 +51,9 @@ export const metadata = {
 
   /* ---------- OPEN GRAPH ---------- */
   openGraph: {
-    title: "Borja Olazabal | Programador Web",
+    title: "Borja Olazabal | Programador Web Full Stack & IA",
     description:
-      "Portfolio profesional de Borja Olazabal, programador web y desarrollador full stack. Proyectos, código y experiencia real.",
+      "Portfolio profesional de Borja Olazabal, programador web full stack con integración de IA (Claude). Proyectos, código y experiencia real.",
     url: "https://www.bohdeveloper.com",
     siteName: "bohdeveloper",
     locale: "es_ES",
@@ -64,9 +71,9 @@ export const metadata = {
   /* ---------- TWITTER ---------- */
   twitter: {
     card: "summary_large_image",
-    title: "Borja Olazabal | Programador Web",
+    title: "Borja Olazabal | Programador Web Full Stack & IA",
     description:
-      "Portfolio profesional de Borja Olazabal, programador web y desarrollador full stack.",
+      "Portfolio profesional de Borja Olazabal, programador web full stack con integración de IA (Claude).",
     images: ["/images/Borja-Olazabal.png"],
   },
 };
@@ -91,9 +98,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "name": "Borja Olazabal",
               "url": "https://www.bohdeveloper.com",
               "image": "https://www.bohdeveloper.com/images/Borja-Olazabal.png",
-              "jobTitle": "Programador web",
+              "jobTitle": "Programador web Full Stack & IA Developer",
               "description":
-                "Borja Olazabal es programador web y desarrollador full stack especializado en desarrollo frontend y backend.",
+                "Borja Olazabal es programador web full stack especializado en desarrollo frontend, backend e integración de inteligencia artificial con Claude de Anthropic.",
+              "knowsAbout": ["desarrollo web", "React", "Angular", "Spring Boot", "inteligencia artificial", "Claude AI", "automatización", "agentes IA"],
               "sameAs": [
                 "https://github.com/bohdeveloper",
                 "https://www.linkedin.com/in/bolazabal"

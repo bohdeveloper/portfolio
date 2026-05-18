@@ -64,13 +64,20 @@ export default function QuienSoy() {
           .
         </p>
 
-        
-<p>
-  En <strong>bohdeveloper.com</strong> comparto mi <strong>portfolio profesional</strong>,
-  mis <strong>proyectos de desarrollo web</strong> y mi evolución como
-  programador.
-</p>
+        <p>
+          En los últimos meses he integrado{" "}
+          <a href="#ia" className="text-primary hover:underline">
+            herramientas de IA como Claude
+          </a>{" "}
+          en mi flujo de trabajo diario, lo que ha cambiado completamente mi forma
+          de desarrollar: más claridad, más velocidad y mejor criterio técnico.
+        </p>
 
+        <p>
+          En <strong>bohdeveloper.com</strong> comparto mi <strong>portfolio profesional</strong>,
+          mis <strong>proyectos de desarrollo web</strong> y mi evolución como
+          programador.
+        </p>
 
         <p className="font-semibold">Estas son las tecnologías que más he utilizado:</p>
 
@@ -90,6 +97,7 @@ export default function QuienSoy() {
           <li>Git</li>
           <li>Eclipse</li>
           <li>VSC</li>
+          <li className="col-span-2 text-black dark:text-white font-semibold pt-1">Claude AI — Anthropic</li>
         </ul>        
       </div>
       

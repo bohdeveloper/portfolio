@@ -82,6 +82,7 @@ export default function Navbar() {
             <li><a href="#quien-soy" className="hover:text-primary transition">Quién soy</a></li>
             <li><a href="#experiencia" className="hover:text-primary transition">Experiencia</a></li>
             <li><a href="#proyectos" className="hover:text-primary transition">Proyectos</a></li>
+            <li><a href="#ia" className="hover:text-primary transition font-semibold">IA</a></li>
             <li><a href="#aprendizaje" className="hover:text-primary transition">Aprendizaje</a></li>
             <li><a href="#contacto" className="hover:text-primary transition">Contacto</a></li>
           </ul>
@@ -113,6 +114,7 @@ export default function Navbar() {
               <li><a onClick={() => setOpen(false)} href="#quien-soy" className="hover:text-primary">Quién soy</a></li>
               <li><a onClick={() => setOpen(false)} href="#experiencia" className="hover:text-primary">Experiencia</a></li>
               <li><a onClick={() => setOpen(false)} href="#proyectos" className="hover:text-primary">Proyectos</a></li>
+              <li><a onClick={() => setOpen(false)} href="#ia" className="hover:text-primary font-semibold">IA</a></li>
               <li><a onClick={() => setOpen(false)} href="#aprendizaje" className="hover:text-primary">Aprendizaje</a></li>
               <li><a onClick={() => setOpen(false)} href="#contacto" className="hover:text-primary">Contacto</a></li>
             </ul>

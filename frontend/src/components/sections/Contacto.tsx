@@ -17,8 +17,9 @@ export default function Contacto() {
       {/* TEXTO CONTEXTUAL (SEO DISCRETO) */}
       <p className="text-gray-700 dark:text-gray-300 mt-6 leading-relaxed">
         Si quieres ponerte en contacto conmigo por una posible colaboración,
-        un proyecto de <strong>desarrollo web</strong> o simplemente para
-        saludar, mi bandeja de entrada siempre está abierta.
+        un proyecto de <strong>desarrollo web</strong>, explorar cómo integrar{" "}
+        <strong>IA en tu producto</strong>, o simplemente para saludar, mi
+        bandeja de entrada siempre está abierta.
         <span className="block mt-2 font-medium text-black dark:text-white">
           Estaré encantado de leerte.
         </span>
