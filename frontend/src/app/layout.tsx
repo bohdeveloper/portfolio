@@ -18,7 +18,7 @@ export const viewport = {
    METADATA SEO GLOBAL
 ============================ */
 export const metadata = {
-  metadataBase: new URL("https://www.bohdeveloper.com"),
+  metadataBase: new URL("https://bohdeveloper.com"),
 
   title: "Borja Olazabal | Programador Web y Desarrollador Full Stack",
   description:
