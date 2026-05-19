@@ -95,6 +95,27 @@ const tabs = [
         </a>
         .
       </>,
+      <>
+        Impulso mi trabajo diario con la ayuda de inteligencias artificiales como{" "}
+        <a
+          href="https://code.claude.com/docs/es/overview"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          Claude
+        </a>
+        {" "}y{" "}
+        <a
+          href="https://learn.microsoft.com/es-es/microsoft-365/copilot/microsoft-365-copilot-overview"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          Copilot
+        </a>
+        .
+      </>,
     ],
   },
   {

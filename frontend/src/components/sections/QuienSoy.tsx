@@ -83,6 +83,8 @@ export default function QuienSoy() {
 
         {/* LISTA DE TECNOLOGÍAS */}
         <ul className="grid grid-cols-2 gap-2 text-primary text-xs sm:text-sm md:text-base font-medium">
+          <li>Claude AI — Anthropic</li>
+          <li>Copilot — Microsoft</li>
           <li>HTML / JSP / JSTL</li>
           <li>CSS / Bootstrap</li>
           <li>JavaScript / jQuery</li>
@@ -97,7 +99,6 @@ export default function QuienSoy() {
           <li>Git</li>
           <li>Eclipse</li>
           <li>VSC</li>
-          <li className="col-span-2 text-black dark:text-white font-semibold pt-1">Claude AI — Anthropic</li>
         </ul>        
       </div>
       
