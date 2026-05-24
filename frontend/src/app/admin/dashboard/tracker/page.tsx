@@ -81,6 +81,48 @@ const TRACKER_CSS = `
 .hidden{display:none}
 `;
 
+/* Light-mode overrides — applied automatically when html has .light class */
+const LIGHT_CSS = `
+html.light #tracker-root{background:#f5f5f5;color:#1a1a1a}
+html.light .header-bar{background:#fff;border-bottom-color:#e0e0e0}
+html.light .header-bar p{color:#777}
+html.light .tabs{background:#f0f0f0;border-bottom-color:#e0e0e0}
+html.light .tab{color:#666}
+html.light .tab.active{color:#1a1a1a}
+html.light .card{background:#fff;border-color:#e0e0e0}
+html.light .mc{background:#f0f0f0;border-color:#e0e0e0}
+html.light .mc-l{color:#888}
+html.light .btn{background:#eeeeee;border-color:#d0d0d0;color:#333}
+html.light .btn:hover{background:#dddddd}
+html.light .li{color:#888}
+html.light .sched-wrap{border-color:#e0e0e0}
+html.light .sched-head{background:#f5f5f5;border-bottom-color:#e0e0e0}
+html.light .sh-corner{background:#f5f5f5;border-right-color:#e0e0e0}
+html.light .sh-day{border-right-color:#eeeeee}
+html.light .sh-name{color:#444}
+html.light .sh-date{color:#888}
+html.light .time-row{background:#f5f5f5;border-bottom-color:#eeeeee;border-right-color:#e0e0e0;color:#aaa}
+html.light .time-row.hour-mark{border-bottom-color:#dddddd}
+html.light .day-col{border-right-color:#eeeeee}
+html.light .day-col::before{background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh)*1px - 1px),#e8e8e8 calc(var(--sh)*1px - 1px),#e8e8e8 calc(var(--sh)*1px))}
+html.light .cp{background:#e8e8e8;color:#bbb;border-left-color:#ccc}
+html.light .cd{background:#e8e8e8;color:#ccc;border-left-color:#ccc}
+html.light .cl{background:#eeeeee;color:#bbb;border-left-color:#ddd}
+html.light .pb{background:#e0e0e0}
+html.light .cn{color:#555}
+html.light .sb{background:#f8f8f8}
+html.light .mi{background:#f8f8f8}
+html.light .mi-d{color:#888}
+html.light .mi-r{color:#888}
+html.light .tip{background:#fff;border-color:#e0e0e0;color:#444}
+html.light .tip strong{color:#1a1a1a}
+html.light .modal{background:#fff;border-color:#e0e0e0}
+html.light .modal h3{color:#1a1a1a}
+html.light .modal-sub{color:#777}
+html.light .modal textarea{background:#f5f5f5;border-color:#e0e0e0;color:#1a1a1a}
+html.light .week-nav span{color:#1a1a1a}
+`;
+
 const TRACKER_HTML = `
 <div class="header-bar">
   <h2>⚡ Transformación Integral — Borja</h2>
@@ -500,7 +542,7 @@ export default function TrackerPage() {
 
     const style = document.createElement('style');
     style.id = 'tracker-css';
-    style.textContent = TRACKER_CSS;
+    style.textContent = TRACKER_CSS + LIGHT_CSS;
     document.head.appendChild(style);
 
     const root = document.getElementById('tracker-root');
@@ -519,5 +561,5 @@ export default function TrackerPage() {
     return () => { document.getElementById('tracker-css')?.remove(); };
   }, []);
 
-  return <div id="tracker-root" style={{ minHeight: '100vh', background: '#0f0f0f' }} />;
+  return <div id="tracker-root" style={{ minHeight: '100vh' }} />;
 }

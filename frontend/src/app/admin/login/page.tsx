@@ -1,28 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isDark, setIsDark] = useState(true);
-
-  useEffect(() => {
-    setIsDark(localStorage.getItem('theme') !== 'light');
-  }, []);
-
-  function toggleTheme() {
-    const next = !isDark;
-    setIsDark(next);
-    const t = next ? 'dark' : 'light';
-    localStorage.setItem('theme', t);
-    document.documentElement.classList.toggle('dark', next);
-    document.documentElement.classList.toggle('light', !next);
-  }
+  const [error,    setError]    = useState('');
+  const [loading,  setLoading]  = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,66 +27,49 @@ export default function AdminLogin() {
     }
   }
 
-  const C = {
-    bg:     isDark ? '#0f0f0f' : '#f5f5f5',
-    card:   isDark ? '#1a1a1a' : '#ffffff',
-    border: isDark ? '#2a2a2a' : '#e0e0e0',
-    input:  isDark ? '#111'    : '#f8f8f8',
-    text:   isDark ? '#e8e6e0' : '#1a1a1a',
-    label:  isDark ? '#888'    : '#666',
-    muted:  isDark ? '#555'    : '#999',
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    background: 'var(--adm-input)',
+    border: '1px solid var(--adm-border)',
+    borderRadius: '8px',
+    padding: '10px 12px',
+    color: 'var(--adm-text)',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box',
+    fontFamily: 'inherit',
   };
 
   return (
+    /* push below the fixed portfolio navbar (~73px) */
     <div style={{
-      minHeight: '100vh',
-      background: C.bg,
+      minHeight: 'calc(100vh - 73px)',
+      marginTop: '73px',
+      background: 'var(--adm-bg)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontFamily: 'system-ui, sans-serif',
-      position: 'relative',
+      padding: '2rem 1rem',
     }}>
-      <button
-        onClick={toggleTheme}
-        title={isDark ? 'Modo claro' : 'Modo oscuro'}
-        style={{
-          position: 'absolute',
-          top: '1rem',
-          right: '1rem',
-          width: '32px',
-          height: '32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'none',
-          border: `1px solid ${C.border}`,
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontSize: '15px',
-        }}
-      >
-        {isDark ? '☀️' : '🌙'}
-      </button>
-
       <div style={{
-        background: C.card,
-        border: `1px solid ${C.border}`,
+        background: 'var(--adm-card)',
+        border: '1px solid var(--adm-border)',
         borderRadius: '12px',
         padding: '2rem',
         width: '100%',
         maxWidth: '360px',
       }}>
-        <h1 style={{ color: C.text, fontSize: '18px', fontWeight: 500, marginBottom: '4px' }}>
+        <h1 style={{ color: 'var(--adm-text)', fontSize: '18px', fontWeight: 500, marginBottom: '4px' }}>
           Panel Admin
         </h1>
-        <p style={{ color: C.muted, fontSize: '12px', marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--adm-muted)', fontSize: '12px', marginBottom: '1.5rem' }}>
           bohdeveloper.com
         </p>
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', color: C.label, fontSize: '12px', marginBottom: '6px' }}>
+            <label style={{ display: 'block', color: 'var(--adm-label)', fontSize: '12px', marginBottom: '6px' }}>
               Usuario
             </label>
             <input
@@ -109,22 +78,12 @@ export default function AdminLogin() {
               onChange={e => setUsername(e.target.value)}
               required
               autoComplete="username"
-              style={{
-                width: '100%',
-                background: C.input,
-                border: `1px solid ${C.border}`,
-                borderRadius: '8px',
-                padding: '10px 12px',
-                color: C.text,
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
+              style={inputStyle}
             />
           </div>
 
           <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ display: 'block', color: C.label, fontSize: '12px', marginBottom: '6px' }}>
+            <label style={{ display: 'block', color: 'var(--adm-label)', fontSize: '12px', marginBottom: '6px' }}>
               Contraseña
             </label>
             <input
@@ -133,17 +92,7 @@ export default function AdminLogin() {
               onChange={e => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              style={{
-                width: '100%',
-                background: C.input,
-                border: `1px solid ${C.border}`,
-                borderRadius: '8px',
-                padding: '10px 12px',
-                color: C.text,
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
+              style={inputStyle}
             />
           </div>
 
@@ -157,13 +106,14 @@ export default function AdminLogin() {
             style={{
               width: '100%',
               padding: '10px',
-              background: loading ? (isDark ? '#1a1a1a' : '#f0f0f0') : '#1D6B45',
-              border: `1px solid ${loading ? C.border : '#1D6B45'}`,
+              background: loading ? 'var(--adm-card)' : '#1D6B45',
+              border: `1px solid ${loading ? 'var(--adm-border)' : '#1D6B45'}`,
               borderRadius: '8px',
-              color: loading ? C.muted : '#fff',
+              color: loading ? 'var(--adm-muted)' : '#fff',
               fontSize: '14px',
               fontWeight: 500,
               cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit',
             }}
           >
             {loading ? 'Entrando...' : 'Entrar'}

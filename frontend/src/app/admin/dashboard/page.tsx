@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAdminTheme } from './AdminThemeCtx';
 
 /* ── App registry — add new tools here ── */
 const APPS = [
@@ -14,10 +13,10 @@ const APPS = [
   },
 ] as const;
 
-/* ── Neural network canvas ── */
+/* ── Neural network canvas — reads theme from html class every frame ── */
 interface Node { x: number; y: number; vx: number; vy: number; r: number; pulse: number; }
 
-function NeuralCanvas({ isDark }: { isDark: boolean }) {
+function NeuralCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -38,8 +37,6 @@ function NeuralCanvas({ isDark }: { isDark: boolean }) {
     window.addEventListener('resize', resize);
 
     const MAX_DIST = 120;
-    const [r, g, b] = isDark ? [93, 202, 165] : [29, 107, 69];
-
     const nodes: Node[] = Array.from({ length: 50 }, () => ({
       x:     Math.random() * w,
       y:     Math.random() * h,
@@ -50,6 +47,10 @@ function NeuralCanvas({ isDark }: { isDark: boolean }) {
     }));
 
     function draw() {
+      /* read theme every frame — responds to navbar toggle in real time */
+      const light = document.documentElement.classList.contains('light');
+      const [r, g, b] = light ? [29, 107, 69] : [93, 202, 165];
+
       ctx!.clearRect(0, 0, w, h);
 
       for (const n of nodes) {
@@ -90,7 +91,7 @@ function NeuralCanvas({ isDark }: { isDark: boolean }) {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
     };
-  }, [isDark]);
+  }, []);
 
   return (
     <canvas
@@ -103,19 +104,19 @@ function NeuralCanvas({ isDark }: { isDark: boolean }) {
 /* ── Dashboard home ── */
 export default function DashboardPage() {
   const router = useRouter();
-  const { isDark } = useAdminTheme();
 
-  const bg         = isDark ? '#0f0f0f' : '#f0f0f0';
-  const text       = isDark ? '#e8e6e0' : '#1a1a1a';
-  const muted      = isDark ? '#555555' : '#777777';
-  const cardBg     = isDark ? 'rgba(17,17,17,0.85)' : 'rgba(255,255,255,0.90)';
-  const cardBorder = isDark ? '#1e1e1e'              : '#e0e0e0';
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/';
+  }
 
   return (
+    /* push below fixed portfolio navbar */
     <div style={{
       position: 'relative',
-      minHeight: 'calc(100vh - 48px)',
-      background: bg,
+      minHeight: 'calc(100vh - 73px)',
+      marginTop: '73px',
+      background: 'var(--adm-bg)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -123,7 +124,7 @@ export default function DashboardPage() {
       overflow: 'hidden',
       fontFamily: 'system-ui, sans-serif',
     }}>
-      <NeuralCanvas isDark={isDark} />
+      <NeuralCanvas />
 
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 1.5rem' }}>
         <p style={{
@@ -137,22 +138,23 @@ export default function DashboardPage() {
           Panel Admin
         </p>
 
-        <h1 style={{ color: text, fontSize: '26px', fontWeight: 300, letterSpacing: '-0.3px', marginBottom: '0.5rem' }}>
+        <h1 style={{ color: 'var(--adm-text)', fontSize: '26px', fontWeight: 300, letterSpacing: '-0.3px', marginBottom: '0.5rem' }}>
           Bienvenido, Borja
         </h1>
 
-        <p style={{ color: muted, fontSize: '13px', marginBottom: '2.5rem' }}>
+        <p style={{ color: 'var(--adm-muted)', fontSize: '13px', marginBottom: '2.5rem' }}>
           Selecciona una herramienta
         </p>
 
+        {/* App cards */}
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           {APPS.map(app => (
             <button
               key={app.path}
               onClick={() => router.push(app.path)}
               style={{
-                background: cardBg,
-                border: `1px solid ${cardBorder}`,
+                background: 'var(--adm-card)',
+                border: '1px solid var(--adm-border)',
                 borderRadius: '12px',
                 padding: '1.5rem 2rem',
                 cursor: 'pointer',
@@ -161,26 +163,45 @@ export default function DashboardPage() {
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 transition: 'border-color 0.2s, transform 0.15s, box-shadow 0.2s',
+                fontFamily: 'inherit',
               }}
               onMouseEnter={e => {
                 const el = e.currentTarget as HTMLButtonElement;
                 el.style.borderColor = '#5DCAA5';
                 el.style.transform   = 'translateY(-3px)';
-                el.style.boxShadow   = isDark ? '0 8px 30px rgba(93,202,165,0.10)' : '0 8px 30px rgba(93,202,165,0.15)';
+                el.style.boxShadow   = '0 8px 30px rgba(93,202,165,0.12)';
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = cardBorder;
+                el.style.borderColor = 'var(--adm-border)';
                 el.style.transform   = 'translateY(0)';
                 el.style.boxShadow   = 'none';
               }}
             >
               <div style={{ fontSize: '28px', marginBottom: '0.75rem' }}>{app.icon}</div>
-              <div style={{ color: text,  fontSize: '14px', fontWeight: 500 }}>{app.name}</div>
-              <div style={{ color: muted, fontSize: '11px', marginTop: '3px' }}>{app.desc}</div>
+              <div style={{ color: 'var(--adm-text)',  fontSize: '14px', fontWeight: 500 }}>{app.name}</div>
+              <div style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '3px' }}>{app.desc}</div>
             </button>
           ))}
         </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          style={{
+            marginTop: '2.5rem',
+            background: 'none',
+            border: 'none',
+            color: 'var(--adm-muted)',
+            fontSize: '12px',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            textDecoration: 'underline',
+            textUnderlineOffset: '3px',
+          }}
+        >
+          Cerrar sesión
+        </button>
       </div>
     </div>
   );
