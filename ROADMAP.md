@@ -14,16 +14,16 @@
 # ✅ PASO 2 — Crear base de datos D1: bohdeveloper-admin
 # ✅ PASO 3 — Schema SQL: admin_users, tracker_records, tracker_notes
 # ✅ PASO 4 — Crear usuario admin (bcrypt hash, nunca plaintext)
-# [ ] PASO 5 — Pages Functions: /api/auth/login, /logout, /me
-# [ ] PASO 6 — Middleware: functions/admin/_middleware.js
-# [ ] PASO 7 — Páginas Next.js: /admin/login, /admin/dashboard, /admin/dashboard/tracker
-# [ ] PASO 8 — APIs tracker: /api/tracker/save, /week, /stats
-# [ ] PASO 9 — Adaptar tracker.html → frontend/public/tracker.html (iframe en dashboard)
+# ✅ PASO 5 — Pages Functions: /api/auth/login, /logout, /me
+# ✅ PASO 6 — Middleware: functions/admin/_middleware.ts
+# ✅ PASO 7 — Páginas Next.js: /admin/login, /admin/dashboard, /admin/dashboard/tracker (componente React)
+# ✅ PASO 8 — APIs tracker: /api/tracker/save, /week, /stats
+# ✅ PASO 9 — tracker.html eliminado de public (lógica integrada en React, protegida por middleware)
 # [ ] PASO 10 — Variables de entorno: JWT_SECRET en Cloudflare + .dev.vars local
 # [ ] PASO 11 — Despliegue y verificación
 
 ### Decisiones tomadas
-# tracker.html → frontend/public/ (asset estático, iframeado desde ruta protegida)
+# tracker.html → componente React en app/admin/dashboard/tracker/page.tsx (seguro, protegido por middleware)
 # bcryptjs (compatible Workers, sin deps nativas)
 # jose (JWT, Web Crypto API compatible)
 # Sidebar extensible desde el inicio: array {name, path, icon}
