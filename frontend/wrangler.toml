@@ -1,0 +1,8 @@
+name = "bohdeveloper"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "out"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bohdeveloper-admin"
+database_id = "3ee3ec2e-d740-4746-ba39-33f061eb7a4c"

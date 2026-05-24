@@ -1,5 +1,36 @@
 🗺️ ROADMAP
 
+:: FASE 0 — Panel Admin + Tracker (EN CURSO)
+· Objetivo: primer backend real en producción. Acceso exclusivo del propietario.
+
+### Arquitectura decidida
+# Stack: Next.js (frontend) + Cloudflare Pages Functions (API) + D1 (SQLite)
+# Monorepo: /frontend (Next.js) — no hay repo backend separado
+# Auth: JWT en httpOnly cookie, un solo usuario admin
+# Rutas protegidas: /admin/dashboard/* via middleware Pages Functions
+
+### Implementación paso a paso (según CLAUDE.md)
+# ✅ PASO 1 — Verificar estructura y wrangler.toml
+# ✅ PASO 2 — Crear base de datos D1: bohdeveloper-admin
+# ✅ PASO 3 — Schema SQL: admin_users, tracker_records, tracker_notes
+# ✅ PASO 4 — Crear usuario admin (bcrypt hash, nunca plaintext)
+# [ ] PASO 5 — Pages Functions: /api/auth/login, /logout, /me
+# [ ] PASO 6 — Middleware: functions/admin/_middleware.js
+# [ ] PASO 7 — Páginas Next.js: /admin/login, /admin/dashboard, /admin/dashboard/tracker
+# [ ] PASO 8 — APIs tracker: /api/tracker/save, /week, /stats
+# [ ] PASO 9 — Adaptar tracker.html → frontend/public/tracker.html (iframe en dashboard)
+# [ ] PASO 10 — Variables de entorno: JWT_SECRET en Cloudflare + .dev.vars local
+# [ ] PASO 11 — Despliegue y verificación
+
+### Decisiones tomadas
+# tracker.html → frontend/public/ (asset estático, iframeado desde ruta protegida)
+# bcryptjs (compatible Workers, sin deps nativas)
+# jose (JWT, Web Crypto API compatible)
+# Sidebar extensible desde el inicio: array {name, path, icon}
+# NO tocar ningún archivo del portfolio público
+
+---
+
 :: FASE 1 — Preparar frontend (sin backend)
 · Objetivo: dejar el portfolio limpio, escalable y listo para API.
 

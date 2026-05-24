@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;background:#0f0f0f;color:#e8e6e0;padding-bottom:2rem}
+.header-bar{padding:.75rem 1rem;background:#111;border-bottom:1px solid #1e1e1e;margin-bottom:.5rem}
+.header-bar h2{font-size:16px;font-weight:500;margin-bottom:1px}
+.header-bar p{font-size:11px;color:#555}
+.tabs{display:flex;background:#1a1a1a;border-bottom:1px solid #2a2a2a;margin-bottom:.75rem;overflow-x:auto}
+.tab{padding:9px 16px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:13px;color:#888;white-space:nowrap}
+.tab.active{color:#e8e6e0;border-bottom-color:#5DCAA5;font-weight:500}
+.page{display:none;padding:0 .75rem .75rem}.page.active{display:block}
+.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1rem;margin-bottom:1rem}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;margin-bottom:.75rem}
+.mc{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:.75rem;text-align:center}
+.mc-v{font-size:20px;font-weight:500}
+.mc-l{font-size:10px;color:#666;margin-top:2px}
+.week-nav{display:flex;align-items:center;gap:10px;margin-bottom:.75rem}
+.week-nav span{flex:1;text-align:center;font-size:13px;font-weight:500}
+.btn{padding:6px 12px;border-radius:6px;border:1px solid #2a2a2a;background:#1e1e1e;cursor:pointer;font-size:12px;color:#ccc}
+.btn:hover{background:#2a2a2a}
+.btn-done{background:#1D6B45;border-color:#1D6B45;color:#fff}
+.btn-miss{background:#7a2a1a;border-color:#7a2a1a;color:#fff}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;color:#777}
+.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── SCHEDULE — Teams-style ── */
+.sched-wrap{overflow-x:auto;overflow-y:auto;max-height:78vh;border:1px solid #2a2a2a;border-radius:10px}
+.sched-inner{display:grid;min-width:640px}
+/* sticky header */
+.sched-head{display:grid;position:sticky;top:0;z-index:10;background:#111;border-bottom:1px solid #2a2a2a}
+.sh-corner{background:#111;border-right:1px solid #2a2a2a}
+.sh-day{padding:6px 4px;text-align:center;border-right:1px solid #1e1e1e}
+.sh-day:last-child{border-right:none}
+.sh-name{font-size:11px;font-weight:500;color:#aaa}
+.sh-date{font-size:10px;color:#555;margin-top:1px}
+.sh-day.tod .sh-name{color:#5DCAA5}
+.sh-day.tod .sh-date{color:#1D6B45}
+/* body */
+.sched-body{display:grid;position:relative}
+.time-col{display:flex;flex-direction:column}
+.time-row{border-bottom:1px solid #1e1e1e;display:flex;align-items:flex-start;justify-content:flex-end;padding:1px 6px 0;font-size:9px;color:#555;background:#111;border-right:1px solid #2a2a2a;flex-shrink:0}
+.time-row.hour-mark{border-bottom:1px solid #2f2f2f}
+.day-col{position:relative;border-right:1px solid #1e1e1e}
+.day-col:last-child{border-right:none}
+/* grid lines inside day cols */
+.day-col::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px));pointer-events:none;z-index:0}
+/* activity blocks */
+.ab{position:absolute;left:2px;right:2px;border-radius:5px;border:none;cursor:pointer;font-size:10px;font-weight:500;padding:4px 6px;text-align:left;line-height:1.35;color:#fff;overflow:hidden;transition:filter .15s;border-left:3px solid rgba(255,255,255,.25);z-index:1}
+.ab:hover{filter:brightness(1.25);z-index:5}
+.ab.done{opacity:.65}.ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:9px;opacity:.9}
+.ab.miss{opacity:.5;text-decoration:line-through}.ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:9px;opacity:.9}
+.ab.fut{opacity:.2;cursor:default;pointer-events:none}
+.ab.nt{cursor:default;pointer-events:none}
+.ab-time{display:block;font-size:8.5px;font-weight:400;opacity:.75;margin-top:1px}
+/* current time line */
+.now-line{position:absolute;left:0;right:0;height:2px;background:#5DCAA5;z-index:8;pointer-events:none}
+.now-dot{position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:#5DCAA5}
+/* free slots */
+.free-bg{background:#0f0f0f}
+/* cat colors */
+.cm{background:#2e2880}
+.cf{background:#0d5e48}
+.cp{background:#222;color:#666;border-left-color:#333}
+.cw{background:#0e2d4a}
+.cc{background:#6a2308}
+.cs{background:#155234}
+.cpsi{background:#4a2060}
+.cd{background:#0a0e18;color:#1e2840;border-left-color:#1e2840}
+.cl{background:#141414;color:#666;border-left-color:#333}
+
+/* stats */
+.pb{height:5px;background:#1e1e1e;border-radius:3px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:3px;transition:width .3s}
+.cr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cn{font-size:12px;color:#888;width:130px;flex-shrink:0}
+.cpct{font-size:12px;font-weight:500;width:34px;text-align:right;flex-shrink:0}
+#chart-wrap{position:relative;width:100%;height:180px}
+.sb{border-left:3px solid #1D6B45;padding:7px 12px;margin-bottom:7px;border-radius:0 6px 6px 0;background:#1a1a1a}
+.sw{border-left-color:#7a2a1a}
+.mi{border-left:3px solid #7a2a1a;padding:7px 12px;margin-bottom:7px;border-radius:0 6px 6px 0;background:#1a1a1a}
+.mi-d{font-size:10px;color:#555}
+.mi-n{font-weight:500;font-size:13px;margin:2px 0}
+.mi-r{font-size:12px;color:#555;font-style:italic}
+/* tooltip */
+.tip{position:fixed;background:#1c1c1c;border:1px solid #333;border-radius:8px;padding:8px 12px;font-size:12px;color:#bbb;max-width:220px;pointer-events:none;z-index:999;opacity:0;transition:opacity .1s;line-height:1.5}
+.tip.on{opacity:1}
+.tip strong{color:#e8e6e0;display:block;margin-bottom:2px;font-size:12px}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:200}
+.modal{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1.25rem;width:340px;max-width:92vw}
+.modal h3{margin-bottom:.35rem;color:#e8e6e0;font-size:14px}
+.modal-sub{font-size:11px;color:#555;margin-bottom:.5rem}
+.modal textarea{width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:8px;font-size:13px;color:#e8e6e0;resize:vertical;min-height:65px;font-family:inherit}
+.modal-btns{display:flex;gap:8px;margin-top:.65rem;justify-content:flex-end}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+  <h2>⚔️ Transformación Integral — Borja</h2>
+  <p>Estoicismo · Shaolin · BIZIKI — Fase 1: Fundación</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" id="tab-semana" onclick="showPage('semana','tab-semana')">Semana</button>
+  <button class="tab" id="tab-estadisticas" onclick="showPage('estadisticas','tab-estadisticas')">Estadísticas</button>
+  <button class="tab" id="tab-resumen" onclick="showPage('resumen','tab-resumen')">Resumen</button>
+  <button class="tab" id="tab-perdidas" onclick="showPage('perdidas','tab-perdidas')">Perdidas</button>
+</div>
+
+<div id="semana" class="page active">
+  <div class="week-nav">
+    <button class="btn" id="btn-prev">←</button>
+    <span id="week-label"></span>
+    <button class="btn" id="btn-next">→</button>
+  </div>
+  <div class="g4" id="quick-stats"></div>
+  <div class="legend-row" id="legend"></div>
+  <div class="sched-wrap" id="sched-wrap">
+    <div class="sched-inner" id="sched-inner">
+      <div class="sched-head" id="sched-head"></div>
+      <div class="sched-body" id="sched-body"></div>
+    </div>
+  </div>
+</div>
+
+<div id="estadisticas" class="page">
+  <div class="g4" id="stat-metrics"></div>
+  <div class="card"><h3 style="margin-bottom:.75rem;font-size:14px">Cumplimiento por categoría</h3><div id="cat-bars"></div></div>
+  <div class="card"><h3 style="margin-bottom:.75rem;font-size:14px">Actividades por día</h3><div id="chart-wrap"><canvas id="dayChart" role="img" aria-label="Actividades por día"></canvas></div></div>
+</div>
+
+<div id="resumen" class="page">
+  <div class="card" id="resumen-content"><p style="color:#555;font-size:13px">Registra actividades para ver tu evolución.</p></div>
+</div>
+
+<div id="perdidas" class="page">
+  <div id="perdidas-list"><p style="color:#555;font-size:13px">Sin actividades perdidas esta semana.</p></div>
+</div>
+
+<div class="tip" id="tip"><strong id="tip-title"></strong><span id="tip-desc"></span></div>
+
+<div id="modal" class="modal-bg hidden">
+  <div class="modal">
+    <h3 id="m-title"></h3>
+    <p class="modal-sub" id="m-desc"></p>
+    <p class="modal-sub" id="m-day"></p>
+    <textarea id="m-reason" placeholder="Motivo si no la realizas (opcional)..."></textarea>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-miss" onclick="saveAct(false)">✗ Perdida</button>
+      <button class="btn btn-done" onclick="saveAct(true)">✓ Completada</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+var PX_PER_MIN = 1.6;       // pixels per minute → controls block height
+var DAY_START  = 5 * 60;    // 05:00
+var DAY_END    = 23 * 60;   // 23:00
+var SLOT_MIN   = 30;        // grid line every 30 min
+
+var DIAS   = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+var DIAS_F = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+var CATS = {
+  mente:     {label:'Meditación/Mente', color:'#3a3280', cls:'cm'},
+  flex:      {label:'Flexibilidad',     color:'#0d5e48', cls:'cf'},
+  prep:      {label:'Prepararse',       color:'#222',    cls:'cp'},
+  trabajo:   {label:'Trabajo Inetum',   color:'#0e2d4a', cls:'cw'},
+  cardio:    {label:'BIZIKI/Cardio',    color:'#6a2308', cls:'cc'},
+  shaolin:   {label:'Shaolin/Entreno',  color:'#155234', cls:'cs'},
+  psicologo: {label:'Psicólogo',        color:'#4a2060', cls:'cpsi'},
+  dormir:    {label:'Dormir',           color:'#0a0e18', cls:'cd'},
+  libre:     {label:'Tiempo libre',     color:'#141414', cls:'cl'}
+};
+
+function tm(h,m){ return h*60+(m||0); }
+function fmt(min){ var h=Math.floor(min/60),m=min%60; return h+':'+(m<10?'0':'')+m; }
+
+// ── SCHEDULE ─────────────────────────────────────────────
+// track:true = user marks complete/missed
+var SCHED = [
+  // 0 LUNES ─────────────────────────────────────────────
+  [
+    {id:'lev',    name:'Levantada',          cat:'prep',    start:tm(5,15), end:tm(5,30),  desc:'5:15 — Levantada. No negociable.', track:false},
+    {id:'med',    name:'Meditación estoica', cat:'mente',   start:tm(5,30), end:tm(6,0),   desc:'5:30–6:00 · 30 min meditación estoica.', track:true},
+    {id:'fle',    name:'Flexibilidad',       cat:'flex',    start:tm(6,0),  end:tm(6,30),  desc:'6:00–6:30 · Estiramientos y movilidad shaolin.', track:true},
+    {id:'pre',    name:'Prepararse',         cat:'prep',    start:tm(6,30), end:tm(7,15),  desc:'6:30–7:15 · Ducha fría, desayuno, salida.', track:false},
+    {id:'bus',    name:'Bus → Donostia',     cat:'libre',   start:tm(7,15), end:tm(8,0),   desc:'7:15–8:00 · Bus Errentería → Donostia.', track:false},
+    {id:'trab',   name:'Trabajo — Inetum',   cat:'trabajo', start:tm(8,0),  end:tm(17,0),  desc:'8:00–17:00 · Jornada completa Inetum.', track:false},
+    {id:'vuel',   name:'Bus → Errentería',   cat:'libre',   start:tm(17,0), end:tm(18,0),  desc:'17:00–18:00 · Trayecto de vuelta.', track:false},
+    {id:'lib1',   name:'Descanso',           cat:'libre',   start:tm(18,0), end:tm(19,30), desc:'18:00–19:30 · Descanso, preparar mochila BIZIKI.', track:false},
+    {id:'biz',    name:'BIZIKI Running',     cat:'cardio',  start:tm(19,30),end:tm(21,0),  desc:'19:30–21:00 · Running grupo BIZIKI.', track:true},
+    {id:'lec',    name:'Lectura estoica',    cat:'mente',   start:tm(21,0), end:tm(21,30), desc:'21:00–21:30 · Salzgeber / Marco Aurelio.', track:true},
+    {id:'dor',    name:'Dormir',             cat:'dormir',  start:tm(21,30),end:tm(23,0),  desc:'21:30 — 7–8h sueño del guerrero.', track:false}
+  ],
+  // 1 MARTES ────────────────────────────────────────────
+  [
+    {id:'lev',    name:'Levantada',          cat:'prep',    start:tm(5,15), end:tm(5,30),  desc:'5:15 — Levantada.', track:false},
+    {id:'sha',    name:'Entrenamiento Shaolin', cat:'shaolin', start:tm(5,30), end:tm(6,30), desc:'5:30–6:30 · Técnica shaolin + calistenia. 1 hora completa.', track:true},
+    {id:'pre',    name:'Prepararse',         cat:'prep',    start:tm(6,30), end:tm(7,15),  desc:'6:30–7:15 · Ducha fría, desayuno, salida.', track:false},
+    {id:'bus',    name:'Bus → Donostia',     cat:'libre',   start:tm(7,15), end:tm(8,0),   desc:'7:15–8:00 · Trayecto bus.', track:false},
+    {id:'trab',   name:'Trabajo — Inetum',   cat:'trabajo', start:tm(8,0),  end:tm(17,0),  desc:'8:00–17:00 · Jornada completa Inetum.', track:false},
+    {id:'vuel',   name:'Bus → Errentería',   cat:'libre',   start:tm(17,0), end:tm(18,0),  desc:'17:00–18:00 · Trayecto de vuelta.', track:false},
+    {id:'lib1',   name:'Descanso / Cena',    cat:'libre',   start:tm(18,0), end:tm(19,30), desc:'18:00–19:30 · Descanso, cena ligera.', track:false},
+    {id:'gym',    name:'Gym / Shaolin Arramendi', cat:'shaolin', start:tm(19,30), end:tm(20,30), desc:'19:30–20:30 · Gym o entrenamiento shaolin en Arramendi.', track:true},
+    {id:'lib2',   name:'Descanso',           cat:'libre',   start:tm(20,30),end:tm(21,0),  desc:'20:30–21:00 · Recuperación post-entreno.', track:false},
+    {id:'lec',    name:'Lectura estoica',    cat:'mente',   start:tm(21,0), end:tm(21,30), desc:'21:00–21:30 · Lectura filosofía estoica.', track:true},
+    {id:'dor',    name:'Dormir',             cat:'dormir',  start:tm(21,30),end:tm(23,0),  desc:'21:30 — Sueño reparador.', track:false}
+  ],
+  // 2 MIÉRCOLES ─────────────────────────────────────────
+  [
+    {id:'lev',    name:'Levantada',          cat:'prep',    start:tm(5,15), end:tm(5,30),  desc:'5:15 — Levantada.', track:false},
+    {id:'med',    name:'Meditación estoica', cat:'mente',   start:tm(5,30), end:tm(6,0),   desc:'5:30–6:00 · 30 min meditación.', track:true},
+    {id:'fle',    name:'Flexibilidad',       cat:'flex',    start:tm(6,0),  end:tm(6,30),  desc:'6:00–6:30 · Estiramientos y movilidad.', track:true},
+    {id:'pre',    name:'Prepararse',         cat:'prep',    start:tm(6,30), end:tm(7,15),  desc:'6:30–7:15 · Ducha fría, desayuno, salida.', track:false},
+    {id:'bus',    name:'Bus → Donostia',     cat:'libre',   start:tm(7,15), end:tm(8,0),   desc:'7:15–8:00 · Trayecto bus.', track:false},
+    {id:'trab',   name:'Trabajo — Inetum',   cat:'trabajo', start:tm(8,0),  end:tm(17,0),  desc:'8:00–17:00 · Jornada completa Inetum.', track:false},
+    {id:'vuel',   name:'Bus → Errentería',   cat:'libre',   start:tm(17,0), end:tm(18,0),  desc:'17:00–18:00 · Trayecto de vuelta.', track:false},
+    {id:'lib1',   name:'Descanso / Cena',    cat:'libre',   start:tm(18,0), end:tm(19,30), desc:'18:00–19:30 · Descanso, preparar renting.', track:false},
+    {id:'rent',   name:'Running',            cat:'cardio',  start:tm(19,30),end:tm(21,0),  desc:'19:30–21:00 · Sesión de running.', track:true},
+    {id:'lec',    name:'Lectura estoica',    cat:'mente',   start:tm(21,0), end:tm(21,30), desc:'21:00–21:30 · Lectura filosofía.', track:true},
+    {id:'dor',    name:'Dormir',             cat:'dormir',  start:tm(21,30),end:tm(23,0),  desc:'21:30 — Sueño reparador.', track:false}
+  ],
+  // 3 JUEVES ────────────────────────────────────────────
+  [
+    {id:'lev',    name:'Levantada',          cat:'prep',    start:tm(5,15), end:tm(5,30),  desc:'5:15 — Levantada.', track:false},
+    {id:'sha',    name:'Entrenamiento Shaolin', cat:'shaolin', start:tm(5,30), end:tm(6,30), desc:'5:30–6:30 · Técnica shaolin + calistenia. 1 hora completa.', track:true},
+    {id:'pre',    name:'Prepararse',         cat:'prep',    start:tm(6,30), end:tm(7,15),  desc:'6:30–7:15 · Ducha fría, desayuno, salida.', track:false},
+    {id:'bus',    name:'Bus → Donostia',     cat:'libre',   start:tm(7,15), end:tm(8,0),   desc:'7:15–8:00 · Trayecto bus.', track:false},
+    {id:'trab',   name:'Trabajo — Inetum',   cat:'trabajo', start:tm(8,0),  end:tm(17,0),  desc:'8:00–17:00 · Jornada completa Inetum.', track:false},
+    {id:'libj',   name:'Trayecto / Preparar', cat:'libre',  start:tm(17,0), end:tm(18,0),  desc:'17:00–18:00 · Trayecto hacia psicólogo.', track:false},
+    {id:'psi',    name:'Psicólogo',          cat:'psicologo',start:tm(18,0),end:tm(19,0),  desc:'18:00–19:00 · Sesión psicólogo, Donostia.', track:true},
+    {id:'gym',    name:'Gym / Shaolin Arramendi', cat:'shaolin', start:tm(19,30), end:tm(20,30), desc:'19:30–20:30 · Gym o entrenamiento shaolin en Arramendi.', track:true},
+    {id:'lib2',   name:'Descanso',           cat:'libre',   start:tm(20,30),end:tm(21,0),  desc:'20:30–21:00 · Recuperación.', track:false},
+    {id:'lec',    name:'Lectura estoica',    cat:'mente',   start:tm(21,0), end:tm(21,30), desc:'21:00–21:30 · Lectura filosofía.', track:true},
+    {id:'dor',    name:'Dormir',             cat:'dormir',  start:tm(21,30),end:tm(23,0),  desc:'21:30 — Sueño reparador.', track:false}
+  ],
+  // 4 VIERNES ───────────────────────────────────────────
+  [
+    {id:'lev',    name:'Levantada',          cat:'prep',    start:tm(5,15), end:tm(5,30),  desc:'5:15 — Levantada.', track:false},
+    {id:'med',    name:'Meditación estoica', cat:'mente',   start:tm(5,30), end:tm(6,0),   desc:'5:30–6:00 · 30 min meditación.', track:true},
+    {id:'fle',    name:'Flexibilidad',       cat:'flex',    start:tm(6,0),  end:tm(6,30),  desc:'6:00–6:30 · Estiramientos y movilidad.', track:true},
+    {id:'pre',    name:'Prepararse',         cat:'prep',    start:tm(6,30), end:tm(7,15),  desc:'6:30–7:15 · Ducha fría, desayuno, salida.', track:false},
+    {id:'bus',    name:'Bus → Donostia',     cat:'libre',   start:tm(7,15), end:tm(8,0),   desc:'7:15–8:00 · Trayecto bus.', track:false},
+    {id:'trab',   name:'Trabajo — Inetum',   cat:'trabajo', start:tm(8,0),  end:tm(13,0),  desc:'8:00–13:00 · Media jornada. Tarde libre desde 14:00.', track:false},
+    {id:'vuel',   name:'Bus → Errentería',   cat:'libre',   start:tm(13,0), end:tm(14,0),  desc:'13:00–14:00 · Vuelta temprana.', track:false},
+    {id:'libv',   name:'Tarde libre',        cat:'libre',   start:tm(14,0), end:tm(19,30), desc:'14:00–19:30 · Proyectos dev, descanso, vida personal.', track:false},
+    {id:'biz',    name:'BIZIKI Running',     cat:'cardio',  start:tm(19,30),end:tm(21,0),  desc:'19:30–21:00 · Running grupo BIZIKI.', track:true},
+    {id:'lec',    name:'Lectura estoica',    cat:'mente',   start:tm(21,0), end:tm(21,30), desc:'21:00–21:30 · Lectura filosofía.', track:true},
+    {id:'dor',    name:'Dormir',             cat:'dormir',  start:tm(21,30),end:tm(23,0),  desc:'21:30 — Sueño reparador.', track:false}
+  ],
+  // 5 SÁBADO ────────────────────────────────────────────
+  [
+    {id:'mont',   name:'Monte — Correr/Pasear', cat:'cardio', start:tm(8,0), end:tm(10,0), desc:'8:00–10:00 · Salida al monte. Correr o pasear en naturaleza.', track:true},
+    {id:'libs',   name:'Día libre',          cat:'libre',   start:tm(10,0), end:tm(23,0),  desc:'10:00 en adelante · Día libre. Descanso, proyectos, vida personal.', track:false}
+  ],
+  // 6 DOMINGO ───────────────────────────────────────────
+  [
+    {id:'gym',    name:'Gym / Shaolin',      cat:'shaolin', start:tm(9,0),  end:tm(11,0),  desc:'9:00–11:00 · Gym o entrenamiento shaolin. Fuerza + técnica.', track:true},
+    {id:'libd',   name:'Día libre',          cat:'libre',   start:tm(11,0), end:tm(23,0),  desc:'11:00 en adelante · Día libre. Descanso, proyectos, vida personal.', track:false}
+  ]
+];
+
+// ── STATE ────────────────────────────────────────────────
+var state = {};
+var weekOffset = 0;
+var pending = null;
+var chart = null;
+
+// ── PERSISTENCE: D1 via API (falls back to localStorage in dev) ──
+var USE_API = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+function loadState(){
+  if(USE_API){
+    var today = new Date();
+    var day = today.getDay();
+    var monday = new Date(today);
+    monday.setDate(today.getDate() - (day===0?6:day-1) + weekOffset*7);
+    monday.setHours(0,0,0,0);
+    var startDate = monday.toISOString().slice(0,10);
+    fetch('/api/tracker/week?start='+startDate)
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if(res.ok && res.data){
+          state = {};
+          for(var i=0;i<res.data.length;i++){
+            var r=res.data[i];
+            state[r.date+'_'+r.activity_id]={done:!!r.done, reason:r.reason||'', ts:r.updated_at};
+          }
+          renderWeek(); renderStats(); renderResumen(); renderPerdidas();
+        }
+      })
+      .catch(function(){ loadStateLocal(); });
+  } else {
+    loadStateLocal();
+  }
+}
+function loadStateLocal(){ try{ state=JSON.parse(localStorage.getItem('boh_t5')||'{}'); }catch(e){ state={}; } }
+
+function saveState(){
+  if(USE_API){ /* saveAct handles API calls individually */ return; }
+  try{ localStorage.setItem('boh_t5',JSON.stringify(state)); }catch(e){}
+}
+
+function saveRecord(dKey, actId, dayIdx, done, reason){
+  if(!USE_API){ saveState(); return; }
+  fetch('/api/tracker/save',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({date:dKey, activity_id:actId, day_index:dayIdx, done:done?1:0, reason:reason||''})
+  }).catch(function(){ /* silently fail, state already updated in memory */ });
+}
+function dk(d){ return d.toISOString().slice(0,10); }
+function ak(dstr,id){ return dstr+'_'+id; }
+function getWS(off){
+  var n=new Date(), day=n.getDay(), m=new Date(n);
+  m.setDate(n.getDate()-(day===0?6:day-1)+off*7); m.setHours(0,0,0,0); return m;
+}
+function getDays(off){
+  var ws=getWS(off), days=[];
+  for(var i=0;i<7;i++){ var d=new Date(ws); d.setDate(ws.getDate()+i); days.push(d); }
+  return days;
+}
+
+// ── TOOLTIP ─────────────────────────────────────────────
+var tipEl=document.getElementById('tip');
+function showTip(e,name,desc){ document.getElementById('tip-title').textContent=name; document.getElementById('tip-desc').textContent=desc; tipEl.classList.add('on'); posTip(e); }
+function posTip(e){ var x=e.clientX+14,y=e.clientY-10; if(x+230>window.innerWidth)x=e.clientX-240; if(y+90>window.innerHeight)y=e.clientY-100; tipEl.style.left=x+'px'; tipEl.style.top=y+'px'; }
+function hideTip(){ tipEl.classList.remove('on'); }
+
+// ── CURRENT TIME LINE ────────────────────────────────────
+function drawNowLine(){
+  var existing=document.getElementById('now-line');
+  if(existing) existing.parentNode.removeChild(existing);
+  var now=new Date();
+  var mins=now.getHours()*60+now.getMinutes();
+  if(mins<DAY_START||mins>=DAY_END) return;
+  var pct=((mins-DAY_START)/(DAY_END-DAY_START))*100;
+  // place in each day col
+  var dayCols=document.querySelectorAll('.day-col');
+  for(var i=0;i<dayCols.length;i++){
+    var line=document.createElement('div');
+    line.className='now-line';
+    line.id='now-line';
+    line.style.top=pct+'%';
+    var dot=document.createElement('div');
+    dot.className='now-dot';
+    line.appendChild(dot);
+    dayCols[i].appendChild(line);
+    break; // only first col gets dot, rest get line only
+  }
+  // all cols get line (no dot)
+  for(var i=1;i<dayCols.length;i++){
+    var ln=document.createElement('div');
+    ln.className='now-line';
+    ln.style.top=pct+'%';
+    dayCols[i].appendChild(ln);
+  }
+}
+
+// ── RENDER WEEK ──────────────────────────────────────────
+function renderWeek(){
+  var days=getDays(weekOffset);
+  var today=new Date(); today.setHours(0,0,0,0);
+  document.getElementById('week-label').textContent=
+    days[0].toLocaleDateString('es-ES',{day:'numeric',month:'short'})+' — '+
+    days[6].toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});
+
+  var totalMins=DAY_END-DAY_START;
+  var totalH=Math.round(totalMins*PX_PER_MIN);
+
+  // ── head ──
+  var head=document.getElementById('sched-head');
+  head.style.gridTemplateColumns='48px repeat(7,1fr)';
+  head.innerHTML='<div class="sh-corner" style="min-height:34px"></div>';
+  for(var di=0;di<7;di++){
+    var d=days[di], isT=d.getTime()===today.getTime();
+    head.innerHTML+='<div class="sh-day'+(isT?' tod':'')+'"><div class="sh-name">'+DIAS[di]+'</div><div class="sh-date">'+d.getDate()+' '+d.toLocaleDateString('es-ES',{month:'short'})+'</div></div>';
+  }
+
+  // ── body ──
+  var body=document.getElementById('sched-body');
+  body.innerHTML='';
+  body.style.gridTemplateColumns='48px repeat(7,1fr)';
+  body.style.height=totalH+'px';
+
+  // time column
+  var timeCol=document.createElement('div');
+  timeCol.className='time-col';
+  timeCol.style.cssText='position:relative;height:'+totalH+'px;';
+  for(var m=DAY_START;m<DAY_END;m+=SLOT_MIN){
+    var tc=document.createElement('div');
+    var h=((m-DAY_START)/totalMins)*totalH;
+    var slotH=(SLOT_MIN/totalMins)*totalH;
+    tc.className='time-row'+(m%60===0?' hour-mark':'');
+    tc.style.cssText='position:absolute;top:'+h+'px;left:0;right:0;height:'+slotH+'px;';
+    if(m%60===0) tc.textContent=Math.floor(m/60)+':00';
+    timeCol.appendChild(tc);
+  }
+  body.appendChild(timeCol);
+
+  var totalActs=0, doneActs=0, missActs=0;
+
+  // day columns
+  for(var di2=0;di2<7;di2++){
+    var d2=days[di2];
+    var dKey=dk(d2);
+    var isFut=d2>today;
+    var col=document.createElement('div');
+    col.className='day-col';
+    col.style.cssText='height:'+totalH+'px;--sh:'+Math.round((SLOT_MIN/totalMins)*totalH)+'px;';
+
+    var acts=SCHED[di2]||[];
+    for(var ai=0;ai<acts.length;ai++){
+      var act=acts[ai];
+      var topPx=((act.start-DAY_START)/totalMins)*totalH;
+      var hPx=((act.end-act.start)/totalMins)*totalH;
+      var rec=state[ak(dKey,act.id)];
+      var catInfo=CATS[act.cat]||CATS.libre;
+
+      var el=document.createElement('button');
+      el.className='ab '+catInfo.cls;
+      el.style.cssText='top:'+topPx+'px;height:'+hPx+'px;';
+
+      // label + time
+      var timeStr=fmt(act.start)+'–'+fmt(act.end);
+      if(hPx>=28){
+        el.innerHTML='<span>'+act.name+'</span><span class="ab-time">'+timeStr+'</span>';
+      } else if(hPx>=16){
+        el.innerHTML='<span style="font-size:9px">'+act.name+'</span>';
+      } else {
+        el.textContent='';
+      }
+
+      if(isFut||!act.track){
+        el.classList.add(isFut?'fut':'nt');
+      } else {
+        totalActs++;
+        if(rec){ if(rec.done){el.classList.add('done');doneActs++;} else{el.classList.add('miss');missActs++;} }
+        (function(dk2,a,di3,d3){
+          el.onclick=function(){ openModal(dk2,a,DIAS_F[di3]+' '+d3.toLocaleDateString('es-ES',{day:'numeric',month:'short'})); };
+        })(dKey,act,di2,d2);
+      }
+      (function(a){ el.addEventListener('mouseenter',function(e){showTip(e,a.name,a.desc);}); el.addEventListener('mousemove',posTip); el.addEventListener('mouseleave',hideTip); })(act);
+      col.appendChild(el);
+    }
+    body.appendChild(col);
+  }
+
+  // now line
+  if(weekOffset===0) setTimeout(drawNowLine,50);
+
+  // stats bar
+  var pct=totalActs>0?Math.round(doneActs/totalActs*100):0;
+  document.getElementById('quick-stats').innerHTML=
+    '<div class="mc"><div class="mc-v">'+pct+'%</div><div class="mc-l">Cumplimiento</div></div>'+
+    '<div class="mc"><div class="mc-v" style="color:#5DCAA5">'+doneActs+'</div><div class="mc-l">Completadas</div></div>'+
+    '<div class="mc"><div class="mc-v" style="color:#D85A30">'+missActs+'</div><div class="mc-l">Perdidas</div></div>'+
+    '<div class="mc"><div class="mc-v" style="color:#666">'+(totalActs-doneActs-missActs)+'</div><div class="mc-l">Pendientes</div></div>';
+
+  var lgCats=['mente','flex','shaolin','cardio','psicologo','trabajo'];
+  var lgd='';
+  for(var li=0;li<lgCats.length;li++){ var c=CATS[lgCats[li]]; lgd+='<div class="li"><div class="ld" style="background:'+c.color+'"></div>'+c.label+'</div>'; }
+  document.getElementById('legend').innerHTML=lgd;
+
+  // scroll to 5:30
+  var wrap=document.getElementById('sched-wrap');
+  var scrollTo=((tm(5,30)-DAY_START)/totalMins)*totalH+34;
+  wrap.scrollTop=Math.max(0,scrollTo-30);
+}
+
+// ── MODAL ────────────────────────────────────────────────
+function openModal(dKey,act,dayLabel){
+  pending={dKey:dKey,act:act};
+  document.getElementById('m-title').textContent=act.name;
+  document.getElementById('m-desc').textContent=act.desc;
+  document.getElementById('m-day').textContent=dayLabel;
+  var ex=state[ak(dKey,act.id)];
+  document.getElementById('m-reason').value=ex?(ex.reason||''):'';
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); pending=null; }
+function saveAct(done){
+  if(!pending) return;
+  var reason = document.getElementById('m-reason').value.trim();
+  var key = ak(pending.dKey, pending.act.id);
+  state[key] = {done:done, reason:reason, ts:Date.now()};
+  saveRecord(pending.dKey, pending.act.id, pending.dayIdx||0, done, reason);
+  if(!USE_API) saveState();
+  closeModal(); renderWeek(); renderStats(); renderResumen(); renderPerdidas();
+}
+
+// ── STATS ────────────────────────────────────────────────
+function renderStats(){
+  var days=getDays(weekOffset);
+  var keys=Object.keys(CATS), catData={};
+  for(var ki=0;ki<keys.length;ki++) catData[keys[ki]]={total:0,done:0};
+  var dd=[0,0,0,0,0,0,0], dt=[0,0,0,0,0,0,0];
+  for(var di=0;di<7;di++){
+    var dKey=dk(days[di]), acts=SCHED[di]||[];
+    for(var ai=0;ai<acts.length;ai++){
+      var act=acts[ai]; if(!act.track) continue;
+      var rec=state[ak(dKey,act.id)];
+      catData[act.cat].total++; dt[di]++;
+      if(rec&&rec.done){catData[act.cat].done++;dd[di]++;}
+    }
+  }
+  var total=0,done=0;
+  for(var ki2=0;ki2<keys.length;ki2++){total+=catData[keys[ki2]].total;done+=catData[keys[ki2]].done;}
+  var pct=total>0?Math.round(done/total*100):0;
+  var miss=0, stKeys=Object.keys(state);
+  for(var si=0;si<stKeys.length;si++){if(!state[stKeys[si]].done)miss++;}
+  var streak=0;
+  for(var si2=0;si2<7;si2++){if(dt[si2]>0&&dd[si2]===dt[si2])streak++;else break;}
+  document.getElementById('stat-metrics').innerHTML=
+    '<div class="mc"><div class="mc-v">'+pct+'%</div><div class="mc-l">Cumplimiento</div></div>'+
+    '<div class="mc"><div class="mc-v" style="color:#5DCAA5">'+done+'</div><div class="mc-l">Completadas</div></div>'+
+    '<div class="mc"><div class="mc-v" style="color:#D85A30">'+miss+'</div><div class="mc-l">Perdidas</div></div>'+
+    '<div class="mc"><div class="mc-v" style="color:#534AB7">'+streak+'</div><div class="mc-l">Días perfectos</div></div>';
+  var cbEl=document.getElementById('cat-bars'); cbEl.innerHTML='';
+  for(var ki3=0;ki3<keys.length;ki3++){
+    var cat=keys[ki3],cd=catData[cat]; if(cd.total===0) continue;
+    var p=Math.round(cd.done/cd.total*100),col=CATS[cat].color;
+    cbEl.innerHTML+='<div class="cr"><span class="cn">'+CATS[cat].label+'</span><div style="flex:1"><div class="pb"><div class="pf" style="width:'+p+'%;background:'+col+'"></div></div></div><span class="cpct" style="color:'+col+'">'+p+'%</span></div>';
+  }
+  if(chart){chart.destroy();chart=null;}
+  chart=new Chart(document.getElementById('dayChart'),{type:'bar',data:{labels:DIAS,datasets:[
+    {label:'Completadas',data:dd,backgroundColor:'#1D6B45',borderRadius:3},
+    {label:'Total',data:dt,backgroundColor:'rgba(255,255,255,0.07)',borderRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#666',font:{size:11}}}},
+    scales:{x:{ticks:{color:'#555',font:{size:11}},grid:{color:'#1e1e1e'}},y:{ticks:{color:'#555',font:{size:11},stepSize:1},grid:{color:'#1e1e1e'},beginAtZero:true}}}});
+}
+
+// ── RESUMEN ──────────────────────────────────────────────
+function renderResumen(){
+  var days=getDays(weekOffset);
+  var total=0,done=0,dd=[0,0,0,0,0,0,0],dt=[0,0,0,0,0,0,0];
+  var keys=Object.keys(CATS),catData={};
+  for(var ki=0;ki<keys.length;ki++) catData[keys[ki]]={total:0,done:0};
+  for(var di=0;di<7;di++){
+    var dKey=dk(days[di]),acts=SCHED[di]||[];
+    for(var ai=0;ai<acts.length;ai++){
+      var act=acts[ai]; if(!act.track) continue;
+      var rec=state[ak(dKey,act.id)]; total++;dt[di]++;catData[act.cat].total++;
+      if(rec&&rec.done){done++;dd[di]++;catData[act.cat].done++;}
+    }
+  }
+  if(done===0){document.getElementById('resumen-content').innerHTML='<p style="color:#555;font-size:13px">Registra actividades para ver tu evolución.</p>';return;}
+  var pct=Math.round(done/total*100);
+  var bestD=0; for(var i=1;i<7;i++){if(dd[i]>dd[bestD])bestD=i;}
+  var worstD=0; for(var i2=1;i2<7;i2++){var ra=dt[i2]>0?dd[i2]/dt[i2]:1,rb=dt[worstD]>0?dd[worstD]/dt[worstD]:1; if(ra<rb)worstD=i2;}
+  var sortedCats=keys.filter(function(k){return catData[k].total>0;}).sort(function(a,b){return(catData[b].done/catData[b].total)-(catData[a].done/catData[a].total);});
+  var bestCat=sortedCats[0],worstCat=sortedCats[sortedCats.length-1];
+  var miss=0,stKeys=Object.keys(state); for(var si=0;si<stKeys.length;si++){if(!state[stKeys[si]].done)miss++;}
+  var html='<h3 style="margin-bottom:.75rem;font-size:14px">Resumen de semana</h3>'+
+    '<div class="sb"><p style="font-weight:500">Cumplimiento global: '+pct+'%</p><p style="font-size:11px;color:#555;margin-top:2px">'+done+' de '+total+' actividades rastreadas.</p></div>'+
+    '<div class="sb"><p style="font-weight:500">Mejor día: '+DIAS_F[bestD]+'</p><p style="font-size:11px;color:#555;margin-top:2px">'+dd[bestD]+'/'+dt[bestD]+' actividades.</p></div>'+
+    '<div class="sb sw"><p style="font-weight:500">Día a mejorar: '+DIAS_F[worstD]+'</p><p style="font-size:11px;color:#555;margin-top:2px">'+dd[worstD]+'/'+dt[worstD]+' actividades.</p></div>';
+  if(bestCat){var bc=catData[bestCat];html+='<div class="sb"><p style="font-weight:500">Mejor categoría: '+CATS[bestCat].label+'</p><p style="font-size:11px;color:#555;margin-top:2px">'+bc.done+'/'+bc.total+' ('+Math.round(bc.done/bc.total*100)+'%)</p></div>';}
+  if(worstCat&&worstCat!==bestCat){var wc=catData[worstCat];html+='<div class="sb sw"><p style="font-weight:500">Reforzar: '+CATS[worstCat].label+'</p><p style="font-size:11px;color:#555;margin-top:2px">'+wc.done+'/'+wc.total+' ('+Math.round(wc.done/wc.total*100)+'%)</p></div>';}
+  html+='<div class="sb sw"><p style="font-weight:500">Perdidas: '+miss+'</p>'+(miss===0?'<p style="font-size:11px;color:#5DCAA5;margin-top:2px">¡Semana perfecta!</p>':'')+'</div>';
+  html+='<p style="font-size:10px;color:#333;margin-top:1rem;font-style:italic">"Pierde la batalla, nunca la guerra." — Estoicismo</p>';
+  document.getElementById('resumen-content').innerHTML=html;
+}
+
+// ── PERDIDAS ─────────────────────────────────────────────
+function renderPerdidas(){
+  var days=getDays(weekOffset),missed=[];
+  for(var di=0;di<7;di++){
+    var dKey=dk(days[di]),acts=SCHED[di]||[];
+    for(var ai=0;ai<acts.length;ai++){
+      var act=acts[ai]; if(!act.track) continue;
+      var rec=state[ak(dKey,act.id)];
+      if(rec&&!rec.done) missed.push({day:DIAS_F[di]+' '+days[di].toLocaleDateString('es-ES',{day:'numeric',month:'short'}),act:act,reason:rec.reason});
+    }
+  }
+  var el=document.getElementById('perdidas-list');
+  if(missed.length===0){el.innerHTML='<p style="color:#555;font-size:13px">Sin actividades perdidas. ¡Camino de guerrero! ⚔️</p>';return;}
+  var html='';
+  for(var mi=0;mi<missed.length;mi++){
+    var m=missed[mi];
+    html+='<div class="mi"><div class="mi-d">'+m.day+' · <span style="color:'+CATS[m.act.cat].color+'">'+CATS[m.act.cat].label+'</span></div><div class="mi-n">'+m.act.name+'</div><div class="mi-r">'+(m.reason?'"'+m.reason+'"':'Sin motivo registrado')+'</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+// ── NAV ──────────────────────────────────────────────────
+function showPage(id,tabId){
+  var pages=document.querySelectorAll('.page'); for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+  var tabs=document.querySelectorAll('.tab'); for(var i2=0;i2<tabs.length;i2++) tabs[i2].classList.remove('active');
+  document.getElementById(id).classList.add('active'); document.getElementById(tabId).classList.add('active');
+}
+document.getElementById('btn-prev').onclick=function(){ weekOffset--; if(chart){chart.destroy();chart=null;} renderWeek();renderStats();renderResumen();renderPerdidas(); };
+document.getElementById('btn-next').onclick=function(){ weekOffset++; if(chart){chart.destroy();chart=null;} renderWeek();renderStats();renderResumen();renderPerdidas(); };
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+loadState(); renderWeek(); renderStats(); renderResumen(); renderPerdidas();
+</script>
+</body>
+</html>
