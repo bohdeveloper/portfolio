@@ -153,12 +153,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        <Navbar />
+        <div id="portfolio-nav"><Navbar /></div>
         <main>{children}</main>
 
-        <SocialPanel />
-        <EmailPanel />
-        <Footer />
+        <div id="portfolio-footer">
+          <SocialPanel />
+          <EmailPanel />
+          <Footer />
+        </div>
       </body>
     </html>
   );

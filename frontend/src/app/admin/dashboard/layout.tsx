@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { AdminThemeCtx } from './AdminThemeCtx';
 
 const NAV_ITEMS = [
   { name: 'Tracker', path: '/admin/dashboard/tracker', icon: '📅' },
@@ -9,9 +10,14 @@ const NAV_ITEMS = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  const router   = useRouter();
   const pathname = usePathname();
   const [checking, setChecking] = useState(true);
+  const [isDark,   setIsDark]   = useState(true);
+
+  useEffect(() => {
+    setIsDark(localStorage.getItem('theme') !== 'light');
+  }, []);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -20,86 +26,148 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .finally(() => setChecking(false));
   }, [router]);
 
+  function toggleTheme() {
+    const next = !isDark;
+    setIsDark(next);
+    const t = next ? 'dark' : 'light';
+    localStorage.setItem('theme', t);
+    document.documentElement.classList.toggle('dark', next);
+    document.documentElement.classList.toggle('light', !next);
+  }
+
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.replace('/admin/login');
   }
 
+  const C = {
+    bg:       isDark ? '#0f0f0f' : '#f5f5f5',
+    nav:      isDark ? '#111111' : '#ffffff',
+    border:   isDark ? '#1e1e1e' : '#e0e0e0',
+    text:     isDark ? '#e8e6e0' : '#1a1a1a',
+    muted:    isDark ? '#555555' : '#888888',
+    activeBg: isDark ? '#1a1a1a' : '#f0f0f0',
+    accent:   '#5DCAA5',
+  };
+
   if (checking) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0f0f0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: '#555', fontSize: '13px' }}>Verificando sesión...</span>
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: C.muted, fontSize: '13px', fontFamily: 'system-ui, sans-serif' }}>
+          Verificando sesión...
+        </span>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f0f0f', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Sidebar */}
-      <aside style={{
-        width: '200px',
-        flexShrink: 0,
-        background: '#111',
-        borderRight: '1px solid #1e1e1e',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '1rem 0',
-      }}>
-        <div style={{ padding: '0 1rem 1rem', borderBottom: '1px solid #1e1e1e', marginBottom: '0.5rem' }}>
-          <div style={{ color: '#e8e6e0', fontSize: '13px', fontWeight: 500 }}>Panel Admin</div>
-          <div style={{ color: '#444', fontSize: '11px', marginTop: '2px' }}>bohdeveloper.com</div>
+    <AdminThemeCtx.Provider value={{ isDark, toggle: toggleTheme }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: C.bg, fontFamily: 'system-ui, sans-serif' }}>
+
+        {/* ── Top navbar ── */}
+        <header style={{
+          height: '48px',
+          background: C.nav,
+          borderBottom: `1px solid ${C.border}`,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 1.25rem',
+          gap: '1rem',
+          flexShrink: 0,
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+        }}>
+
+          {/* Logo */}
+          <a href="/admin/dashboard" style={{
+            color: C.text,
+            fontSize: '13px',
+            fontWeight: 600,
+            textDecoration: 'none',
+            letterSpacing: '0.5px',
+            flexShrink: 0,
+          }}>
+            BOH<span style={{ color: C.accent }}>.</span>admin
+          </a>
+
+          <div style={{ width: '1px', height: '18px', background: C.border, flexShrink: 0 }} />
+
+          {/* App links */}
+          <nav style={{ display: 'flex', gap: '2px', flex: 1 }}>
+            {NAV_ITEMS.map(item => {
+              const active = pathname === item.path || pathname.startsWith(item.path + '/');
+              return (
+                <a
+                  key={item.path}
+                  href={item.path}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '4px 10px',
+                    fontSize: '12px',
+                    color: active ? C.text : C.muted,
+                    background: active ? C.activeBg : 'transparent',
+                    borderRadius: '6px',
+                    border: `1px solid ${active ? C.border : 'transparent'}`,
+                    textDecoration: 'none',
+                    fontWeight: active ? 500 : 400,
+                    transition: 'color 0.15s',
+                  }}
+                >
+                  <span style={{ fontSize: '13px' }}>{item.icon}</span>
+                  {item.name}
+                </a>
+              );
+            })}
+          </nav>
+
+          {/* Right: theme + logout */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            <button
+              onClick={toggleTheme}
+              title={isDark ? 'Modo claro' : 'Modo oscuro'}
+              style={{
+                width: '30px',
+                height: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'none',
+                border: `1px solid ${C.border}`,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                lineHeight: 1,
+              }}
+            >
+              {isDark ? '☀️' : '🌙'}
+            </button>
+
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '5px 12px',
+                background: 'none',
+                border: `1px solid ${C.border}`,
+                borderRadius: '6px',
+                color: C.muted,
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              Salir
+            </button>
+          </div>
+        </header>
+
+        {/* ── Content ── */}
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          {children}
         </div>
 
-        <nav style={{ flex: 1, padding: '0.25rem 0' }}>
-          {NAV_ITEMS.map(item => {
-            const active = pathname === item.path || pathname.startsWith(item.path + '/');
-            return (
-              <a
-                key={item.path}
-                href={item.path}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 1rem',
-                  fontSize: '13px',
-                  color: active ? '#e8e6e0' : '#666',
-                  background: active ? '#1a1a1a' : 'transparent',
-                  borderLeft: active ? '2px solid #5DCAA5' : '2px solid transparent',
-                  textDecoration: 'none',
-                  transition: 'color 0.15s',
-                }}
-              >
-                <span>{item.icon}</span>
-                {item.name}
-              </a>
-            );
-          })}
-        </nav>
-
-        <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid #1e1e1e' }}>
-          <button
-            onClick={handleLogout}
-            style={{
-              width: '100%',
-              padding: '7px 0',
-              background: 'none',
-              border: '1px solid #2a2a2a',
-              borderRadius: '6px',
-              color: '#666',
-              fontSize: '12px',
-              cursor: 'pointer',
-            }}
-          >
-            Salir
-          </button>
-        </div>
-      </aside>
-
-      {/* Main */}
-      <main style={{ flex: 1, overflow: 'auto' }}>
-        {children}
-      </main>
-    </div>
+      </div>
+    </AdminThemeCtx.Provider>
   );
 }
