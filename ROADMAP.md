@@ -19,8 +19,8 @@
 # ✅ PASO 7 — Páginas Next.js: /admin/login, /admin/dashboard, /admin/dashboard/tracker (componente React)
 # ✅ PASO 8 — APIs tracker: /api/tracker/save, /week, /stats
 # ✅ PASO 9 — tracker.html eliminado de public (lógica integrada en React, protegida por middleware)
-# [ ] PASO 10 — Variables de entorno: JWT_SECRET en Cloudflare + .dev.vars local
-# [ ] PASO 11 — Despliegue y verificación
+# ✅ PASO 10 — Variables de entorno: JWT_SECRET en .dev.vars local (añadir en Cloudflare Dashboard)
+# ✅ PASO 11 — Despliegue exitoso → https://bohdeveloper.com
 
 ### Decisiones tomadas
 # tracker.html → componente React en app/admin/dashboard/tracker/page.tsx (seguro, protegido por middleware)
