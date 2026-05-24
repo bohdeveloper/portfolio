@@ -1,6 +1,6 @@
 🗺️ ROADMAP
 
-:: FASE 0 — Panel Admin + Tracker (EN CURSO)
+:: FASE 0 — Panel Admin + Tracker (✅ COMPLETADA)
 · Objetivo: primer backend real en producción. Acceso exclusivo del propietario.
 
 ### Arquitectura decidida
@@ -22,12 +22,23 @@
 # ✅ PASO 10 — Variables de entorno: JWT_SECRET en .dev.vars local (añadir en Cloudflare Dashboard)
 # ✅ PASO 11 — Despliegue exitoso → https://bohdeveloper.com
 
+### UX/UI del panel admin (✅ completado post-PASO 11)
+# ✅ Navbar del portfolio visible en todas las páginas admin (login, dashboard home)
+# ✅ Dashboard home: animación de red neuronal + tarjetas de apps (escalable)
+# ✅ Dentro de apps (tracker): barra mínima con ← Dashboard + toggle tema
+# ✅ Botón "Cerrar sesión" en dashboard home → logout + redirige a /
+# ✅ Modo claro/oscuro en tracker (html.light overrides en CSS inyectado)
+# ✅ Enlace discreto a /admin/login en el footer del portfolio (· · ·)
+# ✅ .claude/ añadido a .gitignore
+
 ### Decisiones tomadas
 # tracker.html → componente React en app/admin/dashboard/tracker/page.tsx (seguro, protegido por middleware)
 # bcryptjs (compatible Workers, sin deps nativas)
 # jose (JWT, Web Crypto API compatible)
-# Sidebar extensible desde el inicio: array {name, path, icon}
-# NO tocar ningún archivo del portfolio público
+# Sidebar eliminado → navbar del portfolio + barra mínima por app (más limpio, coherente)
+# Dashboard home como landing de red neuronal: escalable para nuevas herramientas
+# CSS variables --adm-* inyectadas en admin/layout.tsx para theming consistente
+# NeuralCanvas lee html.light/dark en cada frame (sin React re-renders para el tema)
 
 ---
 
