@@ -3,11 +3,25 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
+/* ── Tracker icon — 3×2 habit grid ── */
+function TrackerIcon({ size = 28 }: { size?: number }) {
+  const h = Math.round(size * 0.75);
+  return (
+    <svg width={size} height={h} viewBox="0 0 16 12" fill="currentColor" aria-hidden="true">
+      <rect x="0"  y="0" width="4" height="4" rx="0.75" />
+      <rect x="6"  y="0" width="4" height="4" rx="0.75" />
+      <rect x="12" y="0" width="4" height="4" rx="0.75" />
+      <rect x="0"  y="8" width="4" height="4" rx="0.75" />
+      <rect x="6"  y="8" width="4" height="4" rx="0.75" />
+      <rect x="12" y="8" width="4" height="4" rx="0.75" opacity="0.3" />
+    </svg>
+  );
+}
+
 /* ── App registry — add new tools here ── */
 const APPS = [
   {
     name: 'Tracker',
-    icon: '📅',
     desc: 'Rutinas y hábitos semanales',
     path: '/admin/dashboard/tracker',
   },
@@ -48,8 +62,8 @@ function NeuralCanvas() {
 
     function draw() {
       /* read theme every frame — responds to navbar toggle in real time */
-      const light = document.documentElement.classList.contains('light');
-      const [r, g, b] = light ? [29, 107, 69] : [93, 202, 165];
+      const isLight = document.documentElement.classList.contains('light');
+      const [r, g, b] = isLight ? [0, 168, 191] : [0, 231, 235];
 
       ctx!.clearRect(0, 0, w, h);
 
@@ -111,11 +125,9 @@ export default function DashboardPage() {
   }
 
   return (
-    /* push below fixed portfolio navbar */
     <div style={{
       position: 'relative',
-      minHeight: 'calc(100vh - 73px)',
-      marginTop: '73px',
+      minHeight: 'calc(100vh - 88px)',
       background: 'var(--adm-bg)',
       display: 'flex',
       flexDirection: 'column',
@@ -128,7 +140,7 @@ export default function DashboardPage() {
 
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 1.5rem' }}>
         <p style={{
-          color: '#5DCAA5',
+          color: 'var(--primary)',
           fontSize: '10px',
           letterSpacing: '2.5px',
           textTransform: 'uppercase',
@@ -154,7 +166,7 @@ export default function DashboardPage() {
               onClick={() => router.push(app.path)}
               style={{
                 background: 'var(--adm-card)',
-                border: '1px solid var(--adm-border)',
+                border: '1px solid var(--primary)',
                 borderRadius: '12px',
                 padding: '1.5rem 2rem',
                 cursor: 'pointer',
@@ -162,24 +174,24 @@ export default function DashboardPage() {
                 minWidth: '180px',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
-                transition: 'border-color 0.2s, transform 0.15s, box-shadow 0.2s',
+                transition: 'transform 0.15s, box-shadow 0.2s',
                 fontFamily: 'inherit',
               }}
               onMouseEnter={e => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = '#5DCAA5';
-                el.style.transform   = 'translateY(-3px)';
-                el.style.boxShadow   = '0 8px 30px rgba(93,202,165,0.12)';
+                const el = e.currentTarget;
+                el.style.transform  = 'translateY(-3px)';
+                el.style.boxShadow  = '0 8px 30px rgba(0,168,191,0.15)';
               }}
               onMouseLeave={e => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = 'var(--adm-border)';
-                el.style.transform   = 'translateY(0)';
-                el.style.boxShadow   = 'none';
+                const el = e.currentTarget;
+                el.style.transform  = 'translateY(0)';
+                el.style.boxShadow  = 'none';
               }}
             >
-              <div style={{ fontSize: '28px', marginBottom: '0.75rem' }}>{app.icon}</div>
-              <div style={{ color: 'var(--adm-text)',  fontSize: '14px', fontWeight: 500 }}>{app.name}</div>
+              <div style={{ color: 'var(--primary)', marginBottom: '0.75rem' }}>
+                <TrackerIcon size={28} />
+              </div>
+              <div style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 500 }}>{app.name}</div>
               <div style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '3px' }}>{app.desc}</div>
             </button>
           ))}

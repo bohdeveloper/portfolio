@@ -41,10 +41,8 @@ export default function AdminLogin() {
   };
 
   return (
-    /* push below the fixed portfolio navbar (~73px) */
     <div style={{
-      minHeight: 'calc(100vh - 73px)',
-      marginTop: '73px',
+      minHeight: 'calc(100vh - 88px)',
       background: 'var(--adm-bg)',
       display: 'flex',
       alignItems: 'center',
