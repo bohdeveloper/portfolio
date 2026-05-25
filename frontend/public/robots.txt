@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /_next/static/media/
+Disallow: /_next/static/chunks/
 
 Sitemap: https://bohdeveloper.com/sitemap.xml

@@ -1,6 +1,9 @@
-# Redirige www a no-www
+# Redirige www a no-www (requiere que www esté añadido como custom domain en Cloudflare Pages)
 https://www.bohdeveloper.com/* https://bohdeveloper.com/:splat 301
 
-# Evita redirecciones innecesarias
+# Redirige index.html a la raíz (evita que Google indexe duplicados)
+/index.html / 301
+
+# Sirve estos archivos directamente sin redirección
 /sitemap.xml /sitemap.xml 200
 /robots.txt /robots.txt 200
