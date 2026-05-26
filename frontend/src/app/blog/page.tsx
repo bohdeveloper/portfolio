@@ -43,6 +43,63 @@ function TagPill({ tag, active, onClick }: { tag: string; active?: boolean; onCl
   );
 }
 
+const POST_CONTENT_STYLES = `
+  .post-body {
+    font-size: 16px; line-height: 1.8;
+    color: #1f2937;
+  }
+  html.dark .post-body { color: #d1d5db; }
+
+  .post-body h1 { font-size: 1.85em; font-weight: 700; margin: 1.4em 0 0.5em; color: #111827; line-height: 1.25; }
+  .post-body h2 { font-size: 1.4em;  font-weight: 600; margin: 1.3em 0 0.45em; color: #111827; line-height: 1.3; }
+  .post-body h3 { font-size: 1.15em; font-weight: 600; margin: 1.1em 0 0.4em;  color: #111827; }
+  html.dark .post-body h1,
+  html.dark .post-body h2,
+  html.dark .post-body h3 { color: #f3f4f6; }
+
+  .post-body p { margin: 0.85em 0; }
+  .post-body ul, .post-body ol { padding-left: 1.6em; margin: 0.85em 0; }
+  .post-body li { margin: 0.3em 0; }
+  .post-body li > p { margin: 0; }
+
+  .post-body strong { font-weight: 700; color: #111827; }
+  html.dark .post-body strong { color: #f9fafb; }
+  .post-body em { font-style: italic; }
+  .post-body u  { text-decoration: underline; }
+
+  .post-body a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+  .post-body a:hover { opacity: 0.8; }
+
+  .post-body code {
+    background: #f1f5f9; padding: 2px 6px; border-radius: 4px;
+    font-size: 0.875em; font-family: ui-monospace, monospace; color: #0891b2;
+  }
+  html.dark .post-body code { background: #1e293b; color: #00e7eb; }
+
+  .post-body pre {
+    background: #f1f5f9; padding: 1rem 1.25rem; border-radius: 8px;
+    overflow-x: auto; margin: 1.1em 0; border: 1px solid #e2e8f0;
+  }
+  html.dark .post-body pre { background: #0f172a; border-color: #1e293b; }
+  .post-body pre code { background: none; padding: 0; color: #334155; font-size: 13.5px; }
+  html.dark .post-body pre code { color: #cbd5e1; }
+
+  .post-body blockquote {
+    border-left: 3px solid var(--primary); margin: 1.1em 0;
+    padding: 0.5em 1.1em; color: #6b7280; font-style: italic;
+  }
+  html.dark .post-body blockquote { color: #9ca3af; }
+
+  .post-body hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.75em 0; }
+  html.dark .post-body hr { border-color: #374151; }
+
+  .post-body table { width: 100%; border-collapse: collapse; margin: 1.1em 0; font-size: 14px; }
+  .post-body th, .post-body td { border: 1px solid #e5e7eb; padding: 8px 14px; text-align: left; }
+  html.dark .post-body th, html.dark .post-body td { border-color: #374151; }
+  .post-body th { background: #f9fafb; font-weight: 600; }
+  html.dark .post-body th { background: #1e293b; color: #f3f4f6; }
+`;
+
 /* ── Single post view ── */
 function PostView({ slug }: { slug: string }) {
   const router = useRouter();
@@ -132,20 +189,8 @@ function PostView({ slug }: { slug: string }) {
         </div>
       </header>
 
-      {/* Prose: sin prose-invert en light mode para texto legible */}
-      <div
-        id="blog-content"
-        className="prose dark:prose-invert max-w-none
-          text-gray-800 dark:text-gray-300
-          prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-headings:font-medium
-          prose-p:text-gray-800 dark:prose-p:text-gray-300
-          prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-          prose-code:text-primary prose-code:bg-gray-100 dark:prose-code:bg-gray-900 prose-code:px-1 prose-code:rounded
-          prose-pre:bg-gray-100 dark:prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-gray-800
-          prose-blockquote:border-l-primary prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400
-          prose-strong:text-gray-900 dark:prose-strong:text-gray-100
-          prose-li:text-gray-800 dark:prose-li:text-gray-300"
-      >
+      <style>{POST_CONTENT_STYLES}</style>
+      <div id="blog-content" className="post-body">
         <p className="text-gray-400 text-sm italic">Cargando contenido...</p>
       </div>
     </article>
