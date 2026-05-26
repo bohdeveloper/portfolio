@@ -310,6 +310,28 @@ export default function AdminLogin() {
                 {loading ? 'Entrando...' : 'Entrar'}
               </button>
             </form>
+
+            <button
+              onClick={() => window.location.href = '/'}
+              style={{
+                marginTop: '1.25rem',
+                background: 'none',
+                border: 'none',
+                color: '#444',
+                fontSize: '12px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: 0,
+                transition: 'color 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#444')}
+            >
+              ← Volver al portfolio
+            </button>
           </div>
         </div>
 
