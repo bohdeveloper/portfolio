@@ -36,6 +36,22 @@ const BLOG_STYLES = `
   .abtn-d:hover { background: #D85A30; color: #fff; }
   .abtn-g { border: 1px solid var(--adm-border); color: var(--adm-text); }
   .abtn-g:hover { border-color: var(--primary); color: var(--primary); }
+
+  @media (max-width: 600px) {
+    .blog-card { flex-wrap: wrap !important; }
+    .blog-card-slug { display: none !important; }
+    .blog-card-actions {
+      width: 100% !important; flex-shrink: unset !important;
+      border-top: 1px solid var(--adm-border); padding-top: 10px; margin-top: 2px;
+    }
+    .blog-card-actions .abtn { flex: 1; text-align: center; }
+    .blog-editor-hdr {
+      flex-direction: column !important; align-items: flex-start !important; gap: 10px !important;
+    }
+    .blog-editor-hdr-right { width: 100% !important; flex-wrap: wrap !important; }
+    .blog-editor-hdr-right .abtn { flex: 1; text-align: center; }
+    .blog-editor-hdr-right span { width: 100%; }
+  }
 `;
 
 function slugify(title: string) {
@@ -210,28 +226,28 @@ export default function AdminBlogPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {posts.map(p => (
-                <div key={p.id} style={{ background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '10px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div key={p.id} className="blog-card" style={{ background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '10px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   {p.cover_image && (
                     <img src={p.cover_image} alt="" style={{ width: '56px', height: '40px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} />
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
                       <span style={{ color: 'var(--adm-text)', fontSize: '14px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</span>
                       <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: p.published ? '#1D6B4520' : '#33333360', color: p.published ? '#5DCAA5' : '#777', border: `1px solid ${p.published ? '#1D6B4540' : '#444'}`, flexShrink: 0 }}>
                         {p.published ? 'Publicado' : 'Borrador'}
                       </span>
                     </div>
-                    <div style={{ color: 'var(--adm-muted)', fontSize: '11px', display: 'flex', gap: '10px' }}>
+                    <div style={{ color: 'var(--adm-muted)', fontSize: '11px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       <span>{fmtDate(p.created_at)}</span>
                       <span>·</span>
                       <span>{p.reading_time} min</span>
                       <span>·</span>
                       <span>{p.views} lecturas</span>
-                      <span>·</span>
-                      <span style={{ color: 'var(--adm-label)', fontFamily: 'monospace' }}>/blog?slug={p.slug}</span>
+                      <span className="blog-card-slug">·</span>
+                      <span className="blog-card-slug" style={{ color: 'var(--adm-label)', fontFamily: 'monospace' }}>/blog?slug={p.slug}</span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                  <div className="blog-card-actions" style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     <button className="abtn abtn-g" onClick={() => openEdit(p)}>Editar</button>
                     <button
                       className="abtn abtn-d"
@@ -248,14 +264,14 @@ export default function AdminBlogPage() {
         ) : (
           /* ── Editor view ── */
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div className="blog-editor-hdr" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <button className="abtn abtn-g" style={{ padding: '6px 10px' }} onClick={() => setView('list')}>←</button>
                 <h1 style={{ color: 'var(--adm-text)', fontSize: '16px', fontWeight: 500 }}>
                   {editId ? 'Editar post' : 'Nuevo post'}
                 </h1>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="blog-editor-hdr-right" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {msg && <span style={{ fontSize: '12px', color: msg.startsWith('✓') ? '#5DCAA5' : '#D85A30' }}>{msg}</span>}
                 <button className="abtn abtn-g" onClick={() => setPreview(v => !v)}>
                   {preview ? 'Editar' : 'Vista previa'}
