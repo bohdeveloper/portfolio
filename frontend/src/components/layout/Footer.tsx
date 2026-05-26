@@ -9,14 +9,6 @@ export default function Footer() {
         <span className="block mt-1 text-xs text-gray-500 dark:text-gray-500">
           Programador web · Portfolio profesional
         </span>
-        <a
-          href="/admin/login"
-          aria-label="admin"
-          className="block mt-5 text-gray-400 dark:text-gray-700 hover:text-gray-500 dark:hover:text-gray-500 transition-colors text-xs"
-          style={{ opacity: 0.25, letterSpacing: '4px' }}
-        >
-          · · ·
-        </a>
       </div>
     </footer>
   );

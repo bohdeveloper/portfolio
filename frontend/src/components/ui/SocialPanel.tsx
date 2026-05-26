@@ -106,6 +106,29 @@ export default function SocialPanel() {
               </svg>
             </a>
           </li>
+          {/* Admin — candado discreto */}
+          <li>
+            <a
+              href="/admin/login"
+              aria-label="admin"
+              className="group transition"
+              style={{ opacity: 0.18 }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.45')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '0.18')}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <rect x="5" y="11" width="14" height="10" rx="2" />
+                <path strokeLinecap="round" d="M8 11V7a4 4 0 018 0v4" />
+              </svg>
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -195,6 +218,28 @@ export default function SocialPanel() {
               clipRule="evenodd"
               d="M12 .5C5.73.5.5 5.86.5 12.44c0 5.26 3.44 9.72 8.2 11.3.6.11.82-.27.82-.59v-2.2c-3.34.75-4.04-1.7-4.04-1.7-.55-1.45-1.35-1.84-1.35-1.84-1.1-.78.08-.76.08-.76 1.22.09 1.86 1.3 1.86 1.3 1.08 1.91 2.83 1.36 3.52 1.04.11-.8.42-1.36.76-1.67-2.66-.31-5.47-1.38-5.47-6.14 0-1.36.46-2.47 1.22-3.34-.12-.31-.53-1.56.11-3.25 0 0 .99-.33 3.24 1.27a11.2 11.2 0 015.9 0c2.24-1.6 3.24-1.27 3.24-1.27.64 1.69.23 2.94.11 3.25.76.87 1.22 1.98 1.22 3.34 0 4.78-2.82 5.82-5.5 6.13.43.39.82 1.15.82 2.32v3.44c0 .33.21.71.83.59 4.76-1.58 8.2-6.04 8.2-11.3C23.5 5.86 18.27.5 12 .5z"
             />
+          </svg>
+        </a>
+
+        {/* Admin — candado discreto */}
+        <a
+          href="/admin/login"
+          aria-label="admin"
+          className="transition"
+          style={{ opacity: 0.18 }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = '0.45')}
+          onMouseLeave={e => (e.currentTarget.style.opacity = '0.18')}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 text-gray-500 dark:text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <rect x="5" y="11" width="14" height="10" rx="2" />
+            <path strokeLinecap="round" d="M8 11V7a4 4 0 018 0v4" />
           </svg>
         </a>
       </div>
