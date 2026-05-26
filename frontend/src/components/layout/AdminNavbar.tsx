@@ -72,7 +72,7 @@ export default function AdminNavbar() {
             {!isLogin && !isInApp && (
               <Link
                 href="/"
-                className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition"
+                className="px-4 py-2 border border-primary text-primary rounded hover:bg-primary hover:text-black transition text-sm font-medium"
               >
                 ← Portfolio
               </Link>
