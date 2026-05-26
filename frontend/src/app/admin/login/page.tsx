@@ -94,21 +94,52 @@ function NeuralCanvas() {
   );
 }
 
+interface AppPos {
+  top: string; left: string;
+  phase: number; speedX: number; speedY: number; ampX: number; ampY: number;
+}
+
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
-  const [appPositions, setAppPositions] = useState<{ top: string; left: string }[] | null>(null);
+  const [appPositions, setAppPositions] = useState<AppPos[] | null>(null);
+  const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
     setAppPositions(
       ADMIN_APPS.map(() => ({
-        top:  `${15 + Math.random() * 62}%`,
-        left: `${8  + Math.random() * 68}%`,
+        top:    `${15 + Math.random() * 62}%`,
+        left:   `${8  + Math.random() * 68}%`,
+        phase:  Math.random() * Math.PI * 2,
+        speedX: 0.007 + Math.random() * 0.006,
+        speedY: 0.005 + Math.random() * 0.007,
+        ampX:   18 + Math.random() * 28,
+        ampY:   12 + Math.random() * 22,
       }))
     );
   }, []);
+
+  /* Drift animation — moves labels directly via DOM to avoid React re-renders */
+  useEffect(() => {
+    if (!appPositions) return;
+    let animId: number;
+    let t = 0;
+    function animate() {
+      t += 1;
+      appPositions!.forEach((pos, i) => {
+        const el = labelRefs.current[i];
+        if (!el) return;
+        const tx = Math.sin(t * pos.speedX + pos.phase) * pos.ampX;
+        const ty = Math.cos(t * pos.speedY + pos.phase * 0.8) * pos.ampY;
+        el.style.transform = `translate(${tx}px, ${ty}px)`;
+      });
+      animId = requestAnimationFrame(animate);
+    }
+    animId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animId);
+  }, [appPositions]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -282,6 +313,7 @@ export default function AdminLogin() {
           {appPositions && ADMIN_APPS.map((app, i) => (
             <span
               key={app.name}
+              ref={el => { labelRefs.current[i] = el; }}
               className="login-app-float"
               style={{ top: appPositions[i].top, left: appPositions[i].left }}
             >

@@ -88,11 +88,6 @@ export default function Navbar() {
               <li><a href={onHome ? '#proyectos' : '/#proyectos'} className="hover:text-primary transition">Proyectos</a></li>
               <li><a href={onHome ? '#ia' : '/#ia'} className="hover:text-primary transition">IA</a></li>
               <li><a href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="hover:text-primary transition">Aprendizaje</a></li>
-              <li>
-                <Link href="/blog" className={`hover:text-primary transition ${pathname === '/blog' ? 'text-primary' : ''}`}>
-                  Blog
-                </Link>
-              </li>
               <li><a href={onHome ? '#contacto' : '/#contacto'} className="hover:text-primary transition">Contacto</a></li>
             </ul>
 
@@ -145,9 +140,6 @@ export default function Navbar() {
             <li><a onClick={() => setOpen(false)} href={onHome ? '#proyectos' : '/#proyectos'} className="block hover:text-primary transition">Proyectos</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#ia' : '/#ia'} className="block hover:text-primary transition font-semibold">IA</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="block hover:text-primary transition">Aprendizaje</a></li>
-            <li>
-              <Link href="/blog" onClick={() => setOpen(false)} className="block hover:text-primary transition">Blog</Link>
-            </li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#contacto' : '/#contacto'} className="block hover:text-primary transition">Contacto</a></li>
             <li className="pt-4">
               <a

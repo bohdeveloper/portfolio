@@ -51,15 +51,38 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+/* Resize + compress image file to JPEG base64 — keeps D1 row size manageable */
+function compressImage(file: File, maxWidth = 1200, quality = 0.82): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width  = Math.round(img.width  * ratio);
+        canvas.height = Math.round(img.height * ratio);
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target!.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AdminBlogPage() {
-  const [view, setView]         = useState<View>('list');
-  const [posts, setPosts]       = useState<Post[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [saving, setSaving]     = useState(false);
-  const [deleting, setDeleting] = useState<number | null>(null);
-  const [msg, setMsg]           = useState('');
-  const [preview, setPreview]   = useState(false);
+  const [view, setView]             = useState<View>('list');
+  const [posts, setPosts]           = useState<Post[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [saving, setSaving]         = useState(false);
+  const [deleting, setDeleting]     = useState<number | null>(null);
+  const [msg, setMsg]               = useState('');
+  const [preview, setPreview]       = useState(false);
   const [parsedHtml, setParsedHtml] = useState('');
+  const [imgUploading, setImgUploading] = useState(false);
 
   const [form, setForm] = useState<Omit<Post, 'id' | 'views' | 'created_at' | 'updated_at'>>(EMPTY);
   const [editId, setEditId] = useState<number | null>(null);
@@ -124,6 +147,18 @@ export default function AdminBlogPage() {
       if (data.ok) loadPosts();
     } catch { /* ignore */ }
     setDeleting(null);
+  }
+
+  async function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImgUploading(true);
+    try {
+      const compressed = await compressImage(file);
+      set('cover_image', compressed);
+    } catch { /* ignore */ }
+    setImgUploading(false);
+    e.target.value = '';
   }
 
   /* Markdown preview — stores parsed HTML in state to avoid direct DOM mutation */
@@ -265,8 +300,29 @@ export default function AdminBlogPage() {
                 </div>
 
                 <div>
-                  <label style={lbl}>Imagen de portada (URL)</label>
-                  <input style={inp} value={form.cover_image} onChange={e => set('cover_image', e.target.value)} placeholder="https://..." />
+                  <label style={lbl}>Imagen de portada</label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <label
+                      htmlFor="cover-img-input"
+                      className={`abtn abtn-g${imgUploading ? ' abtn:disabled' : ''}`}
+                      style={{ display: 'inline-block', cursor: imgUploading ? 'not-allowed' : 'pointer', opacity: imgUploading ? 0.5 : 1 }}
+                    >
+                      {imgUploading ? 'Procesando...' : (form.cover_image ? 'Cambiar imagen' : '+ Subir imagen')}
+                    </label>
+                    {form.cover_image && (
+                      <button type="button" className="abtn abtn-d" onClick={() => set('cover_image', '')}>
+                        Quitar
+                      </button>
+                    )}
+                    <input
+                      id="cover-img-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFile}
+                      disabled={imgUploading}
+                      style={{ display: 'none' }}
+                    />
+                  </div>
                   {form.cover_image && (
                     <img src={form.cover_image} alt="" style={{ marginTop: '8px', width: '100%', maxHeight: '160px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--adm-border)' }} />
                   )}

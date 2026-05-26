@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SocialPanel from "@/components/ui/SocialPanel";
 import EmailPanel from "@/components/ui/EmailPanel";
+import BlogPanel from "@/components/ui/BlogPanel";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -155,6 +156,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <div id="portfolio-nav"><Navbar /></div>
         <main>{children}</main>
+
+        <BlogPanel />
 
         <div id="portfolio-footer">
           <SocialPanel />
