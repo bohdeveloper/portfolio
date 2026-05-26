@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { CATS, DIAS, DIAS_F, SCHED, Activity, tm } from './tracker-data';
+import { CATS, DIAS, DIAS_F, SCHED, SCHED_V2, SCHED_SWITCH, Activity, tm } from './tracker-data';
 
 const TRACKER_CSS = `
 #tracker-root{font-family:system-ui,sans-serif;font-size:14px;background:#0f0f0f;color:#e8e6e0;padding-bottom:2rem}
@@ -13,7 +13,8 @@ const TRACKER_CSS = `
 .tab.active{color:#e8e6e0;border-bottom-color:#5DCAA5;font-weight:500}
 .page{display:none;padding:0 .75rem .75rem}.page.active{display:block}
 .card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1rem;margin-bottom:1rem}
-.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;margin-bottom:.75rem}
+.g4{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:.75rem}
+@media(min-width:640px){.g4{grid-template-columns:repeat(4,1fr)}}
 .mc{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:.75rem;text-align:center}
 .mc-v{font-size:20px;font-weight:500}
 .mc-l{font-size:10px;color:#666;margin-top:2px}
@@ -23,9 +24,10 @@ const TRACKER_CSS = `
 .btn:hover{background:#2a2a2a}
 .btn-done{background:#1D6B45;border-color:#1D6B45;color:#fff}
 .btn-miss{background:#7a2a1a;border-color:#7a2a1a;color:#fff}
-.legend-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
-.li{display:flex;align-items:center;gap:4px;font-size:10px;color:#777}
-.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:.75rem}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:#777}
+.ld{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+@media(min-width:640px){.li{font-size:13px}.ld{width:12px;height:12px;border-radius:3px}}
 .sched-wrap{overflow-x:auto;overflow-y:auto;max-height:78vh;border:1px solid #2a2a2a;border-radius:10px}
 .sched-inner{display:grid;min-width:640px}
 .sched-head{display:grid;position:sticky;top:0;z-index:10;background:#111;border-bottom:1px solid #2a2a2a}
@@ -52,6 +54,7 @@ const TRACKER_CSS = `
 .ab-time{display:block;font-size:8.5px;font-weight:400;opacity:.75;margin-top:1px}
 .now-line{position:absolute;left:0;right:0;height:2px;background:#5DCAA5;z-index:8;pointer-events:none}
 .now-dot{position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:#5DCAA5}
+.ckr{background:#1e5a7a}
 .cm{background:#2e2880}.cf{background:#0d5e48}
 .cp{background:#222;color:#666;border-left-color:#333}
 .cw{background:#0e2d4a}.cc{background:#6a2308}.cs{background:#155234}.cpsi{background:#4a2060}
@@ -69,9 +72,10 @@ const TRACKER_CSS = `
 .mi-d{font-size:10px;color:#555}
 .mi-n{font-weight:500;font-size:13px;margin:2px 0}
 .mi-r{font-size:12px;color:#555;font-style:italic}
-.tip{position:fixed;background:#1c1c1c;border:1px solid #333;border-radius:8px;padding:8px 12px;font-size:12px;color:#bbb;max-width:220px;pointer-events:none;z-index:999;opacity:0;transition:opacity .1s;line-height:1.5}
+.tip{position:fixed;background:#1c1c1c;border:1px solid #333;border-radius:8px;padding:8px 12px;font-size:12px;color:#bbb;max-width:240px;pointer-events:none;z-index:999;opacity:0;transition:opacity .1s;line-height:1.5}
 .tip.on{opacity:1}
 .tip strong{color:#e8e6e0;display:block;margin-bottom:2px;font-size:12px}
+.tip-reason{display:block;color:#888;font-style:italic;margin-top:4px;font-size:11px;border-top:1px solid #2a2a2a;padding-top:4px}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:200}
 .modal{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1.25rem;width:340px;max-width:92vw}
 .modal h3{margin-bottom:.35rem;color:#e8e6e0;font-size:14px}
@@ -81,7 +85,7 @@ const TRACKER_CSS = `
 .hidden{display:none}
 `;
 
-/* Light-mode overrides — applied automatically when html has .light class */
+/* Light-mode overrides */
 const LIGHT_CSS = `
 html.light #tracker-root{background:#f5f5f5;color:#1a1a1a}
 html.light .header-bar{background:#fff;border-bottom-color:#e0e0e0}
@@ -116,6 +120,7 @@ html.light .mi-d{color:#888}
 html.light .mi-r{color:#888}
 html.light .tip{background:#fff;border-color:#e0e0e0;color:#444}
 html.light .tip strong{color:#1a1a1a}
+html.light .tip-reason{border-top-color:#e0e0e0;color:#888}
 html.light .modal{background:#fff;border-color:#e0e0e0}
 html.light .modal h3{color:#1a1a1a}
 html.light .modal-sub{color:#777}
@@ -160,7 +165,7 @@ const TRACKER_HTML = `
 <div id="perdidas" class="page">
   <div id="perdidas-list"><p style="color:#555;font-size:13px">Sin actividades perdidas esta semana.</p></div>
 </div>
-<div class="tip" id="tip"><strong id="tip-title"></strong><span id="tip-desc"></span></div>
+<div class="tip" id="tip"><strong id="tip-title"></strong><span id="tip-desc"></span><em class="tip-reason" id="tip-reason"></em></div>
 <div id="modal" class="modal-bg hidden">
   <div class="modal">
     <h3 id="m-title"></h3>
@@ -194,6 +199,11 @@ function getDays(off: number): Date[] {
   const ws = getWS(off), days: Date[] = [];
   for (let i = 0; i < 7; i++) { const d = new Date(ws); d.setDate(ws.getDate() + i); days.push(d); }
   return days;
+}
+
+/* Returns the correct schedule for a given day, switching to V2 from SCHED_SWITCH */
+function getSchedForDay(di: number, dayDate: Date): Activity[] {
+  return dk(dayDate) >= SCHED_SWITCH ? (SCHED_V2[di] || []) : (SCHED[di] || []);
 }
 
 type StateRecord = { done: boolean; reason: string; ts: number | string };
@@ -238,16 +248,23 @@ function initTracker() {
 
   // ── Tooltip ──────────────────────────────────────────────────────────────────
   const tipEl = document.getElementById('tip')!;
-  function showTip(e: MouseEvent, name: string, desc: string) {
+  function showTip(e: MouseEvent, name: string, desc: string, reason = '') {
     document.getElementById('tip-title')!.textContent = name;
     document.getElementById('tip-desc')!.textContent = desc;
+    const tipReason = document.getElementById('tip-reason')!;
+    if (reason) {
+      tipReason.textContent = '"' + reason + '"';
+      tipReason.style.display = 'block';
+    } else {
+      tipReason.style.display = 'none';
+    }
     tipEl.classList.add('on');
     posTip(e);
   }
   function posTip(e: MouseEvent) {
     let x = e.clientX + 14, y = e.clientY - 10;
-    if (x + 230 > window.innerWidth) x = e.clientX - 240;
-    if (y + 90 > window.innerHeight) y = e.clientY - 100;
+    if (x + 250 > window.innerWidth) x = e.clientX - 255;
+    if (y + 110 > window.innerHeight) y = e.clientY - 115;
     tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
   }
   function hideTip() { tipEl.classList.remove('on'); }
@@ -268,7 +285,7 @@ function initTracker() {
       line.style.top = pct + '%';
       col.appendChild(line);
     });
-    void totalH; // used implicitly via totalMins * PX_PER_MIN above
+    void totalH;
   }
 
   // ── Render week ───────────────────────────────────────────────────────────────
@@ -311,17 +328,22 @@ function initTracker() {
 
     let totalActs = 0, doneActs = 0, missActs = 0;
 
+    /* Dynamic legend: collect categories present this week */
+    const catSet = new Set<string>();
+
     for (let di = 0; di < 7; di++) {
       const d2 = days[di], dKey = dk(d2), isFut = d2 > today;
       const col = document.createElement('div');
       col.className = 'day-col';
       col.style.cssText = `height:${totalH}px;--sh:${Math.round((SLOT_MIN / totalMins) * totalH)}px;`;
 
-      for (const act of (SCHED[di] || [])) {
+      for (const act of getSchedForDay(di, d2)) {
         const topPx = ((act.start - DAY_START) / totalMins) * totalH;
         const hPx   = ((act.end - act.start) / totalMins) * totalH;
         const rec   = state[ak(dKey, act.id)];
         const cat   = CATS[act.cat] || CATS.libre;
+
+        if (act.cat !== 'prep' && act.cat !== 'libre' && act.cat !== 'dormir') catSet.add(act.cat);
 
         const el = document.createElement('button');
         el.className = 'ab ' + cat.cls;
@@ -339,11 +361,15 @@ function initTracker() {
             el.onclick = () => openModal(dk2, a, di2, DIAS_F[di2] + ' ' + d3.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
           })(dKey, act, di, d2);
         }
-        ((a: Activity) => {
-          el.addEventListener('mouseenter', e => showTip(e as MouseEvent, a.name, a.desc));
+        /* Tooltip with reason on hover */
+        ((a: Activity, dstr: string) => {
+          el.addEventListener('mouseenter', e => {
+            const r = state[ak(dstr, a.id)];
+            showTip(e as MouseEvent, a.name, a.desc, r?.reason || '');
+          });
           el.addEventListener('mousemove',  e => posTip(e as MouseEvent));
           el.addEventListener('mouseleave', hideTip);
-        })(act);
+        })(act, dKey);
         col.appendChild(el);
       }
       body.appendChild(col);
@@ -358,10 +384,12 @@ function initTracker() {
       `<div class="mc"><div class="mc-v" style="color:#D85A30">${missActs}</div><div class="mc-l">Perdidas</div></div>` +
       `<div class="mc"><div class="mc-v" style="color:#666">${totalActs - doneActs - missActs}</div><div class="mc-l">Pendientes</div></div>`;
 
-    document.getElementById('legend')!.innerHTML =
-      ['mente','flex','shaolin','cardio','psicologo','trabajo'].map(c =>
-        `<div class="li"><div class="ld" style="background:${CATS[c].color}"></div>${CATS[c].label}</div>`
-      ).join('');
+    /* Legend — dynamic, sorted by category order in CATS */
+    const catOrder = Object.keys(CATS);
+    const sortedCats = [...catSet].sort((a, b) => catOrder.indexOf(a) - catOrder.indexOf(b));
+    document.getElementById('legend')!.innerHTML = sortedCats.map(c =>
+      `<div class="li"><div class="ld" style="background:${CATS[c].color}"></div>${CATS[c].label}</div>`
+    ).join('');
 
     const wrap = document.getElementById('sched-wrap')!;
     const scrollTo = ((tm(5, 30) - DAY_START) / totalMins) * totalH + 34;
@@ -398,7 +426,7 @@ function initTracker() {
 
     for (let di = 0; di < 7; di++) {
       const dKey = dk(days[di]);
-      for (const act of (SCHED[di] || [])) {
+      for (const act of getSchedForDay(di, days[di])) {
         if (!act.track) continue;
         const rec = state[ak(dKey, act.id)];
         catData[act.cat].total++; dt[di]++;
@@ -458,7 +486,7 @@ function initTracker() {
 
     for (let di = 0; di < 7; di++) {
       const dKey = dk(days[di]);
-      for (const act of (SCHED[di] || [])) {
+      for (const act of getSchedForDay(di, days[di])) {
         if (!act.track) continue;
         const rec = state[ak(dKey, act.id)];
         total++; dt[di]++; catData[act.cat].total++;
@@ -495,7 +523,7 @@ function initTracker() {
     const missed: { day: string; act: Activity; reason: string }[] = [];
     for (let di = 0; di < 7; di++) {
       const dKey = dk(days[di]);
-      for (const act of (SCHED[di] || [])) {
+      for (const act of getSchedForDay(di, days[di])) {
         if (!act.track) continue;
         const rec = state[ak(dKey, act.id)];
         if (rec && !rec.done) missed.push({ day: DIAS_F[di] + ' ' + days[di].toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }), act, reason: rec.reason });

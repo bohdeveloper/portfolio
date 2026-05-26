@@ -28,8 +28,9 @@ export default function AdminNavbar() {
   const pathname = usePathname();
   const router   = useRouter();
 
+  const isLogin  = pathname === '/admin/login' || pathname === '/admin/login/';
   /* Any route deeper than /admin/dashboard (i.e. /admin/dashboard/tracker) */
-  const isInApp = pathname.startsWith('/admin/dashboard/');
+  const isInApp  = pathname.startsWith('/admin/dashboard/');
 
   return (
     <>
@@ -47,7 +48,7 @@ export default function AdminNavbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-4">
-            {isInApp ? (
+            {isInApp && (
               /* Inside an app: show ← Dashboard button */
               <button
                 onClick={() => router.push('/admin/dashboard')}
@@ -55,8 +56,10 @@ export default function AdminNavbar() {
               >
                 ← Dashboard
               </button>
-            ) : (
-              /* Login / dashboard home: show app links */
+            )}
+
+            {!isLogin && !isInApp && (
+              /* Dashboard home: show app links */
               <ul className="flex items-center gap-6 text-lg font-medium">
                 {ADMIN_APPS.map(({ name, path, Icon }) => {
                   const active = pathname === path || pathname.startsWith(path + '/');
