@@ -56,23 +56,25 @@ const BLOG_STYLES = `
 
   .ProseMirror {
     padding: 1.1rem 1.25rem; min-height: 380px; outline: none;
-    color: var(--adm-text); font-size: 14px; line-height: 1.75;
+    color: var(--adm-text); font-size: 16px; line-height: 1.8;
     font-family: system-ui, sans-serif;
   }
-  .ProseMirror h1 { font-size: 22px; font-weight: 600; margin: 1.1em 0 0.4em; color: var(--adm-text); }
-  .ProseMirror h2 { font-size: 18px; font-weight: 600; margin: 1em 0 0.35em; color: var(--adm-text); }
-  .ProseMirror h3 { font-size: 15px; font-weight: 600; margin: 0.9em 0 0.3em; color: var(--adm-text); }
-  .ProseMirror p { margin: 0.4em 0; }
-  .ProseMirror ul, .ProseMirror ol { padding-left: 1.5em; margin: 0.5em 0; }
-  .ProseMirror li { margin: 0.2em 0; }
-  .ProseMirror code { background: var(--adm-border); padding: 1px 5px; border-radius: 3px; font-size: 12.5px; font-family: monospace; color: var(--primary); }
-  .ProseMirror pre { background: var(--adm-border); padding: 0.75rem 1rem; border-radius: 6px; overflow-x: auto; margin: 0.75em 0; }
-  .ProseMirror pre code { background: none; padding: 0; color: var(--adm-text); font-size: 13px; }
-  .ProseMirror blockquote { border-left: 3px solid var(--primary); margin: 0.75em 0; padding: 0.4em 1em; color: var(--adm-muted); font-style: italic; }
-  .ProseMirror hr { border: none; border-top: 1px solid var(--adm-border); margin: 1.2em 0; }
-  .ProseMirror a { color: var(--primary); text-decoration: underline; }
+  .ProseMirror h1 { font-size: 1.85em; font-weight: 700; margin: 1.4em 0 0.5em; color: var(--adm-text); line-height: 1.25; }
+  .ProseMirror h2 { font-size: 1.4em;  font-weight: 600; margin: 1.3em 0 0.45em; color: var(--adm-text); line-height: 1.3; }
+  .ProseMirror h3 { font-size: 1.15em; font-weight: 600; margin: 1.1em 0 0.4em;  color: var(--adm-text); }
+  .ProseMirror p { margin: 0.85em 0; }
+  .ProseMirror ul, .ProseMirror ol { padding-left: 1.6em; margin: 0.85em 0; }
+  .ProseMirror li { margin: 0.3em 0; }
+  .ProseMirror li > p { margin: 0; }
+  .ProseMirror code { background: var(--adm-border); padding: 2px 6px; border-radius: 4px; font-size: 0.875em; font-family: ui-monospace, monospace; color: var(--primary); }
+  .ProseMirror pre { background: var(--adm-border); padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; margin: 1.1em 0; border: 1px solid var(--adm-border); }
+  .ProseMirror pre code { background: none; padding: 0; color: var(--adm-text); font-size: 13.5px; }
+  .ProseMirror blockquote { border-left: 3px solid var(--primary); margin: 1.1em 0; padding: 0.5em 1.1em; color: var(--adm-muted); font-style: italic; }
+  .ProseMirror hr { border: none; border-top: 1px solid var(--adm-border); margin: 1.75em 0; }
+  .ProseMirror a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
   .ProseMirror strong { color: var(--adm-text); font-weight: 700; }
   .ProseMirror em { font-style: italic; }
+  .ProseMirror u { text-decoration: underline; }
   .ProseMirror p.is-editor-empty:first-child::before {
     content: attr(data-placeholder); float: left;
     color: var(--adm-muted); pointer-events: none; height: 0; font-style: italic;
