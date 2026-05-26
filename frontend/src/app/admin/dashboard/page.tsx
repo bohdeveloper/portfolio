@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
-/* ── Tracker icon — 3×2 habit grid ── */
+/* ── Per-app icons ── */
 function TrackerIcon({ size = 28 }: { size?: number }) {
   const h = Math.round(size * 0.75);
   return (
@@ -17,6 +17,20 @@ function TrackerIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+function BlogIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="2" width="13" height="18" rx="2" />
+      <path d="M6 7h7M6 11h7M6 15h4" />
+      <path d="M15 14l4 4-2 2-4-4 .5-2.5z" fill="currentColor" stroke="none" opacity=".85" />
+    </svg>
+  );
+}
+
+const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
+  Tracker: TrackerIcon,
+  Blog: BlogIcon,
+};
 
 /* ── App registry — add new tools here ── */
 const APPS = [
@@ -24,6 +38,11 @@ const APPS = [
     name: 'Tracker',
     desc: 'Rutinas y hábitos semanales',
     path: '/admin/dashboard/tracker',
+  },
+  {
+    name: 'Blog',
+    desc: 'Artículos técnicos del portfolio',
+    path: '/admin/dashboard/blog',
   },
 ] as const;
 
@@ -189,7 +208,7 @@ export default function DashboardPage() {
               }}
             >
               <div style={{ color: 'var(--primary)', marginBottom: '0.75rem' }}>
-                <TrackerIcon size={28} />
+                {(() => { const Icon = APP_ICONS[app.name] ?? TrackerIcon; return <Icon size={28} />; })()}
               </div>
               <div style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 500 }}>{app.name}</div>
               <div style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '3px' }}>{app.desc}</div>

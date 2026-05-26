@@ -1,408 +1,148 @@
-🗺️ ROADMAP
+🗺️ ROADMAP — bohdeveloper.com
+
+---
 
 :: FASE 0 — Panel Admin + Tracker (✅ COMPLETADA)
 · Objetivo: primer backend real en producción. Acceso exclusivo del propietario.
 
-### Arquitectura decidida
-# Stack: Next.js (frontend) + Cloudflare Pages Functions (API) + D1 (SQLite)
-# Monorepo: /frontend (Next.js) — no hay repo backend separado
+### Stack decidido
+# Next.js (frontend) + Cloudflare Pages Functions (API) + D1 (SQLite)
 # Auth: JWT en httpOnly cookie, un solo usuario admin
 # Rutas protegidas: /admin/dashboard/* via middleware Pages Functions
 
-### Implementación paso a paso (según CLAUDE.md)
-# ✅ PASO 1 — Verificar estructura y wrangler.toml
-# ✅ PASO 2 — Crear base de datos D1: bohdeveloper-admin
-# ✅ PASO 3 — Schema SQL: admin_users, tracker_records, tracker_notes
-# ✅ PASO 4 — Crear usuario admin (bcrypt hash, nunca plaintext)
-# ✅ PASO 5 — Pages Functions: /api/auth/login, /logout, /me
-# ✅ PASO 6 — Middleware: functions/admin/_middleware.ts
-# ✅ PASO 7 — Páginas Next.js: /admin/login, /admin/dashboard, /admin/dashboard/tracker (componente React)
-# ✅ PASO 8 — APIs tracker: /api/tracker/save, /week, /stats
-# ✅ PASO 9 — tracker.html eliminado de public (lógica integrada en React, protegida por middleware)
-# ✅ PASO 10 — Variables de entorno: JWT_SECRET en .dev.vars local (añadir en Cloudflare Dashboard)
-# ✅ PASO 11 — Despliegue exitoso → https://bohdeveloper.com
-
-### UX/UI del panel admin (✅ completado post-PASO 11)
-# ✅ Navbar del portfolio visible en todas las páginas admin (login, dashboard home)
-# ✅ Dashboard home: animación de red neuronal + tarjetas de apps (escalable)
-# ✅ Dentro de apps (tracker): barra mínima con ← Dashboard + toggle tema
-# ✅ Botón "Cerrar sesión" en dashboard home → logout + redirige a /
-# ✅ Modo claro/oscuro en tracker (html.light overrides en CSS inyectado)
-# ✅ Enlace discreto a /admin/login en el footer del portfolio (· · ·)
-# ✅ .claude/ añadido a .gitignore
-
-### Decisiones tomadas
-# tracker.html → componente React en app/admin/dashboard/tracker/page.tsx (seguro, protegido por middleware)
-# bcryptjs (compatible Workers, sin deps nativas)
-# jose (JWT, Web Crypto API compatible)
-# Sidebar eliminado → navbar del portfolio + barra mínima por app (más limpio, coherente)
-# Dashboard home como landing de red neuronal: escalable para nuevas herramientas
-# CSS variables --adm-* inyectadas en admin/layout.tsx para theming consistente
-# NeuralCanvas lee html.light/dark en cada frame (sin React re-renders para el tema)
+### Implementación
+# ✅ D1: bohdeveloper-admin — tablas admin_users, tracker_records, tracker_notes
+# ✅ Pages Functions: /api/auth/login, /logout, /me
+# ✅ Middleware: functions/admin/_middleware.ts
+# ✅ Páginas: /admin/login, /admin/dashboard, /admin/dashboard/tracker
+# ✅ APIs tracker: /api/tracker/save, /week, /stats
+# ✅ Variables de entorno: JWT_SECRET (Cloudflare Dashboard + .dev.vars local)
+# ✅ Login: split layout red neuronal, fix doble clic (window.location.href)
+# ✅ AdminNavbar: sin enlaces en login, dinámico según ruta
+# ✅ Enlace discreto a /admin: candado en SocialPanel (opacidad 18%)
+# ✅ Tracker V2 (desde 5 junio 2026): Kronoshin, horario 7-14h, tarde rediseñada
+# ✅ Tracker UX: leyenda dinámica, tooltip con motivo, colores modo oscuro mejorados
 
 ---
 
-:: FASE 1 — Preparar frontend (sin backend)
-· Objetivo: dejar el portfolio limpio, escalable y listo para API.
-
-### Eliminar backend actual
-# ✅ Borrar carpeta /backend del repo
-# ✅ Evitar ruido y falsa complejidad
-
-### Refactor de datos hardcodeados
-# Mover proyectos a /data
-# Crear tipos en /types
-# Acceso a datos vía /services
-# La UI no depende de la fuente de datos
-
-/data/projects.ts  → hoy
-/services/projects → siempre
-/api/projects      → mañana
-
-### Arquitectura documentada
-# Explicar stack actual (Next.js + Pages)
-# Justificar por qué no hay backend aún
-# Definir arquitectura futura (Pages + Workers + D1)
-# Documentar decisiones técnicas
-
-
-:: FASE 2 — Crear backend real (Cloudflare Workers + D1)
-· Objetivo: introducir Full Stack solo cuando aporta valor.
-
-### Nuevo repo backend
-# portfolio-backend
-# Cloudflare Workers
-# D1 (SQLite)
-# Zod + Fetch API
-# Backend desacoplado del frontend
-
-### Primer caso real: formulario de contacto
-# Endpoint /contact
-# Validación
-# Guardar mensajes en D1
-# Rate limit / anti-spam
-# (Opcional) emails de notificación
-
-
-:: FASE 3 — Backend orientado a SEO
-· Objetivo: contenido dinámico + posicionamiento.
-
-### Gestión dinámica de proyectos
-# Proyectos en D1
-# Endpoint /projects
-# El frontend consume API
-
-### Página individual por proyecto
-# URL SEO (/projects/slug)
-# Descripción larga
-# Tecnologías
-# Retos y decisiones técnicas
-# Screenshots / mockups
-# Enlaces
-
-
-:: FASE 4 — Blog técnico (opcional pero potente)
-· Objetivo: autoridad + tráfico orgánico.
-
-### Blog con backend
-# Posts en D1
-# Tags, fechas, lecturas
-# URLs SEO-friendly (/blog/post-slug)
-
-
-:: FASE 5 — Retos backend que suman valor
-· Objetivo: demostrar profundidad Full Stack.
-
-### Features escalables:
-# Analytics propios
-# Dashboard privado
-# Cache con KV
-# API pública de proyectos
-# Feature flags
-# Newsletter simple
-# Logs y auditoría
-# Migraciones D1
-# Tests de API
-
-
-:: FASE 6 — SEO avanzado
-· Objetivo: que el portfolio trabaje por ti.
-
-### Optimización continua:
-# Clusters de contenido
-# Enlaces internos (proyectos ↔ blog)
-# Schema.org
-# Rich snippets
-# Lighthouse continuo
-
-## ############################################################ ##
-🗺️ ROADMAP EXPLICADO
-
-####  Preparar el terreno para backend (sin usarlo aún) ####  
-Objetivo: que el frontend esté listo para consumir una API real.
-
-## Borrado de backend actual
-Borrar la carpeta backend
-
-1️⃣ Refactor de datos hardcodeados (explicación profunda)
-🎯 Objetivo real
-Que el frontend no dependa de “de dónde vienen los datos”.
-Hoy vienen de ficheros locales.
-Mañana vendrán de una API.
-El componente no debería notar la diferencia.
-
-:: Estado ideal del frontend (antes del backend)
-🔹 Separar datos, lógica y UI
-No tener proyectos así:
-const projects = [...]Mostrar más líneas
-Dentro del componente ❌
-
-:: Estructura recomendada
-src/
-├── data/
-│   ├── projects.ts
-│
-├── services/
-│   ├── projects.service.ts
-│
-├── types/
-│   ├── project.ts
-│
-├── app/projects/
-│   ├── page.tsx
-│   └── [slug]/page.tsx
-
-
-🔹 Tipos claros (shared mental model)
-types/project.ts
-
-id
-slug
-title
-description
-longDescription
-techStack
-images
-featured
-createdAt
-
-👉 Este tipo será igual:
-
-en frontend
-en backend
-en BBDD
-
-Eso es arquitectura limpia.
-
-🔹 Fuente de datos intercambiable
-services/projects.service.ts
-Hoy:
-
-Importa datos desde data/projects.ts
-
-Mañana:
-
-Hace fetch('/api/projects')
-
-El resto del código no cambia.
-Ejemplo conceptual:
-getProjects(): Promise<Project[]>getProjectBySlug(slug): Promise<Project>Mostrar más líneas
-No importa cómo esté implementado por debajo.
-
-🔹 Resultado
-:: Frontend desacoplado
-:: Migración suave a backend
-:: Demuestras criterio arquitectónico
-:: No introduces complejidad prematura
-Esto es exactamente lo que se hace en producto real.
-
-:: /data/projects.ts → /api/projects explicado bien
-Lo que estás diciendo con ese ejemplo es:
-
-“Hoy los datos viven en el frontend, pero la app ya está preparada para que mañana vivan en una API sin reescribir la UI”.
-
-Eso es una frase muy potente para entrevistas y README.
-
-2️⃣ Arquitectura documentada (qué y cómo)
-Esto NO es documentación pesada.
-Es explicar decisiones, no código.
-
-:: Dónde documentarlo
-Opciones correctas:
-
-README.md en el repo principal
-Sección /architecture en la web
-O ambas (top tier)
-
-
-:: Qué explicar (estructura clara)
-1. Visión general
-
-Qué es el portfolio
-Qué problema resuelve
-Qué tipo de desarrollador eres
-
-
-2. Arquitectura actual
-Next.js + Cloudflare PagesStatic-firstSEO-orientedMostrar más líneas
-Explicar:
-
-Por qué no hay backend aún
-Por qué es una decisión consciente
-
-
-3. Arquitectura futura (key point)
-Frontend → Cloudflare PagesBackend  → Cloudflare WorkersBBDD     → D1``Mostrar más líneas
-Explicar:
-
-Por qué Workers y no Express
-Por qué D1
-Por qué repos separados
-
-
-4. Evolución progresiva
-Explicar que:
-
-El portfolio empieza estático
-Escala cuando hay valor
-El backend no es “postureo”
-
-👉 Esto suma MUCHO a nivel seniority.
-
-:: Frase clave que deberías poder escribir
-
-“El backend se introduce únicamente cuando aporta valor al producto, priorizando siempre simplicidad, rendimiento y SEO.”
-
-Eso es mentalidad producto.
-
-3️⃣ Repo nuevo para backend (confirmación y explicación)
-Sí ::
-Lo correcto es:
-🆕 Nuevo repo
-portfolio-backend
-
-Contenido:
-
-Cloudflare Workers
-D1
-API REST
-BBDD schema
-Tests
-README técnico
-
-
-🔗 Relación frontend ↔ backend
-
-Frontend: no sabe cómo está hecho el backend
-Solo consume endpoints
-
-Esto te permite:
-
-Cambiar backend sin romper frontend
-Mostrar arquitectura profesional
-Escalar features sin tocar el core
-
-
-4️⃣ ROADMAP MODIFICADO Y MEJORADO
-Te lo dejo pulido y definitivo, incorporando todo lo anterior 👇
-
-🗺️ ROADMAP EVOLUCIÓN PORTFOLIO FULL STACK (versión final)
-
-🔹 FASE 1 — Preparar el terreno (sin backend)
-Objetivo: frontend desacoplado y listo para API real.
-:: Borrado de backend actual
-
-Eliminar carpeta /backend
-Justificar la decisión en README
-Evitar ruido y deuda innecesaria
-
-
-:: Refactor de datos hardcodeados
-
-Proyectos movidos a /data
-Tipos claros en /types
-Acceso a datos vía /services
-
-Concepto clave:
-/data/projects.ts  → hoy
-/services/projects → siempre
-/api/projects      → mañana
-
-👉 La UI nunca accede directamente a los datos.
-
-:: Arquitectura documentada
-Añadir README o sección /architecture explicando:
-
-Stack actual
-Decisiones técnicas
-Arquitectura futura
-Motivo de introducir backend progresivamente
-
-
-🔹 FASE 2 — Introducir Backend (Cloudflare Workers + D1)
-:: Backend en repo independiente
-
-portfolio-backend
-Workers + D1
-Zod
-API REST
-
-Arquitectura:
-Frontend (Next.js / Pages)
-↓
-API (Cloudflare Workers)
-↓
-D1 (SQLite)
-
-
-:: Primer caso real: formulario de contacto
-
-POST /contact
-Validación
-Persistencia
-Rate limit
-Emails opcionales
-
-
-🔹 FASE 3 — Backend que aporta SEO
-:: Proyectos dinámicos
-
-Proyectos en D1
-/projects
-Páginas SEO por proyecto
-
-
-:: Página individual de proyecto
-
-Contenido largo
-Retos
-Decisiones técnicas
-Screenshots y mockups
-
-
-🔹 FASE 4 — Blog técnico (opcional pero potente)
-
-Posts en D1
-Tags
-Lecturas
-URLs SEO-friendly
-
-
-🔹 FASE 5 — Retos backend que suman
-
-Analytics propios
-Dashboard privado
-Cache (KV)
-Feature flags
-Tests
-Migrations
-Logs
-API pública
-
-
-🔹 FASE 6 — SEO avanzado
-
-Clusters de contenido
-Enlaces internos
-Schema.org
-Lighthouse continuo
+:: FASE 4 — Blog técnico (🔄 EN PROGRESO)
+· Objetivo: autoridad + tráfico orgánico. Artículos sobre Next.js, CF Workers, D1...
+
+### Implementación
+# ✅ D1: tabla blog_posts (slug, title, excerpt, content, tags, published, views, reading_time)
+# ✅ API pública: GET /api/blog/list, GET /api/blog/post?slug=xxx
+# ✅ API admin (auth): POST /api/blog/save, POST /api/blog/delete
+# ✅ Admin /dashboard/blog: editor Markdown + lista + preview + publicar/borrador
+# ✅ Público /blog: lista de posts + vista individual (?slug=xxx)
+# ✅ AdminNavbar + Dashboard: Blog añadido al registry de apps
+
+### Pendiente blog
+# ⬜ Aplicar schema en D1 producción: wrangler d1 execute bohdeveloper-admin --file=schema.sql
+# ⬜ Sitemap dinámico con posts (requiere SSR o build-time fetch)
+# ⬜ OG meta tags por post (título, descripción, image)
+# ⬜ Migrar a @cloudflare/next-on-pages para SSR real (mayor SEO)
+# ⬜ Sección /blog en el navbar del portfolio público
+
+### Notas de arquitectura
+# output: 'export' (estático) → rutas de blog usan ?slug=xxx (query param)
+# Googlebot ejecuta JS → SEO aceptable para primera versión
+# Migración a SSR completo anotada como siguiente mejora de infraestructura
+
+---
+
+:: FASE 5 — App Economía Personal (⬜ PLANIFICADA)
+· Objetivo: control total de ingresos, gastos y ahorro — personal y en pareja.
+
+### Funcionalidades previstas
+# Dashboard principal
+#   · Balance total (personal + pareja)
+#   · Resumen mensual: ingresos, gastos, diferencia, ahorro
+#   · Comparativa mes anterior
+#   · Gráfica de evolución anual
+#
+# Gestión de movimientos
+#   · Añadir ingreso / gasto con: fecha, importe, categoría, descripción, quién (yo/pareja/ambos)
+#   · Editar y eliminar
+#   · Filtros: fecha, categoría, tipo, importe
+#   · Búsqueda por descripción
+#
+# Categorías personalizables
+#   · Vivienda, Alimentación, Transporte, Ocio, Salud, Ropa, Suscripciones,
+#     Ahorro, Inversión, Ingresos laborales, Ingresos extra…
+#   · Color e icono por categoría
+#
+# Presupuestos y metas
+#   · Límite mensual por categoría
+#   · Alerta visual al superar el 80% / 100%
+#   · Meta de ahorro mensual / anual
+#
+# Estadísticas
+#   · Gráfica de gastos por categoría (donut)
+#   · Evolución mensual (barras / línea)
+#   · Comparativa yo vs. pareja
+#   · Tasa de ahorro mensual
+#   · Histórico anual / trimestral
+#
+# Vista "En pareja"
+#   · Gastos compartidos vs. individuales
+#   · Balance entre ambos (quién debe a quién)
+#   · División de gastos comunes
+#
+# Exportación
+#   · CSV mensual para auditoría personal
+
+### Arquitectura D1 prevista
+# tabla: transactions  → id, date, amount, type(income/expense), category_id, description, owner(me/partner/shared), created_at
+# tabla: categories    → id, name, color, icon, budget_limit, type
+# tabla: monthly_goals → id, year, month, savings_goal, updated_at
+
+### Integración admin
+# Nueva entrada en ADMIN_APPS: 'Economia'
+# Ruta: /admin/dashboard/economia
+# APIs: /api/economia/transactions (CRUD), /api/economia/stats, /api/economia/categories (CRUD)
+
+---
+
+:: FASE 6 — Proyectos dinámicos + páginas individuales (⬜ PLANIFICADA)
+· Objetivo: proyectos en D1, páginas SEO por proyecto.
+
+# ⬜ Tabla projects en D1
+# ⬜ Página individual /projects/[slug] con case study
+# ⬜ Admin: gestor de proyectos
+# ⬜ Editor en admin (similar al blog)
+
+---
+
+:: FASE 7 — Infraestructura SSR + SEO avanzado (⬜ PLANIFICADA)
+· Objetivo: máximo SEO y rendimiento.
+
+# ⬜ Migrar a @cloudflare/next-on-pages (SSR vía Workers)
+# ⬜ Eliminar output: 'export' de next.config.js
+# ⬜ Blog posts con HTML pre-renderizado (meta tags reales por post)
+# ⬜ Sitemap dinámico: posts + proyectos
+# ⬜ OG images dinámicas por ruta
+# ⬜ Schema.org (Person, Article, Project)
+# ⬜ Links internos blog ↔ proyectos
+# ⬜ Lighthouse continuo
+
+---
+
+:: FASE 8 — Features de producto (⬜ FUTURO)
+# ⬜ Analytics propios (pageviews en D1, sin terceros)
+# ⬜ Newsletter simple (email capture + envío)
+# ⬜ Formulario de contacto con D1 + notificación email
+# ⬜ Cache con Cloudflare KV para posts populares
+# ⬜ Feature flags
+# ⬜ API pública de proyectos
+# ⬜ Tests de API (Vitest + Miniflare)
+
+---
+
+### Decisiones técnicas activas
+# bcryptjs — compatible Workers, sin deps nativas
+# jose — JWT, Web Crypto API compatible
+# marked (CDN) — render Markdown cliente sin bundle adicional
+# Chart.js (CDN) — gráficas tracker sin bundle adicional
+# CSS variables --adm-* en admin/layout.tsx — theming consistente claro/oscuro
+# NeuralCanvas — canvas animado, lee html.light/dark cada frame sin re-renders React
+# output: 'export' — estático puro, migración a SSR planificada en Fase 7

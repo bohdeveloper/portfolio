@@ -19,9 +19,21 @@ function TrackerIcon({ size = 16 }: { size?: number }) {
   );
 }
 
+/* ── Blog icon — pencil on document ── */
+function BlogIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="1" width="9" height="12" rx="1.5" />
+      <path d="M4 4h5M4 6.5h5M4 9h3" />
+      <path d="M11 9.5l2.5 2.5-1.5 1.5L9.5 11l.5-2 1 .5z" fill="currentColor" stroke="none" opacity=".8" />
+    </svg>
+  );
+}
+
 /* ── App registry — add new admin tools here ── */
 const ADMIN_APPS = [
   { name: 'Tracker', path: '/admin/dashboard/tracker', Icon: TrackerIcon },
+  { name: 'Blog',    path: '/admin/dashboard/blog',    Icon: BlogIcon    },
 ] as const;
 
 export default function AdminNavbar() {
