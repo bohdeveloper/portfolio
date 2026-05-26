@@ -61,7 +61,6 @@ export default function AdminNavbar() {
           {/* Right side */}
           <div className="flex items-center gap-4">
             {isInApp && (
-              /* Inside an app: show ← Dashboard button */
               <button
                 onClick={() => router.push('/admin/dashboard')}
                 className="px-4 py-2 border border-primary text-primary rounded hover:bg-primary hover:text-black transition text-sm font-medium"
@@ -71,25 +70,12 @@ export default function AdminNavbar() {
             )}
 
             {!isLogin && !isInApp && (
-              /* Dashboard home: show app links */
-              <ul className="flex items-center gap-6 text-lg font-medium">
-                {ADMIN_APPS.map(({ name, path, Icon }) => {
-                  const active = pathname === path || pathname.startsWith(path + '/');
-                  return (
-                    <li key={path}>
-                      <Link
-                        href={path}
-                        className={`flex items-center gap-2 transition hover:text-primary ${active ? 'text-primary' : ''}`}
-                      >
-                        <span className="text-primary">
-                          <Icon size={15} />
-                        </span>
-                        {name}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+              <Link
+                href="/"
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition"
+              >
+                ← Portfolio
+              </Link>
             )}
 
             <ThemeToggle />

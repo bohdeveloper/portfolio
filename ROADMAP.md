@@ -25,28 +25,34 @@
 
 ---
 
-:: FASE 4 — Blog técnico (🔄 EN PROGRESO)
+:: FASE 4 — Blog técnico (✅ COMPLETADA — MVP en producción)
 · Objetivo: autoridad + tráfico orgánico. Artículos sobre Next.js, CF Workers, D1...
 
 ### Implementación
-# ✅ D1: tabla blog_posts (slug, title, excerpt, content, tags, published, views, reading_time)
+# ✅ D1: tabla blog_posts — slug, title, excerpt, content, cover_image, tags, published, views, reading_time
+# ✅ D1 schema aplicado en producción via Cloudflare MCP
 # ✅ API pública: GET /api/blog/list, GET /api/blog/post?slug=xxx
 # ✅ API admin (auth): POST /api/blog/save, POST /api/blog/delete
-# ✅ Admin /dashboard/blog: editor Markdown + lista + preview + publicar/borrador
+# ✅ Admin /dashboard/blog: editor Markdown, lista, preview, publicar/borrador
+# ✅ Cover image: upload desde dispositivo → Canvas compress/resize → base64 en D1
 # ✅ Público /blog: lista de posts + vista individual (?slug=xxx)
-# ✅ AdminNavbar + Dashboard: Blog añadido al registry de apps
+# ✅ Filtro por tags: /blog?tag=xxx — URL semántica, title dinámico para SEO
+# ✅ Tags clicables: en lista y en post individual, filtran sin recargar
+# ✅ Prose modo claro: corregido (sin prose-invert en light, texto legible)
+# ✅ Blog panel lateral: auto-abre en desktop, overlay fullscreen en mobile
+# ✅ Sesión admin persistente: JWT 7d, login verifica sesión existente al montar
+# ✅ AdminNavbar: sin links de apps, enlace ← Portfolio en dashboard
 
-### Pendiente blog
-# ⬜ Aplicar schema en D1 producción: wrangler d1 execute bohdeveloper-admin --file=schema.sql
-# ⬜ Sitemap dinámico con posts (requiere SSR o build-time fetch)
-# ⬜ OG meta tags por post (título, descripción, image)
-# ⬜ Migrar a @cloudflare/next-on-pages para SSR real (mayor SEO)
-# ⬜ Sección /blog en el navbar del portfolio público
+### Pendiente blog (Fase 7)
+# ⬜ Sitemap dinámico con posts (requiere SSR)
+# ⬜ OG meta tags por post (open graph, twitter card)
+# ⬜ Schema.org Article por post
+# ⬜ Migrar a @cloudflare/next-on-pages para SSR real
 
 ### Notas de arquitectura
 # output: 'export' (estático) → rutas de blog usan ?slug=xxx (query param)
 # Googlebot ejecuta JS → SEO aceptable para primera versión
-# Migración a SSR completo anotada como siguiente mejora de infraestructura
+# Tags en URL (/blog?tag=xxx) son crawleables e indexables por buscadores
 
 ---
 
