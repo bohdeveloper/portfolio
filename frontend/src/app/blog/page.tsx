@@ -65,11 +65,20 @@ function PostView({ slug }: { slug: string }) {
       .finally(() => setLoading(false));
   }, [slug]);
 
+  /* HTML (TipTap) directo; markdown legacy via marked.js */
   useEffect(() => {
     if (!post || markedRef.current) return;
+    const el = document.getElementById('blog-content');
+    if (!el) return;
+
+    if (post.content.trimStart().startsWith('<')) {
+      el.innerHTML = post.content;
+      markedRef.current = true;
+      return;
+    }
+
     const w = window as unknown as { marked?: { parse(s: string): string } };
     const render = () => {
-      const el = document.getElementById('blog-content');
       if (el && w.marked) { el.innerHTML = w.marked.parse(post.content); markedRef.current = true; }
     };
     if (w.marked) { render(); return; }
