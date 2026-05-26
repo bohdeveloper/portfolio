@@ -33,7 +33,10 @@
 # ✅ D1 schema aplicado en producción via Cloudflare MCP
 # ✅ API pública: GET /api/blog/list, GET /api/blog/post?slug=xxx
 # ✅ API admin (auth): POST /api/blog/save, POST /api/blog/delete
-# ✅ Admin /dashboard/blog: editor Markdown, lista, preview, publicar/borrador
+# ✅ Admin /dashboard/blog: editor WYSIWYG TipTap, lista, publicar/borrador
+# ✅ TipTap: toolbar completa (B/I/U, H1-H3, listas, código, blockquote, links, hr)
+# ✅ CSS ProseMirror sincronizado con vista pública — WYSIWYG real (16px, line-height 1.8)
+# ✅ Rendering dual: HTML (TipTap) directo, Markdown legacy via marked.js CDN
 # ✅ Cover image: upload desde dispositivo → Canvas compress/resize → base64 en D1
 # ✅ Público /blog: lista de posts + vista individual (?slug=xxx)
 # ✅ Filtro por tags: /blog?tag=xxx — URL semántica, title dinámico para SEO
@@ -42,6 +45,11 @@
 # ✅ Blog panel lateral: auto-abre en desktop, overlay fullscreen en mobile
 # ✅ Sesión admin persistente: JWT 7d, login verifica sesión existente al montar
 # ✅ AdminNavbar: sin links de apps, enlace ← Portfolio en dashboard
+
+### Posts pendientes de publicar (blog-drafts/)
+# ⬜ post-1-nextjs-cloudflare-d1.md — "Next.js + Cloudflare Pages + D1: por qué elegí este stack"
+# ⬜ post-2-cloudflare-d1-guia.md   — "Cloudflare D1: la base de datos que no sabía que necesitaba"
+# ⬜ post-3-claude-ai-workflow.md   — "Un año usando Claude AI para programar"
 
 ### Pendiente blog (Fase 7)
 # ⬜ Sitemap dinámico con posts (requiere SSR)
@@ -147,7 +155,8 @@
 ### Decisiones técnicas activas
 # bcryptjs — compatible Workers, sin deps nativas
 # jose — JWT, Web Crypto API compatible
-# marked (CDN) — render Markdown cliente sin bundle adicional
+# TipTap (@tiptap/react) — editor WYSIWYG, genera HTML que se renderiza directamente en /blog
+# marked (CDN) — fallback legacy para posts escritos en Markdown antes del editor TipTap
 # Chart.js (CDN) — gráficas tracker sin bundle adicional
 # CSS variables --adm-* en admin/layout.tsx — theming consistente claro/oscuro
 # NeuralCanvas — canvas animado, lee html.light/dark cada frame sin re-renders React

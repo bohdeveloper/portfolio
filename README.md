@@ -1,108 +1,127 @@
 
-# Portfolio personal (Landing)
+# Portfolio personal — bohdeveloper.com
 
 🌐 **Disponible en:** https://bohdeveloper.com
 
 ---
 
-Portfolio personal desarrollado con un enfoque **frontend-first**, optimizado para rendimiento, SEO y escalabilidad, y preparado para evolucionar progresivamente hacia una arquitectura **Full Stack moderna**.
-
-El objetivo es disponer de una base sólida, clara y mantenible, introduciendo backend **solo cuando aporte valor real** al producto y al contenido.
-
----
-
-## 1. Tecnologías utilizadas
-
-### Frontend (estado actual)
-- Next.js 14
-- React 18
-- TypeScript
-- TailwindCSS 4
-- ESLint
-- Cloudflare Pages
-
-> El portfolio se despliega como sitio estático optimizado, priorizando rendimiento y SEO.
+Portfolio personal Full Stack construido sobre **Next.js + Cloudflare Pages + D1**.  
+Frontend estático servido desde la CDN global de Cloudflare, con API edge en Pages Functions y base de datos SQLite (D1) sin servidor.
 
 ---
 
-## 2. Arquitectura actual
+## Stack
 
-Next.js (Frontend)<br>
-↓<br>
-Cloudflare Pages
-
-- Sitio completamente funcional sin backend
-- Contenido renderizado de forma estática
-- Estructura preparada para consumir una API en el futuro
-- Separación clara entre datos, lógica y UI
-
----
-
-## 3. Preparado para backend (sin usarlo aún)
-
-El frontend está diseñado para **no depender del origen de los datos**, permitiendo una migración limpia a backend sin reescribir la UI.
-
-Concepto clave:
-
-/data/projects.ts      → Fuente de datos actual<br>
-/services/projects     → Capa de acceso a datos<br>
-/types/project.ts      → Tipos compartidos<br>
-/api/projects          → Fuente futura (backend)
-
-La UI consume datos exclusivamente a través de la capa de servicios.  
-Cambiar de datos estáticos a API no implica cambios en los componentes.
+| Capa | Tecnología |
+|---|---|
+| Frontend | Next.js 15, React 19, TypeScript, TailwindCSS 4 |
+| API | Cloudflare Pages Functions (Edge Workers) |
+| Base de datos | Cloudflare D1 (SQLite) |
+| Auth | JWT · `jose` · `httpOnly` cookie 7 días |
+| Editor WYSIWYG | TipTap (`@tiptap/react`, StarterKit, Link, Underline, Placeholder) |
+| Deploy | Cloudflare Pages (git push → deploy automático) |
 
 ---
 
-## 4. Estructura del proyecto (simplificada)
+## Arquitectura
 
-src/<br>
-├── app/<br>
-│········├── page.tsx<br>
-│········├── projects/<br>
-│········│··········├── page.tsx<br>
-│········│··········└── [slug]/page.tsx<br>
-├── data/<br>
-│········└── projects.ts<br>
-├── services/<br>
-│········└── projects.service.ts<br>
-├── types/<br>
-│········└── project.ts
+```
+Cloudflare Pages (CDN global)
+├── Next.js estático (output: 'export')    → servido desde ~300 PoPs
+└── Pages Functions (functions/api/)       → API en el mismo dominio
+    └── D1 Database                        → datos junto al código
+```
+
+- Sin servidor central. Código y datos en el edge, cerca del usuario.
+- Auth JWT protege todas las rutas `/admin/*` via `functions/admin/_middleware.ts`.
+- Blog usa query params (`?slug=xxx`, `?tag=xxx`) por compatibilidad con `output: 'export'`.
 
 ---
 
-## 5. Estado actual del proyecto
+## Módulos en producción
 
-✅ Portfolio productivo en Cloudflare Pages<br>
-✅ SEO técnico optimizado<br>
-✅ Datos desacoplados de la UI<br>
-✅ Arquitectura preparada para backend<br>
-✅ Páginas de proyectos con enfoque escaparate
+### Portfolio público (`/`)
+- Landing con sección de proyectos, skills, experiencia y contacto
+- NeuralCanvas animado (canvas API, lee `html.light/dark` sin re-renders)
+- Modo claro/oscuro, SEO técnico optimizado
+
+### Blog técnico (`/blog`)
+- Lista de artículos con filtro por tags (URL semántica `/blog?tag=xxx`)
+- Vista individual de post con HTML generado por TipTap
+- Rendering legacy Markdown via `marked.js` (CDN) para posts anteriores
+
+### Panel Admin (`/admin`)
+- Login con JWT, sesión persistente 7 días
+- **Tracker de hábitos** (`/admin/dashboard/tracker`): registro diario, estadísticas semanales, gráfica de calor
+- **Gestor de blog** (`/admin/dashboard/blog`): editor WYSIWYG TipTap, cover image con compresión Canvas, publicar/borrador
 
 ---
 
-## 6. Instalación
+## Estructura del proyecto
 
-Frontend
+```
+portfolio/
+├── frontend/
+│   ├── src/app/
+│   │   ├── page.tsx                    ← Landing
+│   │   ├── blog/page.tsx               ← Blog público
+│   │   └── admin/
+│   │       ├── login/page.tsx
+│   │       └── dashboard/
+│   │           ├── page.tsx            ← Dashboard admin
+│   │           ├── tracker/page.tsx
+│   │           └── blog/page.tsx       ← Editor WYSIWYG
+│   ├── src/components/
+│   │   ├── layout/AdminNavbar.tsx
+│   │   ├── sections/                   ← Secciones de la landing
+│   │   └── ui/                         ← BlogPanel, SocialPanel…
+│   └── functions/api/                  ← Pages Functions (Edge API)
+│       ├── auth/
+│       ├── blog/
+│       └── tracker/
+├── blog-drafts/                        ← Posts pendientes de publicar
+├── ROADMAP.md
+└── README.md
+```
+
+---
+
+## Instalación local
+
 ```bash
 cd frontend
 npm install
 ```
 
-## 7. Scripts disponibles
+Copia `.dev.vars.example` a `.dev.vars` y añade `JWT_SECRET`:
 
-Frontend
-```bash
-npm run dev       # Entorno de desarrollo
-npm run build     # Compilar para producción
-npm run start     # Ejecutar build
-npm run lint      # Linter
+```
+JWT_SECRET=tu_secreto_local
 ```
 
-## 8. Puesta en marcha
+---
 
-Frontend
+## Scripts
+
 ```bash
-cd portfolio-frontend
-npm run dev
+npm run dev      # Desarrollo (Next.js + Wrangler Pages local)
+npm run build    # Build estático para producción
+npm run lint     # ESLint
 ```
+
+---
+
+## Deploy
+
+`git push origin main` → Cloudflare Pages detecta el push y despliega automáticamente.
+
+---
+
+## Estado actual
+
+✅ Portfolio productivo en Cloudflare Pages  
+✅ Blog técnico con editor WYSIWYG (TipTap) — WYSIWYG real  
+✅ Panel admin con tracker de hábitos  
+✅ Auth JWT con sesión persistente  
+✅ Filtrado de posts por tags con URL semántica  
+✅ SEO: sitemap estático, títulos dinámicos, tags en URL indexables  
