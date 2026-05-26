@@ -71,13 +71,22 @@ function PostView({ slug }: { slug: string }) {
   if (!post) return null;
 
   return (
-    <article className="max-w-2xl mx-auto px-4 py-12">
-      <button
-        onClick={() => router.push('/blog')}
-        className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition mb-8 flex items-center gap-1"
-      >
-        ← Volver al blog
-      </button>
+    <article className="max-w-2xl mx-auto px-4 pt-[100px] pb-12">
+      <div className="flex items-center gap-4 mb-8">
+        <button
+          onClick={() => router.push('/')}
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition flex items-center gap-1"
+        >
+          ← Portfolio
+        </button>
+        <span className="text-gray-300 dark:text-gray-700">·</span>
+        <button
+          onClick={() => router.push('/blog')}
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition flex items-center gap-1"
+        >
+          Blog
+        </button>
+      </div>
 
       {post.cover_image && (
         <img
@@ -164,8 +173,14 @@ function BlogList() {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
-      <div className="mb-10">
+    <div className="max-w-2xl mx-auto px-4 pt-[100px] pb-12">
+      <div className="mb-6">
+        <button
+          onClick={() => router.push('/')}
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition flex items-center gap-1 mb-8"
+        >
+          ← Volver al portfolio
+        </button>
         <p className="text-primary text-xs tracking-widest uppercase font-medium mb-2">Blog</p>
         <h1 className="text-3xl font-light tracking-tight text-gray-900 dark:text-gray-100 mb-2">
           Artículos técnicos

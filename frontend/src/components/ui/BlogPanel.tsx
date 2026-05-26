@@ -127,28 +127,28 @@ export default function BlogPanel() {
 
       {/* ══════════════ DESKTOP ══════════════ */}
 
-      {/* Toggle button — above EmailPanel (bottom-6 right-6 ≈ 24px/24px, panel height ≈ 160px) */}
-      <button
-        onClick={() => setOpen(v => !v)}
-        aria-label={open ? 'Cerrar panel de blog' : 'Abrir panel de blog'}
-        title="Blog"
-        className="blog-toggle-btn hidden md:flex flex-col items-center justify-center gap-1"
-        style={{
-          position: 'fixed', bottom: '200px', right: '24px', zIndex: 50,
-          width: '38px', height: '60px',
-          background: 'transparent', border: '1px solid',
-          borderRadius: '10px', cursor: 'pointer',
-          color: 'var(--primary)', fontFamily: 'inherit',
-          transition: 'transform 0.15s, opacity 0.15s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.07)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-      >
-        <BlogIcon size={15} />
-        <span style={{ fontSize: '7.5px', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
-          {open ? '✕' : 'Blog'}
-        </span>
-      </button>
+      {/* Toggle button — only visible when panel is closed, so it never overlaps content */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Abrir panel de blog"
+          title="Blog"
+          className="blog-toggle-btn hidden md:flex flex-col items-center justify-center gap-1"
+          style={{
+            position: 'fixed', bottom: '200px', right: '24px', zIndex: 50,
+            width: '38px', height: '60px',
+            background: 'transparent', border: '1px solid',
+            borderRadius: '10px', cursor: 'pointer',
+            color: 'var(--primary)', fontFamily: 'inherit',
+            transition: 'transform 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.07)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <BlogIcon size={15} />
+          <span style={{ fontSize: '7.5px', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>Blog</span>
+        </button>
+      )}
 
       {/* Side panel */}
       <div
