@@ -2,27 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-/* ── App registry (mirrored from AdminNavbar) ── */
 const ADMIN_APPS = [
-  { name: 'Tracker', desc: 'Rutinas y hábitos semanales', path: '/admin/dashboard/tracker' },
+  { name: 'Tracker' },
+  { name: 'Blog' },
 ] as const;
 
-/* ── Tracker icon ── */
-function TrackerIcon({ size = 18 }: { size?: number }) {
-  const h = Math.round(size * 0.75);
-  return (
-    <svg width={size} height={h} viewBox="0 0 16 12" fill="currentColor" aria-hidden="true">
-      <rect x="0"  y="0" width="4" height="4" rx="0.75" />
-      <rect x="6"  y="0" width="4" height="4" rx="0.75" />
-      <rect x="12" y="0" width="4" height="4" rx="0.75" />
-      <rect x="0"  y="8" width="4" height="4" rx="0.75" />
-      <rect x="6"  y="8" width="4" height="4" rx="0.75" />
-      <rect x="12" y="8" width="4" height="4" rx="0.75" opacity="0.3" />
-    </svg>
-  );
-}
-
-/* ── Neural network canvas (more nodes for the login page) ── */
 interface NNode { x: number; y: number; vx: number; vy: number; r: number; pulse: number }
 
 function NeuralCanvas() {
@@ -110,12 +94,21 @@ function NeuralCanvas() {
   );
 }
 
-/* ── Login page ── */
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
+  const [appPositions, setAppPositions] = useState<{ top: string; left: string }[] | null>(null);
+
+  useEffect(() => {
+    setAppPositions(
+      ADMIN_APPS.map(() => ({
+        top:  `${15 + Math.random() * 62}%`,
+        left: `${8  + Math.random() * 68}%`,
+      }))
+    );
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,7 +121,6 @@ export default function AdminLogin() {
         body: JSON.stringify({ username, password }),
       });
       if (res.ok) {
-        /* Hard navigation so CF Pages middleware validates the new cookie */
         window.location.href = '/admin/dashboard';
       } else {
         setLoading(false);
@@ -140,103 +132,97 @@ export default function AdminLogin() {
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    background: 'rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    borderRadius: '8px',
-    padding: '10px 12px',
-    color: '#e8e6e0',
-    fontSize: '14px',
-    outline: 'none',
-    boxSizing: 'border-box',
-    fontFamily: 'inherit',
-  };
-
   return (
     <>
       <style>{`
         .login-wrapper {
-          position: relative;
-          min-height: calc(100vh - 88px);
-          display: flex;
-          overflow: hidden;
-          background: #0a0a0a;
-          font-family: system-ui, sans-serif;
+          position: relative; min-height: calc(100vh - 88px);
+          display: flex; overflow: hidden;
+          background: #0a0a0a; font-family: system-ui, sans-serif;
         }
         html.light .login-wrapper { background: #f0f0f0; }
 
         .login-left {
-          position: relative;
-          z-index: 1;
-          width: 50%;
-          min-width: 300px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          position: relative; z-index: 1; width: 50%; min-width: 300px;
+          display: flex; align-items: center; justify-content: center;
           padding: 2.5rem 2rem;
-          background: rgba(8, 8, 8, 0.88);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
+          background: rgba(8,8,8,0.88);
+          backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
         }
-        html.light .login-left { background: rgba(245,245,245,0.90); }
+        html.light .login-left { background: rgba(245,245,245,0.92); }
 
         .login-right {
-          position: relative;
-          z-index: 1;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 2.5rem 2rem;
-          gap: 1.5rem;
+          position: relative; z-index: 1; flex: 1; overflow: hidden;
         }
 
-        .login-form-box {
-          width: 100%;
-          max-width: 340px;
-        }
+        .login-form-box { width: 100%; max-width: 340px; }
 
-        .login-app-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          width: 100%;
-          max-width: 280px;
+        .login-title {
+          color: #e8e6e0; font-size: 22px; font-weight: 300;
+          letter-spacing: -0.3px; margin: 0 0 0.35rem;
         }
+        html.light .login-title { color: #1a1a1a; }
 
-        .login-app-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          padding: 1rem 1.25rem;
-          border: 1px solid rgba(0, 231, 235, 0.18);
-          border-radius: 10px;
-          background: rgba(0, 231, 235, 0.04);
-          backdrop-filter: blur(4px);
-          transition: border-color 0.2s, background 0.2s;
-          cursor: default;
+        .login-domain { color: #555; font-size: 12px; margin: 0 0 1.75rem; }
+        html.light .login-domain { color: #666; }
+
+        .login-label {
+          display: block; color: #555; font-size: 11px;
+          letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase;
         }
-        .login-app-item:hover {
-          border-color: rgba(0, 231, 235, 0.35);
-          background: rgba(0, 231, 235, 0.08);
+        html.light .login-label { color: #666; }
+
+        .login-input {
+          width: 100%; border-radius: 8px; padding: 10px 12px;
+          color: #e8e6e0; font-size: 14px; outline: none;
+          box-sizing: border-box; font-family: inherit;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.12);
+          transition: border-color 0.15s;
         }
-        html.light .login-app-item {
-          border-color: rgba(0, 168, 191, 0.2);
-          background: rgba(0, 168, 191, 0.05);
+        html.light .login-input {
+          background: rgba(0,0,0,0.05);
+          border-color: rgba(0,0,0,0.15);
+          color: #1a1a1a;
         }
-        html.light .login-app-item:hover {
-          border-color: rgba(0, 168, 191, 0.4);
-          background: rgba(0, 168, 191, 0.1);
+        .login-input:focus { border-color: rgba(0,231,235,0.45); outline: none; }
+        html.light .login-input:focus { border-color: rgba(0,168,191,0.5); }
+
+        .login-btn {
+          width: 100%; padding: 10px;
+          background: transparent; border: 1px solid var(--primary);
+          border-radius: 8px; color: var(--primary);
+          font-size: 14px; font-weight: 500; cursor: pointer;
+          font-family: inherit; transition: background 0.2s, color 0.2s;
         }
+        .login-btn:hover:not(:disabled) { background: var(--primary); color: #000; }
+        .login-btn:disabled {
+          opacity: 0.4; cursor: not-allowed;
+          border-color: rgba(255,255,255,0.08); color: #555;
+        }
+        html.light .login-btn:disabled { border-color: rgba(0,0,0,0.1); }
+
+        .login-back {
+          background: none; border: none; color: #555; font-size: 12px;
+          cursor: pointer; font-family: inherit;
+          display: flex; align-items: center; gap: 5px;
+          padding: 0; margin-top: 1.25rem; transition: color 0.15s;
+        }
+        .login-back:hover { color: var(--primary); }
+        html.light .login-back { color: #777; }
+
+        .login-app-float {
+          position: absolute;
+          color: var(--primary); font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
+          pointer-events: none; opacity: 0.65; white-space: nowrap;
+          text-shadow: 0 0 24px rgba(0,231,235,0.4);
+        }
+        html.light .login-app-float { text-shadow: 0 0 18px rgba(0,168,191,0.3); }
 
         @media (max-width: 640px) {
           .login-left  { width: 100%; min-width: 0; background: rgba(8,8,8,0.82); }
           .login-right { display: none; }
         }
-        html.light .login-input-focus:focus { border-color: rgba(0,168,191,0.5) !important; }
-        .login-input-focus:focus { border-color: rgba(0,231,235,0.45) !important; }
       `}</style>
 
       <div className="login-wrapper">
@@ -248,41 +234,31 @@ export default function AdminLogin() {
             <p style={{ color: 'var(--primary)', fontSize: '10px', letterSpacing: '2.5px', textTransform: 'uppercase', marginBottom: '0.75rem', fontWeight: 500 }}>
               Panel Admin
             </p>
-            <h1 style={{ color: '#e8e6e0', fontSize: '22px', fontWeight: 300, letterSpacing: '-0.3px', marginBottom: '0.35rem' }}>
-              Acceso privado
-            </h1>
-            <p style={{ color: '#444', fontSize: '12px', marginBottom: '1.75rem' }}>
-              bohdeveloper.com
-            </p>
+            <h1 className="login-title">Acceso privado</h1>
+            <p className="login-domain">bohdeveloper.com</p>
 
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', color: '#666', fontSize: '11px', letterSpacing: '0.5px', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Usuario
-                </label>
+                <label className="login-label">Usuario</label>
                 <input
                   type="text"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   required
                   autoComplete="username"
-                  className="login-input-focus"
-                  style={inputStyle}
+                  className="login-input"
                 />
               </div>
 
               <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', color: '#666', fontSize: '11px', letterSpacing: '0.5px', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Contraseña
-                </label>
+                <label className="login-label">Contraseña</label>
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="login-input-focus"
-                  style={inputStyle}
+                  className="login-input"
                 />
               </div>
 
@@ -290,79 +266,28 @@ export default function AdminLogin() {
                 <p style={{ color: '#D85A30', fontSize: '12px', marginBottom: '1rem' }}>{error}</p>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  background: loading ? 'rgba(255,255,255,0.04)' : '#1D6B45',
-                  border: `1px solid ${loading ? 'rgba(255,255,255,0.08)' : '#1D6B45'}`,
-                  borderRadius: '8px',
-                  color: loading ? '#444' : '#fff',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'background 0.2s',
-                }}
-              >
+              <button type="submit" disabled={loading} className="login-btn">
                 {loading ? 'Entrando...' : 'Entrar'}
               </button>
             </form>
 
-            <button
-              onClick={() => window.location.href = '/'}
-              style={{
-                marginTop: '1.25rem',
-                background: 'none',
-                border: 'none',
-                color: '#444',
-                fontSize: '12px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                padding: 0,
-                transition: 'color 0.15s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary)')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#444')}
-            >
+            <button onClick={() => { window.location.href = '/'; }} className="login-back">
               ← Volver al portfolio
             </button>
           </div>
         </div>
 
-        {/* ── Right: neural network + app list ── */}
+        {/* ── Right: floating app labels over the neural network ── */}
         <div className="login-right">
-          <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-            <p style={{ color: 'var(--primary)', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 500, marginBottom: '6px' }}>
-              Herramientas
-            </p>
-            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '11px' }}>
-              Disponibles tras el acceso
-            </p>
-          </div>
-
-          <div className="login-app-list">
-            {ADMIN_APPS.map(app => (
-              <div key={app.path} className="login-app-item">
-                <span style={{ color: 'var(--primary)', marginTop: '2px', flexShrink: 0 }}>
-                  <TrackerIcon size={18} />
-                </span>
-                <div>
-                  <div style={{ color: 'var(--primary)', fontSize: '13px', fontWeight: 500, marginBottom: '2px' }}>
-                    {app.name}
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '11px' }}>
-                    {app.desc}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {appPositions && ADMIN_APPS.map((app, i) => (
+            <span
+              key={app.name}
+              className="login-app-float"
+              style={{ top: appPositions[i].top, left: appPositions[i].left }}
+            >
+              {app.name}
+            </span>
+          ))}
         </div>
       </div>
     </>

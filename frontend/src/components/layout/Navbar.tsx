@@ -2,9 +2,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const onHome = pathname === '/' || pathname === '';
 
   return (
     <>
@@ -80,12 +83,17 @@ export default function Navbar() {
           {/* MENÚ DESKTOP */}
           <div className="links hidden md:flex items-center gap-8">
             <ul className="flex items-center gap-8 text-lg font-medium">
-              <li><a href="#quien-soy" className="hover:text-primary transition">Quién soy</a></li>
-              <li><a href="#experiencia" className="hover:text-primary transition">Experiencia</a></li>
-              <li><a href="#proyectos" className="hover:text-primary transition">Proyectos</a></li>
-              <li><a href="#ia" className="hover:text-primary transition">IA</a></li>
-              <li><a href="#aprendizaje" className="hover:text-primary transition">Aprendizaje</a></li>
-              <li><a href="#contacto" className="hover:text-primary transition">Contacto</a></li>
+              <li><a href={onHome ? '#quien-soy' : '/#quien-soy'} className="hover:text-primary transition">Quién soy</a></li>
+              <li><a href={onHome ? '#experiencia' : '/#experiencia'} className="hover:text-primary transition">Experiencia</a></li>
+              <li><a href={onHome ? '#proyectos' : '/#proyectos'} className="hover:text-primary transition">Proyectos</a></li>
+              <li><a href={onHome ? '#ia' : '/#ia'} className="hover:text-primary transition">IA</a></li>
+              <li><a href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="hover:text-primary transition">Aprendizaje</a></li>
+              <li>
+                <Link href="/blog" className={`hover:text-primary transition ${pathname === '/blog' ? 'text-primary' : ''}`}>
+                  Blog
+                </Link>
+              </li>
+              <li><a href={onHome ? '#contacto' : '/#contacto'} className="hover:text-primary transition">Contacto</a></li>
             </ul>
 
             <div className="flex items-center gap-4">
@@ -132,12 +140,15 @@ export default function Navbar() {
 
           {/* Links centrados verticalmente */}
           <ul className="flex flex-col flex-1 justify-center px-8 gap-8 text-xl font-medium text-black dark:text-white">
-            <li><a onClick={() => setOpen(false)} href="#quien-soy" className="block hover:text-primary transition">Quién soy</a></li>
-            <li><a onClick={() => setOpen(false)} href="#experiencia" className="block hover:text-primary transition">Experiencia</a></li>
-            <li><a onClick={() => setOpen(false)} href="#proyectos" className="block hover:text-primary transition">Proyectos</a></li>
-            <li><a onClick={() => setOpen(false)} href="#ia" className="block hover:text-primary transition font-semibold">IA</a></li>
-            <li><a onClick={() => setOpen(false)} href="#aprendizaje" className="block hover:text-primary transition">Aprendizaje</a></li>
-            <li><a onClick={() => setOpen(false)} href="#contacto" className="block hover:text-primary transition">Contacto</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#quien-soy' : '/#quien-soy'} className="block hover:text-primary transition">Quién soy</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#experiencia' : '/#experiencia'} className="block hover:text-primary transition">Experiencia</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#proyectos' : '/#proyectos'} className="block hover:text-primary transition">Proyectos</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#ia' : '/#ia'} className="block hover:text-primary transition font-semibold">IA</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="block hover:text-primary transition">Aprendizaje</a></li>
+            <li>
+              <Link href="/blog" onClick={() => setOpen(false)} className="block hover:text-primary transition">Blog</Link>
+            </li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#contacto' : '/#contacto'} className="block hover:text-primary transition">Contacto</a></li>
             <li className="pt-4">
               <a
                 href="../../../borja-olazabal-programador-web-cv.pdf"

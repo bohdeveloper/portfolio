@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   title TEXT NOT NULL,
   excerpt TEXT DEFAULT '',
   content TEXT NOT NULL DEFAULT '',
+  cover_image TEXT DEFAULT '',
   tags TEXT DEFAULT '',
   published INTEGER NOT NULL DEFAULT 0,
   views INTEGER NOT NULL DEFAULT 0,

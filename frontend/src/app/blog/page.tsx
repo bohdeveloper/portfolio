@@ -10,6 +10,7 @@ interface Post {
   title: string;
   excerpt: string;
   content: string;
+  cover_image: string;
   tags: string;
   published: number;
   views: number;
@@ -77,6 +78,14 @@ function PostView({ slug }: { slug: string }) {
       >
         ← Volver al blog
       </button>
+
+      {post.cover_image && (
+        <img
+          src={post.cover_image}
+          alt=""
+          className="w-full max-h-80 object-cover rounded-xl mb-8"
+        />
+      )}
 
       <header className="mb-8">
         <div className="flex flex-wrap gap-2 mb-3">

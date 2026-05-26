@@ -4,6 +4,7 @@ import Experiencia from "@/components/sections/Experiencia";
 import Proyectos from "@/components/sections/Proyectos";
 import ClaudeIA from "@/components/sections/ClaudeIA";
 import Aprendizaje from "@/components/sections/Aprendizaje";
+import LatestPosts from "@/components/sections/LatestPosts";
 import Contacto from "@/components/sections/Contacto";
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
       <Proyectos />
       <ClaudeIA />
       <Aprendizaje />
+      <LatestPosts />
       <Contacto />
     </>
   );
