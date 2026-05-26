@@ -104,8 +104,20 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
+  const [checking, setChecking] = useState(true);
   const [appPositions, setAppPositions] = useState<AppPos[] | null>(null);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
+
+  /* Redirect to dashboard if session already valid */
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then((res: { ok: boolean }) => {
+        if (res.ok) window.location.href = '/admin/dashboard';
+        else setChecking(false);
+      })
+      .catch(() => setChecking(false));
+  }, []);
 
   useEffect(() => {
     setAppPositions(
@@ -162,6 +174,12 @@ export default function AdminLogin() {
       setError('Error de conexión');
     }
   }
+
+  if (checking) return (
+    <div style={{ minHeight: 'calc(100vh - 88px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', fontFamily: 'system-ui, sans-serif' }}>
+      <p style={{ color: '#555', fontSize: '13px' }}>Verificando sesión...</p>
+    </div>
+  );
 
   return (
     <>

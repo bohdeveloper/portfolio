@@ -127,7 +127,7 @@ export default function BlogPanel() {
 
       {/* ══════════════ DESKTOP ══════════════ */}
 
-      {/* Toggle button — only visible when panel is closed, so it never overlaps content */}
+      {/* Toggle button — tab anchored to right edge at panel top, only when panel is closed */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -135,18 +135,19 @@ export default function BlogPanel() {
           title="Blog"
           className="blog-toggle-btn hidden md:flex flex-col items-center justify-center gap-1"
           style={{
-            position: 'fixed', bottom: '200px', right: '24px', zIndex: 50,
-            width: '38px', height: '60px',
-            background: 'transparent', border: '1px solid',
-            borderRadius: '10px', cursor: 'pointer',
+            position: 'fixed', top: '100px', right: '0', zIndex: 50,
+            width: '34px', height: '72px',
+            background: 'var(--pnl-bg)', border: '1px solid',
+            borderRadius: '8px 0 0 8px', cursor: 'pointer',
             color: 'var(--primary)', fontFamily: 'inherit',
-            transition: 'transform 0.15s',
+            transition: 'width 0.15s',
+            borderRight: 'none',
           }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.07)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          onMouseEnter={e => { e.currentTarget.style.width = '38px'; }}
+          onMouseLeave={e => { e.currentTarget.style.width = '34px'; }}
         >
           <BlogIcon size={15} />
-          <span style={{ fontSize: '7.5px', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>Blog</span>
+          <span style={{ fontSize: '7px', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>Blog</span>
         </button>
       )}
 

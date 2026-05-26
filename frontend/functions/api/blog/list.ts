@@ -18,10 +18,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const where = adminMode ? '' : 'WHERE published = 1';
+  const fields = adminMode
+    ? `id, slug, title, excerpt, cover_image, content, tags, published, views, reading_time, created_at, updated_at`
+    : `id, slug, title, excerpt, cover_image, tags, published, views, reading_time, created_at, updated_at`;
   try {
     const { results } = await env.DB.prepare(
-      `SELECT id, slug, title, excerpt, cover_image, tags, published, views, reading_time, created_at, updated_at
-       FROM blog_posts ${where} ORDER BY created_at DESC`
+      `SELECT ${fields} FROM blog_posts ${where} ORDER BY created_at DESC`
     ).all();
     return new Response(JSON.stringify({ ok: true, data: results }), { status: 200, headers });
   } catch (err: unknown) {
