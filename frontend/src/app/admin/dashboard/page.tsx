@@ -121,7 +121,7 @@ export default function DashboardPage() {
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });
-    window.location.href = '/';
+    window.location.href = '/admin/login';
   }
 
   return (
