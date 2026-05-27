@@ -91,7 +91,64 @@
 
 ---
 
-:: FASE 6 — Proyectos dinámicos + páginas individuales (⬜ PLANIFICADA)
+:: (ANTIGUA FASE 6 — renumerada como Fase 8)
+:: (ANTIGUA FASE 7 — renumerada como Fase 9)
+
+---
+
+:: FASE 6 — Interacción social en Blog (⬜ PLANIFICADA)
+· Objetivo: convertir el blog en una experiencia bidireccional — lectores pueden reaccionar y comentar.
+
+### Funcionalidades
+# Reacciones por post: emojis (👍❤️🔥💡) con contador en tiempo real
+# Comentarios públicos: nombre/alias + texto, sin registro
+# Respuestas a comentarios: hilo de un nivel de profundidad
+# Compartir post: botones nativos Web Share API + fallback copiar enlace
+# Admin: moderar/borrar comentarios desde /dashboard/blog
+#   · Vista de comentarios por post, banear por IP (hash)
+
+### Arquitectura D1
+# tabla: blog_reactions   → post_id, emoji, count (UNIQUE post_id+emoji)
+# tabla: blog_comments    → id, post_id, parent_id, alias, body, ip_hash, created_at, approved
+# APIs públicas: GET /api/blog/reactions, POST /api/blog/react
+#              GET /api/blog/comments?slug=xxx, POST /api/blog/comment
+# API admin:   POST /api/blog/comment/delete (auth)
+
+---
+
+:: FASE 7 — Panel lateral: Blog + Minijuegos (⬜ PLANIFICADA)
+· Objetivo: panel lateral con 2 pestañas — el blog ya existente + showcase de minijuegos propios.
+  El juego TOP se muestra también como elemento flotante en la landing para captar atención.
+
+### Panel lateral rediseñado
+# 2 pestañas: "Blog" (comportamiento actual) y "Juegos" (nuevo)
+# En móvil: botón flotante que abre un overlay con las 2 pestañas (actualmente solo el blog)
+# Pestaña Juegos: lista de minijuegos con nombre, descripción, screenshot, badge TOP
+# El juego marcado como TOP aparece resaltado en la lista
+
+### Juego TOP en la landing
+# Botón/card flotante animado que aparece en la landing (pulso, movimiento suave)
+# Al hacer click abre el panel lateral directo en la pestaña Juegos con el TOP destacado
+# Posición: esquina inferior-izquierda, sobre el nivel del footer
+
+### Admin — gestor de minijuegos
+# Nueva card en dashboard: Juegos
+# /admin/dashboard/juegos: lista de juegos, campo URL/embed, descripción, screenshot
+# Botón "Marcar como TOP" — solo 1 activo a la vez (el anterior pierde el badge)
+# D1: tabla games → id, name, description, url, screenshot, is_top, created_at
+
+### Interacción en juegos (misma infraestructura que blog — Fase 6)
+# Reacciones, comentarios y respuestas vinculados a game_id
+# Compartir: URL directa al juego en el portfolio
+
+### Notas de arquitectura
+# Los propios juegos (código de cada juego) se desarrollan en fases posteriores independientes
+# Este esqueleto permite publicar cualquier URL externa o iframe como "juego"
+# URL pública del juego: /juegos/[slug] o panel lateral en landing
+
+---
+
+:: FASE 8 — Proyectos dinámicos + páginas individuales (⬜ PLANIFICADA)
 · Objetivo: proyectos en D1, páginas SEO por proyecto.
 
 # ⬜ Tabla projects en D1
@@ -101,7 +158,7 @@
 
 ---
 
-:: FASE 7 — Infraestructura SSR + SEO avanzado (⬜ PLANIFICADA)
+:: FASE 9 — Infraestructura SSR + SEO avanzado (⬜ PLANIFICADA)
 · Objetivo: máximo SEO y rendimiento.
 
 # ⬜ Migrar a @cloudflare/next-on-pages (SSR vía Workers)
@@ -115,13 +172,15 @@
 
 ---
 
-:: FASE 8 — Features de producto (⬜ FUTURO)
-# ⬜ Analytics propios (pageviews en D1, sin terceros)
-# ⬜ Newsletter simple (email capture + envío)
-# ⬜ Formulario de contacto con D1 + notificación email
-# ⬜ Cache con Cloudflare KV para posts populares
-# ⬜ Feature flags
-# ⬜ API pública de proyectos
+:: FASE 10 — Visibilidad y retención de usuarios (⬜ FUTURO)
+· Ideas para aumentar tiempo en web y retorno de usuarios.
+
+# ⬜ Juego TOP flotante en landing (implementado en Fase 7)
+# ⬜ Analytics propios: pageviews, tiempo de sesión estimado, posts más leídos (D1, sin terceros)
+# ⬜ Newsletter: email capture + envío de nuevos posts con Cloudflare Email Workers
+# ⬜ Formulario de contacto con notificación vía D1 + email
+# ⬜ Cache Cloudflare KV para posts populares (reduce lecturas D1)
+# ⬜ Notificaciones push (Service Worker) para nuevos posts o juegos
 # ⬜ Tests de API (Vitest + Miniflare)
 
 ---
