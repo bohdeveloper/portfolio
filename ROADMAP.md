@@ -46,10 +46,10 @@
 # ✅ Sesión admin persistente: JWT 7d, login verifica sesión existente al montar
 # ✅ AdminNavbar: sin links de apps, enlace ← Portfolio en dashboard
 
-### Posts pendientes de publicar (blog-drafts/)
-# ⬜ post-1-nextjs-cloudflare-d1.md — "Next.js + Cloudflare Pages + D1: por qué elegí este stack"
-# ⬜ post-2-cloudflare-d1-guia.md   — "Cloudflare D1: la base de datos que no sabía que necesitaba"
-# ⬜ post-3-claude-ai-workflow.md   — "Un año usando Claude AI para programar"
+### Posts publicados (blog-drafts/)
+# ✅ post-1-nextjs-cloudflare-d1.md — "Next.js + Cloudflare Pages + D1: por qué elegí este stack"
+# ✅ post-2-cloudflare-d1-guia.md   — "Cloudflare D1: la base de datos que no sabía que necesitaba"
+# ✅ post-3-claude-ai-workflow.md   — "Varios meses usando Claude AI para programar"
 
 ### Pendiente blog (Fase 7)
 # ⬜ Sitemap dinámico con posts (requiere SSR)
@@ -65,37 +65,36 @@
 ---
 
 :: FASE 5 — App Moneta (Control Presupuestal) (✅ COMPLETADA — MVP en producción)
-· Objetivo: control mensual de presupuesto — Plan vs Real — con dos perfiles (Pareja / Personal).
+· Objetivo: control mensual de presupuesto — PREVISTO vs REAL — con dos perfiles (Pareja / Personal).
 
 ### Implementación
-# ✅ D1: tablas moneta_profiles, moneta_categories, moneta_actuals
+# ✅ D1: tablas moneta_profiles, moneta_items, moneta_monthly_summary
 # ✅ 2 perfiles sembrados: Pareja (id=1), Personal (id=2)
-# ✅ 27 categorías pre-cargadas con importes planificados (GASTOS + INGRESOS, subcategorías)
-# ✅ API /api/moneta/data      — GET (perfiles + árbol categorías + real por mes)
-# ✅ API /api/moneta/actual    — POST (UPSERT importe real de categoría en mes)
-# ✅ API /api/moneta/category  — POST (crear/editar categoría), DELETE (con CASCADE)
-# ✅ Admin /dashboard/moneta: vista mensual Plan vs Real por perfil
-# ✅ Secciones GASTOS e INGRESOS con total de cada columna
-# ✅ Fila AHORRO calculada: INGRESOS − GASTOS (Plan y Real)
-# ✅ Subcategorías: desglose dentro del grupo (padre = suma de hijos)
-# ✅ Edición inline de importes reales: click → input → Enter/Escape
-# ✅ Modo edición del plan: renombrar categorías, cambiar importe planificado, reordenar
-# ✅ Añadir/eliminar categorías e hijos desde la vista de edición
+# ✅ Modelo plano: ítems libres por mes/perfil — sin subcategorías ni árbol fijo
+# ✅ API /api/moneta/data    — GET (perfiles + ítems del mes + resumen mensual)
+# ✅ API /api/moneta/item    — POST (crear), PATCH (editar nombre/importe/real), DELETE
+# ✅ API /api/moneta/copy    — POST (copia ítems del mes anterior, solo amount)
+# ✅ API /api/moneta/summary — POST (saldo_inicial, close/reopen mes)
+# ✅ Admin /dashboard/moneta: columnas por perfil, secciones GASTOS e INGRESOS
+# ✅ Añadir ítems: botón + → formulario inline (nombre + importe)
+# ✅ Edición inline de nombre: click sobre nombre → input → Enter/Escape
+# ✅ Edición inline de previsto y real: click → input → Enter/Escape
+# ✅ Columnas PREVISTO / REAL en gastos; botón = copia previsto → real
+# ✅ Total real: solo suma ítems con real_amount explícito (no mezcla con estimados)
+# ✅ Ahorro real: ingresos previsto − total gastos reales (cuando hay algún real)
+# ✅ Saldo inicial por perfil/mes: campo editable, guardado en moneta_monthly_summary
+# ✅ Saldo final estimado: saldo_inicial + ahorro_real (se muestra cuando ambos disponibles)
+# ✅ Copiar mes anterior: botón con confirmación previa (siempre, sin condiciones)
+# ✅ Cerrar mes: confirmación con preview de ahorro + saldo final → guarda estado en D1
+# ✅ Mes cerrado: card con fecha, ahorro real y saldo final + botón Reabrir mes
 # ✅ Navegación mensual: adelante/atrás sin recarga
-# ✅ Tabs de perfil: Pareja / Personal (grid en desktop, pestañas en móvil)
-# ✅ Dashboard card Moneta con icono SVG (€ circular)
-# ✅ Login: label "Moneta" flotante en la animación neural
-# ✅ Schema SQL guardado en schema-moneta.sql
+# ✅ Tabs de perfil: Pareja / Personal
+# ✅ Dashboard card Moneta con icono SVG
 
 ### Pendiente (mejoras futuras)
 # ⬜ Exportación CSV mensual
 # ⬜ Vista histórico: evolución del ahorro mes a mes (gráfica de barras)
 # ⬜ Alertas visuales al superar el presupuesto en una categoría
-
----
-
-:: (ANTIGUA FASE 6 — renumerada como Fase 8)
-:: (ANTIGUA FASE 7 — renumerada como Fase 9)
 
 ---
 
@@ -190,9 +189,10 @@
 
 ### Decisiones técnicas fase 5
 # moneta_* prefix en tablas D1 — evita conflictos con otras tablas del mismo namespace
-# Modelo presupuestal (Plan/Real) en lugar de transacciones — más simple para uso mensual
-# Subcategorías calculadas en frontend: padre muestra suma de hijos si alguno tiene real
-# UPSERT (ON CONFLICT DO UPDATE) en moneta_actuals — simplifica la lógica de edición
+# Modelo plano (ítems libres) en lugar de árbol fijo — más flexible para uso real mensual
+# Total real solo suma real_amount explícitos — evita mezclar estimados con reales
+# UPSERT (ON CONFLICT DO UPDATE) en moneta_monthly_summary — cubre insert y update en una sola query
+# APIs separadas por entidad (item, copy, summary) — cada fichero = un endpoint limpio
 # onRequestGet/Post/Delete en mismo fichero — Pages Functions soporta named exports por método
 
 ### Decisiones técnicas activas
