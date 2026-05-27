@@ -122,18 +122,23 @@ function PostView({ slug }: { slug: string }) {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  /* HTML (TipTap) directo; markdown legacy via marked.js */
+  /* Renderiza el contenido del post con detección de formato:
+     - Posts nuevos (TipTap): el contenido es HTML → se inserta directamente.
+     - Posts legacy (Markdown): se usa marked.js cargado desde CDN solo si hace
+       falta, para no añadir peso al bundle cuando el post ya es HTML. */
   useEffect(() => {
     if (!post || markedRef.current) return;
     const el = document.getElementById('blog-content');
     if (!el) return;
 
     if (post.content.trimStart().startsWith('<')) {
+      /* HTML de TipTap: listo para insertar sin procesamiento adicional */
       el.innerHTML = post.content;
       markedRef.current = true;
       return;
     }
 
+    /* Markdown legacy: carga marked.js desde CDN bajo demanda */
     const w = window as unknown as { marked?: { parse(s: string): string } };
     const render = () => {
       if (el && w.marked) { el.innerHTML = w.marked.parse(post.content); markedRef.current = true; }

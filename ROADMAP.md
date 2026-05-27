@@ -64,56 +64,30 @@
 
 ---
 
-:: FASE 5 — App Economía Personal (⬜ PLANIFICADA)
-· Objetivo: control total de ingresos, gastos y ahorro — personal y en pareja.
+:: FASE 5 — App Economía Personal (✅ COMPLETADA — MVP en producción)
+· Objetivo: control total de ingresos, gastos y ahorro personal.
 
-### Funcionalidades previstas
-# Dashboard principal
-#   · Balance total (personal + pareja)
-#   · Resumen mensual: ingresos, gastos, diferencia, ahorro
-#   · Comparativa mes anterior
-#   · Gráfica de evolución anual
-#
-# Gestión de movimientos
-#   · Añadir ingreso / gasto con: fecha, importe, categoría, descripción, quién (yo/pareja/ambos)
-#   · Editar y eliminar
-#   · Filtros: fecha, categoría, tipo, importe
-#   · Búsqueda por descripción
-#
-# Categorías personalizables
-#   · Vivienda, Alimentación, Transporte, Ocio, Salud, Ropa, Suscripciones,
-#     Ahorro, Inversión, Ingresos laborales, Ingresos extra…
-#   · Color e icono por categoría
-#
-# Presupuestos y metas
-#   · Límite mensual por categoría
-#   · Alerta visual al superar el 80% / 100%
-#   · Meta de ahorro mensual / anual
-#
-# Estadísticas
-#   · Gráfica de gastos por categoría (donut)
-#   · Evolución mensual (barras / línea)
-#   · Comparativa yo vs. pareja
-#   · Tasa de ahorro mensual
-#   · Histórico anual / trimestral
-#
-# Vista "En pareja"
-#   · Gastos compartidos vs. individuales
-#   · Balance entre ambos (quién debe a quién)
-#   · División de gastos comunes
-#
-# Exportación
-#   · CSV mensual para auditoría personal
+### Implementación
+# ✅ D1: tablas eco_transactions, eco_categories, eco_goals
+# ✅ 12 categorías por defecto sembradas en D1 (Vivienda, Alimentación, Transporte…)
+# ✅ API /api/economia/transactions — GET (lista por mes), POST (crear/editar), DELETE
+# ✅ API /api/economia/categories  — GET (todas), POST (crear/editar), DELETE (desvincula txs)
+# ✅ API /api/economia/stats       — GET (totales, desglose categoría, tendencia 6 meses), POST (meta ahorro)
+# ✅ Admin /dashboard/economia: 3 vistas — Resumen, Transacciones, Categorías
+# ✅ Dashboard: cards ingresos/gastos/balance, meta ahorro con barra de progreso, últimas txs
+# ✅ Gráfica donut Chart.js (CDN) de gastos por categoría con leyenda
+# ✅ Transacciones: filtros por tipo/categoría/quién, formulario inline crear/editar, total filtrado
+# ✅ Categorías: grid con color/icono, presupuesto mensual por categoría, CRUD
+# ✅ Navegación por meses: adelante/atrás sin recarga
+# ✅ Quién: campo 'Yo / Pareja / Ambos' en cada transacción
+# ✅ Dashboard card Economía añadida con icono SVG propio
+# ✅ Schema SQL guardado en schema-economia.sql para referencias futuras
 
-### Arquitectura D1 prevista
-# tabla: transactions  → id, date, amount, type(income/expense), category_id, description, owner(me/partner/shared), created_at
-# tabla: categories    → id, name, color, icon, budget_limit, type
-# tabla: monthly_goals → id, year, month, savings_goal, updated_at
-
-### Integración admin
-# Nueva entrada en ADMIN_APPS: 'Economia'
-# Ruta: /admin/dashboard/economia
-# APIs: /api/economia/transactions (CRUD), /api/economia/stats, /api/economia/categories (CRUD)
+### Pendiente (mejoras futuras)
+# ⬜ Vista "En pareja": balance compartido, quién debe a quién
+# ⬜ Exportación CSV mensual
+# ⬜ Gráfica de evolución mensual (barras) en vista Estadísticas
+# ⬜ Alertas visuales al superar el presupuesto mensual por categoría
 
 ---
 
@@ -151,6 +125,11 @@
 # ⬜ Tests de API (Vitest + Miniflare)
 
 ---
+
+### Decisiones técnicas fase 5
+# Chart.js (CDN) — gráfica donut en /economia, se carga bajo demanda si no está en window
+# eco_* prefix en tablas D1 — evita conflictos con otras tablas del mismo namespace
+# onRequestGet/Post/Delete en mismo fichero — Pages Functions soporta named exports por método
 
 ### Decisiones técnicas activas
 # bcryptjs — compatible Workers, sin deps nativas

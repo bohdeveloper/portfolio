@@ -26,10 +26,20 @@ function BlogIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+function EconomiaIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v1m0 8v1" strokeLinecap="round" />
+      <path d="M9.5 10a2.5 2.5 0 0 1 5 0c0 1.5-1.5 2-2.5 2.5s-2.5 1-2.5 2.5a2.5 2.5 0 0 0 5 0" />
+    </svg>
+  );
+}
 
 const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
-  Tracker: TrackerIcon,
-  Blog: BlogIcon,
+  Tracker:  TrackerIcon,
+  Blog:     BlogIcon,
+  Economia: EconomiaIcon,
 };
 
 /* ── App registry — add new tools here ── */
@@ -44,9 +54,20 @@ const APPS = [
     desc: 'Artículos técnicos del portfolio',
     path: '/admin/dashboard/blog',
   },
+  {
+    name: 'Economia',
+    desc: 'Control de ingresos y gastos',
+    path: '/admin/dashboard/economia',
+  },
 ] as const;
 
-/* ── Neural network canvas — reads theme from html class every frame ── */
+/* ── Canvas animado de red neuronal ────────────────────────────────────────
+   50 nodos con velocidad aleatoria rebotan en los bordes.
+   Los nodos cercanos (< MAX_DIST px) se conectan con líneas semitransparentes.
+   La opacidad de cada línea es inversamente proporcional a la distancia.
+   El color se lee cada frame de la clase del <html> para responder
+   al cambio de tema sin re-renders de React.
+   ─────────────────────────────────────────────────────────────────────────── */
 interface Node { x: number; y: number; vx: number; vy: number; r: number; pulse: number; }
 
 function NeuralCanvas() {
@@ -76,22 +97,25 @@ function NeuralCanvas() {
       vx:    (Math.random() - 0.5) * 0.35,
       vy:    (Math.random() - 0.5) * 0.35,
       r:     Math.random() * 1.5 + 1,
+      /* Fase inicial aleatoria para que el pulso no esté sincronizado entre nodos */
       pulse: Math.random() * Math.PI * 2,
     }));
 
     function draw() {
-      /* read theme every frame — responds to navbar toggle in real time */
+      /* Lee el tema en cada frame para reaccionar al toggle sin re-render */
       const isLight = document.documentElement.classList.contains('light');
       const [r, g, b] = isLight ? [0, 168, 191] : [0, 231, 235];
 
       ctx!.clearRect(0, 0, w, h);
 
+      /* Actualiza posición y rebota en bordes */
       for (const n of nodes) {
         n.x += n.vx; n.y += n.vy; n.pulse += 0.018;
         if (n.x < 0 || n.x > w) { n.vx *= -1; n.x = Math.max(0, Math.min(w, n.x)); }
         if (n.y < 0 || n.y > h) { n.vy *= -1; n.y = Math.max(0, Math.min(h, n.y)); }
       }
 
+      /* Dibuja aristas entre pares de nodos dentro del radio máximo */
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].x - nodes[j].x;
@@ -101,6 +125,7 @@ function NeuralCanvas() {
             ctx!.beginPath();
             ctx!.moveTo(nodes[i].x, nodes[i].y);
             ctx!.lineTo(nodes[j].x, nodes[j].y);
+            /* Opacidad: máxima cuando la distancia es 0, cero en MAX_DIST */
             ctx!.strokeStyle = `rgba(${r},${g},${b},${(1 - d / MAX_DIST) * 0.22})`;
             ctx!.lineWidth   = 0.5;
             ctx!.stroke();
@@ -108,8 +133,9 @@ function NeuralCanvas() {
         }
       }
 
+      /* Dibuja cada nodo con un pulso senoidal que varía su tamaño y opacidad */
       for (const n of nodes) {
-        const p = (Math.sin(n.pulse) + 1) / 2;
+        const p = (Math.sin(n.pulse) + 1) / 2; // valor normalizado [0, 1]
         ctx!.beginPath();
         ctx!.arc(n.x, n.y, n.r + p * 0.6, 0, Math.PI * 2);
         ctx!.fillStyle = `rgba(${r},${g},${b},${0.35 + p * 0.45})`;
@@ -120,6 +146,7 @@ function NeuralCanvas() {
     }
 
     animId = requestAnimationFrame(draw);
+    /* Limpia la animación y el listener al desmontar el componente */
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
