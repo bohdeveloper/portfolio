@@ -11,11 +11,18 @@ interface Item {
   type: 'gasto' | 'ingreso';
 }
 
+interface Summary {
+  saldo_inicial: number | null;
+  closed: number;
+  closed_at: string | null;
+}
+
 interface Profile {
   id: number;
   name: string;
   sort_order: number;
   items: Item[];
+  summary: Summary | null;
 }
 
 /* ── Helpers ───────────────────────────────────────────────── */
@@ -57,50 +64,79 @@ const STYLES = `
   .moneta-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
   .moneta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-
-  .moneta-col {
-    padding: 1.25rem 1.5rem; border-right: 1px solid var(--adm-border);
-  }
+  .moneta-col { padding: 1.25rem 1.5rem; border-right: 1px solid var(--adm-border); }
   .moneta-col:last-child { border-right: none; }
-  .moneta-col-title {
-    font-size: 16px; font-weight: 600; color: var(--primary); margin-bottom: 1.25rem;
+  .moneta-col-title { font-size: 16px; font-weight: 600; color: var(--primary); }
+
+  /* Saldo inicial */
+  .moneta-saldo-row {
+    display: flex; align-items: center; gap: 8px;
+    margin: 0.6rem 0 0; font-size: 12px; color: var(--adm-muted);
+  }
+  .moneta-saldo-val {
+    cursor: pointer; padding: 2px 6px; border-radius: 4px; font-size: 12px;
+    transition: background 0.12s; color: var(--adm-text);
+  }
+  .moneta-saldo-val.empty { color: var(--adm-muted); font-style: italic; }
+  .moneta-saldo-val:hover { background: var(--adm-border); }
+  .moneta-saldo-input {
+    width: 95px; background: var(--adm-input); border: 1px solid var(--primary);
+    border-radius: 4px; padding: 2px 8px; font-size: 12px; color: var(--adm-text);
+    font-family: inherit; outline: none;
   }
 
-  /* Cabecera de sección */
+  /* Sección */
   .moneta-section-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--adm-muted);
-    margin: 1rem 0 0; padding-bottom: 4px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--adm-muted); margin: 1.1rem 0 0; padding-bottom: 4px;
     border-bottom: 1px solid var(--adm-border);
   }
 
-  /* Cabeceras de columna (Previsto / Real) */
-  .moneta-col-headers {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 0 3px;
-  }
-  .mch-name  { flex: 1; }
-  .mch-cell  { width: 85px; text-align: right; font-size: 10px; color: var(--adm-muted); letter-spacing: 0.05em; }
-  .mch-del   { width: 22px; }
+  /* Cabeceras columna (gastos) */
+  .moneta-col-headers { display: flex; align-items: center; gap: 6px; padding: 5px 0 2px; }
+  .mch-name { flex: 1; }
+  .mch-cell { width: 83px; text-align: right; font-size: 10px; color: var(--adm-muted); letter-spacing: 0.05em; }
+  .mch-copy { width: 22px; }
+  .mch-del  { width: 22px; }
 
   /* Fila de ítem */
   .mitem-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; }
-  .mitem-name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* Celda de importe (previsto y real comparten este estilo base) */
+  /* Nombre editable */
+  .mitem-name {
+    flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    cursor: pointer; border-radius: 3px; padding: 2px 3px; transition: background 0.1s;
+  }
+  .mitem-name:hover { background: var(--adm-border); }
+  .mitem-name-input {
+    flex: 1; min-width: 0; background: var(--adm-input); border: 1px solid var(--primary);
+    border-radius: 4px; padding: 2px 6px; font-size: 13px; color: var(--adm-text);
+    font-family: inherit; outline: none;
+  }
+
+  /* Importe editable */
   .mitem-cell {
-    width: 85px; text-align: right; font-size: 13px; font-weight: 500;
-    cursor: pointer; padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+    width: 83px; text-align: right; font-size: 13px; font-weight: 500; cursor: pointer;
+    padding: 2px 6px; border-radius: 4px; white-space: nowrap;
     transition: background 0.12s; flex-shrink: 0;
   }
   .mitem-cell:hover { background: var(--adm-border); }
   .mitem-cell-input {
-    width: 85px; text-align: right; background: var(--adm-input);
+    width: 83px; text-align: right; background: var(--adm-input);
     border: 1px solid var(--primary); border-radius: 4px;
     padding: 2px 6px; font-size: 13px; color: var(--adm-text);
     font-family: inherit; outline: none; flex-shrink: 0;
   }
 
+  /* Botón copiar previsto → real */
+  .mitem-copy {
+    background: none; border: none; cursor: pointer; padding: 1px 3px;
+    color: var(--adm-muted); font-size: 11px; transition: color 0.12s, background 0.1s;
+    flex-shrink: 0; width: 22px; text-align: center; border-radius: 3px;
+  }
+  .mitem-copy:hover { color: var(--primary); background: var(--adm-border); }
+
+  /* Borrar ítem */
   .mitem-del {
     background: none; border: none; cursor: pointer; padding: 1px 4px;
     color: var(--adm-muted); font-size: 15px; line-height: 1; border-radius: 3px;
@@ -108,20 +144,45 @@ const STYLES = `
   }
   .mitem-del:hover { color: #ef4444; }
 
-  /* Fila total */
+  /* Fila de total */
   .moneta-total-row {
     display: flex; align-items: center; gap: 6px;
     padding: 7px 0 3px; border-top: 1px solid var(--adm-border);
     margin-top: 4px; font-size: 13px; font-weight: 600;
   }
-  .moneta-total-row .mch-name { flex: 1; }
 
-  /* Fila ahorro */
+  /* AHORRO */
   .moneta-ahorro-row {
     display: flex; align-items: flex-start; justify-content: space-between;
     padding: 10px 0 4px; border-top: 2px solid var(--primary);
     margin-top: 8px; font-size: 14px; font-weight: 700;
   }
+
+  /* Cerrar mes */
+  .moneta-cerrar-btn {
+    width: 100%; padding: 8px; margin-top: 1.25rem;
+    background: none; border: 1px solid var(--adm-border); border-radius: 8px;
+    color: var(--adm-muted); font-family: inherit; font-size: 12px;
+    cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  }
+  .moneta-cerrar-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+  .moneta-cerrar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Card mes cerrado */
+  .moneta-closed-card {
+    margin-top: 1.25rem; padding: 12px 14px;
+    background: rgba(0,231,235,0.05); border: 1px solid rgba(0,231,235,0.25);
+    border-radius: 8px;
+  }
+  html.light .moneta-closed-card {
+    background: rgba(0,168,191,0.05); border-color: rgba(0,168,191,0.3);
+  }
+  .moneta-reabrir-btn {
+    background: none; border: 1px solid var(--adm-border); border-radius: 5px;
+    padding: 3px 10px; font-size: 11px; cursor: pointer; margin-top: 8px;
+    color: var(--adm-muted); font-family: inherit; transition: border-color 0.12s, color 0.12s;
+  }
+  .moneta-reabrir-btn:hover { border-color: var(--adm-muted); color: var(--adm-text); }
 
   /* Botón añadir */
   .madd-btn {
@@ -132,24 +193,32 @@ const STYLES = `
   }
   .madd-btn:hover { border-color: var(--primary); color: var(--primary); }
 
-  /* Formulario inline */
+  /* Formulario añadir */
   .madd-form { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
   .madd-input {
     background: var(--adm-input); border: 1px solid var(--adm-border); border-radius: 5px;
-    padding: 5px 8px; font-size: 12px; color: var(--adm-text);
-    font-family: inherit; outline: none;
+    padding: 5px 8px; font-size: 12px; color: var(--adm-text); font-family: inherit; outline: none;
   }
   .madd-input:focus { border-color: var(--primary); }
   .madd-confirm {
     background: none; border: 1px solid var(--primary); border-radius: 5px;
-    padding: 4px 8px; font-size: 12px; cursor: pointer;
-    color: var(--primary); font-family: inherit; flex-shrink: 0;
+    padding: 4px 8px; font-size: 12px; cursor: pointer; color: var(--primary);
+    font-family: inherit; flex-shrink: 0;
   }
   .madd-cancel {
     background: none; border: 1px solid var(--adm-border); border-radius: 5px;
-    padding: 4px 7px; font-size: 12px; cursor: pointer;
-    color: var(--adm-muted); font-family: inherit; flex-shrink: 0;
+    padding: 4px 7px; font-size: 12px; cursor: pointer; color: var(--adm-muted);
+    font-family: inherit; flex-shrink: 0;
   }
+
+  /* Botón copiar mes anterior */
+  .moneta-copy-month-btn {
+    margin-left: auto; background: none; cursor: pointer; font-family: inherit;
+    border: 1px solid var(--adm-border); border-radius: 6px; padding: 5px 12px;
+    font-size: 12px; color: var(--adm-muted); transition: border-color 0.15s, color 0.15s;
+  }
+  .moneta-copy-month-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+  .moneta-copy-month-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   @media (max-width: 700px) {
     .moneta-grid { grid-template-columns: 1fr; }
@@ -157,70 +226,92 @@ const STYLES = `
     .moneta-col.hidden-mobile { display: none; }
     .moneta-tabs { display: flex; }
     .moneta-topbar { padding: 0.85rem 1rem; }
+    .mitem-cell, .mitem-cell-input, .mch-cell { width: 72px; }
   }
 `;
 
-/* ── Fila de ítem ───────────────────────────────────────────
-   showReal = true para gastos: muestra columna de importe real editable.
-   Al borrar el valor real y confirmar con Enter, se resetea a null. */
-function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave }: {
-  item: Item;
-  showReal?: boolean;
-  onDelete: (id: number) => void;
+/* ── Fila de ítem ─────────────────────────────────────────────
+   Nombre y previsto son clicables para editar.
+   showReal = true (gastos): muestra botón "=" y columna real.
+   Borrar el campo real y confirmar con Enter lo resetea a null. */
+function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSave }: {
+  item: Item; showReal?: boolean;
+  onDelete:     (id: number) => void;
   onAmountSave: (id: number, amount: number) => void;
-  onRealSave?: (id: number, real: number | null) => void;
+  onRealSave?:  (id: number, real: number | null) => void;
+  onNameSave?:  (id: number, name: string) => void;
 }) {
-  const [editingAmount, setEditingAmount] = useState(false);
-  const [editingReal,   setEditingReal]   = useState(false);
-  const [amountVal,     setAmountVal]     = useState('');
-  const [realVal,       setRealVal]       = useState('');
+  const [editName,   setEditName]   = useState(false);
+  const [editAmount, setEditAmount] = useState(false);
+  const [editReal,   setEditReal]   = useState(false);
+  const [nameVal,    setNameVal]    = useState('');
+  const [amountVal,  setAmountVal]  = useState('');
+  const [realVal,    setRealVal]    = useState('');
 
-  function startEditAmount() { setAmountVal(String(item.amount || '')); setEditingAmount(true); }
+  function startName()   { setNameVal(item.name);                                       setEditName(true); }
+  function startAmount() { setAmountVal(item.amount ? String(item.amount) : '');         setEditAmount(true); }
+  function startReal()   { setRealVal(item.real_amount != null ? String(item.real_amount) : ''); setEditReal(true); }
+
+  function confirmName() {
+    const t = nameVal.trim();
+    if (t && t !== item.name) onNameSave?.(item.id, t);
+    setEditName(false);
+  }
   function confirmAmount() {
     const n = parseFloat(amountVal);
     if (!isNaN(n)) onAmountSave(item.id, n);
-    setEditingAmount(false);
+    setEditAmount(false);
   }
-
-  function startEditReal() { setRealVal(item.real_amount != null ? String(item.real_amount) : ''); setEditingReal(true); }
   function confirmReal() {
-    if (!onRealSave) return;
     const t = realVal.trim();
-    onRealSave(item.id, t === '' ? null : (parseFloat(t) || 0));
-    setEditingReal(false);
+    onRealSave?.(item.id, t === '' ? null : (parseFloat(t) || 0));
+    setEditReal(false);
   }
 
   const hasReal = item.real_amount != null;
 
   return (
     <div className="mitem-row">
-      <span className="mitem-name">{item.name}</span>
+      {/* Nombre editable */}
+      {editName ? (
+        <input className="mitem-name-input" value={nameVal} autoFocus
+          onChange={e => setNameVal(e.target.value)}
+          onBlur={confirmName}
+          onKeyDown={e => { if (e.key === 'Enter') confirmName(); if (e.key === 'Escape') setEditName(false); }} />
+      ) : (
+        <span className="mitem-name" onClick={startName} title="Clic para editar nombre">{item.name}</span>
+      )}
 
-      {/* Importe previsto */}
-      {editingAmount ? (
+      {/* Previsto editable */}
+      {editAmount ? (
         <input className="mitem-cell-input" type="number" step="0.01" value={amountVal} autoFocus
           onChange={e => setAmountVal(e.target.value)}
           onBlur={confirmAmount}
-          onKeyDown={e => { if (e.key === 'Enter') confirmAmount(); if (e.key === 'Escape') setEditingAmount(false); }} />
+          onKeyDown={e => { if (e.key === 'Enter') confirmAmount(); if (e.key === 'Escape') setEditAmount(false); }} />
       ) : (
-        <span className="mitem-cell" onClick={startEditAmount} title="Editar previsto"
-          style={{ color: 'var(--adm-text)' }}>
+        <span className="mitem-cell" onClick={startAmount} title="Editar previsto">
           {item.amount > 0 ? fmt(item.amount) : <span style={{ color: 'var(--adm-muted)' }}>—</span>}
         </span>
       )}
 
-      {/* Importe real (solo en gastos) */}
+      {/* Copiar previsto → real (solo gastos) */}
       {showReal && (
-        editingReal ? (
+        <button className="mitem-copy" title="Copiar previsto al real"
+          onClick={() => onRealSave?.(item.id, item.amount)}>=</button>
+      )}
+
+      {/* Real editable (solo gastos) */}
+      {showReal && (
+        editReal ? (
           <input className="mitem-cell-input" type="number" step="0.01" value={realVal} autoFocus
-            placeholder="Vaciar para borrar"
+            placeholder="Vaciar = borrar"
             onChange={e => setRealVal(e.target.value)}
             onBlur={confirmReal}
-            onKeyDown={e => { if (e.key === 'Enter') confirmReal(); if (e.key === 'Escape') setEditingReal(false); }} />
+            onKeyDown={e => { if (e.key === 'Enter') confirmReal(); if (e.key === 'Escape') setEditReal(false); }} />
         ) : (
-          <span className="mitem-cell" onClick={startEditReal}
-            title={hasReal ? 'Editar importe real' : 'Añadir gasto real de fin de mes'}
-            style={{ color: hasReal ? 'var(--primary)' : 'var(--adm-muted)', opacity: hasReal ? 1 : 0.45 }}>
+          <span className="mitem-cell" onClick={startReal}
+            title={hasReal ? 'Editar importe real' : 'Añadir importe real'}
+            style={{ color: hasReal ? 'var(--primary)' : 'var(--adm-muted)', opacity: hasReal ? 1 : 0.4 }}>
             {hasReal ? fmt(item.real_amount!) : '—'}
           </span>
         )
@@ -262,30 +353,43 @@ function AddItemForm({ onAdd, onCancel }: {
 }
 
 /* ── Columna de un perfil ───────────────────────────────────── */
-function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
+function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpdate }: {
   profile: Profile; year: number; month: number; isHidden: boolean;
-  onUpdate: (profileId: number, updater: (items: Item[]) => Item[]) => void;
+  onUpdate:        (profileId: number, updater: (items: Item[]) => Item[]) => void;
+  onSummaryUpdate: (profileId: number, updates: Partial<Summary>) => void;
 }) {
-  const [addingType, setAddingType] = useState<'gasto' | 'ingreso' | null>(null);
+  const [addingType,   setAddingType]   = useState<'gasto' | 'ingreso' | null>(null);
+  const [editingSaldo, setEditingSaldo] = useState(false);
+  const [saldoVal,     setSaldoVal]     = useState('');
+  const [closing,      setClosing]      = useState(false);
 
+  const summary = profile.summary;
+  const closed  = !!(summary?.closed);
+
+  /* ── Cálculos ─────────────────────────────────────── */
   const gastos   = profile.items.filter(i => i.type === 'gasto');
   const ingresos = profile.items.filter(i => i.type === 'ingreso');
 
   const totalPrevGastos   = gastos.reduce((s, i) => s + i.amount, 0);
   const totalPrevIngresos = ingresos.reduce((s, i) => s + i.amount, 0);
 
-  /* Real gastos: usa real_amount si está, si no usa amount como estimación */
-  const totalRealGastos   = gastos.reduce((s, i) => s + (i.real_amount ?? i.amount), 0);
-  const hasAnyRealGasto   = gastos.some(i => i.real_amount != null);
+  /* Real: solo suma los ítems que tienen real_amount establecido */
+  const gastosConReal   = gastos.filter(i => i.real_amount != null);
+  const totalRealGastos = gastosConReal.reduce((s, i) => s + i.real_amount!, 0);
+  const hasAnyReal      = gastosConReal.length > 0;
 
   const ahorroEstimado = totalPrevIngresos - totalPrevGastos;
-  const ahorroReal     = hasAnyRealGasto ? totalPrevIngresos - totalRealGastos : null;
+  const ahorroReal     = hasAnyReal ? totalPrevIngresos - totalRealGastos : null;
 
+  /* Saldo final = saldo_inicial + ahorro real (si ambos disponibles) */
+  const saldoFinal = (summary?.saldo_inicial != null && ahorroReal !== null)
+    ? summary.saldo_inicial + ahorroReal : null;
+
+  /* ── Handlers de ítems ────────────────────────────── */
   async function handleAdd(name: string, amount: number) {
     const type = addingType!;
     const res  = await fetch('/api/moneta/item', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ profile_id: profile.id, year, month, name, amount, type }),
     });
     const data = await res.json() as { ok: boolean; id: number };
@@ -303,8 +407,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
   function handleAmountSave(id: number, amount: number) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, amount } : i));
     fetch(`/api/moneta/item?id=${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount }),
     });
   }
@@ -312,23 +415,94 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
   function handleRealSave(id: number, real_amount: number | null) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, real_amount } : i));
     fetch(`/api/moneta/item?id=${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ real_amount }),
     });
   }
 
+  function handleNameSave(id: number, name: string) {
+    onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, name } : i));
+    fetch(`/api/moneta/item?id=${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+  }
+
+  /* ── Handlers de resumen ──────────────────────────── */
+  async function saveSaldoInicial(val: string) {
+    const n = parseFloat(val);
+    const saldo = isNaN(n) ? null : n;
+    onSummaryUpdate(profile.id, { saldo_inicial: saldo });
+    setEditingSaldo(false);
+    fetch('/api/moneta/summary', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profile.id, year, month, saldo_inicial: saldo }),
+    });
+  }
+
+  async function handleCerrarMes() {
+    const lines = [
+      `¿Cerrar ${monthLabel(year, month)} para ${profile.name}?`,
+      '',
+      hasAnyReal
+        ? `Ahorro real: ${fmt(ahorroReal!)}`
+        : `Ahorro estimado: ${fmt(ahorroEstimado)}`,
+      saldoFinal !== null ? `Saldo final est.: ${fmt(saldoFinal)}` : '',
+      '',
+      'Podrás reabrirlo si necesitas corregir algo.',
+    ].filter(l => l !== undefined && !(l === '' && !hasAnyReal)).join('\n');
+
+    if (!confirm(lines)) return;
+    setClosing(true);
+    const res  = await fetch('/api/moneta/summary', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profile.id, year, month, action: 'close' }),
+    });
+    const data = await res.json() as { ok: boolean };
+    if (data.ok) onSummaryUpdate(profile.id, { closed: 1, closed_at: new Date().toISOString() });
+    setClosing(false);
+  }
+
+  async function handleReopenMes() {
+    const res  = await fetch('/api/moneta/summary', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profile.id, year, month, action: 'reopen' }),
+    });
+    const data = await res.json() as { ok: boolean };
+    if (data.ok) onSummaryUpdate(profile.id, { closed: 0, closed_at: null });
+  }
+
   return (
     <div className={`moneta-col${isHidden ? ' hidden-mobile' : ''}`}>
+
+      {/* ── Cabecera: nombre + saldo inicial ── */}
       <div className="moneta-col-title">{profile.name}</div>
+      <div className="moneta-saldo-row">
+        <span>Saldo inicial:</span>
+        {editingSaldo ? (
+          <input className="moneta-saldo-input" type="number" step="0.01" autoFocus
+            value={saldoVal}
+            onChange={e => setSaldoVal(e.target.value)}
+            onBlur={() => saveSaldoInicial(saldoVal)}
+            onKeyDown={e => { if (e.key === 'Enter') saveSaldoInicial(saldoVal); if (e.key === 'Escape') setEditingSaldo(false); }}
+          />
+        ) : (
+          <span
+            className={`moneta-saldo-val${summary?.saldo_inicial == null ? ' empty' : ''}`}
+            onClick={() => { setSaldoVal(summary?.saldo_inicial != null ? String(summary.saldo_inicial) : ''); setEditingSaldo(true); }}
+            title="Clic para editar el saldo inicial del mes"
+          >
+            {summary?.saldo_inicial != null ? fmt(summary.saldo_inicial) : 'Sin definir'}
+          </span>
+        )}
+      </div>
 
       {/* ── GASTOS ── */}
       <div className="moneta-section-label">Gastos</div>
-
-      {/* Cabeceras de columna Previsto / Real */}
       <div className="moneta-col-headers">
         <span className="mch-name" />
         <span className="mch-cell">PREVISTO</span>
+        <span className="mch-copy" />
         <span className="mch-cell">REAL</span>
         <span className="mch-del" />
       </div>
@@ -338,23 +512,22 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
           onDelete={handleDelete}
           onAmountSave={handleAmountSave}
           onRealSave={handleRealSave}
+          onNameSave={handleNameSave}
         />
       ))}
 
       {addingType === 'gasto' ? (
         <AddItemForm onAdd={handleAdd} onCancel={() => setAddingType(null)} />
       ) : (
-        <button className="madd-btn" onClick={() => setAddingType('gasto')}>
-          + Añadir gasto
-        </button>
+        <button className="madd-btn" onClick={() => setAddingType('gasto')}>+ Añadir gasto</button>
       )}
 
-      {/* Total gastos: previsto y real */}
       <div className="moneta-total-row">
-        <span className="mch-name" style={{ fontSize: 13 }}>Total gastos</span>
-        <span className="mch-cell" style={{ fontSize: 13, color: '#ef4444' }}>{fmt(totalPrevGastos)}</span>
-        <span className="mch-cell" style={{ fontSize: 13, color: hasAnyRealGasto ? '#ef4444' : 'var(--adm-muted)', opacity: hasAnyRealGasto ? 1 : 0.35 }}>
-          {hasAnyRealGasto ? fmt(totalRealGastos) : '—'}
+        <span className="mch-name">Total gastos</span>
+        <span className="mch-cell" style={{ color: '#ef4444' }}>{fmt(totalPrevGastos)}</span>
+        <span className="mch-copy" />
+        <span className="mch-cell" style={{ color: hasAnyReal ? '#ef4444' : 'var(--adm-muted)', opacity: hasAnyReal ? 1 : 0.3 }}>
+          {hasAnyReal ? fmt(totalRealGastos) : '—'}
         </span>
         <span className="mch-del" />
       </div>
@@ -366,25 +539,22 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
         <ItemRow key={item.id} item={item}
           onDelete={handleDelete}
           onAmountSave={handleAmountSave}
+          onNameSave={handleNameSave}
         />
       ))}
 
       {addingType === 'ingreso' ? (
         <AddItemForm onAdd={handleAdd} onCancel={() => setAddingType(null)} />
       ) : (
-        <button className="madd-btn" onClick={() => setAddingType('ingreso')}>
-          + Añadir ingreso
-        </button>
+        <button className="madd-btn" onClick={() => setAddingType('ingreso')}>+ Añadir ingreso</button>
       )}
 
       <div className="moneta-total-row">
-        <span style={{ fontSize: 13 }}>Total ingresos</span>
-        <span style={{ color: '#22c55e', fontSize: 13 }}>{fmt(totalPrevIngresos)}</span>
+        <span style={{ flex: 1 }}>Total ingresos</span>
+        <span style={{ color: '#22c55e' }}>{fmt(totalPrevIngresos)}</span>
       </div>
 
-      {/* ── AHORRO ─────────────────────────────────────────────
-          Si hay algún gasto real: muestra estimado y real.
-          Si no: solo muestra el estimado (aún no es fin de mes). */}
+      {/* ── AHORRO ── */}
       <div className="moneta-ahorro-row">
         <span>Ahorro</span>
         {ahorroReal !== null ? (
@@ -397,11 +567,41 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
             </div>
           </div>
         ) : (
-          <span style={{ color: ahorroEstimado >= 0 ? '#22c55e' : '#ef4444' }}>
-            {fmt(ahorroEstimado)}
-          </span>
+          <span style={{ color: ahorroEstimado >= 0 ? '#22c55e' : '#ef4444' }}>{fmt(ahorroEstimado)}</span>
         )}
       </div>
+
+      {/* ── Cerrar mes / Mes cerrado ── */}
+      {closed ? (
+        <div className="moneta-closed-card">
+          <div style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 600, letterSpacing: '0.08em' }}>
+            ✓ MES CERRADO
+            {summary?.closed_at && (
+              <span style={{ color: 'var(--adm-muted)', fontWeight: 400, marginLeft: 6 }}>
+                {new Date(summary.closed_at).toLocaleDateString('es-ES')}
+              </span>
+            )}
+          </div>
+          {ahorroReal !== null && (
+            <div style={{ fontSize: 13, marginTop: 6 }}>
+              Ahorro real:{' '}
+              <strong style={{ color: ahorroReal >= 0 ? '#22c55e' : '#ef4444' }}>{fmt(ahorroReal)}</strong>
+            </div>
+          )}
+          {saldoFinal !== null && (
+            <div style={{ fontSize: 13, marginTop: 3 }}>
+              Saldo final est.:{' '}
+              <strong style={{ color: 'var(--adm-text)' }}>{fmt(saldoFinal)}</strong>
+            </div>
+          )}
+          <button className="moneta-reabrir-btn" onClick={handleReopenMes}>Reabrir mes</button>
+        </div>
+      ) : (
+        <button className="moneta-cerrar-btn" onClick={handleCerrarMes} disabled={closing}>
+          {closing ? 'Cerrando...' : 'Cerrar mes'}
+        </button>
+      )}
+
     </div>
   );
 }
@@ -436,6 +636,14 @@ export default function MonetaPage() {
     ));
   }
 
+  function updateSummary(profileId: number, updates: Partial<Summary>) {
+    setProfiles(ps => ps.map(p => {
+      if (p.id !== profileId) return p;
+      const base: Summary = p.summary ?? { saldo_inicial: null, closed: 0, closed_at: null };
+      return { ...p, summary: { ...base, ...updates } };
+    }));
+  }
+
   function prevMonth() {
     setDate(({ year, month }) =>
       month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 });
@@ -444,34 +652,27 @@ export default function MonetaPage() {
     setDate(({ year, month }) =>
       month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 });
   }
-
-  /* Calcula el mes anterior al que se está viendo */
   function fromDate(year: number, month: number) {
     return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
   }
 
+  /* Siempre pide confirmación antes de copiar */
   async function copyPrevMonth() {
-    const hasItems = profiles.some(p => p.items.length > 0);
-    if (hasItems) {
-      if (!confirm('Este mes ya tiene datos. ¿Seguro que quieres continuar?')) return;
-    }
     const from = fromDate(date.year, date.month);
+    if (!confirm(
+      `¿Copiar los ítems de ${monthLabel(from.year, from.month)} a ${monthLabel(date.year, date.month)}?\n\n` +
+      `Se añadirán los ítems previstos sin los importes reales.`
+    )) return;
     setCopying(true);
-    const res = await fetch('/api/moneta/copy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res  = await fetch('/api/moneta/copy', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ from_year: from.year, from_month: from.month, to_year: date.year, to_month: date.month }),
     });
     const data = await res.json() as { ok: boolean; error?: string };
     setCopying(false);
-    if (data.ok) {
-      load();
-    } else {
-      alert(data.error ?? 'Error al copiar');
-    }
+    if (data.ok) load();
+    else alert(data.error ?? 'Error al copiar');
   }
-
-  const isEmpty = profiles.every(p => p.items.length === 0);
 
   return (
     <div className="moneta-wrap">
@@ -482,18 +683,10 @@ export default function MonetaPage() {
         <span className="moneta-month-label">{monthLabel(date.year, date.month)}</span>
         <button className="moneta-month-btn" onClick={nextMonth}>›</button>
         {loading && <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Cargando...</span>}
-        {/* Botón copiar mes anterior — visible siempre, util para arrancar un nuevo mes */}
         <button
+          className="moneta-copy-month-btn"
           onClick={copyPrevMonth}
           disabled={copying || loading}
-          style={{
-            marginLeft: 'auto', background: 'none', cursor: 'pointer', fontFamily: 'inherit',
-            border: '1px solid var(--adm-border)', borderRadius: 6, padding: '5px 12px',
-            fontSize: 12, color: 'var(--adm-muted)', transition: 'border-color 0.15s, color 0.15s',
-            opacity: (copying || loading) ? 0.4 : 1,
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--adm-border)'; e.currentTarget.style.color = 'var(--adm-muted)'; }}
           title={(() => { const f = fromDate(date.year, date.month); return `Copiar ítems de ${monthLabel(f.year, f.month)}`; })()}
         >
           {copying ? 'Copiando...' : '↑ Copiar mes anterior'}
@@ -516,6 +709,7 @@ export default function MonetaPage() {
             profile={p} year={date.year} month={date.month}
             isHidden={i !== activeTab}
             onUpdate={updateProfile}
+            onSummaryUpdate={updateSummary}
           />
         ))}
       </div>

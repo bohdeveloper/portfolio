@@ -16,12 +16,16 @@ async function auth(request: Request, env: Env): Promise<boolean> {
 const H = { 'Content-Type': 'application/json' };
 
 interface ItemRow {
-  id: number; profile_id: number; year: number; month: number;
-  name: string; amount: number; real_amount: number | null; type: string; sort_order: number;
+  id: number; profile_id: number; name: string;
+  amount: number; real_amount: number | null; type: string; sort_order: number;
+}
+
+interface SummaryRow {
+  profile_id: number; saldo_inicial: number | null; closed: number; closed_at: string | null;
 }
 
 /* ── GET /api/moneta/data?year=YYYY&month=M
-   Devuelve los perfiles con la lista de ítems del mes. */
+   Devuelve los perfiles con ítems del mes y resumen mensual (saldo, estado). */
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   if (!await auth(request, env))
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers: H });
@@ -42,9 +46,16 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       ORDER BY profile_id, sort_order, id
     `).bind(year, month).all<ItemRow>();
 
+    const { results: summaries } = await env.DB.prepare(`
+      SELECT profile_id, saldo_inicial, closed, closed_at
+      FROM moneta_monthly_summary
+      WHERE year = ? AND month = ?
+    `).bind(year, month).all<SummaryRow>();
+
     const data = profiles.map(p => ({
       ...p,
-      items: items.filter(i => i.profile_id === p.id),
+      items:   items.filter(i => i.profile_id === p.id),
+      summary: summaries.find(s => s.profile_id === p.id) ?? null,
     }));
 
     return new Response(JSON.stringify({ ok: true, data }), { status: 200, headers: H });
