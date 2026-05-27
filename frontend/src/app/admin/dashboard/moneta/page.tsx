@@ -410,6 +410,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
 export default function MonetaPage() {
   const [profiles,  setProfiles]  = useState<Profile[]>([]);
   const [loading,   setLoading]   = useState(true);
+  const [copying,   setCopying]   = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [date, setDate] = useState(() => {
     const d = new Date();
@@ -444,6 +445,34 @@ export default function MonetaPage() {
       month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 });
   }
 
+  /* Calcula el mes anterior al que se está viendo */
+  function fromDate(year: number, month: number) {
+    return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
+  }
+
+  async function copyPrevMonth() {
+    const hasItems = profiles.some(p => p.items.length > 0);
+    if (hasItems) {
+      if (!confirm('Este mes ya tiene datos. ¿Seguro que quieres continuar?')) return;
+    }
+    const from = fromDate(date.year, date.month);
+    setCopying(true);
+    const res = await fetch('/api/moneta/copy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from_year: from.year, from_month: from.month, to_year: date.year, to_month: date.month }),
+    });
+    const data = await res.json() as { ok: boolean; error?: string };
+    setCopying(false);
+    if (data.ok) {
+      load();
+    } else {
+      alert(data.error ?? 'Error al copiar');
+    }
+  }
+
+  const isEmpty = profiles.every(p => p.items.length === 0);
+
   return (
     <div className="moneta-wrap">
       <style>{STYLES}</style>
@@ -453,6 +482,22 @@ export default function MonetaPage() {
         <span className="moneta-month-label">{monthLabel(date.year, date.month)}</span>
         <button className="moneta-month-btn" onClick={nextMonth}>›</button>
         {loading && <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Cargando...</span>}
+        {/* Botón copiar mes anterior — visible siempre, util para arrancar un nuevo mes */}
+        <button
+          onClick={copyPrevMonth}
+          disabled={copying || loading}
+          style={{
+            marginLeft: 'auto', background: 'none', cursor: 'pointer', fontFamily: 'inherit',
+            border: '1px solid var(--adm-border)', borderRadius: 6, padding: '5px 12px',
+            fontSize: 12, color: 'var(--adm-muted)', transition: 'border-color 0.15s, color 0.15s',
+            opacity: (copying || loading) ? 0.4 : 1,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--adm-border)'; e.currentTarget.style.color = 'var(--adm-muted)'; }}
+          title={(() => { const f = fromDate(date.year, date.month); return `Copiar ítems de ${monthLabel(f.year, f.month)}`; })()}
+        >
+          {copying ? 'Copiando...' : '↑ Copiar mes anterior'}
+        </button>
       </div>
 
       <div className="moneta-tabs">
