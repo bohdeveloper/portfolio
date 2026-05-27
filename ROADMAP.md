@@ -163,7 +163,54 @@
 
 ---
 
-:: FASE 10 — Visibilidad y retención de usuarios (⬜ FUTURO)
+:: FASE 10 — Sistema multiusuario + roles (⬜ PLANIFICADA)
+· Objetivo: soporte para múltiples usuarios admin con roles y datos independientes.
+  Borja mantiene el rol super_admin y puede dar de alta usuarios con permisos inferiores.
+
+### Roles
+# super_admin — acceso total + gestión de usuarios + todos los datos
+# editor      — CRUD completo sobre sus propios datos (Moneta, Tracker)
+# viewer      — solo lectura de sus propios datos, sin crear ni editar
+
+### D1 — cambios de esquema
+# ALTER TABLE admin_users ADD COLUMN role TEXT NOT NULL DEFAULT 'editor'
+# ALTER TABLE admin_users ADD COLUMN active INTEGER NOT NULL DEFAULT 1
+# Moneta: moneta_profiles ya actúa como separador — añadir user_id FK
+# Tracker: ALTER TABLE tracker_records ADD COLUMN user_id INTEGER
+#          ALTER TABLE tracker_notes   ADD COLUMN user_id INTEGER
+# Migración no destructiva: UPDATE ... SET user_id = 1 para todos los datos existentes
+# Blog: global compartido — sin user_id (super_admin + editors publican, viewers leen)
+
+### Autenticación — cambios
+# JWT payload: añadir { user_id, role } al sign en /api/auth/login
+# /api/auth/me: devolver user_id y role
+# Middleware: leer role del JWT, bloquear según ruta y role
+#   · viewer no puede acceder a rutas POST/PATCH/DELETE
+#   · solo super_admin puede acceder a /admin/dashboard/usuarios
+
+### APIs — filtrado por user_id
+# Todas las APIs de Tracker leen user_id del JWT y filtran registros
+# Todas las APIs de Moneta filtran moneta_profiles por user_id del JWT
+# APIs de Blog: sin cambio (global) — solo role check para escritura
+# Cada usuario ve exclusivamente sus datos de Tracker y Moneta
+
+### Panel de gestión de usuarios (solo super_admin)
+# Nueva card en /admin/dashboard: Usuarios
+# /admin/dashboard/usuarios: lista de usuarios con role y estado activo/inactivo
+# Crear usuario: username, email, password, role (editor o viewer)
+# Editar: cambiar role, activar/desactivar (no se puede crear otro super_admin)
+# No se puede desactivar ni editar al propio super_admin desde el panel
+
+### Notas de arquitectura
+# Moneta: cada usuario tiene sus propios perfiles y sus propios meses — sin cruce de datos
+# Tracker: registros y notas independientes por usuario — patrones distintos por persona
+# Blog: un solo blog público — el contenido es del proyecto, no de cada usuario
+# bcryptjs ya disponible en el stack — sin nueva dependencia para hash de contraseñas
+# Migración segura: datos actuales (user_id = 1, Borja) no se tocan
+
+---
+
+:: FASE 11 — Visibilidad y retención de usuarios (⬜ FUTURO)
 · Ideas para aumentar tiempo en web y retorno de usuarios.
 
 # ⬜ Juego TOP flotante en landing (implementado en Fase 7)
