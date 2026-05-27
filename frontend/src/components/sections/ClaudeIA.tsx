@@ -1,5 +1,7 @@
 "use client";
 
+import { useCardHolo } from "@/hooks/useCardHolo";
+
 const beneficios = [
   {
     titulo: "Claridad",
@@ -30,6 +32,7 @@ const intereses = [
 ];
 
 export default function ClaudeIA() {
+  const holo = useCardHolo();
 
   return (
     <section id="ia" className="max-w-6xl mx-auto px-6 py-32">
@@ -90,8 +93,11 @@ export default function ClaudeIA() {
             {beneficios.map((b, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-3 p-4 rounded-lg border border-cyan-400/30 bg-white dark:bg-[#0d0d0d] hover:border-primary hover:shadow-[0_0_16px_rgba(0,231,235,0.15)] transition-all"
+                {...holo}
+                className="card-holo flex flex-col gap-3 p-4 rounded-lg border border-cyan-400/30 bg-white dark:bg-[#0d0d0d] hover:border-primary"
               >
+                <span className="card-holo-shine" aria-hidden />
+                <span className="card-holo-noise"  aria-hidden />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"

@@ -1,4 +1,9 @@
+"use client";
+
+import { useCardHolo } from "@/hooks/useCardHolo";
+
 export default function Proyectos() {
+  const holo = useCardHolo();
   const proyectos = [
     {
       nombre: "Unyona",
@@ -91,17 +96,21 @@ export default function Proyectos() {
         {proyectos.map((p, i) => (
           <article
             key={i}
+            {...holo}
             className={`
-              relative flex flex-col h-full rounded-lg p-6
+              card-holo
+              flex flex-col h-full rounded-lg p-6
               bg-white dark:bg-[#0d0d0d]
               border-2
               ${
                 p.landing
-                  ? "border-primary hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(0,231,235,0.25)] cursor-pointer transition-all"
+                  ? "border-primary cursor-pointer"
                   : "border-gray-300 dark:border-gray-700"
               }
             `}
           >
+            <span className="card-holo-shine" aria-hidden />
+            <span className="card-holo-noise"  aria-hidden />
             <div className="flex-1">
               <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10 dark:bg-cyan-400/20">
                 En desarrollo

@@ -1,4 +1,9 @@
+"use client";
+
+import { useCardHolo } from "@/hooks/useCardHolo";
+
 export default function Aprendizaje() {
+  const holo = useCardHolo();
   const cursos = [
     {
       titulo: "Curso Java POO & BD relacionales",
@@ -90,8 +95,11 @@ export default function Aprendizaje() {
             href={c.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative block border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all"
+            {...holo}
+            className="card-holo block border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d]"
           >
+            <span className="card-holo-shine" aria-hidden />
+            <span className="card-holo-noise"  aria-hidden />
             <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
               {c.estado === "en-curso" ? "En curso" : "Completado"}
             </span>
@@ -142,8 +150,11 @@ export default function Aprendizaje() {
         {[aprendiendo1, aprendiendo2].map((a, i) => (
           <div
             key={i}
-            className="relative border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all"
+            {...holo}
+            className="card-holo border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d]"
           >
+            <span className="card-holo-shine" aria-hidden />
+            <span className="card-holo-noise"  aria-hidden />
             <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
               {a.estado === "en-curso" ? "En curso" : "Completado"}
             </span>
@@ -186,7 +197,9 @@ export default function Aprendizaje() {
         ))}
 
         {/* CLAUDE IA */}
-        <div className="relative border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] hover:scale-[1.02] transition-all">
+        <div {...holo} className="card-holo border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d]">
+          <span className="card-holo-shine" aria-hidden />
+          <span className="card-holo-noise"  aria-hidden />
           <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
             En curso
           </span>
