@@ -25,6 +25,12 @@ interface Profile {
   summary: Summary | null;
 }
 
+interface HistoryRow {
+  profile_id: number; profile_name: string;
+  year: number; month: number;
+  ingresos_prev: number; gastos_prev: number; gastos_real: number; n_real: number;
+}
+
 /* ── Helpers ───────────────────────────────────────────────── */
 function fmt(n: number) {
   return n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
@@ -213,12 +219,22 @@ const STYLES = `
 
   /* Botón copiar mes anterior */
   .moneta-copy-month-btn {
-    margin-left: auto; background: none; cursor: pointer; font-family: inherit;
+    background: none; cursor: pointer; font-family: inherit;
     border: 1px solid var(--adm-border); border-radius: 6px; padding: 5px 12px;
     font-size: 12px; color: var(--adm-muted); transition: border-color 0.15s, color 0.15s;
   }
   .moneta-copy-month-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
   .moneta-copy-month-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Histórico */
+  .moneta-history {
+    padding: 1.25rem 1.5rem 1rem;
+    border-top: 1px solid var(--adm-border);
+  }
+  .moneta-history-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--adm-muted); margin-bottom: 0.75rem;
+  }
 
   @media (max-width: 700px) {
     .moneta-grid { grid-template-columns: 1fr; }
@@ -348,6 +364,133 @@ function AddItemForm({ onAdd, onCancel }: {
         onKeyDown={e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onCancel(); }} />
       <button className="madd-confirm" onClick={submit} disabled={saving}>✓</button>
       <button className="madd-cancel" onClick={onCancel}>✕</button>
+    </div>
+  );
+}
+
+/* ── Gráfica de histórico ───────────────────────────────────── */
+const COLORS = ['var(--primary)', '#a78bfa'];
+
+function HistoryChart() {
+  const [rows,    setRows]    = useState<HistoryRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/moneta/history')
+      .then(r => r.json())
+      .then((res: { ok: boolean; data?: HistoryRow[] }) => {
+        if (res.ok) setRows(res.data ?? []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return (
+    <div style={{ padding: '1.25rem 1.5rem', fontSize: 13, color: 'var(--adm-muted)' }}>Cargando histórico...</div>
+  );
+  if (!rows.length) return (
+    <div style={{ padding: '1.25rem 1.5rem', fontSize: 13, color: 'var(--adm-muted)' }}>Sin datos históricos aún.</div>
+  );
+
+  /* Meses únicos ordenados ASC */
+  const seenM = new Set<string>();
+  const months: { year: number; month: number; key: string }[] = [];
+  for (const r of rows) {
+    const key = `${r.year}-${String(r.month).padStart(2, '0')}`;
+    if (!seenM.has(key)) { seenM.add(key); months.push({ year: r.year, month: r.month, key }); }
+  }
+  months.sort((a, b) => a.key.localeCompare(b.key));
+
+  /* Perfiles únicos */
+  const profileMap = new Map<number, string>();
+  for (const r of rows) if (!profileMap.has(r.profile_id)) profileMap.set(r.profile_id, r.profile_name);
+  const profiles = Array.from(profileMap.entries());
+
+  /* Ahorro por (mes, perfil) */
+  const ahorroMap = new Map<string, number>();
+  for (const r of rows) {
+    const key = `${r.year}-${String(r.month).padStart(2, '0')}-${r.profile_id}`;
+    ahorroMap.set(key, r.n_real > 0 ? r.ingresos_prev - r.gastos_real : r.ingresos_prev - r.gastos_prev);
+  }
+
+  const allVals = [...ahorroMap.values()];
+  const maxV    = Math.max(...allVals, 1);
+  const minV    = Math.min(...allVals, 0);
+  const range   = Math.max(maxV - minV, 1);
+
+  const H = 150, PAD_L = 52, PAD_T = 10, PAD_B = 28, PAD_R = 8;
+  const BAR_W = 18, BAR_GAP = 4, GRP_GAP = 16;
+  const grpW  = profiles.length * BAR_W + (profiles.length - 1) * BAR_GAP;
+  const svgW  = PAD_L + months.length * (grpW + GRP_GAP) - GRP_GAP + PAD_R;
+  const svgH  = H + PAD_T + PAD_B;
+  const toY   = (v: number) => PAD_T + ((maxV - v) / range) * H;
+  const zeroY = toY(0);
+
+  const fmtTick = (v: number) => {
+    const abs = Math.abs(Math.round(v));
+    return (v < 0 ? '-' : '') + (abs >= 1000 ? `${(abs / 1000).toFixed(1)}k` : abs) + '€';
+  };
+  const ticks = [maxV, maxV / 2, 0, minV / 2, minV]
+    .filter(v => v !== 0 || minV < 0)
+    .filter((v, i, a) => a.indexOf(v) === i);
+
+  return (
+    <div className="moneta-history">
+      <div className="moneta-history-title">Evolución del ahorro mensual</div>
+      <div style={{ overflowX: 'auto' }}>
+        <svg width={Math.max(svgW, 280)} height={svgH}
+          style={{ display: 'block', overflow: 'visible', fontFamily: 'system-ui, sans-serif' }}>
+
+          {/* Y grid */}
+          {ticks.map(v => (
+            <g key={v}>
+              <line x1={PAD_L} x2={svgW - PAD_R} y1={toY(v)} y2={toY(v)}
+                style={{ stroke: 'var(--adm-border)', strokeWidth: v === 0 ? 1.5 : 0.5,
+                  strokeDasharray: v === 0 ? undefined : '3 4' }} />
+              <text x={PAD_L - 4} y={toY(v) + 4}
+                style={{ fontSize: 9, fill: 'var(--adm-muted)', textAnchor: 'end' } as React.CSSProperties}>
+                {fmtTick(v)}
+              </text>
+            </g>
+          ))}
+
+          {/* Barras */}
+          {months.map((m, mi) => {
+            const gx = PAD_L + mi * (grpW + GRP_GAP);
+            return (
+              <g key={m.key}>
+                <text x={gx + grpW / 2} y={svgH - 2}
+                  style={{ fontSize: 9, fill: 'var(--adm-muted)', textAnchor: 'middle' } as React.CSSProperties}>
+                  {new Date(m.year, m.month - 1).toLocaleDateString('es-ES', { month: 'short' })} {String(m.year).slice(2)}
+                </text>
+                {profiles.map(([pid, pname], pi) => {
+                  const val  = ahorroMap.get(`${m.key}-${pid}`) ?? 0;
+                  const barH = Math.max(Math.abs((val / range) * H), 2);
+                  const bx   = gx + pi * (BAR_W + BAR_GAP);
+                  const by   = val >= 0 ? zeroY - barH : zeroY;
+                  return (
+                    <rect key={pid} x={bx} y={by} width={BAR_W} height={barH} rx={2}
+                      style={{ fill: COLORS[pi % COLORS.length], opacity: 0.85 }}>
+                      <title>{pname}: {val >= 0 ? '+' : ''}{Math.round(val)} €</title>
+                    </rect>
+                  );
+                })}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* Leyenda */}
+      <div style={{ display: 'flex', gap: 14, marginTop: 8 }}>
+        {profiles.map(([pid, name], pi) => (
+          <div key={pid} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--adm-muted)' }}>
+            <span style={{ width: 10, height: 10, borderRadius: 2, display: 'inline-block',
+              background: COLORS[pi % COLORS.length], opacity: 0.85 }} />
+            {name}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -608,10 +751,11 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
 
 /* ── Página principal ──────────────────────────────────────── */
 export default function MonetaPage() {
-  const [profiles,  setProfiles]  = useState<Profile[]>([]);
-  const [loading,   setLoading]   = useState(true);
-  const [copying,   setCopying]   = useState(false);
-  const [activeTab, setActiveTab] = useState(0);
+  const [profiles,    setProfiles]    = useState<Profile[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [copying,     setCopying]     = useState(false);
+  const [activeTab,   setActiveTab]   = useState(0);
+  const [showHistory, setShowHistory] = useState(false);
   const [date, setDate] = useState(() => {
     const d = new Date();
     return { year: d.getFullYear(), month: d.getMonth() + 1 };
@@ -656,6 +800,29 @@ export default function MonetaPage() {
     return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
   }
 
+  function exportCSV() {
+    const label = monthLabel(date.year, date.month);
+    const rows = [`Perfil;Tipo;Concepto;Previsto (€);Real (€)`];
+    for (const p of profiles) {
+      for (const item of p.items) {
+        rows.push([
+          p.name,
+          item.type === 'gasto' ? 'Gasto' : 'Ingreso',
+          item.name,
+          item.amount.toFixed(2).replace('.', ','),
+          item.real_amount != null ? item.real_amount.toFixed(2).replace('.', ',') : '',
+        ].join(';'));
+      }
+    }
+    const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `moneta-${date.year}-${String(date.month).padStart(2, '0')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   /* Siempre pide confirmación antes de copiar */
   async function copyPrevMonth() {
     const from = fromDate(date.year, date.month);
@@ -683,14 +850,23 @@ export default function MonetaPage() {
         <span className="moneta-month-label">{monthLabel(date.year, date.month)}</span>
         <button className="moneta-month-btn" onClick={nextMonth}>›</button>
         {loading && <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Cargando...</span>}
-        <button
-          className="moneta-copy-month-btn"
-          onClick={copyPrevMonth}
-          disabled={copying || loading}
-          title={(() => { const f = fromDate(date.year, date.month); return `Copiar ítems de ${monthLabel(f.year, f.month)}`; })()}
-        >
-          {copying ? 'Copiando...' : '↑ Copiar mes anterior'}
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button className="moneta-month-btn" onClick={exportCSV} disabled={loading}
+            title="Descargar datos del mes en CSV">
+            ↓ CSV
+          </button>
+          <button className="moneta-month-btn" onClick={() => setShowHistory(h => !h)}>
+            {showHistory ? '△ Ocultar' : '▽ Histórico'}
+          </button>
+          <button
+            className="moneta-copy-month-btn"
+            onClick={copyPrevMonth}
+            disabled={copying || loading}
+            title={(() => { const f = fromDate(date.year, date.month); return `Copiar ítems de ${monthLabel(f.year, f.month)}`; })()}
+          >
+            {copying ? 'Copiando...' : '↑ Copiar mes anterior'}
+          </button>
+        </div>
       </div>
 
       <div className="moneta-tabs">
@@ -713,6 +889,8 @@ export default function MonetaPage() {
           />
         ))}
       </div>
+
+      {showHistory && <HistoryChart />}
     </div>
   );
 }

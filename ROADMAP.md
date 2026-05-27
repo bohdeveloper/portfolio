@@ -81,8 +81,8 @@
 # ✅ Dashboard card Moneta con icono SVG
 
 ### Pendiente (sin fase asignada)
-# ⬜ Exportación CSV mensual
-# ⬜ Vista histórico: evolución del ahorro mes a mes (gráfica de barras) → candidato Fase 10
+# ✅ Exportación CSV mensual — botón ↓ CSV en topbar, descarga client-side con BOM UTF-8
+# ✅ Vista histórico: evolución del ahorro mes a mes — gráfica SVG de barras por perfil
 # ⬜ Alertas visuales al superar el presupuesto en una categoría
 
 ---
