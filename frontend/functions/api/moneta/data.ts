@@ -15,14 +15,13 @@ async function auth(request: Request, env: Env): Promise<boolean> {
 
 const H = { 'Content-Type': 'application/json' };
 
-interface CatRow {
-  id: number; profile_id: number; name: string; planned_amount: number;
-  type: string; parent_id: number | null; sort_order: number;
-  actual: number; has_actual: number;
+interface ItemRow {
+  id: number; profile_id: number; year: number; month: number;
+  name: string; amount: number; type: string; sort_order: number;
 }
 
 /* ── GET /api/moneta/data?year=YYYY&month=M
-   Devuelve todos los perfiles con sus categorías (árbol) e importes reales del mes. */
+   Devuelve los perfiles con la lista de ítems del mes. */
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   if (!await auth(request, env))
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers: H });
@@ -36,28 +35,17 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       'SELECT * FROM moneta_profiles ORDER BY sort_order'
     ).all<{ id: number; name: string; sort_order: number }>();
 
-    /* Carga todas las categorías con su importe real del mes (LEFT JOIN) */
-    const { results: cats } = await env.DB.prepare(`
-      SELECT c.*,
-             COALESCE(a.amount, 0)  as actual,
-             (a.id IS NOT NULL)     as has_actual
-      FROM moneta_categories c
-      LEFT JOIN moneta_actuals a
-        ON a.category_id = c.id AND a.year = ? AND a.month = ?
-      ORDER BY c.profile_id, c.sort_order, c.id
-    `).bind(year, month).all<CatRow>();
+    const { results: items } = await env.DB.prepare(`
+      SELECT id, profile_id, name, amount, type, sort_order
+      FROM moneta_items
+      WHERE year = ? AND month = ?
+      ORDER BY profile_id, sort_order, id
+    `).bind(year, month).all<ItemRow>();
 
-    /* Construye el árbol: raíces con sus hijos para cada perfil */
-    const data = profiles.map(p => {
-      const all    = cats.filter(c => c.profile_id === p.id);
-      const roots  = all.filter(c => !c.parent_id).map(c => ({
-        ...c,
-        has_actual: Boolean(c.has_actual),
-        children: all.filter(ch => ch.parent_id === c.id)
-                     .map(ch => ({ ...ch, has_actual: Boolean(ch.has_actual), children: [] })),
-      }));
-      return { ...p, categories: roots };
-    });
+    const data = profiles.map(p => ({
+      ...p,
+      items: items.filter(i => i.profile_id === p.id),
+    }));
 
     return new Response(JSON.stringify({ ok: true, data }), { status: 200, headers: H });
   } catch (err: unknown) {
