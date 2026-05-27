@@ -41,7 +41,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 };
 
-/* ── PATCH /api/moneta/item?id=N — actualizar nombre y/o importe ── */
+/* ── PATCH /api/moneta/item?id=N — actualizar nombre, importe y/o importe real ── */
 export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   if (!await auth(request, env))
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers: H });
@@ -49,20 +49,18 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return bad('Falta id');
 
-  const body = await request.json() as { name?: string; amount?: number };
-  if (body.name === undefined && body.amount === undefined) return bad('Nada que actualizar');
+  const body = await request.json() as { name?: string; amount?: number; real_amount?: number | null };
+
+  const parts: string[] = [];
+  const vals: unknown[] = [];
+  if (body.name        !== undefined) { parts.push('name=?');        vals.push(body.name); }
+  if (body.amount      !== undefined) { parts.push('amount=?');      vals.push(body.amount); }
+  if ('real_amount' in body)          { parts.push('real_amount=?'); vals.push(body.real_amount ?? null); }
+  if (parts.length === 0) return bad('Nada que actualizar');
 
   try {
-    if (body.name !== undefined && body.amount !== undefined) {
-      await env.DB.prepare('UPDATE moneta_items SET name=?, amount=? WHERE id=?')
-        .bind(body.name, body.amount, id).run();
-    } else if (body.name !== undefined) {
-      await env.DB.prepare('UPDATE moneta_items SET name=? WHERE id=?')
-        .bind(body.name, id).run();
-    } else {
-      await env.DB.prepare('UPDATE moneta_items SET amount=? WHERE id=?')
-        .bind(body.amount, id).run();
-    }
+    await env.DB.prepare(`UPDATE moneta_items SET ${parts.join(', ')} WHERE id=?`)
+      .bind(...vals, id).run();
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Database error';

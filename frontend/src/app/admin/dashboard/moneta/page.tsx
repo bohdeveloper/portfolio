@@ -7,6 +7,7 @@ interface Item {
   id: number;
   name: string;
   amount: number;
+  real_amount: number | null;
   type: 'gasto' | 'ingreso';
 }
 
@@ -55,9 +56,7 @@ const STYLES = `
   }
   .moneta-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-  .moneta-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
-  }
+  .moneta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
 
   .moneta-col {
     padding: 1.25rem 1.5rem; border-right: 1px solid var(--adm-border);
@@ -67,52 +66,59 @@ const STYLES = `
     font-size: 16px; font-weight: 600; color: var(--primary); margin-bottom: 1.25rem;
   }
 
-  /* Etiqueta de sección (GASTOS / INGRESOS) */
+  /* Cabecera de sección */
   .moneta-section-label {
     font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--adm-muted);
-    margin: 1rem 0 0.5rem; padding-bottom: 4px;
+    margin: 1rem 0 0; padding-bottom: 4px;
     border-bottom: 1px solid var(--adm-border);
   }
-  .moneta-section-label:first-of-type { margin-top: 0; }
+
+  /* Cabeceras de columna (Previsto / Real) */
+  .moneta-col-headers {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 0 3px;
+  }
+  .mch-name  { flex: 1; }
+  .mch-cell  { width: 85px; text-align: right; font-size: 10px; color: var(--adm-muted); letter-spacing: 0.05em; }
+  .mch-del   { width: 22px; }
 
   /* Fila de ítem */
-  .mitem-row {
-    display: flex; align-items: center; gap: 6px; padding: 5px 0;
+  .mitem-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; }
+  .mitem-name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Celda de importe (previsto y real comparten este estilo base) */
+  .mitem-cell {
+    width: 85px; text-align: right; font-size: 13px; font-weight: 500;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+    transition: background 0.12s; flex-shrink: 0;
   }
-  .mitem-name {
-    flex: 1; font-size: 13px; overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap;
-  }
-  .mitem-amount {
-    font-size: 13px; font-weight: 500; text-align: right; cursor: pointer;
-    padding: 2px 6px; border-radius: 4px; min-width: 85px;
-    white-space: nowrap; transition: background 0.12s;
-  }
-  .mitem-amount:hover { background: var(--adm-border); }
-  .mitem-amount-input {
+  .mitem-cell:hover { background: var(--adm-border); }
+  .mitem-cell-input {
     width: 85px; text-align: right; background: var(--adm-input);
     border: 1px solid var(--primary); border-radius: 4px;
     padding: 2px 6px; font-size: 13px; color: var(--adm-text);
-    font-family: inherit; outline: none;
+    font-family: inherit; outline: none; flex-shrink: 0;
   }
+
   .mitem-del {
-    background: none; border: none; cursor: pointer; padding: 1px 5px;
+    background: none; border: none; cursor: pointer; padding: 1px 4px;
     color: var(--adm-muted); font-size: 15px; line-height: 1; border-radius: 3px;
-    transition: color 0.12s; flex-shrink: 0;
+    transition: color 0.12s; flex-shrink: 0; width: 22px;
   }
   .mitem-del:hover { color: #ef4444; }
 
   /* Fila total */
   .moneta-total-row {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; gap: 6px;
     padding: 7px 0 3px; border-top: 1px solid var(--adm-border);
     margin-top: 4px; font-size: 13px; font-weight: 600;
   }
+  .moneta-total-row .mch-name { flex: 1; }
 
   /* Fila ahorro */
   .moneta-ahorro-row {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: flex-start; justify-content: space-between;
     padding: 10px 0 4px; border-top: 2px solid var(--primary);
     margin-top: 8px; font-size: 14px; font-weight: 700;
   }
@@ -126,10 +132,8 @@ const STYLES = `
   }
   .madd-btn:hover { border-color: var(--primary); color: var(--primary); }
 
-  /* Formulario inline de añadir */
-  .madd-form {
-    display: flex; gap: 6px; margin-top: 6px; align-items: center;
-  }
+  /* Formulario inline */
+  .madd-form { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
   .madd-input {
     background: var(--adm-input); border: 1px solid var(--adm-border); border-radius: 5px;
     padding: 5px 8px; font-size: 12px; color: var(--adm-text);
@@ -156,41 +160,72 @@ const STYLES = `
   }
 `;
 
-/* ── Fila de ítem existente ────────────────────────────────── */
-function ItemRow({ item, onDelete, onAmountSave }: {
+/* ── Fila de ítem ───────────────────────────────────────────
+   showReal = true para gastos: muestra columna de importe real editable.
+   Al borrar el valor real y confirmar con Enter, se resetea a null. */
+function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave }: {
   item: Item;
+  showReal?: boolean;
   onDelete: (id: number) => void;
   onAmountSave: (id: number, amount: number) => void;
+  onRealSave?: (id: number, real: number | null) => void;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [val,     setVal]     = useState('');
+  const [editingAmount, setEditingAmount] = useState(false);
+  const [editingReal,   setEditingReal]   = useState(false);
+  const [amountVal,     setAmountVal]     = useState('');
+  const [realVal,       setRealVal]       = useState('');
 
-  function startEdit() {
-    setVal(item.amount > 0 ? String(item.amount) : '');
-    setEditing(true);
-  }
-
-  function confirm() {
-    const n = parseFloat(val);
+  function startEditAmount() { setAmountVal(String(item.amount || '')); setEditingAmount(true); }
+  function confirmAmount() {
+    const n = parseFloat(amountVal);
     if (!isNaN(n)) onAmountSave(item.id, n);
-    setEditing(false);
+    setEditingAmount(false);
   }
+
+  function startEditReal() { setRealVal(item.real_amount != null ? String(item.real_amount) : ''); setEditingReal(true); }
+  function confirmReal() {
+    if (!onRealSave) return;
+    const t = realVal.trim();
+    onRealSave(item.id, t === '' ? null : (parseFloat(t) || 0));
+    setEditingReal(false);
+  }
+
+  const hasReal = item.real_amount != null;
 
   return (
     <div className="mitem-row">
       <span className="mitem-name">{item.name}</span>
-      {editing ? (
-        <input
-          className="mitem-amount-input" type="number" step="0.01" value={val} autoFocus
-          onChange={e => setVal(e.target.value)}
-          onBlur={confirm}
-          onKeyDown={e => { if (e.key === 'Enter') confirm(); if (e.key === 'Escape') setEditing(false); }}
-        />
+
+      {/* Importe previsto */}
+      {editingAmount ? (
+        <input className="mitem-cell-input" type="number" step="0.01" value={amountVal} autoFocus
+          onChange={e => setAmountVal(e.target.value)}
+          onBlur={confirmAmount}
+          onKeyDown={e => { if (e.key === 'Enter') confirmAmount(); if (e.key === 'Escape') setEditingAmount(false); }} />
       ) : (
-        <span className="mitem-amount" onClick={startEdit} title="Clic para editar importe">
+        <span className="mitem-cell" onClick={startEditAmount} title="Editar previsto"
+          style={{ color: 'var(--adm-text)' }}>
           {item.amount > 0 ? fmt(item.amount) : <span style={{ color: 'var(--adm-muted)' }}>—</span>}
         </span>
       )}
+
+      {/* Importe real (solo en gastos) */}
+      {showReal && (
+        editingReal ? (
+          <input className="mitem-cell-input" type="number" step="0.01" value={realVal} autoFocus
+            placeholder="Vaciar para borrar"
+            onChange={e => setRealVal(e.target.value)}
+            onBlur={confirmReal}
+            onKeyDown={e => { if (e.key === 'Enter') confirmReal(); if (e.key === 'Escape') setEditingReal(false); }} />
+        ) : (
+          <span className="mitem-cell" onClick={startEditReal}
+            title={hasReal ? 'Editar importe real' : 'Añadir gasto real de fin de mes'}
+            style={{ color: hasReal ? 'var(--primary)' : 'var(--adm-muted)', opacity: hasReal ? 1 : 0.45 }}>
+            {hasReal ? fmt(item.real_amount!) : '—'}
+          </span>
+        )
+      )}
+
       <button className="mitem-del" onClick={() => onDelete(item.id)} title="Eliminar">×</button>
     </div>
   );
@@ -214,23 +249,19 @@ function AddItemForm({ onAdd, onCancel }: {
 
   return (
     <div className="madd-form">
-      <input
-        className="madd-input" style={{ flex: 1, minWidth: 0 }} placeholder="Concepto" autoFocus
+      <input className="madd-input" style={{ flex: 1, minWidth: 0 }} placeholder="Concepto" autoFocus
         value={name} onChange={e => setName(e.target.value)}
-        onKeyDown={e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onCancel(); }}
-      />
-      <input
-        className="madd-input" style={{ width: 76 }} placeholder="0,00" type="number" step="0.01"
+        onKeyDown={e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onCancel(); }} />
+      <input className="madd-input" style={{ width: 76 }} placeholder="0,00" type="number" step="0.01"
         value={amount} onChange={e => setAmount(e.target.value)}
-        onKeyDown={e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onCancel(); }}
-      />
+        onKeyDown={e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onCancel(); }} />
       <button className="madd-confirm" onClick={submit} disabled={saving}>✓</button>
       <button className="madd-cancel" onClick={onCancel}>✕</button>
     </div>
   );
 }
 
-/* ── Columna de un perfil (Pareja / Personal) ───────────────── */
+/* ── Columna de un perfil ───────────────────────────────────── */
 function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
   profile: Profile; year: number; month: number; isHidden: boolean;
   onUpdate: (profileId: number, updater: (items: Item[]) => Item[]) => void;
@@ -240,9 +271,15 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
   const gastos   = profile.items.filter(i => i.type === 'gasto');
   const ingresos = profile.items.filter(i => i.type === 'ingreso');
 
-  const totalGastos   = gastos.reduce((s, i) => s + i.amount, 0);
-  const totalIngresos = ingresos.reduce((s, i) => s + i.amount, 0);
-  const ahorro        = totalIngresos - totalGastos;
+  const totalPrevGastos   = gastos.reduce((s, i) => s + i.amount, 0);
+  const totalPrevIngresos = ingresos.reduce((s, i) => s + i.amount, 0);
+
+  /* Real gastos: usa real_amount si está, si no usa amount como estimación */
+  const totalRealGastos   = gastos.reduce((s, i) => s + (i.real_amount ?? i.amount), 0);
+  const hasAnyRealGasto   = gastos.some(i => i.real_amount != null);
+
+  const ahorroEstimado = totalPrevIngresos - totalPrevGastos;
+  const ahorroReal     = hasAnyRealGasto ? totalPrevIngresos - totalRealGastos : null;
 
   async function handleAdd(name: string, amount: number) {
     const type = addingType!;
@@ -253,18 +290,16 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
     });
     const data = await res.json() as { ok: boolean; id: number };
     if (data.ok) {
-      onUpdate(profile.id, items => [...items, { id: data.id, name, amount, type }]);
+      onUpdate(profile.id, items => [...items, { id: data.id, name, amount, real_amount: null, type }]);
       setAddingType(null);
     }
   }
 
-  /* Eliminación optimista: quita de estado inmediatamente, llama API en background */
   function handleDelete(id: number) {
     onUpdate(profile.id, items => items.filter(i => i.id !== id));
     fetch(`/api/moneta/item?id=${id}`, { method: 'DELETE' });
   }
 
-  /* Edición de importe optimista */
   function handleAmountSave(id: number, amount: number) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, amount } : i));
     fetch(`/api/moneta/item?id=${id}`, {
@@ -274,16 +309,38 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
     });
   }
 
+  function handleRealSave(id: number, real_amount: number | null) {
+    onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, real_amount } : i));
+    fetch(`/api/moneta/item?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ real_amount }),
+    });
+  }
+
   return (
     <div className={`moneta-col${isHidden ? ' hidden-mobile' : ''}`}>
       <div className="moneta-col-title">{profile.name}</div>
 
       {/* ── GASTOS ── */}
       <div className="moneta-section-label">Gastos</div>
+
+      {/* Cabeceras de columna Previsto / Real */}
+      <div className="moneta-col-headers">
+        <span className="mch-name" />
+        <span className="mch-cell">PREVISTO</span>
+        <span className="mch-cell">REAL</span>
+        <span className="mch-del" />
+      </div>
+
       {gastos.map(item => (
-        <ItemRow key={item.id} item={item}
-          onDelete={handleDelete} onAmountSave={handleAmountSave} />
+        <ItemRow key={item.id} item={item} showReal
+          onDelete={handleDelete}
+          onAmountSave={handleAmountSave}
+          onRealSave={handleRealSave}
+        />
       ))}
+
       {addingType === 'gasto' ? (
         <AddItemForm onAdd={handleAdd} onCancel={() => setAddingType(null)} />
       ) : (
@@ -291,17 +348,27 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
           + Añadir gasto
         </button>
       )}
+
+      {/* Total gastos: previsto y real */}
       <div className="moneta-total-row">
-        <span>Total gastos</span>
-        <span style={{ color: '#ef4444' }}>{fmt(totalGastos)}</span>
+        <span className="mch-name" style={{ fontSize: 13 }}>Total gastos</span>
+        <span className="mch-cell" style={{ fontSize: 13, color: '#ef4444' }}>{fmt(totalPrevGastos)}</span>
+        <span className="mch-cell" style={{ fontSize: 13, color: hasAnyRealGasto ? '#ef4444' : 'var(--adm-muted)', opacity: hasAnyRealGasto ? 1 : 0.35 }}>
+          {hasAnyRealGasto ? fmt(totalRealGastos) : '—'}
+        </span>
+        <span className="mch-del" />
       </div>
 
       {/* ── INGRESOS ── */}
       <div className="moneta-section-label" style={{ marginTop: '1.25rem' }}>Ingresos</div>
+
       {ingresos.map(item => (
         <ItemRow key={item.id} item={item}
-          onDelete={handleDelete} onAmountSave={handleAmountSave} />
+          onDelete={handleDelete}
+          onAmountSave={handleAmountSave}
+        />
       ))}
+
       {addingType === 'ingreso' ? (
         <AddItemForm onAdd={handleAdd} onCancel={() => setAddingType(null)} />
       ) : (
@@ -309,15 +376,31 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate }: {
           + Añadir ingreso
         </button>
       )}
+
       <div className="moneta-total-row">
-        <span>Total ingresos</span>
-        <span style={{ color: '#22c55e' }}>{fmt(totalIngresos)}</span>
+        <span style={{ fontSize: 13 }}>Total ingresos</span>
+        <span style={{ color: '#22c55e', fontSize: 13 }}>{fmt(totalPrevIngresos)}</span>
       </div>
 
-      {/* ── AHORRO ── */}
+      {/* ── AHORRO ─────────────────────────────────────────────
+          Si hay algún gasto real: muestra estimado y real.
+          Si no: solo muestra el estimado (aún no es fin de mes). */}
       <div className="moneta-ahorro-row">
         <span>Ahorro</span>
-        <span style={{ color: ahorro >= 0 ? '#22c55e' : '#ef4444' }}>{fmt(ahorro)}</span>
+        {ahorroReal !== null ? (
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 11, color: 'var(--adm-muted)', fontWeight: 400, marginBottom: 2 }}>
+              Previsto: {fmt(ahorroEstimado)}
+            </div>
+            <div style={{ fontSize: 15, color: ahorroReal >= 0 ? '#22c55e' : '#ef4444' }}>
+              Real: {fmt(ahorroReal)}
+            </div>
+          </div>
+        ) : (
+          <span style={{ color: ahorroEstimado >= 0 ? '#22c55e' : '#ef4444' }}>
+            {fmt(ahorroEstimado)}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -365,7 +448,6 @@ export default function MonetaPage() {
     <div className="moneta-wrap">
       <style>{STYLES}</style>
 
-      {/* Barra superior */}
       <div className="moneta-topbar">
         <button className="moneta-month-btn" onClick={prevMonth}>‹</button>
         <span className="moneta-month-label">{monthLabel(date.year, date.month)}</span>
@@ -373,7 +455,6 @@ export default function MonetaPage() {
         {loading && <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Cargando...</span>}
       </div>
 
-      {/* Tabs para móvil */}
       <div className="moneta-tabs">
         {profiles.map((p, i) => (
           <button key={p.id} className={`moneta-tab${activeTab === i ? ' active' : ''}`}
@@ -383,7 +464,6 @@ export default function MonetaPage() {
         ))}
       </div>
 
-      {/* Grid de perfiles */}
       <div className="moneta-grid">
         {profiles.map((p, i) => (
           <ProfileColumn

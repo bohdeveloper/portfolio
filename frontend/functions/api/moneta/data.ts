@@ -17,7 +17,7 @@ const H = { 'Content-Type': 'application/json' };
 
 interface ItemRow {
   id: number; profile_id: number; year: number; month: number;
-  name: string; amount: number; type: string; sort_order: number;
+  name: string; amount: number; real_amount: number | null; type: string; sort_order: number;
 }
 
 /* ── GET /api/moneta/data?year=YYYY&month=M
@@ -36,7 +36,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     ).all<{ id: number; name: string; sort_order: number }>();
 
     const { results: items } = await env.DB.prepare(`
-      SELECT id, profile_id, name, amount, type, sort_order
+      SELECT id, profile_id, name, amount, real_amount, type, sort_order
       FROM moneta_items
       WHERE year = ? AND month = ?
       ORDER BY profile_id, sort_order, id
