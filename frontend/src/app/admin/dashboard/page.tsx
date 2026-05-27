@@ -26,7 +26,7 @@ function BlogIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
-function EconomiaIcon({ size = 28 }: { size?: number }) {
+function MonetaIcon({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="9" />
@@ -37,9 +37,9 @@ function EconomiaIcon({ size = 28 }: { size?: number }) {
 }
 
 const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
-  Tracker:  TrackerIcon,
-  Blog:     BlogIcon,
-  Economia: EconomiaIcon,
+  Tracker: TrackerIcon,
+  Blog:    BlogIcon,
+  Moneta:  MonetaIcon,
 };
 
 /* ── App registry — add new tools here ── */
@@ -55,9 +55,9 @@ const APPS = [
     path: '/admin/dashboard/blog',
   },
   {
-    name: 'Economia',
+    name: 'Moneta',
     desc: 'Control de ingresos y gastos',
-    path: '/admin/dashboard/economia',
+    path: '/admin/dashboard/moneta',
   },
 ] as const;
 

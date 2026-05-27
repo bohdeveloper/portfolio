@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 const ADMIN_APPS = [
   { name: 'Tracker' },
   { name: 'Blog' },
+  { name: 'Moneta' },
 ] as const;
 
 interface NNode { x: number; y: number; vx: number; vy: number; r: number; pulse: number }

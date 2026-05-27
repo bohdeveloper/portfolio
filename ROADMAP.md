@@ -64,30 +64,33 @@
 
 ---
 
-:: FASE 5 — App Economía Personal (✅ COMPLETADA — MVP en producción)
-· Objetivo: control total de ingresos, gastos y ahorro personal.
+:: FASE 5 — App Moneta (Control Presupuestal) (✅ COMPLETADA — MVP en producción)
+· Objetivo: control mensual de presupuesto — Plan vs Real — con dos perfiles (Pareja / Personal).
 
 ### Implementación
-# ✅ D1: tablas eco_transactions, eco_categories, eco_goals
-# ✅ 12 categorías por defecto sembradas en D1 (Vivienda, Alimentación, Transporte…)
-# ✅ API /api/economia/transactions — GET (lista por mes), POST (crear/editar), DELETE
-# ✅ API /api/economia/categories  — GET (todas), POST (crear/editar), DELETE (desvincula txs)
-# ✅ API /api/economia/stats       — GET (totales, desglose categoría, tendencia 6 meses), POST (meta ahorro)
-# ✅ Admin /dashboard/economia: 3 vistas — Resumen, Transacciones, Categorías
-# ✅ Dashboard: cards ingresos/gastos/balance, meta ahorro con barra de progreso, últimas txs
-# ✅ Gráfica donut Chart.js (CDN) de gastos por categoría con leyenda
-# ✅ Transacciones: filtros por tipo/categoría/quién, formulario inline crear/editar, total filtrado
-# ✅ Categorías: grid con color/icono, presupuesto mensual por categoría, CRUD
-# ✅ Navegación por meses: adelante/atrás sin recarga
-# ✅ Quién: campo 'Yo / Pareja / Ambos' en cada transacción
-# ✅ Dashboard card Economía añadida con icono SVG propio
-# ✅ Schema SQL guardado en schema-economia.sql para referencias futuras
+# ✅ D1: tablas moneta_profiles, moneta_categories, moneta_actuals
+# ✅ 2 perfiles sembrados: Pareja (id=1), Personal (id=2)
+# ✅ 27 categorías pre-cargadas con importes planificados (GASTOS + INGRESOS, subcategorías)
+# ✅ API /api/moneta/data      — GET (perfiles + árbol categorías + real por mes)
+# ✅ API /api/moneta/actual    — POST (UPSERT importe real de categoría en mes)
+# ✅ API /api/moneta/category  — POST (crear/editar categoría), DELETE (con CASCADE)
+# ✅ Admin /dashboard/moneta: vista mensual Plan vs Real por perfil
+# ✅ Secciones GASTOS e INGRESOS con total de cada columna
+# ✅ Fila AHORRO calculada: INGRESOS − GASTOS (Plan y Real)
+# ✅ Subcategorías: desglose dentro del grupo (padre = suma de hijos)
+# ✅ Edición inline de importes reales: click → input → Enter/Escape
+# ✅ Modo edición del plan: renombrar categorías, cambiar importe planificado, reordenar
+# ✅ Añadir/eliminar categorías e hijos desde la vista de edición
+# ✅ Navegación mensual: adelante/atrás sin recarga
+# ✅ Tabs de perfil: Pareja / Personal (grid en desktop, pestañas en móvil)
+# ✅ Dashboard card Moneta con icono SVG (€ circular)
+# ✅ Login: label "Moneta" flotante en la animación neural
+# ✅ Schema SQL guardado en schema-moneta.sql
 
 ### Pendiente (mejoras futuras)
-# ⬜ Vista "En pareja": balance compartido, quién debe a quién
 # ⬜ Exportación CSV mensual
-# ⬜ Gráfica de evolución mensual (barras) en vista Estadísticas
-# ⬜ Alertas visuales al superar el presupuesto mensual por categoría
+# ⬜ Vista histórico: evolución del ahorro mes a mes (gráfica de barras)
+# ⬜ Alertas visuales al superar el presupuesto en una categoría
 
 ---
 
@@ -186,8 +189,10 @@
 ---
 
 ### Decisiones técnicas fase 5
-# Chart.js (CDN) — gráfica donut en /economia, se carga bajo demanda si no está en window
-# eco_* prefix en tablas D1 — evita conflictos con otras tablas del mismo namespace
+# moneta_* prefix en tablas D1 — evita conflictos con otras tablas del mismo namespace
+# Modelo presupuestal (Plan/Real) en lugar de transacciones — más simple para uso mensual
+# Subcategorías calculadas en frontend: padre muestra suma de hijos si alguno tiene real
+# UPSERT (ON CONFLICT DO UPDATE) en moneta_actuals — simplifica la lógica de edición
 # onRequestGet/Post/Delete en mismo fichero — Pages Functions soporta named exports por método
 
 ### Decisiones técnicas activas
