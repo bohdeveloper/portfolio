@@ -1,17 +1,6 @@
-interface Env { DB: D1Database; JWT_SECRET: string }
+import { verifyAuth } from '../_auth-util';
 
-async function auth(request: Request, env: Env): Promise<boolean> {
-  const cookie = request.headers.get('Cookie') ?? '';
-  const token = cookie.split(';')
-    .find(c => c.trim().startsWith('admin_token='))
-    ?.split('=').slice(1).join('=').trim();
-  if (!token) return false;
-  try {
-    const { jwtVerify } = await import('jose');
-    await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
-    return true;
-  } catch { return false; }
-}
+interface Env { DB: D1Database; JWT_SECRET: string }
 
 const H = { 'Content-Type': 'application/json' };
 
@@ -24,7 +13,8 @@ interface HistoryRow {
 /* ── GET /api/moneta/history
    Devuelve el ahorro mensual por perfil (todos los meses con datos). */
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
-  if (!await auth(request, env))
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth)
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers: H });
 
   try {
@@ -41,9 +31,10 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         SUM(CASE WHEN i.type='gasto' AND i.real_amount IS NOT NULL THEN 1 ELSE 0 END) AS n_real
       FROM moneta_items i
       JOIN moneta_profiles p ON p.id = i.profile_id
+      WHERE p.user_id = ?
       GROUP BY i.profile_id, i.year, i.month
       ORDER BY i.year ASC, i.month ASC
-    `).all<HistoryRow>();
+    `).bind(auth.user_id).all<HistoryRow>();
 
     return new Response(JSON.stringify({ ok: true, data: results }), { status: 200, headers: H });
   } catch (err: unknown) {

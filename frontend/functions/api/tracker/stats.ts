@@ -1,4 +1,4 @@
-import { jwtVerify } from 'jose';
+import { verifyAuth } from '../_auth-util';
 
 interface Env {
   DB: D1Database;
@@ -8,15 +8,8 @@ interface Env {
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
-  const cookie = request.headers.get('Cookie') ?? '';
-  const token = cookie.split(';').find(c => c.trim().startsWith('admin_token='))?.split('=').slice(1).join('=').trim();
-  if (!token) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
-
-  try {
-    await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
-  } catch {
-    return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
-  }
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
   const url    = new URL(request.url);
   const period = url.searchParams.get('period') ?? 'monthly';
@@ -39,8 +32,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const { results } = await env.DB.prepare(
     `SELECT date, activity_id, day_index, done, reason
-     FROM tracker_records WHERE date >= ? AND date <= ? ORDER BY date`
-  ).bind(start, end).all();
+     FROM tracker_records WHERE user_id = ? AND date >= ? AND date <= ? ORDER BY date`
+  ).bind(auth.user_id, start, end).all();
 
   const total = results.length;
   const done  = results.filter((r: unknown) => (r as { done: number }).done).length;

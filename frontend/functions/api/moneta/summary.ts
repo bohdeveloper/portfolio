@@ -1,24 +1,14 @@
-interface Env { DB: D1Database; JWT_SECRET: string }
+import { verifyAuth } from '../_auth-util';
 
-async function auth(request: Request, env: Env): Promise<boolean> {
-  const cookie = request.headers.get('Cookie') ?? '';
-  const token = cookie.split(';')
-    .find(c => c.trim().startsWith('admin_token='))
-    ?.split('=').slice(1).join('=').trim();
-  if (!token) return false;
-  try {
-    const { jwtVerify } = await import('jose');
-    await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
-    return true;
-  } catch { return false; }
-}
+interface Env { DB: D1Database; JWT_SECRET: string }
 
 const H = { 'Content-Type': 'application/json' };
 
 /* ── POST /api/moneta/summary
    Guarda el saldo inicial o cierra/reabre el mes según `action`. */
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  if (!await auth(request, env))
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth)
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers: H });
 
   const body = await request.json() as {
@@ -29,6 +19,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const { profile_id, year, month } = body;
 
   try {
+    const { results } = await env.DB.prepare('SELECT id FROM moneta_profiles WHERE id = ? AND user_id = ?')
+      .bind(profile_id, auth.user_id).all<{ id: number }>();
+    if (!results.length) return new Response(JSON.stringify({ ok: false, error: 'Profile not found' }), { status: 403, headers: H });
+
     /* Guarda saldo inicial */
     if ('saldo_inicial' in body) {
       await env.DB.prepare(`

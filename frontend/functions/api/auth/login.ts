@@ -21,9 +21,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(JSON.stringify({ ok: false, error: 'Missing credentials' }), { status: 400, headers });
   }
 
-  const row = await env.DB.prepare('SELECT password_hash FROM admin_users WHERE username = ?')
+  const row = await env.DB.prepare('SELECT id, password_hash, role, active FROM admin_users WHERE username = ?')
     .bind(username)
-    .first<{ password_hash: string }>();
+    .first<{ id: number; password_hash: string; role: string; active: number }>();
 
   const valid = row ? await bcrypt.compare(password, row.password_hash) : false;
 
@@ -31,8 +31,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid credentials' }), { status: 401, headers });
   }
 
+  if (!row || !row.active) {
+    return new Response(JSON.stringify({ ok: false, error: 'User is inactive' }), { status: 401, headers });
+  }
+
   const secret = new TextEncoder().encode(env.JWT_SECRET);
-  const token = await new SignJWT({ username })
+  const token = await new SignJWT({ user_id: row.id, username, role: row.role })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')

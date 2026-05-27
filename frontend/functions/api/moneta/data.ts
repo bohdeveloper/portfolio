@@ -1,17 +1,6 @@
-interface Env { DB: D1Database; JWT_SECRET: string }
+import { verifyAuth } from '../_auth-util';
 
-async function auth(request: Request, env: Env): Promise<boolean> {
-  const cookie = request.headers.get('Cookie') ?? '';
-  const token = cookie.split(';')
-    .find(c => c.trim().startsWith('admin_token='))
-    ?.split('=').slice(1).join('=').trim();
-  if (!token) return false;
-  try {
-    const { jwtVerify } = await import('jose');
-    await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
-    return true;
-  } catch { return false; }
-}
+interface Env { DB: D1Database; JWT_SECRET: string }
 
 const H = { 'Content-Type': 'application/json' };
 
@@ -27,7 +16,8 @@ interface SummaryRow {
 /* ── GET /api/moneta/data?year=YYYY&month=M
    Devuelve los perfiles con ítems del mes y resumen mensual (saldo, estado). */
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
-  if (!await auth(request, env))
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth)
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers: H });
 
   const url   = new URL(request.url);
@@ -36,8 +26,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   try {
     const { results: profiles } = await env.DB.prepare(
-      'SELECT * FROM moneta_profiles ORDER BY sort_order'
-    ).all<{ id: number; name: string; sort_order: number }>();
+      'SELECT * FROM moneta_profiles WHERE user_id = ? ORDER BY sort_order'
+    ).bind(auth.user_id).all<{ id: number; name: string; sort_order: number }>();
 
     const { results: items } = await env.DB.prepare(`
       SELECT id, profile_id, name, amount, real_amount, type, sort_order

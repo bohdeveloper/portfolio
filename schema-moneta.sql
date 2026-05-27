@@ -6,6 +6,7 @@
 
 CREATE TABLE IF NOT EXISTS moneta_profiles (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id    INTEGER NOT NULL DEFAULT 1,
   name       TEXT    NOT NULL,
   sort_order INTEGER DEFAULT 0
 );
@@ -30,6 +31,32 @@ CREATE TABLE IF NOT EXISTS moneta_actuals (
   month       INTEGER NOT NULL,
   amount      REAL    NOT NULL DEFAULT 0,
   UNIQUE(category_id, year, month)
+);
+
+-- Ítems de presupuesto mensuales (depreciado, usar para importación de datos históricos)
+CREATE TABLE IF NOT EXISTS moneta_items (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  profile_id  INTEGER NOT NULL REFERENCES moneta_profiles(id) ON DELETE CASCADE,
+  user_id     INTEGER NOT NULL DEFAULT 1,
+  year        INTEGER NOT NULL,
+  month       INTEGER NOT NULL,
+  name        TEXT    NOT NULL,
+  amount      REAL    NOT NULL DEFAULT 0,
+  real_amount REAL,
+  type        TEXT    NOT NULL DEFAULT 'expense',
+  sort_order  INTEGER DEFAULT 0
+);
+
+-- Resumen mensual por perfil
+CREATE TABLE IF NOT EXISTS moneta_monthly_summary (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  profile_id    INTEGER NOT NULL REFERENCES moneta_profiles(id) ON DELETE CASCADE,
+  year          INTEGER NOT NULL,
+  month         INTEGER NOT NULL,
+  saldo_inicial REAL,
+  closed        INTEGER NOT NULL DEFAULT 0,
+  closed_at     DATETIME,
+  UNIQUE(profile_id, year, month)
 );
 
 -- ── Perfiles por defecto ────────────────────────────────────

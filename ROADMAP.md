@@ -163,7 +163,7 @@
 
 ---
 
-:: FASE 10 — Sistema multiusuario + roles (⬜ PLANIFICADA)
+:: FASE 10 — Sistema multiusuario + roles (✅ COMPLETADA)
 · Objetivo: soporte para múltiples usuarios admin con roles y datos independientes.
   Borja mantiene el rol super_admin y puede dar de alta usuarios con permisos inferiores.
 
