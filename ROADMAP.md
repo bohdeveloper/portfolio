@@ -83,7 +83,7 @@
 ### Pendiente (sin fase asignada)
 # ✅ Exportación CSV mensual — botón ↓ CSV en topbar, descarga client-side con BOM UTF-8
 # ✅ Vista histórico: evolución del ahorro mes a mes — gráfica SVG de barras por perfil
-# ⬜ Alertas visuales al superar el presupuesto en una categoría
+# ✅ Alertas visuales al superar el presupuesto — ⚠ en celda real + total gastos cuando real > previsto
 
 ---
 

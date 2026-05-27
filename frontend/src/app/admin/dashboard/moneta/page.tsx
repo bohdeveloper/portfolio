@@ -284,7 +284,8 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
     setEditReal(false);
   }
 
-  const hasReal = item.real_amount != null;
+  const hasReal      = item.real_amount != null;
+  const isOverBudget = showReal && hasReal && item.real_amount! > item.amount;
 
   return (
     <div className="mitem-row">
@@ -326,9 +327,13 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
             onKeyDown={e => { if (e.key === 'Enter') confirmReal(); if (e.key === 'Escape') setEditReal(false); }} />
         ) : (
           <span className="mitem-cell" onClick={startReal}
-            title={hasReal ? 'Editar importe real' : 'Añadir importe real'}
-            style={{ color: hasReal ? 'var(--primary)' : 'var(--adm-muted)', opacity: hasReal ? 1 : 0.4 }}>
-            {hasReal ? fmt(item.real_amount!) : '—'}
+            title={
+              isOverBudget
+                ? `⚠ ${fmt(item.real_amount! - item.amount)} sobre el previsto`
+                : hasReal ? 'Editar importe real' : 'Añadir importe real'
+            }
+            style={{ color: isOverBudget ? '#ef4444' : hasReal ? 'var(--primary)' : 'var(--adm-muted)', opacity: hasReal ? 1 : 0.4 }}>
+            {isOverBudget ? `⚠ ${fmt(item.real_amount!)}` : hasReal ? fmt(item.real_amount!) : '—'}
           </span>
         )
       )}
@@ -665,15 +670,24 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
         <button className="madd-btn" onClick={() => setAddingType('gasto')}>+ Añadir gasto</button>
       )}
 
-      <div className="moneta-total-row">
-        <span className="mch-name">Total gastos</span>
-        <span className="mch-cell" style={{ color: '#ef4444' }}>{fmt(totalPrevGastos)}</span>
-        <span className="mch-copy" />
-        <span className="mch-cell" style={{ color: hasAnyReal ? '#ef4444' : 'var(--adm-muted)', opacity: hasAnyReal ? 1 : 0.3 }}>
-          {hasAnyReal ? fmt(totalRealGastos) : '—'}
-        </span>
-        <span className="mch-del" />
-      </div>
+      {(() => {
+        const overTotal = hasAnyReal && totalRealGastos > totalPrevGastos;
+        return (
+          <div className="moneta-total-row">
+            <span className="mch-name" style={{ color: overTotal ? '#ef4444' : undefined }}>
+              {overTotal ? '⚠ Total gastos' : 'Total gastos'}
+            </span>
+            <span className="mch-cell" style={{ color: '#ef4444' }}>{fmt(totalPrevGastos)}</span>
+            <span className="mch-copy" />
+            <span className="mch-cell"
+              title={overTotal ? `⚠ ${fmt(totalRealGastos - totalPrevGastos)} sobre el presupuesto` : undefined}
+              style={{ color: hasAnyReal ? '#ef4444' : 'var(--adm-muted)', opacity: hasAnyReal ? 1 : 0.3 }}>
+              {hasAnyReal ? fmt(totalRealGastos) : '—'}
+            </span>
+            <span className="mch-del" />
+          </div>
+        );
+      })()}
 
       {/* ── INGRESOS ── */}
       <div className="moneta-section-label" style={{ marginTop: '1.25rem' }}>Ingresos</div>
