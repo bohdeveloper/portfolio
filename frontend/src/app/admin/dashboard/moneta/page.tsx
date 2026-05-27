@@ -226,10 +226,40 @@ const STYLES = `
   .moneta-copy-month-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
   .moneta-copy-month-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Histórico */
+  /* Pestañas de página */
+  .moneta-page-tabs {
+    display: flex; border-bottom: 1px solid var(--adm-border); background: var(--adm-hdr);
+  }
+  .moneta-page-tab {
+    padding: 10px 22px; font-size: 13px; font-weight: 500; cursor: pointer;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--adm-muted); font-family: inherit; transition: color 0.15s;
+  }
+  .moneta-page-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* Estadísticas */
+  .moneta-stats { padding: 1.5rem; }
+  .moneta-stats-msg { padding: 1.5rem; font-size: 13px; color: var(--adm-muted); }
+  .moneta-stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px; margin-bottom: 2rem;
+  }
+  .moneta-stats-card {
+    background: var(--adm-hdr); border: 1px solid var(--adm-border);
+    border-radius: 10px; padding: 1rem 1.25rem;
+  }
+  .moneta-stats-card-title { font-size: 15px; font-weight: 600; margin-bottom: 0.75rem; }
+  .moneta-stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; border-bottom: 1px solid var(--adm-border); font-size: 13px;
+  }
+  .moneta-stat-row:last-child { border-bottom: none; }
+  .moneta-stat-label { color: var(--adm-muted); }
+  .moneta-stat-value { font-weight: 500; }
+
+  /* Gráfica histórico */
   .moneta-history {
-    padding: 1.25rem 1.5rem 1rem;
-    border-top: 1px solid var(--adm-border);
+    padding: 0 0 1rem;
   }
   .moneta-history-title {
     font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
@@ -373,10 +403,10 @@ function AddItemForm({ onAdd, onCancel }: {
   );
 }
 
-/* ── Gráfica de histórico ───────────────────────────────────── */
+/* ── Vista de estadísticas ──────────────────────────────────── */
 const COLORS = ['var(--primary)', '#a78bfa'];
 
-function HistoryChart() {
+function StatsView() {
   const [rows,    setRows]    = useState<HistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -390,112 +420,161 @@ function HistoryChart() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div style={{ padding: '1.25rem 1.5rem', fontSize: 13, color: 'var(--adm-muted)' }}>Cargando histórico...</div>
-  );
-  if (!rows.length) return (
-    <div style={{ padding: '1.25rem 1.5rem', fontSize: 13, color: 'var(--adm-muted)' }}>Sin datos históricos aún.</div>
-  );
+  if (loading) return <div className="moneta-stats-msg">Cargando estadísticas...</div>;
+  if (!rows.length) return <div className="moneta-stats-msg">Sin datos históricos aún. Añade ítems a algún mes para ver estadísticas.</div>;
 
   /* Meses únicos ordenados ASC */
   const seenM = new Set<string>();
-  const months: { year: number; month: number; key: string }[] = [];
+  const allMonths: { year: number; month: number; key: string }[] = [];
   for (const r of rows) {
     const key = `${r.year}-${String(r.month).padStart(2, '0')}`;
-    if (!seenM.has(key)) { seenM.add(key); months.push({ year: r.year, month: r.month, key }); }
+    if (!seenM.has(key)) { seenM.add(key); allMonths.push({ year: r.year, month: r.month, key }); }
   }
-  months.sort((a, b) => a.key.localeCompare(b.key));
+  allMonths.sort((a, b) => a.key.localeCompare(b.key));
 
   /* Perfiles únicos */
-  const profileMap = new Map<number, string>();
-  for (const r of rows) if (!profileMap.has(r.profile_id)) profileMap.set(r.profile_id, r.profile_name);
-  const profiles = Array.from(profileMap.entries());
+  const profilesSeen = new Map<number, string>();
+  for (const r of rows) if (!profilesSeen.has(r.profile_id)) profilesSeen.set(r.profile_id, r.profile_name);
+  const profiles = Array.from(profilesSeen.entries());
 
-  /* Ahorro por (mes, perfil) */
+  /* Ahorro por (mes-key, profile_id) */
   const ahorroMap = new Map<string, number>();
   for (const r of rows) {
-    const key = `${r.year}-${String(r.month).padStart(2, '0')}-${r.profile_id}`;
-    ahorroMap.set(key, r.n_real > 0 ? r.ingresos_prev - r.gastos_real : r.ingresos_prev - r.gastos_prev);
+    const mKey = `${r.year}-${String(r.month).padStart(2, '0')}`;
+    ahorroMap.set(`${mKey}-${r.profile_id}`,
+      r.n_real > 0 ? r.ingresos_prev - r.gastos_real : r.ingresos_prev - r.gastos_prev);
   }
 
+  /* Estadísticas por perfil */
+  interface PS { id: number; name: string; total: number; avg: number;
+    best: { year: number; month: number; v: number };
+    worst: { year: number; month: number; v: number };
+    positive: number; count: number; }
+  const pStats: PS[] = profiles.map(([pid, pname]) => {
+    const ms = allMonths
+      .filter(m => ahorroMap.has(`${m.key}-${pid}`))
+      .map(m => ({ ...m, v: ahorroMap.get(`${m.key}-${pid}`)! }));
+    if (!ms.length) return null;
+    const total = ms.reduce((s, m) => s + m.v, 0);
+    return { id: pid, name: pname, total, avg: total / ms.length,
+      best:  ms.reduce((a, b) => a.v >= b.v ? a : b),
+      worst: ms.reduce((a, b) => a.v <= b.v ? a : b),
+      positive: ms.filter(m => m.v >= 0).length, count: ms.length };
+  }).filter((s): s is PS => s !== null);
+
+  /* Parámetros gráfica */
   const allVals = [...ahorroMap.values()];
   const maxV    = Math.max(...allVals, 1);
   const minV    = Math.min(...allVals, 0);
   const range   = Math.max(maxV - minV, 1);
-
   const H = 150, PAD_L = 52, PAD_T = 10, PAD_B = 28, PAD_R = 8;
   const BAR_W = 18, BAR_GAP = 4, GRP_GAP = 16;
   const grpW  = profiles.length * BAR_W + (profiles.length - 1) * BAR_GAP;
-  const svgW  = PAD_L + months.length * (grpW + GRP_GAP) - GRP_GAP + PAD_R;
+  const svgW  = PAD_L + allMonths.length * (grpW + GRP_GAP) - GRP_GAP + PAD_R;
   const svgH  = H + PAD_T + PAD_B;
   const toY   = (v: number) => PAD_T + ((maxV - v) / range) * H;
   const zeroY = toY(0);
-
   const fmtTick = (v: number) => {
     const abs = Math.abs(Math.round(v));
     return (v < 0 ? '-' : '') + (abs >= 1000 ? `${(abs / 1000).toFixed(1)}k` : abs) + '€';
   };
   const ticks = [maxV, maxV / 2, 0, minV / 2, minV]
-    .filter(v => v !== 0 || minV < 0)
-    .filter((v, i, a) => a.indexOf(v) === i);
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .filter(v => v !== 0 || minV < 0);
+
+  const shortMon = (y: number, m: number) =>
+    new Date(y, m - 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+      .replace(/^(.)/, s => s.toUpperCase()).split(' de ')[0];
 
   return (
-    <div className="moneta-history">
-      <div className="moneta-history-title">Evolución del ahorro mensual</div>
-      <div style={{ overflowX: 'auto' }}>
-        <svg width={Math.max(svgW, 280)} height={svgH}
-          style={{ display: 'block', overflow: 'visible', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="moneta-stats">
 
-          {/* Y grid */}
-          {ticks.map(v => (
-            <g key={v}>
-              <line x1={PAD_L} x2={svgW - PAD_R} y1={toY(v)} y2={toY(v)}
-                style={{ stroke: 'var(--adm-border)', strokeWidth: v === 0 ? 1.5 : 0.5,
-                  strokeDasharray: v === 0 ? undefined : '3 4' }} />
-              <text x={PAD_L - 4} y={toY(v) + 4}
-                style={{ fontSize: 9, fill: 'var(--adm-muted)', textAnchor: 'end' } as React.CSSProperties}>
-                {fmtTick(v)}
-              </text>
-            </g>
-          ))}
-
-          {/* Barras */}
-          {months.map((m, mi) => {
-            const gx = PAD_L + mi * (grpW + GRP_GAP);
-            return (
-              <g key={m.key}>
-                <text x={gx + grpW / 2} y={svgH - 2}
-                  style={{ fontSize: 9, fill: 'var(--adm-muted)', textAnchor: 'middle' } as React.CSSProperties}>
-                  {new Date(m.year, m.month - 1).toLocaleDateString('es-ES', { month: 'short' })} {String(m.year).slice(2)}
-                </text>
-                {profiles.map(([pid, pname], pi) => {
-                  const val  = ahorroMap.get(`${m.key}-${pid}`) ?? 0;
-                  const barH = Math.max(Math.abs((val / range) * H), 2);
-                  const bx   = gx + pi * (BAR_W + BAR_GAP);
-                  const by   = val >= 0 ? zeroY - barH : zeroY;
-                  return (
-                    <rect key={pid} x={bx} y={by} width={BAR_W} height={barH} rx={2}
-                      style={{ fill: COLORS[pi % COLORS.length], opacity: 0.85 }}>
-                      <title>{pname}: {val >= 0 ? '+' : ''}{Math.round(val)} €</title>
-                    </rect>
-                  );
-                })}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-
-      {/* Leyenda */}
-      <div style={{ display: 'flex', gap: 14, marginTop: 8 }}>
-        {profiles.map(([pid, name], pi) => (
-          <div key={pid} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--adm-muted)' }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, display: 'inline-block',
-              background: COLORS[pi % COLORS.length], opacity: 0.85 }} />
-            {name}
+      {/* ── Tarjetas resumen ── */}
+      <div className="moneta-stats-grid">
+        {pStats.map((p, pi) => (
+          <div key={p.id} className="moneta-stats-card">
+            <div className="moneta-stats-card-title" style={{ color: COLORS[pi % COLORS.length] }}>{p.name}</div>
+            <div className="moneta-stat-row">
+              <span className="moneta-stat-label">Ahorro acumulado</span>
+              <span className="moneta-stat-value" style={{ color: p.total >= 0 ? '#22c55e' : '#ef4444' }}>{fmt(p.total)}</span>
+            </div>
+            <div className="moneta-stat-row">
+              <span className="moneta-stat-label">Media mensual</span>
+              <span className="moneta-stat-value" style={{ color: p.avg >= 0 ? '#22c55e' : '#ef4444' }}>{fmt(p.avg)}</span>
+            </div>
+            <div className="moneta-stat-row">
+              <span className="moneta-stat-label">Mejor mes</span>
+              <span className="moneta-stat-value" style={{ color: '#22c55e' }}>
+                {shortMon(p.best.year, p.best.month)} — {fmt(p.best.v)}
+              </span>
+            </div>
+            <div className="moneta-stat-row">
+              <span className="moneta-stat-label">Peor mes</span>
+              <span className="moneta-stat-value" style={{ color: p.worst.v < 0 ? '#ef4444' : 'var(--adm-text)' }}>
+                {shortMon(p.worst.year, p.worst.month)} — {fmt(p.worst.v)}
+              </span>
+            </div>
+            <div className="moneta-stat-row">
+              <span className="moneta-stat-label">Meses positivos</span>
+              <span className="moneta-stat-value">{p.positive} de {p.count}</span>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* ── Gráfica de evolución ── */}
+      <div className="moneta-history">
+        <div className="moneta-history-title">Evolución del ahorro mensual</div>
+        <div style={{ overflowX: 'auto' }}>
+          <svg width={Math.max(svgW, 280)} height={svgH}
+            style={{ display: 'block', overflow: 'visible', fontFamily: 'system-ui, sans-serif' }}>
+            {ticks.map(v => (
+              <g key={v}>
+                <line x1={PAD_L} x2={svgW - PAD_R} y1={toY(v)} y2={toY(v)}
+                  style={{ stroke: 'var(--adm-border)', strokeWidth: v === 0 ? 1.5 : 0.5,
+                    strokeDasharray: v === 0 ? undefined : '3 4' }} />
+                <text x={PAD_L - 4} y={toY(v) + 4}
+                  style={{ fontSize: 9, fill: 'var(--adm-muted)', textAnchor: 'end' } as React.CSSProperties}>
+                  {fmtTick(v)}
+                </text>
+              </g>
+            ))}
+            {allMonths.map((m, mi) => {
+              const gx = PAD_L + mi * (grpW + GRP_GAP);
+              return (
+                <g key={m.key}>
+                  <text x={gx + grpW / 2} y={svgH - 2}
+                    style={{ fontSize: 9, fill: 'var(--adm-muted)', textAnchor: 'middle' } as React.CSSProperties}>
+                    {new Date(m.year, m.month - 1).toLocaleDateString('es-ES', { month: 'short' })} {String(m.year).slice(2)}
+                  </text>
+                  {profiles.map(([pid, pname], pi) => {
+                    const val  = ahorroMap.get(`${m.key}-${pid}`) ?? 0;
+                    const barH = Math.max(Math.abs((val / range) * H), 2);
+                    const bx   = gx + pi * (BAR_W + BAR_GAP);
+                    const by   = val >= 0 ? zeroY - barH : zeroY;
+                    return (
+                      <rect key={pid} x={bx} y={by} width={BAR_W} height={barH} rx={2}
+                        style={{ fill: COLORS[pi % COLORS.length], opacity: 0.85 }}>
+                        <title>{pname}: {val >= 0 ? '+' : ''}{Math.round(val)} €</title>
+                      </rect>
+                    );
+                  })}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+        <div style={{ display: 'flex', gap: 14, marginTop: 8, paddingLeft: PAD_L }}>
+          {profiles.map(([pid, name], pi) => (
+            <div key={pid} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--adm-muted)' }}>
+              <span style={{ width: 10, height: 10, borderRadius: 2, display: 'inline-block',
+                background: COLORS[pi % COLORS.length], opacity: 0.85 }} />
+              {name}
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
@@ -769,7 +848,7 @@ export default function MonetaPage() {
   const [loading,     setLoading]     = useState(true);
   const [copying,     setCopying]     = useState(false);
   const [activeTab,   setActiveTab]   = useState(0);
-  const [showHistory, setShowHistory] = useState(false);
+  const [pageTab, setPageTab] = useState<'registros' | 'estadisticas'>('registros');
   const [date, setDate] = useState(() => {
     const d = new Date();
     return { year: d.getFullYear(), month: d.getMonth() + 1 };
@@ -815,7 +894,6 @@ export default function MonetaPage() {
   }
 
   function exportCSV() {
-    const label = monthLabel(date.year, date.month);
     const rows = [`Perfil;Tipo;Concepto;Previsto (€);Real (€)`];
     for (const p of profiles) {
       for (const item of p.items) {
@@ -860,51 +938,62 @@ export default function MonetaPage() {
       <style>{STYLES}</style>
 
       <div className="moneta-topbar">
-        <button className="moneta-month-btn" onClick={prevMonth}>‹</button>
-        <span className="moneta-month-label">{monthLabel(date.year, date.month)}</span>
-        <button className="moneta-month-btn" onClick={nextMonth}>›</button>
-        {loading && <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Cargando...</span>}
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="moneta-month-btn" onClick={exportCSV} disabled={loading}
-            title="Descargar datos del mes en CSV">
-            ↓ CSV
-          </button>
-          <button className="moneta-month-btn" onClick={() => setShowHistory(h => !h)}>
-            {showHistory ? '△ Ocultar' : '▽ Histórico'}
-          </button>
-          <button
-            className="moneta-copy-month-btn"
-            onClick={copyPrevMonth}
-            disabled={copying || loading}
-            title={(() => { const f = fromDate(date.year, date.month); return `Copiar ítems de ${monthLabel(f.year, f.month)}`; })()}
-          >
-            {copying ? 'Copiando...' : '↑ Copiar mes anterior'}
-          </button>
-        </div>
+        {pageTab === 'registros' ? (
+          <>
+            <button className="moneta-month-btn" onClick={prevMonth}>‹</button>
+            <span className="moneta-month-label">{monthLabel(date.year, date.month)}</span>
+            <button className="moneta-month-btn" onClick={nextMonth}>›</button>
+            {loading && <span style={{ fontSize: 12, color: 'var(--adm-muted)' }}>Cargando...</span>}
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button className="moneta-month-btn" onClick={exportCSV} disabled={loading}
+                title="Descargar datos del mes en CSV">↓ CSV</button>
+              <button
+                className="moneta-copy-month-btn"
+                onClick={copyPrevMonth}
+                disabled={copying || loading}
+                title={(() => { const f = fromDate(date.year, date.month); return `Copiar ítems de ${monthLabel(f.year, f.month)}`; })()}
+              >
+                {copying ? 'Copiando...' : '↑ Copiar mes anterior'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <span className="moneta-month-label" style={{ fontSize: 14, fontWeight: 600 }}>Estadísticas</span>
+        )}
       </div>
 
-      <div className="moneta-tabs">
-        {profiles.map((p, i) => (
-          <button key={p.id} className={`moneta-tab${activeTab === i ? ' active' : ''}`}
-            onClick={() => setActiveTab(i)}>
-            {p.name}
-          </button>
-        ))}
+      <div className="moneta-page-tabs">
+        <button className={`moneta-page-tab${pageTab === 'registros' ? ' active' : ''}`}
+          onClick={() => setPageTab('registros')}>Registros</button>
+        <button className={`moneta-page-tab${pageTab === 'estadisticas' ? ' active' : ''}`}
+          onClick={() => setPageTab('estadisticas')}>Estadísticas</button>
       </div>
 
-      <div className="moneta-grid">
-        {profiles.map((p, i) => (
-          <ProfileColumn
-            key={p.id}
-            profile={p} year={date.year} month={date.month}
-            isHidden={i !== activeTab}
-            onUpdate={updateProfile}
-            onSummaryUpdate={updateSummary}
-          />
-        ))}
-      </div>
+      {pageTab === 'registros' && (
+        <>
+          <div className="moneta-tabs">
+            {profiles.map((p, i) => (
+              <button key={p.id} className={`moneta-tab${activeTab === i ? ' active' : ''}`}
+                onClick={() => setActiveTab(i)}>
+                {p.name}
+              </button>
+            ))}
+          </div>
+          <div className="moneta-grid">
+            {profiles.map((p, i) => (
+              <ProfileColumn
+                key={p.id}
+                profile={p} year={date.year} month={date.month}
+                isHidden={i !== activeTab}
+                onUpdate={updateProfile}
+                onSummaryUpdate={updateSummary}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
-      {showHistory && <HistoryChart />}
+      {pageTab === 'estadisticas' && <StatsView />}
     </div>
   );
 }
