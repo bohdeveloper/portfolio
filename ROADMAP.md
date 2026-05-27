@@ -46,17 +46,6 @@
 # ✅ Sesión admin persistente: JWT 7d, login verifica sesión existente al montar
 # ✅ AdminNavbar: sin links de apps, enlace ← Portfolio en dashboard
 
-### Posts publicados (blog-drafts/)
-# ✅ post-1-nextjs-cloudflare-d1.md — "Next.js + Cloudflare Pages + D1: por qué elegí este stack"
-# ✅ post-2-cloudflare-d1-guia.md   — "Cloudflare D1: la base de datos que no sabía que necesitaba"
-# ✅ post-3-claude-ai-workflow.md   — "Varios meses usando Claude AI para programar"
-
-### Pendiente blog (Fase 7)
-# ⬜ Sitemap dinámico con posts (requiere SSR)
-# ⬜ OG meta tags por post (open graph, twitter card)
-# ⬜ Schema.org Article por post
-# ⬜ Migrar a @cloudflare/next-on-pages para SSR real
-
 ### Notas de arquitectura
 # output: 'export' (estático) → rutas de blog usan ?slug=xxx (query param)
 # Googlebot ejecuta JS → SEO aceptable para primera versión
@@ -91,9 +80,9 @@
 # ✅ Tabs de perfil: Pareja / Personal
 # ✅ Dashboard card Moneta con icono SVG
 
-### Pendiente (mejoras futuras)
+### Pendiente (sin fase asignada)
 # ⬜ Exportación CSV mensual
-# ⬜ Vista histórico: evolución del ahorro mes a mes (gráfica de barras)
+# ⬜ Vista histórico: evolución del ahorro mes a mes (gráfica de barras) → candidato Fase 10
 # ⬜ Alertas visuales al superar el presupuesto en una categoría
 
 ---
@@ -203,4 +192,4 @@
 # Chart.js (CDN) — gráficas tracker sin bundle adicional
 # CSS variables --adm-* en admin/layout.tsx — theming consistente claro/oscuro
 # NeuralCanvas — canvas animado, lee html.light/dark cada frame sin re-renders React
-# output: 'export' — estático puro, migración a SSR planificada en Fase 7
+# output: 'export' — estático puro, migración a SSR planificada en Fase 9
