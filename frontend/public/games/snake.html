@@ -18,7 +18,7 @@ body{
 }
 #top{
   display:flex;align-items:center;justify-content:space-between;
-  width:100%;max-width:400px;
+  width:100%;max-width:100%;
   padding:0 2px 8px;
 }
 #score{font-size:22px;font-weight:700;color:#00e7eb;min-width:40px;text-align:center}
@@ -81,7 +81,7 @@ const CELL = 20;
 let W, H, snake, dir, next, food, score, best, running, raf, lastTick, speed, obstacles;
 
 function resize() {
-  const s = Math.min(window.innerWidth - 16, window.innerHeight - 90, 400);
+  const s = Math.min(window.innerWidth - 8, window.innerHeight - 70);
   const size = Math.floor(s / CELL) * CELL;
   canvas.width = canvas.height = size;
   W = canvas.width / CELL;
