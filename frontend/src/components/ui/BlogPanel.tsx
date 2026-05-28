@@ -95,6 +95,11 @@ export default function BlogPanel() {
   const [gameReacted,  setGameReacted]  = useState<Record<string, Set<string>>>({});
   const [gameCounts,   setGameCounts]   = useState<Record<number, Record<string, number>>>({});
   const [gameModal,    setGameModal]    = useState<{ url: string; name: string } | null>(null);
+  const [panelVisitor, setPanelVisitor] = useState<{ id: number; alias: string } | null>(null);
+  const [panelLogin,   setPanelLogin]   = useState(false);
+  const [loginAlias,   setLoginAlias]   = useState('');
+  const [pendingScore, setPendingScore] = useState<number | null>(null);
+  const [scoreResult,  setScoreResult]  = useState<{ score: number; rank: number } | null>(null);
 
   const hide = pathname.startsWith('/admin') || pathname.startsWith('/blog');
 

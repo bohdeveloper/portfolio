@@ -64,6 +64,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   try {
     await env.DB.batch([
       env.DB.prepare('DELETE FROM game_reactions WHERE game_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM game_scores WHERE game_id = ?').bind(id),
       env.DB.prepare('DELETE FROM games WHERE id = ?').bind(id),
     ]);
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });

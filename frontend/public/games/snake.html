@@ -223,6 +223,8 @@ function bgDraw() {
 function gameOver() {
   running = false;
   cancelAnimationFrame(raf);
+  // Notificar al portfolio la puntuación final
+  try { window.parent.postMessage({ type: 'boh_score', score, game: 'snake' }, '*'); } catch(e) {}
   const isRecord = score > 0 && score >= best;
   OL.innerHTML = `
     <div style="font-size:32px">${isRecord && score > 0 ? '🏆' : '💀'}</div>
