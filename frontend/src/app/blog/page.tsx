@@ -105,8 +105,15 @@ function ShareButton({ title, slug }: { title: string; slug: string }) {
   const [copied, setCopied] = useState(false);
   const share = async () => {
     const url = window.location.origin + '/blog?slug=' + encodeURIComponent(slug);
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try { await navigator.share({ title, url }); return; } catch {}
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch (e) {
+        // AbortError = usuario canceló el share nativo → no caer al clipboard
+        if (e instanceof Error && e.name === 'AbortError') return;
+        // Otro error (ej: no soportado en contexto) → intentar clipboard
+      }
     }
     await navigator.clipboard.writeText(url).catch(() => {});
     setCopied(true);
@@ -212,7 +219,7 @@ function CommentItem({ c, onReply, isReply }: { c: Comment; onReply?: () => void
   return (
     <div className="flex gap-3">
       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-semibold">
-        {c.alias[0].toUpperCase()}
+        {(c.alias?.[0] || '?').toUpperCase()}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -248,6 +255,13 @@ function CommentsSection({ slug }: { slug: string }) {
   }, [slug]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Resetear estado al cambiar de post
+  useEffect(() => {
+    setSubmitted(false);
+    setReplyTo(null);
+    setError('');
+  }, [slug]);
 
   // Persist alias in localStorage
   useEffect(() => {
