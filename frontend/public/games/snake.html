@@ -25,7 +25,7 @@ body{
 #label{font-size:9px;color:#444;letter-spacing:1.5px;text-transform:uppercase}
 #best-wrap{font-size:11px;color:#333;text-align:right}
 #best-wrap b{color:#555}
-canvas{display:block;border-radius:10px;border:1px solid #1a1a1a}
+canvas{display:block;border-radius:10px;border:2px solid #1e3a3a}
 #overlay{
   position:absolute;inset:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -64,7 +64,7 @@ canvas{display:block;border-radius:10px;border:1px solid #1a1a1a}
   <div id="overlay">
     <h2>🐍</h2>
     <div style="font-size:20px;font-weight:600;color:#e8e6e0">Snake</div>
-    <div class="tagline">Flecha / WASD · Deslizar en móvil</div>
+    <div class="tagline">¡Los bordes matan! · Evita los bloques rojos</div>
     <button id="btn" onclick="start()">Jugar</button>
     <div id="hint">↑ ↓ ← → / WASD</div>
   </div>
@@ -78,7 +78,7 @@ const scoreEl= document.getElementById('score');
 const bestEl = document.getElementById('best-val');
 
 const CELL = 20;
-let W, H, snake, dir, next, food, score, best, running, raf, lastTick, speed;
+let W, H, snake, dir, next, food, score, best, running, raf, lastTick, speed, obstacles;
 
 function resize() {
   const s = Math.min(window.innerWidth - 16, window.innerHeight - 90, 400);
@@ -93,10 +93,24 @@ window.addEventListener('resize', () => { resize(); if (!running) bgDraw(); });
 function rnd(n) { return Math.floor(Math.random() * n); }
 
 function placeFood() {
-  const occupied = new Set(snake.map(s => s.x + ',' + s.y));
-  let x, y;
-  do { x = rnd(W); y = rnd(H); } while (occupied.has(x + ',' + y));
+  const occupied = new Set([
+    ...snake.map(s => s.x + ',' + s.y),
+    ...(obstacles || []).map(o => o.x + ',' + o.y),
+  ]);
+  let x, y, tries = 0;
+  do { x = rnd(W); y = rnd(H); tries++; } while (occupied.has(x + ',' + y) && tries < 200);
   food = { x, y };
+}
+
+function addObstacle() {
+  const occupied = new Set([
+    ...snake.map(s => s.x + ',' + s.y),
+    food.x + ',' + food.y,
+    ...obstacles.map(o => o.x + ',' + o.y),
+  ]);
+  let x, y, tries = 0;
+  do { x = rnd(W); y = rnd(H); tries++; } while ((occupied.has(x + ',' + y) || x < 1 || x >= W-1 || y < 1 || y >= H-1) && tries < 200);
+  if (tries < 200) obstacles.push({ x, y });
 }
 
 function init() {
@@ -105,7 +119,8 @@ function init() {
   dir  = { x: 1, y: 0 };
   next = { x: 1, y: 0 };
   score = 0;
-  speed = 155;
+  obstacles = [];
+  speed = 130;
   scoreEl.textContent = '0';
   placeFood();
 }
@@ -117,8 +132,13 @@ function tick(ts) {
   lastTick = ts;
 
   dir = { ...next };
-  const head = { x: (snake[0].x + dir.x + W) % W, y: (snake[0].y + dir.y + H) % H };
+  const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
 
+  // Borde = muerte
+  if (head.x < 0 || head.x >= W || head.y < 0 || head.y >= H) { gameOver(); return; }
+  // Obstáculo = muerte
+  if (obstacles.some(o => o.x === head.x && o.y === head.y)) { gameOver(); return; }
+  // Autocolisión
   if (snake.some(s => s.x === head.x && s.y === head.y)) { gameOver(); return; }
 
   snake.unshift(head);
@@ -130,7 +150,10 @@ function tick(ts) {
       bestEl.textContent = best;
       try { localStorage.setItem('boh_snake', best); } catch {}
     }
-    speed = Math.max(75, 155 - Math.floor(score / 3) * 6);
+    // Velocidad más agresiva: empieza en 130ms, -10ms cada 2 puntos, mín 50ms
+    speed = Math.max(50, 130 - Math.floor(score / 2) * 10);
+    // Nuevo obstáculo cada 5 puntos
+    if (score % 5 === 0) addObstacle();
     placeFood();
   } else {
     snake.pop();
@@ -149,6 +172,30 @@ function draw() {
   ctx.lineWidth = 0.5;
   for (let x = 0; x <= W; x++) { ctx.beginPath(); ctx.moveTo(x*CELL,0); ctx.lineTo(x*CELL,ch); ctx.stroke(); }
   for (let y = 0; y <= H; y++) { ctx.beginPath(); ctx.moveTo(0,y*CELL); ctx.lineTo(cw,y*CELL); ctx.stroke(); }
+
+  // Borde de peligro (muros mortales)
+  const t2 = performance.now() / 800;
+  const wallAlpha = 0.18 + 0.08 * Math.sin(t2);
+  ctx.strokeStyle = `rgba(255,40,40,${wallAlpha})`;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(1.5, 1.5, cw - 3, ch - 3);
+
+  // Obstáculos — bloques rojos con brillo
+  obstacles.forEach(o => {
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,50,50,0.7)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = 'rgba(200,30,30,0.85)';
+    roundRect(o.x * CELL + 2, o.y * CELL + 2, CELL - 4, CELL - 4, 3);
+    ctx.fill();
+    ctx.restore();
+    // Cruz interior
+    ctx.strokeStyle = 'rgba(255,100,100,0.5)';
+    ctx.lineWidth = 1;
+    const cx2 = o.x * CELL + CELL / 2, cy2 = o.y * CELL + CELL / 2;
+    ctx.beginPath(); ctx.moveTo(cx2-4, cy2-4); ctx.lineTo(cx2+4, cy2+4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx2+4, cy2-4); ctx.lineTo(cx2-4, cy2+4); ctx.stroke();
+  });
 
   // Food — glowing dot
   const t = performance.now() / 600;
@@ -218,6 +265,9 @@ function bgDraw() {
   ctx.lineWidth = 0.5;
   for (let x = 0; x <= W; x++) { ctx.beginPath(); ctx.moveTo(x*CELL,0); ctx.lineTo(x*CELL,canvas.height); ctx.stroke(); }
   for (let y = 0; y <= H; y++) { ctx.beginPath(); ctx.moveTo(0,y*CELL); ctx.lineTo(canvas.width,y*CELL); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(255,40,40,0.18)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(1.5, 1.5, canvas.width - 3, canvas.height - 3);
 }
 
 function gameOver() {

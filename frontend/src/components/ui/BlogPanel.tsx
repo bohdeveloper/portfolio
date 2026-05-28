@@ -294,29 +294,28 @@ export default function BlogPanel() {
     <>
       <style>{PANEL_STYLES}</style>
 
-      {/* ══ TOP game float — bottom-left ══ */}
-      {topGame && !(open && activeTab === 'juegos') && (
+      {/* ══ TOP game float — below logo ══ */}
+      {topGame && (
         <button
-          onClick={() => openOnTab('juegos')}
+          onClick={() => setGameModal({ url: topGame.url, name: topGame.name })}
           className="top-game-float"
           aria-label={`Jugar a ${topGame.name}`}
           style={{
-            position: 'fixed', bottom: '80px', left: '8px', zIndex: 50,
-            display: 'flex', alignItems: 'center', gap: '7px',
-            padding: '7px 12px 7px 9px',
-            background: 'var(--pnl-bg)', border: '1px solid var(--pnl-border)',
+            position: 'fixed', top: '96px', left: '16px', zIndex: 50,
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 14px',
+            background: 'var(--pnl-bg)',
+            border: '1.5px solid rgba(0,231,235,0.6)',
             borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit',
-            color: 'var(--pnl-text)', maxWidth: '180px',
-            transition: 'transform 0.15s',
+            color: 'var(--pnl-text)',
+            transition: 'transform 0.15s, border-color 0.15s',
+            boxShadow: '0 2px 12px rgba(0,231,235,0.08)',
           }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'rgba(0,231,235,1)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(0,231,235,0.6)'; }}
         >
-          <span style={{ fontSize: '16px', flexShrink: 0 }}>🎮</span>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ fontSize: '9px', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: '1px' }}>TOP</p>
-            <p style={{ fontSize: '12px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{topGame.name}</p>
-          </div>
+          <span style={{ fontSize: '13px', background: 'rgba(255,200,0,0.12)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '5px', padding: '1px 6px', color: '#e6b400', fontWeight: 700, letterSpacing: '0.5px', flexShrink: 0 }}>⭐ TOP</span>
+          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--pnl-text)', whiteSpace: 'nowrap' }}>Juega a {topGame.name}</span>
         </button>
       )}
 
@@ -461,24 +460,24 @@ export default function BlogPanel() {
           }}
           onClick={e => { if (e.target === e.currentTarget) setGameModal(null); }}
         >
-          <div style={{ width: '100%', maxWidth: '480px' }}>
+          <div style={{ width: '100%', maxWidth: '640px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <span style={{ color: '#e8e6e0', fontSize: '14px', fontWeight: 500 }}>🎮 {gameModal.name}</span>
+              <span style={{ color: '#e8e6e0', fontSize: '15px', fontWeight: 600 }}>{gameModal.name}</span>
               <button
                 onClick={() => setGameModal(null)}
-                style={{ color: '#777', background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px', lineHeight: 1, padding: '0 4px', fontFamily: 'inherit' }}
+                style={{ color: '#666', background: 'none', border: 'none', cursor: 'pointer', fontSize: '28px', lineHeight: 1, padding: '0 4px', fontFamily: 'inherit' }}
                 aria-label="Cerrar juego"
               >×</button>
             </div>
-            <iframe
-              src={gameModal.url}
-              style={{ width: '100%', aspectRatio: '1 / 1', border: 'none', borderRadius: '10px', display: 'block', background: '#0a0a0a' }}
-              title={gameModal.name}
-              allow="fullscreen"
-            />
-            <p style={{ color: '#333', fontSize: '10px', textAlign: 'center', marginTop: '8px' }}>
-              Click fuera o × para cerrar
-            </p>
+            <div style={{ border: '2px solid rgba(0,231,235,0.35)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 0 32px rgba(0,231,235,0.08)' }}>
+              <iframe
+                src={gameModal.url}
+                style={{ width: '100%', aspectRatio: '1 / 1', border: 'none', display: 'block', background: '#0a0a0a' }}
+                title={gameModal.name}
+                allow="fullscreen"
+              />
+            </div>
+            <p style={{ color: '#2a2a2a', fontSize: '10px', textAlign: 'center', marginTop: '8px' }}>Esc o click fuera para cerrar</p>
           </div>
         </div>
       )}

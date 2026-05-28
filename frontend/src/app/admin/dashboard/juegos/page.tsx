@@ -245,8 +245,9 @@ export default function JuegosAdminPage() {
               </div>
 
               <div>
-                <label style={lbl}>URL del juego (link externo o embed)</label>
-                <input style={inp} value={form.url} onChange={e => set('url', e.target.value)} placeholder="https://..." />
+                <label style={lbl}>URL del juego</label>
+                <input style={{ ...inp, opacity: 0.5, cursor: 'not-allowed' }} value={form.url} readOnly tabIndex={-1} />
+                <p style={{ color: 'var(--adm-muted)', fontSize: '10px', marginTop: '4px' }}>La URL la gestiona el código del juego.</p>
               </div>
 
               <div>
