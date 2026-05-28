@@ -14,6 +14,7 @@ export default function UsuariosPage() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -38,6 +39,10 @@ export default function UsuariosPage() {
 
   useEffect(() => {
     loadUsers();
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then((res: { ok: boolean; user_id?: number }) => { if (res.ok) setCurrentUserId(res.user_id ?? null); })
+      .catch(() => {});
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,6 +85,25 @@ export default function UsuariosPage() {
       loadUsers();
     } catch (err) {
       console.error('Error:', err);
+      alert('Error: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    }
+  };
+
+  const handleToggleActive = async (user: User) => {
+    const action = user.active ? 'desactivar' : 'activar';
+    if (user.active && !confirm(`¿Desactivar al usuario "${user.username}"? No podrá iniciar sesión.`)) return;
+    try {
+      const res = await fetch(`/api/admin/users?id=${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: !user.active }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error || `Failed to ${action} user`);
+      }
+      loadUsers();
+    } catch (err) {
       alert('Error: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
@@ -313,24 +337,30 @@ export default function UsuariosPage() {
                       <button
                         onClick={() => handleEdit(user)}
                         style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--primary)',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          marginRight: '12px',
+                          background: 'none', border: 'none',
+                          color: 'var(--primary)', cursor: 'pointer',
+                          fontSize: '12px', marginRight: '12px',
                         }}
                       >
                         Editar
                       </button>
+                      {user.id !== currentUserId && (
+                        <button
+                          onClick={() => handleToggleActive(user)}
+                          style={{
+                            background: 'none', border: 'none',
+                            color: user.active ? '#c47c00' : '#1D6B45',
+                            cursor: 'pointer', fontSize: '12px', marginRight: '12px',
+                          }}
+                        >
+                          {user.active ? 'Desactivar' : 'Activar'}
+                        </button>
+                      )}
                       <button
                         onClick={() => handleDelete(user.id)}
                         style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#d9534f',
-                          cursor: 'pointer',
-                          fontSize: '12px',
+                          background: 'none', border: 'none',
+                          color: '#d9534f', cursor: 'pointer', fontSize: '12px',
                         }}
                       >
                         Eliminar

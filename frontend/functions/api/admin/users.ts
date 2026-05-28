@@ -76,7 +76,10 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
       if (!['super_admin', 'user'].includes(body.role)) return bad('Invalid role');
       parts.push('role=?'); vals.push(body.role);
     }
-    if (body.active !== undefined) { parts.push('active=?'); vals.push(body.active ? 1 : 0); }
+    if (body.active !== undefined) {
+      if (id === String(auth.user_id)) return bad('No puedes desactivar tu propia cuenta');
+      parts.push('active=?'); vals.push(body.active ? 1 : 0);
+    }
     if (parts.length === 0) return bad('Nothing to update');
 
     await env.DB.prepare(`UPDATE admin_users SET ${parts.join(', ')} WHERE id=?`)
