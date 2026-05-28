@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Game {
   id: number;
@@ -59,6 +60,7 @@ function compressImage(file: File, maxWidth = 800, quality = 0.82): Promise<stri
 }
 
 export default function JuegosAdminPage() {
+  const router = useRouter();
   const [view,         setView]         = useState<View>('list');
   const [games,        setGames]        = useState<Game[]>([]);
   const [loading,      setLoading]      = useState(true);
@@ -78,6 +80,15 @@ export default function JuegosAdminPage() {
     display: 'block', color: 'var(--adm-label)', fontSize: '11px',
     letterSpacing: '0.5px', marginBottom: '5px', textTransform: 'uppercase',
   };
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then((res: { ok: boolean; role?: string }) => {
+        if (!res.ok || res.role !== 'super_admin') router.replace('/admin/dashboard');
+      })
+      .catch(() => router.replace('/admin/dashboard'));
+  }, [router]);
 
   function loadGames() {
     setLoading(true);

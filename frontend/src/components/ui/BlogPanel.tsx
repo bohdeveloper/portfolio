@@ -94,6 +94,7 @@ export default function BlogPanel() {
   const [topGame,      setTopGame]      = useState<Game | null>(null);
   const [gameReacted,  setGameReacted]  = useState<Record<string, Set<string>>>({});
   const [gameCounts,   setGameCounts]   = useState<Record<number, Record<string, number>>>({});
+  const [gameModal,    setGameModal]    = useState<{ url: string; name: string } | null>(null);
 
   const hide = pathname.startsWith('/admin') || pathname.startsWith('/blog');
 
@@ -237,15 +238,19 @@ export default function BlogPanel() {
           </div>
           {/* Jugar */}
           {game.url ? (
-            <a
-              href={game.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={onNavigate}
-              style={{ color: 'var(--primary)', fontSize: '11px', fontWeight: 500, textDecoration: 'none', flexShrink: 0 }}
+            <button
+              onClick={() => {
+                if (game.url.startsWith('/')) {
+                  setGameModal({ url: game.url, name: game.name });
+                } else {
+                  window.open(game.url, '_blank', 'noopener,noreferrer');
+                  onNavigate();
+                }
+              }}
+              style={{ color: 'var(--primary)', fontSize: '11px', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, padding: 0 }}
             >
               Jugar →
-            </a>
+            </button>
           ) : (
             <span style={{ color: 'var(--pnl-muted)', fontSize: '11px', fontStyle: 'italic' }}>Próximamente</span>
           )}
@@ -443,6 +448,40 @@ export default function BlogPanel() {
 
         <PanelContent onNavigate={() => setMobileOpen(false)} />
       </div>
+
+      {/* ══ Game iframe modal ══ */}
+      {gameModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.92)',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            padding: '16px',
+          }}
+          onClick={e => { if (e.target === e.currentTarget) setGameModal(null); }}
+        >
+          <div style={{ width: '100%', maxWidth: '480px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ color: '#e8e6e0', fontSize: '14px', fontWeight: 500 }}>🎮 {gameModal.name}</span>
+              <button
+                onClick={() => setGameModal(null)}
+                style={{ color: '#777', background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px', lineHeight: 1, padding: '0 4px', fontFamily: 'inherit' }}
+                aria-label="Cerrar juego"
+              >×</button>
+            </div>
+            <iframe
+              src={gameModal.url}
+              style={{ width: '100%', aspectRatio: '1 / 1', border: 'none', borderRadius: '10px', display: 'block', background: '#0a0a0a' }}
+              title={gameModal.name}
+              allow="fullscreen"
+            />
+            <p style={{ color: '#333', fontSize: '10px', textAlign: 'center', marginTop: '8px' }}>
+              Click fuera o × para cerrar
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

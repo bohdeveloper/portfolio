@@ -217,7 +217,7 @@ export default function DashboardPage() {
     ? []
     : role === 'super_admin'
       ? APPS
-      : APPS.filter(a => a.name !== 'Blog' && a.name !== 'Usuarios');
+      : APPS.filter(a => a.name !== 'Blog' && a.name !== 'Usuarios' && a.name !== 'Juegos');
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });
