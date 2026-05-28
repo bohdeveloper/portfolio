@@ -67,12 +67,12 @@ function GameCard({ game, leaders, isCommunityTop, visitorId, reacted, counts, o
         <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {isCommunityTop && (
             <span style={{ background: 'rgba(255,60,60,0.18)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,80,80,0.5)', borderRadius: '6px', padding: '3px 10px', fontSize: '10px', fontWeight: 700, color: '#ff6060', letterSpacing: '1px', textTransform: 'uppercase' }}>
-              🔥 TOP Comunidad
+              🔥 TOP
             </span>
           )}
           {isAdminPick && (
             <span style={{ background: 'rgba(255,200,0,0.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '6px', padding: '3px 10px', fontSize: '10px', fontWeight: 700, color: '#e6b400', letterSpacing: '1px', textTransform: 'uppercase' }}>
-              ⭐ Admin's Pick
+              ⭐ Favorito
             </span>
           )}
         </div>

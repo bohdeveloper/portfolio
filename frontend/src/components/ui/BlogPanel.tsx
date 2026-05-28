@@ -214,7 +214,7 @@ export default function BlogPanel() {
         {(game.is_community_top === 1 || game.is_top === 1) && (
           <div style={{ marginBottom: '6px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
             {game.is_community_top === 1 && <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.35)', borderRadius: '4px', padding: '1px 6px', fontSize: '9px', fontWeight: 700, color: '#ff6060', letterSpacing: '0.4px' }}>🔥 TOP</span>}
-            {game.is_top === 1 && <span className="game-top-badge">⭐ Admin</span>}
+            {game.is_top === 1 && <span className="game-top-badge">⭐ Favorito</span>}
           </div>
         )}
         {game.screenshot ? (
@@ -318,7 +318,7 @@ export default function BlogPanel() {
           onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'rgba(0,231,235,1)'; }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(0,231,235,0.6)'; }}
         >
-          <span style={{ fontSize: '13px', background: 'rgba(255,200,0,0.12)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '5px', padding: '1px 6px', color: '#e6b400', fontWeight: 700, letterSpacing: '0.5px', flexShrink: 0 }}>⭐ TOP</span>
+          <span style={{ fontSize: '13px', background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.4)', borderRadius: '5px', padding: '1px 6px', color: '#ff6060', fontWeight: 700, letterSpacing: '0.5px', flexShrink: 0 }}>🔥 TOP</span>
           <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--pnl-text)', whiteSpace: 'nowrap' }}>Juega a {topGame.name}</span>
         </button>
       )}
