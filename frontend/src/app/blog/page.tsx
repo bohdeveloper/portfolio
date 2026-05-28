@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense, useMemo } from 'react';
+import { useEffect, useState, useRef, Suspense, useMemo, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 interface Post {
@@ -100,6 +100,270 @@ const POST_CONTENT_STYLES = `
   html.dark .post-body th { background: #1e293b; color: #f3f4f6; }
 `;
 
+/* ── Share button ── */
+function ShareButton({ title, slug }: { title: string; slug: string }) {
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    const url = window.location.origin + '/blog?slug=' + encodeURIComponent(slug);
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try { await navigator.share({ title, url }); return; } catch {}
+    }
+    await navigator.clipboard.writeText(url).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
+  };
+  return (
+    <button
+      onClick={share}
+      className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
+        copied
+          ? 'border-green-400 text-green-600 dark:text-green-400'
+          : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-primary/50 hover:text-primary'
+      }`}
+    >
+      {copied ? '✓ Enlace copiado' : '↗ Compartir'}
+    </button>
+  );
+}
+
+/* ── Reactions bar ── */
+const EMOJIS = ['👍', '❤️', '🔥', '💡'] as const;
+
+function ReactionsBar({ slug }: { slug: string }) {
+  const [counts,  setCounts]  = useState<Record<string, number>>({});
+  const [reacted, setReacted] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch('/api/blog/reactions?slug=' + encodeURIComponent(slug))
+      .then(r => r.json())
+      .then((res: { ok: boolean; data?: Record<string, number> }) => {
+        if (res.ok && res.data) setCounts(res.data);
+      });
+    try {
+      const stored = localStorage.getItem('blog_reacted_' + slug);
+      if (stored) setReacted(new Set(JSON.parse(stored)));
+    } catch {}
+  }, [slug]);
+
+  const react = async (emoji: string) => {
+    const hasReacted = reacted.has(emoji);
+    const delta = hasReacted ? -1 : 1;
+    // Optimistic update
+    setCounts(prev => ({ ...prev, [emoji]: Math.max(0, (prev[emoji] ?? 0) + delta) }));
+    const next = new Set(reacted);
+    if (hasReacted) next.delete(emoji); else next.add(emoji);
+    setReacted(next);
+    try { localStorage.setItem('blog_reacted_' + slug, JSON.stringify([...next])); } catch {}
+    // API call
+    fetch('/api/blog/reactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, emoji, delta }),
+    }).then(r => r.json()).then((res: { ok: boolean; count?: number }) => {
+      if (res.ok && res.count !== undefined) setCounts(prev => ({ ...prev, [emoji]: res.count! }));
+    }).catch(() => {});
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 my-8 py-6 border-t border-b border-gray-200 dark:border-gray-800">
+      <span className="text-xs text-gray-400 mr-1 w-full sm:w-auto">¿Te ha gustado?</span>
+      {EMOJIS.map(emoji => (
+        <button
+          key={emoji}
+          onClick={() => react(emoji)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all border ${
+            reacted.has(emoji)
+              ? 'bg-primary/10 border-primary text-primary font-medium'
+              : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-primary/40 hover:text-primary'
+          }`}
+        >
+          <span>{emoji}</span>
+          {(counts[emoji] ?? 0) > 0 && (
+            <span className="text-xs font-semibold">{counts[emoji]}</span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ── Comments section ── */
+interface Comment {
+  id: number;
+  parent_id: number | null;
+  alias: string;
+  body: string;
+  created_at: string;
+}
+
+function fmtRelative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 2)   return 'ahora mismo';
+  if (m < 60)  return `hace ${m} min`;
+  const h = Math.floor(m / 60);
+  if (h < 24)  return `hace ${h}h`;
+  const d = Math.floor(h / 24);
+  if (d < 30)  return `hace ${d} día${d !== 1 ? 's' : ''}`;
+  return fmtDate(iso);
+}
+
+function CommentItem({ c, onReply, isReply }: { c: Comment; onReply?: () => void; isReply?: boolean }) {
+  return (
+    <div className="flex gap-3">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-semibold">
+        {c.alias[0].toUpperCase()}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{c.alias}</span>
+          <span className="text-xs text-gray-400">{fmtRelative(c.created_at)}</span>
+        </div>
+        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">{c.body}</p>
+        {!isReply && onReply && (
+          <button onClick={onReply} className="mt-1 text-xs text-gray-400 hover:text-primary transition">
+            ↩ Responder
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CommentsSection({ slug }: { slug: string }) {
+  const [comments,   setComments]   = useState<Comment[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  const [form,       setForm]       = useState({ alias: '', body: '' });
+  const [replyTo,    setReplyTo]    = useState<{ id: number; alias: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted,  setSubmitted]  = useState(false);
+  const [error,      setError]      = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const load = useCallback(() => {
+    fetch('/api/blog/comments?slug=' + encodeURIComponent(slug))
+      .then(r => r.json())
+      .then((res: { ok: boolean; data?: Comment[] }) => { if (res.ok) setComments(res.data ?? []); })
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  useEffect(() => { load(); }, [load]);
+
+  // Persist alias in localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('blog_alias');
+      if (saved) setForm(f => ({ ...f, alias: saved }));
+    } catch {}
+  }, []);
+
+  const topLevel = comments.filter(c => !c.parent_id);
+  const replies  = (pid: number) => comments.filter(c => c.parent_id === pid);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.alias.trim() || !form.body.trim()) return;
+    setSubmitting(true); setError('');
+    try {
+      const res = await fetch('/api/blog/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, alias: form.alias, body: form.body, parent_id: replyTo?.id ?? null }),
+      });
+      const data: { ok: boolean; error?: string } = await res.json();
+      if (data.ok) {
+        try { localStorage.setItem('blog_alias', form.alias.trim()); } catch {}
+        setForm(f => ({ ...f, body: '' }));
+        setReplyTo(null);
+        setSubmitted(true);
+      } else {
+        setError(data.error ?? 'Error al enviar');
+      }
+    } catch {
+      setError('Error de conexión. Inténtalo de nuevo.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const startReply = (id: number, alias: string) => {
+    setReplyTo({ id, alias });
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <section className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+      <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-6">
+        💬 {loading ? 'Comentarios' : comments.length > 0 ? `${comments.length} comentario${comments.length !== 1 ? 's' : ''}` : 'Comentarios'}
+      </h2>
+
+      {/* Form */}
+      {submitted ? (
+        <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3 mb-8 text-sm text-green-700 dark:text-green-400">
+          ✓ Comentario enviado — aparecerá tras la moderación. ¡Gracias!
+          <button onClick={() => setSubmitted(false)} className="ml-3 underline text-xs opacity-70">Escribir otro</button>
+        </div>
+      ) : (
+        <form ref={formRef} onSubmit={submit} className="mb-10 space-y-3">
+          {replyTo && (
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <span>↩ Respondiendo a <strong className="text-gray-700 dark:text-gray-200">{replyTo.alias}</strong></span>
+              <button type="button" onClick={() => setReplyTo(null)} className="text-gray-400 hover:text-primary">× cancelar</button>
+            </div>
+          )}
+          <input
+            type="text"
+            placeholder="Nombre o alias *"
+            value={form.alias}
+            onChange={e => setForm(f => ({ ...f, alias: e.target.value }))}
+            maxLength={50}
+            required
+            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary transition"
+          />
+          <textarea
+            placeholder="Escribe tu comentario... *"
+            value={form.body}
+            onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
+            maxLength={2000}
+            rows={3}
+            required
+            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary transition resize-none"
+          />
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-gray-400 dark:text-gray-500">Los comentarios se publican tras moderación.</p>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 text-sm rounded-lg bg-primary text-black font-medium hover:opacity-90 disabled:opacity-50 transition"
+            >
+              {submitting ? 'Enviando...' : 'Enviar comentario'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* List */}
+      {loading && <p className="text-sm text-gray-400">Cargando comentarios...</p>}
+      {!loading && comments.length === 0 && !submitted && (
+        <p className="text-sm text-gray-400 dark:text-gray-500 italic">Sé el primero en comentar.</p>
+      )}
+      <div className="space-y-6">
+        {topLevel.map(c => (
+          <div key={c.id}>
+            <CommentItem c={c} onReply={() => startReply(c.id, c.alias)} />
+            {replies(c.id).length > 0 && (
+              <div className="ml-11 mt-3 space-y-4 pl-4 border-l-2 border-gray-100 dark:border-gray-800">
+                {replies(c.id).map(r => <CommentItem key={r.id} c={r} isReply />)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /* ── Single post view ── */
 function PostView({ slug }: { slug: string }) {
   const router = useRouter();
@@ -185,12 +449,13 @@ function PostView({ slug }: { slug: string }) {
         <h1 className="text-3xl font-light tracking-tight text-gray-900 dark:text-gray-100 mb-4 leading-snug">
           {post.title}
         </h1>
-        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-500">
           <span>{fmtDate(post.created_at)}</span>
           <span>·</span>
           <span>{post.reading_time} min de lectura</span>
           <span>·</span>
           <span>{post.views} lecturas</span>
+          <span className="ml-auto"><ShareButton title={post.title} slug={post.slug} /></span>
         </div>
       </header>
 
@@ -198,6 +463,9 @@ function PostView({ slug }: { slug: string }) {
       <div id="blog-content" className="post-body">
         <p className="text-gray-400 text-sm italic">Cargando contenido...</p>
       </div>
+
+      <ReactionsBar slug={post.slug} />
+      <CommentsSection slug={post.slug} />
     </article>
   );
 }

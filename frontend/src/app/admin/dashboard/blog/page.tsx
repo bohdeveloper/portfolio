@@ -22,7 +22,8 @@ interface Post {
   updated_at: string;
 }
 
-type View = 'list' | 'editor';
+type View = 'list' | 'editor' | 'comments';
+interface AdminComment { id: number; post_id: number; parent_id: number | null; alias: string; body: string; ip_hash: string; created_at: string; approved: number; slug: string; title: string; }
 
 const EMPTY: Omit<Post, 'id' | 'views' | 'created_at' | 'updated_at'> = {
   slug: '', title: '', excerpt: '', content: '', cover_image: '', tags: '', published: 0, reading_time: 0,
@@ -223,8 +224,37 @@ export default function AdminBlogPage() {
   const [imgUploading, setImgUploading] = useState(false);
   const [editorKey, setEditorKey]   = useState(0);
 
+  // ── Comments moderation state ─────────────────────────────────────────────
+  const [comments,       setComments]       = useState<AdminComment[]>([]);
+  const [commentFilter,  setCommentFilter]  = useState<'pending' | 'approved' | 'all'>('pending');
+  const [commentsLoading,setCommentsLoading]= useState(false);
+  const [pendingCount,   setPendingCount]   = useState(0);
+
   const [form, setForm] = useState<Omit<Post, 'id' | 'views' | 'created_at' | 'updated_at'>>(EMPTY);
   const [editId, setEditId] = useState<number | null>(null);
+
+  function loadComments(filter = commentFilter) {
+    setCommentsLoading(true);
+    fetch(`/api/blog/comments?admin=1&filter=${filter}`)
+      .then(r => r.json())
+      .then((res: { ok: boolean; data?: AdminComment[]; pending?: number }) => {
+        if (res.ok) { setComments(res.data ?? []); setPendingCount(res.pending ?? 0); }
+      })
+      .catch(() => {})
+      .finally(() => setCommentsLoading(false));
+  }
+
+  async function approveComment(id: number) {
+    await fetch('/api/blog/comments', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, approved: 1 }) });
+    loadComments();
+  }
+
+  async function deleteComment(id: number, ban = false) {
+    const msg = ban ? '¿Eliminar el comentario y banear la IP? No podrá comentar más.' : '¿Eliminar este comentario?';
+    if (!confirm(msg)) return;
+    await fetch(`/api/blog/comments?id=${id}${ban ? '&ban=1' : ''}`, { method: 'DELETE' });
+    loadComments();
+  }
 
   function loadPosts() {
     setLoading(true);
@@ -234,7 +264,13 @@ export default function AdminBlogPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }
-  useEffect(loadPosts, []);
+  useEffect(() => {
+    loadPosts();
+    fetch('/api/blog/comments?admin=1&filter=pending')
+      .then(r => r.json())
+      .then((res: { ok: boolean; pending?: number }) => { if (res.ok) setPendingCount(res.pending ?? 0); })
+      .catch(() => {});
+  }, []);
 
   function openNew() {
     setEditId(null);
@@ -316,7 +352,62 @@ export default function AdminBlogPage() {
       <style>{BLOG_STYLES}</style>
       <div style={{ maxWidth: '860px', margin: '0 auto' }}>
 
-        {view === 'list' ? (
+        {view === 'comments' ? (
+          /* ── Vista moderación de comentarios ── */
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
+              <button className="abtn abtn-g" style={{ padding: '6px 10px' }} onClick={() => setView('list')}>←</button>
+              <h1 style={{ color: 'var(--adm-text)', fontSize: '16px', fontWeight: 500 }}>Comentarios</h1>
+              {pendingCount > 0 && <span style={{ background: '#D85A30', color: '#fff', borderRadius: '10px', fontSize: '11px', padding: '2px 8px' }}>{pendingCount} pendientes</span>}
+            </div>
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '1.25rem' }}>
+              {(['pending', 'approved', 'all'] as const).map(f => (
+                <button
+                  key={f}
+                  className={`abtn ${commentFilter === f ? 'abtn-p' : 'abtn-g'}`}
+                  onClick={() => { setCommentFilter(f); loadComments(f); }}
+                >
+                  {f === 'pending' ? 'Pendientes' : f === 'approved' ? 'Aprobados' : 'Todos'}
+                </button>
+              ))}
+              <button className="abtn abtn-g" style={{ marginLeft: 'auto' }} onClick={() => loadComments()}>↺ Recargar</button>
+            </div>
+            {commentsLoading && <p style={{ color: 'var(--adm-muted)', fontSize: '13px' }}>Cargando...</p>}
+            {!commentsLoading && comments.length === 0 && (
+              <p style={{ color: 'var(--adm-muted)', fontSize: '13px' }}>No hay comentarios en esta categoría.</p>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {comments.map(c => (
+                <div key={c.id} style={{ background: 'var(--adm-card)', border: `1px solid ${c.approved ? 'var(--adm-border)' : '#D85A3030'}`, borderRadius: '10px', padding: '1rem 1.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px', flexWrap: 'wrap' }}>
+                        <span style={{ color: 'var(--adm-text)', fontWeight: 500, fontSize: '13px' }}>{c.alias}</span>
+                        {c.parent_id && <span style={{ fontSize: '10px', color: 'var(--adm-muted)' }}>↩ respuesta</span>}
+                        <span style={{ fontSize: '10px', padding: '1px 7px', borderRadius: '8px', background: c.approved ? '#1D6B4520' : '#D85A3020', color: c.approved ? '#5DCAA5' : '#D85A30', border: `1px solid ${c.approved ? '#1D6B4540' : '#D85A3040'}` }}>
+                          {c.approved ? 'Aprobado' : 'Pendiente'}
+                        </span>
+                        <span style={{ fontSize: '10px', color: 'var(--adm-muted)' }}>
+                          {new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginBottom: '6px' }}>
+                        Post: <span style={{ color: 'var(--primary)' }}>{c.title}</span>
+                        <span style={{ marginLeft: '8px', fontFamily: 'monospace', opacity: 0.5 }}>IP: {c.ip_hash}</span>
+                      </p>
+                      <p style={{ color: 'var(--adm-text)', fontSize: '13px', lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{c.body}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap' }}>
+                      {!c.approved && <button className="abtn abtn-p" onClick={() => approveComment(c.id)}>✓ Aprobar</button>}
+                      <button className="abtn abtn-d" onClick={() => deleteComment(c.id)}>Eliminar</button>
+                      <button className="abtn abtn-d" style={{ opacity: 0.7 }} onClick={() => deleteComment(c.id, true)} title="Eliminar comentario y banear IP">🚫 Ban IP</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : view === 'list' ? (
           /* ── Vista lista ── */
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -324,7 +415,12 @@ export default function AdminBlogPage() {
                 <h1 style={{ color: 'var(--adm-text)', fontSize: '18px', fontWeight: 500 }}>Blog</h1>
                 <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '2px' }}>{posts.length} artículos</p>
               </div>
-              <button className="abtn abtn-p" onClick={openNew}>+ Nuevo post</button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button className="abtn abtn-g" onClick={() => { setCommentFilter('pending'); loadComments('pending'); setView('comments'); }} style={{ position: 'relative' }}>
+                  💬 Comentarios{pendingCount > 0 && <span style={{ marginLeft: '6px', background: '#D85A30', color: '#fff', borderRadius: '10px', fontSize: '10px', padding: '1px 6px' }}>{pendingCount}</span>}
+                </button>
+                <button className="abtn abtn-p" onClick={openNew}>+ Nuevo post</button>
+              </div>
             </div>
 
             {loading && <p style={{ color: 'var(--adm-muted)', fontSize: '13px' }}>Cargando...</p>}

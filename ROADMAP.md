@@ -87,7 +87,7 @@
 
 ---
 
-:: FASE 6 — Interacción social en Blog (⬜ PLANIFICADA)
+:: FASE 6 — Interacción social en Blog (✅ COMPLETADA)
 · Objetivo: convertir el blog en una experiencia bidireccional — lectores pueden reaccionar y comentar.
 
 ### Funcionalidades
@@ -98,12 +98,14 @@
 # Admin: moderar/borrar comentarios desde /dashboard/blog
 #   · Vista de comentarios por post, banear por IP (hash)
 
-### Arquitectura D1
-# tabla: blog_reactions   → post_id, emoji, count (UNIQUE post_id+emoji)
-# tabla: blog_comments    → id, post_id, parent_id, alias, body, ip_hash, created_at, approved
-# APIs públicas: GET /api/blog/reactions, POST /api/blog/react
-#              GET /api/blog/comments?slug=xxx, POST /api/blog/comment
-# API admin:   POST /api/blog/comment/delete (auth)
+### Implementación
+# ✅ D1: blog_reactions (post_id, emoji, count UNIQUE), blog_comments (hilo 1 nivel), blog_banned_ips
+# ✅ API pública: GET/POST /api/blog/reactions — toggle con localStorage por sesión
+# ✅ API pública: GET /api/blog/comments?slug, POST /api/blog/comments (pending)
+# ✅ API admin: GET ?admin=1&filter=, PATCH (aprobar), DELETE ?ban=1 (banear IP)
+# ✅ Blog público: botón Compartir (Web Share API + fallback clipboard), ReactionsBar, CommentsSection
+# ✅ Admin blog: vista Comentarios con filtros Pendientes/Aprobados/Todos + Aprobar/Eliminar/Banear IP
+# ✅ Alias del comentarista persistido en localStorage
 
 ---
 

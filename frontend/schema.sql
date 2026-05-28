@@ -60,6 +60,31 @@ CREATE TABLE IF NOT EXISTS tracker_tasks (
   UNIQUE(user_id, day_index, activity_id)
 );
 
+CREATE TABLE IF NOT EXISTS blog_reactions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  post_id INTEGER NOT NULL,
+  emoji TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(post_id, emoji)
+);
+
+CREATE TABLE IF NOT EXISTS blog_comments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  post_id INTEGER NOT NULL,
+  parent_id INTEGER,
+  alias TEXT NOT NULL,
+  body TEXT NOT NULL,
+  ip_hash TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  approved INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_comments_post ON blog_comments(post_id, approved);
+
+CREATE TABLE IF NOT EXISTS blog_banned_ips (
+  ip_hash TEXT NOT NULL PRIMARY KEY,
+  banned_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS blog_posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   slug TEXT NOT NULL UNIQUE,
