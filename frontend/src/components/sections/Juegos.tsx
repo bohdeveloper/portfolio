@@ -5,7 +5,21 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 interface Game {
   id: number; name: string; slug: string; description: string;
   url: string; screenshot: string; is_top: number;
+  vote_count: number; is_community_top: number;
   reactions: Record<string, number>;
+}
+
+function getFingerprint(): string {
+  try {
+    let fp = localStorage.getItem('boh_fp');
+    if (!fp) {
+      fp = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('boh_fp', fp);
+    }
+    return fp;
+  } catch { return Math.random().toString(36).slice(2); }
 }
 interface Leader { rank: number; alias: string; score: number; visitor_id: number }
 interface Visitor { id: number; alias: string }
@@ -39,34 +53,46 @@ function Leaderboard({ leaders, visitorId, className = '' }: { leaders: Leader[]
 }
 
 /* ── Game card ── */
-function GameCard({ game, leaders, isTop, visitorId, onPlay }: {
-  game: Game; leaders: Leader[]; isTop: boolean; visitorId?: number; onPlay: () => void;
+function GameCard({ game, leaders, isCommunityTop, visitorId, voted, voting, onPlay, onVote }: {
+  game: Game; leaders: Leader[]; isCommunityTop: boolean; visitorId?: number;
+  voted: boolean; voting: boolean; onPlay: () => void; onVote: () => void;
 }) {
+  const isAdminPick = game.is_top === 1;
+  const borderColor = isCommunityTop ? 'rgba(255,80,80,0.45)' : isAdminPick ? 'rgba(255,200,0,0.3)' : 'var(--jg-border)';
+  const glow = isCommunityTop ? '0 0 28px rgba(255,80,80,0.1)' : isAdminPick ? '0 0 20px rgba(255,200,0,0.06)' : 'none';
+
   return (
     <div style={{
-      background: 'var(--jg-card)', border: `1px solid ${isTop ? 'rgba(0,231,235,0.3)' : 'var(--jg-border)'}`,
+      background: 'var(--jg-card)', border: `1px solid ${borderColor}`,
       borderRadius: '14px', overflow: 'hidden',
-      boxShadow: isTop ? '0 0 24px rgba(0,231,235,0.08)' : 'none',
-      display: 'flex', flexDirection: 'column',
+      boxShadow: glow, display: 'flex', flexDirection: 'column',
     }}>
       {/* Screenshot */}
-      <div style={{ position: 'relative', aspectRatio: isTop ? '16/7' : '16/9', overflow: 'hidden', background: '#0a0a0a' }}>
+      <div style={{ position: 'relative', aspectRatio: isCommunityTop ? '16/7' : '16/9', overflow: 'hidden', background: '#0a0a0a' }}>
         {game.screenshot ? (
           <img src={game.screenshot} alt={game.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isTop ? '64px' : '40px', opacity: 0.4 }}>🎮</div>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isCommunityTop ? '64px' : '40px', opacity: 0.4 }}>🎮</div>
         )}
-        {isTop && (
-          <div style={{ position: 'absolute', top: '10px', left: '10px', background: 'rgba(0,231,235,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(0,231,235,0.4)', borderRadius: '6px', padding: '3px 10px', fontSize: '10px', fontWeight: 700, color: '#00e7eb', letterSpacing: '1px', textTransform: 'uppercase' }}>
-            ⭐ Destacado
-          </div>
-        )}
+        {/* Badges */}
+        <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {isCommunityTop && (
+            <span style={{ background: 'rgba(255,60,60,0.18)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,80,80,0.5)', borderRadius: '6px', padding: '3px 10px', fontSize: '10px', fontWeight: 700, color: '#ff6060', letterSpacing: '1px', textTransform: 'uppercase' }}>
+              🔥 TOP Comunidad
+            </span>
+          )}
+          {isAdminPick && (
+            <span style={{ background: 'rgba(255,200,0,0.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '6px', padding: '3px 10px', fontSize: '10px', fontWeight: 700, color: '#e6b400', letterSpacing: '1px', textTransform: 'uppercase' }}>
+              ⭐ Admin's Pick
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Content */}
-      <div style={{ padding: isTop ? '1.25rem' : '1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ padding: isCommunityTop ? '1.25rem' : '1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div>
-          <h3 style={{ color: 'var(--jg-text)', fontSize: isTop ? '18px' : '14px', fontWeight: 600, marginBottom: '4px' }}>{game.name}</h3>
+          <h3 style={{ color: 'var(--jg-text)', fontSize: isCommunityTop ? '18px' : '14px', fontWeight: 600, marginBottom: '4px' }}>{game.name}</h3>
           {game.description && <p style={{ color: 'var(--jg-muted)', fontSize: '12px', lineHeight: 1.55, margin: 0 }}>{game.description}</p>}
         </div>
 
@@ -76,20 +102,43 @@ function GameCard({ game, leaders, isTop, visitorId, onPlay }: {
           <Leaderboard leaders={leaders} visitorId={visitorId} />
         </div>
 
-        <button
-          onClick={onPlay}
-          style={{
-            marginTop: 'auto', padding: isTop ? '10px 0' : '8px 0',
-            background: 'transparent', border: `1px solid var(--jg-primary)`,
-            borderRadius: '8px', color: 'var(--jg-primary)',
-            fontSize: isTop ? '14px' : '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-            transition: 'background 0.18s, color 0.18s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--jg-primary)'; e.currentTarget.style.color = '#000'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--jg-primary)'; }}
-        >
-          Jugar →
-        </button>
+        {/* Acciones */}
+        <div style={{ marginTop: 'auto', display: 'flex', gap: '8px' }}>
+          {/* Botón votar */}
+          <button
+            onClick={onVote}
+            disabled={voting}
+            title={voted ? 'Retirar voto' : 'Votar como favorito'}
+            style={{
+              padding: '8px 12px', background: voted ? 'rgba(255,80,80,0.12)' : 'transparent',
+              border: `1px solid ${voted ? 'rgba(255,80,80,0.5)' : 'var(--jg-border)'}`,
+              borderRadius: '8px', color: voted ? '#ff6060' : 'var(--jg-muted)',
+              fontSize: '13px', cursor: voting ? 'default' : 'pointer', fontFamily: 'inherit',
+              transition: 'all 0.18s', display: 'flex', alignItems: 'center', gap: '5px',
+              opacity: voting ? 0.6 : 1, flexShrink: 0,
+            }}
+            onMouseEnter={e => { if (!voting) { e.currentTarget.style.borderColor = 'rgba(255,80,80,0.5)'; e.currentTarget.style.color = '#ff6060'; } }}
+            onMouseLeave={e => { if (!voted && !voting) { e.currentTarget.style.borderColor = 'var(--jg-border)'; e.currentTarget.style.color = 'var(--jg-muted)'; } }}
+          >
+            <span style={{ fontSize: '15px', lineHeight: 1 }}>{voted ? '❤️' : '🤍'}</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{game.vote_count ?? 0}</span>
+          </button>
+
+          <button
+            onClick={onPlay}
+            style={{
+              flex: 1, padding: '8px 0',
+              background: 'transparent', border: `1px solid var(--jg-primary)`,
+              borderRadius: '8px', color: 'var(--jg-primary)',
+              fontSize: isCommunityTop ? '14px' : '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+              transition: 'background 0.18s, color 0.18s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--jg-primary)'; e.currentTarget.style.color = '#000'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--jg-primary)'; }}
+          >
+            Jugar →
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -107,6 +156,8 @@ export default function JuegosSection() {
   const [loginSaving,  setLoginSaving]  = useState(false);
   const [pendingScore, setPendingScore] = useState<number | null>(null);
   const [scoreResult,  setScoreResult]  = useState<{ score: number; rank: number; isRecord: boolean } | null>(null);
+  const [votedGames,   setVotedGames]   = useState<Set<number>>(new Set());
+  const [votingId,     setVotingId]     = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const loadLeaderboard = useCallback((gameId: number) => {
@@ -127,6 +178,16 @@ export default function JuegosSection() {
         }
         setLoaded(true);
       }).catch(() => setLoaded(true));
+
+    // Restaurar votos previos del localStorage
+    try {
+      const fp = getFingerprint();
+      const storedVotes = localStorage.getItem('boh_voted_games');
+      if (storedVotes) setVotedGames(new Set(JSON.parse(storedVotes) as number[]));
+      // Sincronizar con servidor para el fingerprint actual
+      fetch(`/api/games/list`).then(() => {}); // ya está cargado arriba
+      void fp;
+    } catch {}
 
     // Restaurar visitante de localStorage
     try {
@@ -199,6 +260,42 @@ export default function JuegosSection() {
     setLoginSaving(false);
   }
 
+  async function handleVote(game: Game) {
+    if (votingId !== null) return;
+    const fp = getFingerprint();
+    setVotingId(game.id);
+
+    // Optimistic update
+    const hasVoted = votedGames.has(game.id);
+    const newVoted = new Set(votedGames);
+    if (hasVoted) newVoted.delete(game.id); else newVoted.add(game.id);
+    setVotedGames(newVoted);
+    try { localStorage.setItem('boh_voted_games', JSON.stringify([...newVoted])); } catch {}
+
+    setGames(prev => prev.map(g => g.id === game.id
+      ? { ...g, vote_count: Math.max(0, g.vote_count + (hasVoted ? -1 : 1)) }
+      : g
+    ));
+
+    try {
+      const res = await fetch('/api/games/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ game_id: game.id, fingerprint: fp }),
+      });
+      const data: { ok: boolean; vote_count?: number; voted?: boolean } = await res.json();
+      if (data.ok) {
+        // Recalcular is_community_top tras el voto
+        setGames(prev => {
+          const updated = prev.map(g => g.id === game.id ? { ...g, vote_count: data.vote_count ?? g.vote_count } : g);
+          const maxVotes = Math.max(0, ...updated.map(g => g.vote_count));
+          return updated.map(g => ({ ...g, is_community_top: maxVotes > 0 && g.vote_count === maxVotes ? 1 : 0 }));
+        });
+      }
+    } catch {}
+    setVotingId(null);
+  }
+
   function playGame(game: Game) {
     setActiveGame(game);
     setScoreResult(null);
@@ -214,8 +311,8 @@ export default function JuegosSection() {
 
   if (!loaded || games.length === 0) return null;
 
-  const topGame = games.find(g => g.is_top === 1) ?? null;
-  const otherGames = games.filter(g => g.is_top !== 1);
+  const topGame = games.find(g => g.is_community_top === 1) ?? games.find(g => g.is_top === 1) ?? null;
+  const otherGames = games.filter(g => g.id !== topGame?.id);
 
   return (
     <>
@@ -245,10 +342,19 @@ export default function JuegosSection() {
             )}
           </div>
 
-          {/* TOP game */}
+          {/* TOP game (comunidad) */}
           {topGame && (
             <div style={{ marginBottom: '1.5rem' }}>
-              <GameCard game={topGame} leaders={leaders[topGame.id] ?? []} isTop visitorId={visitor?.id} onPlay={() => playGame(topGame)} />
+              <GameCard
+                game={topGame}
+                leaders={leaders[topGame.id] ?? []}
+                isCommunityTop={topGame.is_community_top === 1}
+                visitorId={visitor?.id}
+                voted={votedGames.has(topGame.id)}
+                voting={votingId === topGame.id}
+                onPlay={() => playGame(topGame)}
+                onVote={() => handleVote(topGame)}
+              />
             </div>
           )}
 
@@ -256,7 +362,17 @@ export default function JuegosSection() {
           {otherGames.length > 0 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
               {otherGames.map(g => (
-                <GameCard key={g.id} game={g} leaders={leaders[g.id] ?? []} isTop={false} visitorId={visitor?.id} onPlay={() => playGame(g)} />
+                <GameCard
+                  key={g.id}
+                  game={g}
+                  leaders={leaders[g.id] ?? []}
+                  isCommunityTop={g.is_community_top === 1}
+                  visitorId={visitor?.id}
+                  voted={votedGames.has(g.id)}
+                  voting={votingId === g.id}
+                  onPlay={() => playGame(g)}
+                  onVote={() => handleVote(g)}
+                />
               ))}
             </div>
           )}

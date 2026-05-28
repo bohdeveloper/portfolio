@@ -195,7 +195,7 @@ export default function JuegosAdminPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
                       <span style={{ color: 'var(--adm-text)', fontSize: '14px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.name}</span>
                       {g.is_top === 1 && (
-                        <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: '#ffc80020', color: '#ffc800', border: '1px solid #ffc80040', flexShrink: 0 }}>⭐ TOP</span>
+                        <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: '#ffc80020', color: '#ffc800', border: '1px solid #ffc80040', flexShrink: 0 }}>⭐ Admin's Pick</span>
                       )}
                     </div>
                     <div style={{ color: 'var(--adm-muted)', fontSize: '11px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -205,7 +205,7 @@ export default function JuegosAdminPage() {
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap' }}>
                     {g.is_top === 0 && (
-                      <button className="gbtn gbtn-top" onClick={() => handleSetTop(g.id)} title="Marcar como TOP">⭐ TOP</button>
+                      <button className="gbtn gbtn-top" onClick={() => handleSetTop(g.id)} title="Marcar como Admin's Pick">⭐ Pick</button>
                     )}
                     <button className="gbtn gbtn-g" onClick={() => openEdit(g)}>Editar</button>
                     <button className="gbtn gbtn-d" onClick={() => handleDelete(g.id)} disabled={deleting === g.id}>Eliminar</button>
@@ -267,7 +267,7 @@ export default function JuegosAdminPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '8px' }}>
                 <label style={{ color: 'var(--adm-text)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" checked={form.is_top === 1} onChange={e => set('is_top', e.target.checked ? 1 : 0)} style={{ width: '16px', height: '16px', accentColor: '#ffc800' }} />
-                  ⭐ Marcar como TOP (aparece destacado y en el botón flotante de la landing)
+                  ⭐ Marcar como Favorito del admin (Admin's Pick — el TOP lo decide la comunidad con votos)
                 </label>
               </div>
             </div>

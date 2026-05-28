@@ -11,6 +11,7 @@ interface Post {
 interface Game {
   id: number; name: string; slug: string; description: string;
   url: string; screenshot: string; is_top: number;
+  vote_count: number; is_community_top: number;
   reactions: Record<string, number>;
 }
 
@@ -113,8 +114,10 @@ export default function BlogPanel() {
       .then(r => r.json())
       .then((res: { ok: boolean; games?: Game[]; top?: Game | null }) => {
         if (res.ok) {
-          setGames(res.games ?? []);
-          setTopGame(res.top ?? null);
+          const gList = res.games ?? [];
+          setGames(gList);
+          // TOP = comunidad (más votos) o admin's pick como fallback
+          setTopGame(res.top ?? gList.find((g: Game) => g.is_community_top === 1) ?? gList.find((g: Game) => g.is_top === 1) ?? null);
           // Inicializar conteos desde API
           const counts: Record<number, Record<string, number>> = {};
           for (const g of (res.games ?? [])) counts[g.id] = g.reactions;
@@ -208,9 +211,10 @@ export default function BlogPanel() {
 
     return (
       <div className="game-card" style={{ borderBottom: '1px solid var(--pnl-border)', padding: '0.875rem 1.25rem', transition: 'background 0.15s' }}>
-        {game.is_top === 1 && (
-          <div style={{ marginBottom: '6px' }}>
-            <span className="game-top-badge">⭐ TOP</span>
+        {(game.is_community_top === 1 || game.is_top === 1) && (
+          <div style={{ marginBottom: '6px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+            {game.is_community_top === 1 && <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.35)', borderRadius: '4px', padding: '1px 6px', fontSize: '9px', fontWeight: 700, color: '#ff6060', letterSpacing: '0.4px' }}>🔥 TOP</span>}
+            {game.is_top === 1 && <span className="game-top-badge">⭐ Admin</span>}
           </div>
         )}
         {game.screenshot ? (
