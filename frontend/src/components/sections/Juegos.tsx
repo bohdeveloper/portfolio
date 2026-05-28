@@ -6,21 +6,10 @@ interface Game {
   id: number; name: string; slug: string; description: string;
   url: string; screenshot: string; is_top: number;
   vote_count: number; is_community_top: number;
-  reactions: Record<string, number>;
+  total_reactions: number; reactions: Record<string, number>;
 }
 
-function getFingerprint(): string {
-  try {
-    let fp = localStorage.getItem('boh_fp');
-    if (!fp) {
-      fp = (typeof crypto !== 'undefined' && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : Math.random().toString(36).slice(2) + Date.now().toString(36);
-      localStorage.setItem('boh_fp', fp);
-    }
-    return fp;
-  } catch { return Math.random().toString(36).slice(2); }
-}
+const EMOJIS = ['👍', '❤️', '🔥', '💡'] as const;
 interface Leader { rank: number; alias: string; score: number; visitor_id: number }
 interface Visitor { id: number; alias: string }
 
@@ -53,9 +42,9 @@ function Leaderboard({ leaders, visitorId, className = '' }: { leaders: Leader[]
 }
 
 /* ── Game card ── */
-function GameCard({ game, leaders, isCommunityTop, visitorId, voted, voting, onPlay, onVote }: {
+function GameCard({ game, leaders, isCommunityTop, visitorId, reacted, counts, onPlay, onReact }: {
   game: Game; leaders: Leader[]; isCommunityTop: boolean; visitorId?: number;
-  voted: boolean; voting: boolean; onPlay: () => void; onVote: () => void;
+  reacted: Set<string>; counts: Record<string, number>; onPlay: () => void; onReact: (emoji: string) => void;
 }) {
   const isAdminPick = game.is_top === 1;
   const borderColor = isCommunityTop ? 'rgba(255,80,80,0.45)' : isAdminPick ? 'rgba(255,200,0,0.3)' : 'var(--jg-border)';
@@ -102,43 +91,42 @@ function GameCard({ game, leaders, isCommunityTop, visitorId, voted, voting, onP
           <Leaderboard leaders={leaders} visitorId={visitorId} />
         </div>
 
-        {/* Acciones */}
-        <div style={{ marginTop: 'auto', display: 'flex', gap: '8px' }}>
-          {/* Botón votar */}
-          <button
-            onClick={onVote}
-            disabled={voting}
-            title={voted ? 'Retirar voto' : 'Votar como favorito'}
-            style={{
-              padding: '8px 12px', background: voted ? 'rgba(255,80,80,0.12)' : 'transparent',
-              border: `1px solid ${voted ? 'rgba(255,80,80,0.5)' : 'var(--jg-border)'}`,
-              borderRadius: '8px', color: voted ? '#ff6060' : 'var(--jg-muted)',
-              fontSize: '13px', cursor: voting ? 'default' : 'pointer', fontFamily: 'inherit',
-              transition: 'all 0.18s', display: 'flex', alignItems: 'center', gap: '5px',
-              opacity: voting ? 0.6 : 1, flexShrink: 0,
-            }}
-            onMouseEnter={e => { if (!voting) { e.currentTarget.style.borderColor = 'rgba(255,80,80,0.5)'; e.currentTarget.style.color = '#ff6060'; } }}
-            onMouseLeave={e => { if (!voted && !voting) { e.currentTarget.style.borderColor = 'var(--jg-border)'; e.currentTarget.style.color = 'var(--jg-muted)'; } }}
-          >
-            <span style={{ fontSize: '15px', lineHeight: 1 }}>{voted ? '❤️' : '🤍'}</span>
-            <span style={{ fontSize: '12px', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{game.vote_count ?? 0}</span>
-          </button>
-
-          <button
-            onClick={onPlay}
-            style={{
-              flex: 1, padding: '8px 0',
-              background: 'transparent', border: `1px solid var(--jg-primary)`,
-              borderRadius: '8px', color: 'var(--jg-primary)',
-              fontSize: isCommunityTop ? '14px' : '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-              transition: 'background 0.18s, color 0.18s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--jg-primary)'; e.currentTarget.style.color = '#000'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--jg-primary)'; }}
-          >
-            Jugar →
-          </button>
+        {/* Reacciones */}
+        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+          {EMOJIS.map(emoji => (
+            <button
+              key={emoji}
+              onClick={() => onReact(emoji)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '3px',
+                padding: '3px 8px', borderRadius: '12px', fontSize: '11px', cursor: 'pointer',
+                border: `1px solid ${reacted.has(emoji) ? 'var(--jg-primary)' : 'var(--jg-border)'}`,
+                background: reacted.has(emoji) ? 'var(--jg-primary)' : 'none',
+                color: reacted.has(emoji) ? '#fff' : 'var(--jg-muted)',
+                fontFamily: 'inherit', transition: 'all 0.12s',
+              }}
+            >
+              <span>{emoji}</span>
+              {(counts[emoji] ?? 0) > 0 && <span style={{ fontWeight: 600 }}>{counts[emoji]}</span>}
+            </button>
+          ))}
         </div>
+
+        {/* Botón jugar */}
+        <button
+          onClick={onPlay}
+          style={{
+            marginTop: 'auto', padding: '8px 0',
+            background: 'transparent', border: `1px solid var(--jg-primary)`,
+            borderRadius: '8px', color: 'var(--jg-primary)',
+            fontSize: isCommunityTop ? '14px' : '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+            transition: 'background 0.18s, color 0.18s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--jg-primary)'; e.currentTarget.style.color = '#000'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--jg-primary)'; }}
+        >
+          Jugar →
+        </button>
       </div>
     </div>
   );
@@ -156,8 +144,8 @@ export default function JuegosSection() {
   const [loginSaving,  setLoginSaving]  = useState(false);
   const [pendingScore, setPendingScore] = useState<number | null>(null);
   const [scoreResult,  setScoreResult]  = useState<{ score: number; rank: number; isRecord: boolean } | null>(null);
-  const [votedGames,   setVotedGames]   = useState<Set<number>>(new Set());
-  const [votingId,     setVotingId]     = useState<number | null>(null);
+  const [gameReacted,  setGameReacted]  = useState<Record<string, Set<string>>>({});
+  const [gameCounts,   setGameCounts]   = useState<Record<number, Record<string, number>>>({});
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const loadLeaderboard = useCallback((gameId: number) => {
@@ -175,18 +163,22 @@ export default function JuegosSection() {
         if (res.ok) {
           setGames(res.games ?? []);
           for (const g of (res.games ?? [])) loadLeaderboard(g.id);
+          const counts: Record<number, Record<string, number>> = {};
+          for (const g of (res.games ?? [])) counts[g.id] = g.reactions ?? {};
+          setGameCounts(counts);
         }
         setLoaded(true);
       }).catch(() => setLoaded(true));
 
-    // Restaurar votos previos del localStorage
+    // Restaurar reacciones previas del localStorage
     try {
-      const fp = getFingerprint();
-      const storedVotes = localStorage.getItem('boh_voted_games');
-      if (storedVotes) setVotedGames(new Set(JSON.parse(storedVotes) as number[]));
-      // Sincronizar con servidor para el fingerprint actual
-      fetch(`/api/games/list`).then(() => {}); // ya está cargado arriba
-      void fp;
+      const stored = localStorage.getItem('game_reacted');
+      if (stored) {
+        const parsed = JSON.parse(stored) as Record<string, string[]>;
+        const result: Record<string, Set<string>> = {};
+        for (const [k, arr] of Object.entries(parsed)) result[k] = new Set(arr);
+        setGameReacted(result);
+      }
     } catch {}
 
     // Restaurar visitante de localStorage
@@ -260,40 +252,36 @@ export default function JuegosSection() {
     setLoginSaving(false);
   }
 
-  async function handleVote(game: Game) {
-    if (votingId !== null) return;
-    const fp = getFingerprint();
-    setVotingId(game.id);
+  function reactToGame(gameId: number, emoji: string) {
+    const key = String(gameId);
+    const reacted = gameReacted[key] ?? new Set<string>();
+    const hasReacted = reacted.has(emoji);
+    const delta = hasReacted ? -1 : 1;
 
-    // Optimistic update
-    const hasVoted = votedGames.has(game.id);
-    const newVoted = new Set(votedGames);
-    if (hasVoted) newVoted.delete(game.id); else newVoted.add(game.id);
-    setVotedGames(newVoted);
-    try { localStorage.setItem('boh_voted_games', JSON.stringify([...newVoted])); } catch {}
-
-    setGames(prev => prev.map(g => g.id === game.id
-      ? { ...g, vote_count: Math.max(0, g.vote_count + (hasVoted ? -1 : 1)) }
-      : g
-    ));
-
+    const newReacted = new Set(reacted);
+    if (hasReacted) newReacted.delete(emoji); else newReacted.add(emoji);
+    const newMap = { ...gameReacted, [key]: newReacted };
+    setGameReacted(newMap);
     try {
-      const res = await fetch('/api/games/vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ game_id: game.id, fingerprint: fp }),
-      });
-      const data: { ok: boolean; vote_count?: number; voted?: boolean } = await res.json();
-      if (data.ok) {
-        // Recalcular is_community_top tras el voto
-        setGames(prev => {
-          const updated = prev.map(g => g.id === game.id ? { ...g, vote_count: data.vote_count ?? g.vote_count } : g);
-          const maxVotes = Math.max(0, ...updated.map(g => g.vote_count));
-          return updated.map(g => ({ ...g, is_community_top: maxVotes > 0 && g.vote_count === maxVotes ? 1 : 0 }));
-        });
-      }
+      const toStore: Record<string, string[]> = {};
+      for (const [k, v] of Object.entries(newMap)) toStore[k] = [...v];
+      localStorage.setItem('game_reacted', JSON.stringify(toStore));
     } catch {}
-    setVotingId(null);
+
+    setGameCounts(prev => ({
+      ...prev,
+      [gameId]: { ...prev[gameId], [emoji]: Math.max(0, ((prev[gameId]?.[emoji]) ?? 0) + delta) },
+    }));
+
+    fetch('/api/games/react', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game_id: gameId, emoji, delta }),
+    }).then(r => r.json()).then((res: { ok: boolean; count?: number }) => {
+      if (res.ok && res.count !== undefined) {
+        setGameCounts(prev => ({ ...prev, [gameId]: { ...prev[gameId], [emoji]: res.count! } }));
+      }
+    }).catch(() => {});
   }
 
   function playGame(game: Game) {
@@ -350,15 +338,14 @@ export default function JuegosSection() {
                 leaders={leaders[topGame.id] ?? []}
                 isCommunityTop={topGame.is_community_top === 1}
                 visitorId={visitor?.id}
-                voted={votedGames.has(topGame.id)}
-                voting={votingId === topGame.id}
+                reacted={gameReacted[String(topGame.id)] ?? new Set()}
+                counts={gameCounts[topGame.id] ?? {}}
                 onPlay={() => playGame(topGame)}
-                onVote={() => handleVote(topGame)}
+                onReact={emoji => reactToGame(topGame.id, emoji)}
               />
             </div>
           )}
 
-          {/* Other games grid */}
           {otherGames.length > 0 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
               {otherGames.map(g => (
@@ -368,10 +355,10 @@ export default function JuegosSection() {
                   leaders={leaders[g.id] ?? []}
                   isCommunityTop={g.is_community_top === 1}
                   visitorId={visitor?.id}
-                  voted={votedGames.has(g.id)}
-                  voting={votingId === g.id}
+                  reacted={gameReacted[String(g.id)] ?? new Set()}
+                  counts={gameCounts[g.id] ?? {}}
                   onPlay={() => playGame(g)}
-                  onVote={() => handleVote(g)}
+                  onReact={emoji => reactToGame(g.id, emoji)}
                 />
               ))}
             </div>
