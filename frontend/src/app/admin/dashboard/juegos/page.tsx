@@ -170,20 +170,16 @@ export default function JuegosAdminPage() {
 
         {view === 'list' ? (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <div>
-                <h1 style={{ color: 'var(--adm-text)', fontSize: '18px', fontWeight: 500 }}>Juegos</h1>
-                <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '2px' }}>{games.length} juego{games.length !== 1 ? 's' : ''}</p>
-              </div>
-              <button className="gbtn gbtn-p" onClick={openNew}>+ Nuevo juego</button>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h1 style={{ color: 'var(--adm-text)', fontSize: '18px', fontWeight: 500 }}>Juegos</h1>
+              <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '2px' }}>{games.length} juego{games.length !== 1 ? 's' : ''} — gestiona cuál es el TOP y edita metadata</p>
             </div>
 
             {loading && <p style={{ color: 'var(--adm-muted)', fontSize: '13px' }}>Cargando...</p>}
 
             {!loading && games.length === 0 && (
               <div style={{ background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '10px', padding: '2rem', textAlign: 'center' }}>
-                <p style={{ color: 'var(--adm-muted)', fontSize: '13px', marginBottom: '1rem' }}>No hay juegos todavía.</p>
-                <button className="gbtn gbtn-p" onClick={openNew}>Añadir el primer juego</button>
+                <p style={{ color: 'var(--adm-muted)', fontSize: '13px' }}>Los juegos se añaden desde el código.</p>
               </div>
             )}
 
@@ -222,9 +218,7 @@ export default function JuegosAdminPage() {
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
               <button className="gbtn gbtn-g" style={{ padding: '6px 10px' }} onClick={() => setView('list')}>←</button>
-              <h1 style={{ color: 'var(--adm-text)', fontSize: '16px', fontWeight: 500 }}>
-                {editId ? 'Editar juego' : 'Nuevo juego'}
-              </h1>
+              <h1 style={{ color: 'var(--adm-text)', fontSize: '16px', fontWeight: 500 }}>Editar juego</h1>
               <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {msg && <span style={{ fontSize: '12px', color: msg.startsWith('✓') ? '#5DCAA5' : '#D85A30' }}>{msg}</span>}
                 <button className="gbtn gbtn-p" onClick={handleSave} disabled={saving}>
