@@ -1,9 +1,12 @@
 interface Env { DB: D1Database; JWT_SECRET: string }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
-  const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+  // CORS wildcard solo para el endpoint público; en modo admin no se envía (misma origen)
+  const isAdmin = new URL(request.url).searchParams.get('admin') === 'true';
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (!isAdmin) headers['Access-Control-Allow-Origin'] = '*';
   const url = new URL(request.url);
-  const adminMode = url.searchParams.get('admin') === 'true';
+  const adminMode = isAdmin;
 
   if (adminMode) {
     const cookie = request.headers.get('Cookie') ?? '';
@@ -27,7 +30,6 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     ).all();
     return new Response(JSON.stringify({ ok: true, data: results }), { status: 200, headers });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers });
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers });
   }
 };

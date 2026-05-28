@@ -18,6 +18,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const { profile_id, year, month, name, amount, type, sort_order = 99 } = body;
   if (!profile_id || !name || year == null || month == null) return bad('Faltan parámetros');
 
+  // Verificar que el perfil pertenece al usuario autenticado
+  const profileOwner = await env.DB.prepare(
+    'SELECT id FROM moneta_profiles WHERE id = ? AND user_id = ?'
+  ).bind(profile_id, auth.user_id).first<{ id: number }>();
+  if (!profileOwner) {
+    return new Response(JSON.stringify({ ok: false, error: 'Forbidden' }), { status: 403, headers: H });
+  }
+
   try {
     const result = await env.DB.prepare(`
       INSERT INTO moneta_items (profile_id, year, month, name, amount, type, user_id, sort_order)

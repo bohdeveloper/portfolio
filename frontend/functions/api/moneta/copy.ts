@@ -21,6 +21,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!from_year || !from_month || !to_year || !to_month)
     return new Response(JSON.stringify({ ok: false, error: 'Faltan parámetros' }), { status: 400, headers: H });
 
+  const validMonths = [1,2,3,4,5,6,7,8,9,10,11,12];
+  if (!validMonths.includes(from_month) || !validMonths.includes(to_month))
+    return new Response(JSON.stringify({ ok: false, error: 'Mes inválido' }), { status: 400, headers: H });
+  if (from_year < 2000 || from_year > 2100 || to_year < 2000 || to_year > 2100)
+    return new Response(JSON.stringify({ ok: false, error: 'Año inválido' }), { status: 400, headers: H });
+
   try {
     /* Inserta todos los ítems del mes origen (sin real_amount) */
     await env.DB.prepare(`

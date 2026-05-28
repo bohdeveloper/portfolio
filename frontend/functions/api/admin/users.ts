@@ -48,8 +48,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     return new Response(JSON.stringify({ ok: true, id: newUserId }), { status: 200, headers: H });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
+    if (err instanceof Error && err.message.includes('UNIQUE')) {
+      return new Response(JSON.stringify({ ok: false, error: 'Username already exists' }), { status: 409, headers: H });
+    }
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }
 };
 
@@ -70,7 +72,10 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
     const vals: unknown[] = [];
     if (body.username !== undefined) { parts.push('username=?'); vals.push(body.username); }
     if (body.password !== undefined) { parts.push('password_hash=?'); vals.push(await bcrypt.hash(body.password, 10)); }
-    if (body.role !== undefined) { parts.push('role=?'); vals.push(body.role); }
+    if (body.role !== undefined) {
+      if (!['super_admin', 'user'].includes(body.role)) return bad('Invalid role');
+      parts.push('role=?'); vals.push(body.role);
+    }
     if (body.active !== undefined) { parts.push('active=?'); vals.push(body.active ? 1 : 0); }
     if (parts.length === 0) return bad('Nothing to update');
 

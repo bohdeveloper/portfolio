@@ -1,17 +1,13 @@
-import { jwtVerify } from 'jose';
+import { verifyAuth } from '../_auth-util';
 
 interface Env { DB: D1Database; JWT_SECRET: string }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
-  const cookie = request.headers.get('Cookie') ?? '';
-  const token = cookie.split(';').find(c => c.trim().startsWith('admin_token='))?.split('=').slice(1).join('=').trim();
-  if (!token) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
-  try {
-    await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
-  } catch {
-    return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth || auth.role !== 'super_admin') {
+    return new Response(JSON.stringify({ ok: false, error: 'Forbidden' }), { status: 403, headers });
   }
 
   let body: {
@@ -27,21 +23,26 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(JSON.stringify({ ok: false, error: 'Missing fields' }), { status: 400, headers });
   }
 
+  // Sanity limits to prevent oversized payloads
+  if (title.length > 500 || slug.length > 200 || tags.length > 500) {
+    return new Response(JSON.stringify({ ok: false, error: 'Field too long' }), { status: 400, headers });
+  }
+
   try {
     if (id) {
       await env.DB.prepare(
-        `UPDATE blog_posts SET slug=?, title=?, excerpt=?, cover_image=?, content=?, tags=?, published=?, reading_time=?, updated_at=datetime('now')
-         WHERE id=?`
+        `UPDATE blog_posts SET slug=?, title=?, excerpt=?, cover_image=?, content=?, tags=?, published=?, reading_time=?, updated_at=datetime('now') WHERE id=?`
       ).bind(slug, title, excerpt, cover_image, content, tags, published, reading_time, id).run();
     } else {
       await env.DB.prepare(
-        `INSERT INTO blog_posts (slug, title, excerpt, cover_image, content, tags, published, reading_time)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO blog_posts (slug, title, excerpt, cover_image, content, tags, published, reading_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(slug, title, excerpt, cover_image, content, tags, published, reading_time).run();
     }
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers });
+    if (err instanceof Error && err.message.includes('UNIQUE')) {
+      return new Response(JSON.stringify({ ok: false, error: 'Slug already exists' }), { status: 409, headers });
+    }
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers });
   }
 };

@@ -1,17 +1,13 @@
-import { jwtVerify } from 'jose';
+import { verifyAuth } from '../_auth-util';
 
 interface Env { DB: D1Database; JWT_SECRET: string }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
-  const cookie = request.headers.get('Cookie') ?? '';
-  const token = cookie.split(';').find(c => c.trim().startsWith('admin_token='))?.split('=').slice(1).join('=').trim();
-  if (!token) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
-  try {
-    await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
-  } catch {
-    return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth || auth.role !== 'super_admin') {
+    return new Response(JSON.stringify({ ok: false, error: 'Forbidden' }), { status: 403, headers });
   }
 
   let body: { id: number };
@@ -21,7 +17,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   if (!body.id) return new Response(JSON.stringify({ ok: false, error: 'Missing id' }), { status: 400, headers });
 
-  await env.DB.prepare('DELETE FROM blog_posts WHERE id = ?').bind(body.id).run();
-
-  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  try {
+    await env.DB.prepare('DELETE FROM blog_posts WHERE id = ?').bind(body.id).run();
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers });
+  }
 };
