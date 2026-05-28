@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 /* ── Per-app icons ── */
@@ -180,6 +180,28 @@ function NeuralCanvas() {
 /* ── Dashboard home ── */
 export default function DashboardPage() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then((res: { ok: boolean; username?: string; role?: string }) => {
+        if (res.ok) {
+          setUsername(res.username || '');
+          setRole(res.role || '');
+        } else {
+          setRole('');
+        }
+      })
+      .catch(() => setRole(''));
+  }, []);
+
+  const visibleApps = role === null
+    ? []
+    : role === 'super_admin'
+      ? APPS
+      : APPS.filter(a => a.name !== 'Blog' && a.name !== 'Usuarios');
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -213,7 +235,7 @@ export default function DashboardPage() {
         </p>
 
         <h1 style={{ color: 'var(--adm-text)', fontSize: '26px', fontWeight: 300, letterSpacing: '-0.3px', marginBottom: '0.5rem' }}>
-          Bienvenido, Borja
+          {username ? `Hola, ${username}` : ' '}
         </h1>
 
         <p style={{ color: 'var(--adm-muted)', fontSize: '13px', marginBottom: '2.5rem' }}>
@@ -222,7 +244,7 @@ export default function DashboardPage() {
 
         {/* App cards */}
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {APPS.map(app => (
+          {visibleApps.map(app => (
             <button
               key={app.path}
               onClick={() => router.push(app.path)}

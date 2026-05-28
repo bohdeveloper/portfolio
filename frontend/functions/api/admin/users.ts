@@ -40,7 +40,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       'INSERT INTO admin_users (username, password_hash, role, active) VALUES (?, ?, ?, 1)'
     ).bind(username, hash, role).run();
 
-    return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id }), { status: 200, headers: H });
+    const newUserId = Number(result.meta.last_row_id);
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO moneta_profiles (user_id, name, sort_order) VALUES (?, ?, ?)').bind(newUserId, 'Pareja', 1),
+      env.DB.prepare('INSERT INTO moneta_profiles (user_id, name, sort_order) VALUES (?, ?, ?)').bind(newUserId, 'Personal', 2),
+    ]);
+
+    return new Response(JSON.stringify({ ok: true, id: newUserId }), { status: 200, headers: H });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Database error';
     return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });

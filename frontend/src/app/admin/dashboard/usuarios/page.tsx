@@ -88,6 +88,7 @@ export default function UsuariosPage() {
     setEditingId(user.id);
     setForm({ username: user.username, password: '', role: user.role });
     setFormMode('edit');
+    setShowPassword(false);
     setShowForm(true);
   };
 
@@ -166,10 +167,10 @@ export default function UsuariosPage() {
               />
             </div>
 
-            {formMode === 'create' && (
+            {(formMode === 'create' || formMode === 'edit') && (
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--adm-muted)', marginBottom: '0.5rem' }}>
-                  Contraseña
+                  Contraseña{formMode === 'edit' && <span style={{ color: 'var(--adm-muted)', fontStyle: 'italic' }}> (dejar vacío para no cambiar)</span>}
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
