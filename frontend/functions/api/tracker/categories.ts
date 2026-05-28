@@ -9,7 +9,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
   const auth = await verifyAuth(request, env.JWT_SECRET);
-  if (!auth || auth.role === 'viewer') return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
   let body: { cat_key?: string; label?: string; color?: string };
   try { body = await request.json(); } catch {
@@ -33,7 +33,7 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
   const auth = await verifyAuth(request, env.JWT_SECRET);
-  if (!auth || auth.role === 'viewer') return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
   let body: { id?: number; label?: string; color?: string };
   try { body = await request.json(); } catch {
@@ -61,7 +61,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
   const auth = await verifyAuth(request, env.JWT_SECRET);
-  if (!auth || auth.role === 'viewer') return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
   const id = parseInt(new URL(request.url).searchParams.get('id') ?? '');
   if (!id) return new Response(JSON.stringify({ ok: false, error: 'Missing id' }), { status: 400, headers });

@@ -3,7 +3,7 @@ import { jwtVerify } from 'jose';
 interface JWTPayload {
   user_id: number;
   username: string;
-  role: 'super_admin' | 'editor' | 'viewer';
+  role: 'super_admin' | 'user';
 }
 
 export async function verifyAuth(request: Request, jwtSecret: string): Promise<JWTPayload | null> {

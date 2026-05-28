@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 interface User {
   id: number;
   username: string;
-  role: 'super_admin' | 'editor' | 'viewer';
+  role: 'super_admin' | 'user';
   active: number;
 }
 
@@ -17,7 +17,7 @@ export default function UsuariosPage() {
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState({ username: '', password: '', role: 'editor' });
+  const [form, setForm] = useState({ username: '', password: '', role: 'user' });
   const [showPassword, setShowPassword] = useState(false);
 
   const loadUsers = async () => {
@@ -62,7 +62,7 @@ export default function UsuariosPage() {
         if (!res.ok) throw new Error('Failed to update user');
       }
       setShowForm(false);
-      setForm({ username: '', password: '', role: 'editor' });
+      setForm({ username: '', password: '', role: 'user' });
       setShowPassword(false);
       setEditingId(null);
       loadUsers();
@@ -114,7 +114,7 @@ export default function UsuariosPage() {
         <button
           onClick={() => {
             setFormMode('create');
-            setForm({ username: '', password: '', role: 'editor' });
+            setForm({ username: '', password: '', role: 'user' });
             setShowPassword(false);
             setEditingId(null);
             setShowForm(true);
@@ -241,9 +241,8 @@ export default function UsuariosPage() {
                   boxSizing: 'border-box',
                 }}
               >
-                <option value="viewer">Viewer (Solo lectura)</option>
-                <option value="editor">Editor (CRUD propio)</option>
-                <option value="super_admin">Super Admin (Todo)</option>
+                <option value="user">Usuario (acceso a apps)</option>
+                <option value="super_admin">Super Admin (control total)</option>
               </select>
             </div>
 

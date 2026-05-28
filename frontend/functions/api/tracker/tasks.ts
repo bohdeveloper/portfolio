@@ -9,7 +9,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
   const auth = await verifyAuth(request, env.JWT_SECRET);
-  if (!auth || auth.role === 'viewer') return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
   let body: { day_index?: number; name?: string; cat_key?: string; start_min?: number; end_min?: number; description?: string; track?: number };
   try { body = await request.json(); } catch {
@@ -38,7 +38,7 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
   const auth = await verifyAuth(request, env.JWT_SECRET);
-  if (!auth || auth.role === 'viewer') return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
   let body: { id?: number; name?: string; cat_key?: string; start_min?: number; end_min?: number; description?: string; track?: number };
   try { body = await request.json(); } catch {
@@ -70,7 +70,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   const headers = { 'Content-Type': 'application/json' };
 
   const auth = await verifyAuth(request, env.JWT_SECRET);
-  if (!auth || auth.role === 'viewer') return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
   const id = parseInt(new URL(request.url).searchParams.get('id') ?? '');
   if (!id) return new Response(JSON.stringify({ ok: false, error: 'Missing id' }), { status: 400, headers });

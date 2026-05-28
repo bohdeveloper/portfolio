@@ -30,9 +30,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const body = await request.json() as {
     username?: string; password?: string; role?: string;
   };
-  const { username, password, role = 'editor' } = body;
+  const { username, password, role = 'user' } = body;
   if (!username || !password) return bad('Missing username or password');
-  if (!['super_admin', 'editor', 'viewer'].includes(role)) return bad('Invalid role');
+  if (!['super_admin', 'user'].includes(role)) return bad('Invalid role');
 
   try {
     const hash = await bcrypt.hash(password, 10);

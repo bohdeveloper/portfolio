@@ -192,9 +192,8 @@
   Borja mantiene el rol super_admin y puede dar de alta usuarios con permisos inferiores.
 
 ### Roles
-# super_admin — acceso total + gestión de usuarios + todos los datos
-# editor      — CRUD completo sobre sus propios datos (Moneta, Tracker)
-# viewer      — solo lectura de sus propios datos, sin crear ni editar
+# super_admin — acceso total + gestión de usuarios + Blog + todos los datos
+# user        — acceso completo a sus apps propias (Tracker, Moneta)
 
 ### D1 — cambios de esquema
 # ALTER TABLE admin_users ADD COLUMN role TEXT NOT NULL DEFAULT 'editor'
