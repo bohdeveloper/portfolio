@@ -45,12 +45,23 @@ function UsersIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+function JuegosIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="6" width="20" height="12" rx="3" />
+      <path d="M6 12h4M8 10v4" />
+      <circle cx="15" cy="11" r="1" fill="currentColor" stroke="none" />
+      <circle cx="18" cy="13" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
 
 const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
   Tracker:  TrackerIcon,
   Blog:     BlogIcon,
   Moneta:   MonetaIcon,
   Usuarios: UsersIcon,
+  Juegos:   JuegosIcon,
 };
 
 /* ── App registry — add new tools here ── */
@@ -69,6 +80,11 @@ const APPS = [
     name: 'Moneta',
     desc: 'Control de ingresos y gastos',
     path: '/admin/dashboard/moneta',
+  },
+  {
+    name: 'Juegos',
+    desc: 'Gestión de minijuegos del portfolio',
+    path: '/admin/dashboard/juegos',
   },
   {
     name: 'Usuarios',

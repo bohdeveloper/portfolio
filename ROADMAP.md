@@ -109,7 +109,7 @@
 
 ---
 
-:: FASE 7 — Panel lateral: Blog + Minijuegos (⬜ PLANIFICADA)
+:: FASE 7 — Panel lateral: Blog + Minijuegos (✅ COMPLETADA)
 · Objetivo: panel lateral con 2 pestañas — el blog ya existente + showcase de minijuegos propios.
   El juego TOP se muestra también como elemento flotante en la landing para captar atención.
 
@@ -134,10 +134,21 @@
 # Reacciones, comentarios y respuestas vinculados a game_id
 # Compartir: URL directa al juego en el portfolio
 
+### Implementación
+# ✅ D1: tabla games (id, name, slug, description, url, screenshot, is_top) + game_reactions
+# ✅ API pública: GET /api/games/list (juegos + reacciones + top)
+# ✅ API pública: POST /api/games/react (toggle emoji, misma lógica que blog)
+# ✅ API admin: POST/DELETE/PATCH /api/games/manage (CRUD + set TOP, super_admin)
+# ✅ BlogPanel: 2 pestañas Blog / Juegos con tab bar compartida
+# ✅ Pestaña Juegos: cards con screenshot, badge ⭐ TOP, descripción, reacciones, link Jugar
+# ✅ TOP game float: botón animado bottom-left con nombre del juego TOP
+# ✅ Admin dashboard: nueva card Juegos
+# ✅ Admin /dashboard/juegos: lista + editor (nombre, slug, desc, URL, screenshot, TOP)
+
 ### Notas de arquitectura
 # Los propios juegos (código de cada juego) se desarrollan en fases posteriores independientes
 # Este esqueleto permite publicar cualquier URL externa o iframe como "juego"
-# URL pública del juego: /juegos/[slug] o panel lateral en landing
+# URL pública del juego: via link directo en panel lateral (URL del juego campo libre)
 
 ---
 
