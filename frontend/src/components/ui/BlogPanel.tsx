@@ -218,9 +218,11 @@ export default function BlogPanel() {
           </div>
         )}
         {game.screenshot ? (
-          <img src={game.screenshot} alt={game.name} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '6px', marginBottom: '8px' }} />
+          <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '6px', marginBottom: '8px', background: '#0a0a0a' }}>
+            <img src={game.screenshot} alt={game.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          </div>
         ) : (
-          <div style={{ width: '100%', height: '50px', borderRadius: '6px', background: 'var(--pnl-border)', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>🎮</div>
+          <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: '6px', background: 'var(--pnl-border)', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🎮</div>
         )}
         <h3 style={{ color: 'var(--pnl-text)', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>{game.name}</h3>
         {game.description && (

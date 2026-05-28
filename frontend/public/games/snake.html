@@ -19,20 +19,20 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a}
 #overlay{
   position:absolute;inset:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;
+  gap:clamp(12px,3vw,22px);
   background:rgba(8,8,8,0.93);
   border-radius:10px;
-  padding:1.5rem;
+  padding:2rem;
   text-align:center;
 }
-#overlay .tagline{font-size:11px;color:#444;letter-spacing:0.5px}
+#overlay .tagline{font-size:clamp(11px,2.5vw,14px);color:#555;letter-spacing:0.3px}
 #overlay .final{font-size:clamp(36px,12vw,64px);font-weight:800;color:#00e7eb;line-height:1}
 #overlay .result-msg{font-size:12px;color:#555}
 #btn{
-  padding:10px 32px;
+  padding:clamp(10px,2.5vw,14px) clamp(28px,8vw,48px);
   border:1px solid #00e7eb;border-radius:8px;
   background:transparent;color:#00e7eb;
-  font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  font-size:clamp(13px,3.5vw,17px);font-weight:600;cursor:pointer;font-family:inherit;
   transition:background .18s,color .18s;
   letter-spacing:0.5px;
 }
@@ -44,11 +44,11 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a}
 <div id="wrap">
   <canvas id="c"></canvas>
   <div id="overlay">
-    <div style="font-size:clamp(28px,10vw,48px)">🐍</div>
-    <div style="font-size:clamp(16px,5vw,22px);font-weight:600;color:#e8e6e0">Snake</div>
-    <div class="tagline">¡Los bordes matan! · Evita los bloques rojos</div>
+    <div style="font-size:clamp(56px,16vw,96px);line-height:1">🐍</div>
+    <div style="font-size:clamp(28px,8vw,48px);font-weight:700;color:#e8e6e0;letter-spacing:-1px">Snake</div>
+    <div class="tagline">¡Los bordes matan! · Evita los bloques <span style="color:#ff6060">rojos</span></div>
     <button id="btn" onclick="start()">Jugar</button>
-    <div id="hint">↑ ↓ ← → / WASD</div>
+    <div id="hint">↑ ↓ ← → &nbsp;/&nbsp; WASD &nbsp;/&nbsp; Deslizar</div>
   </div>
 </div>
 

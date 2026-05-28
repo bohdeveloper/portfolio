@@ -238,7 +238,7 @@ export default function DashboardPage() {
     }}>
       <NeuralCanvas />
 
-      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 1.5rem' }}>
+      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '2rem 1.5rem' }}>
         <p style={{
           color: 'var(--primary)',
           fontSize: '10px',
@@ -259,7 +259,11 @@ export default function DashboardPage() {
         </p>
 
         {/* App cards */}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <style>{`
+          .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.875rem; max-width: 480px; margin: 0 auto; }
+          @media (min-width: 640px) { .dash-grid { grid-template-columns: repeat(3, 1fr); max-width: 680px; } }
+        `}</style>
+        <div className="dash-grid">
           {visibleApps.map(app => (
             <button
               key={app.path}
@@ -268,10 +272,10 @@ export default function DashboardPage() {
                 background: 'var(--adm-card)',
                 border: '1px solid var(--primary)',
                 borderRadius: '12px',
-                padding: '1.5rem 2rem',
+                padding: '1.25rem 1.25rem',
                 cursor: 'pointer',
                 textAlign: 'left',
-                minWidth: '180px',
+                width: '100%',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 transition: 'transform 0.15s, box-shadow 0.2s',
