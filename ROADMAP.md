@@ -139,6 +139,30 @@
 
 ---
 
+:: APP — Bioptima (⬜ PLANIFICADA)
+· Seguimiento deportivo, cálculos y evolución personal.
+
+### Funcionalidades previstas
+# Registro de entrenamientos: tipo, duración, series/repeticiones, carga
+# Métricas biométricas: peso, frecuencia cardíaca, VO2max estimado
+# Evolución gráfica: progreso en el tiempo por métrica y ejercicio
+# Calculadoras deportivas: RM, TDEE, macros, ritmo de carrera
+# Integración con el tracker de hábitos
+
+---
+
+:: APP — TintAI (⬜ PLANIFICADA)
+· Ebooks didácticos generados por IA.
+
+### Funcionalidades previstas
+# Generación de ebooks temáticos con Claude AI
+# Biblioteca personal de ebooks generados
+# Lectura en app con progreso guardado
+# Categorías: programación, filosofía, ciencia, idiomas...
+# Admin: configurar temas, prompts y parámetros de generación
+
+---
+
 :: FASE 8 — Proyectos dinámicos + páginas individuales (⬜ PLANIFICADA)
 · Objetivo: proyectos en D1, páginas SEO por proyecto.
 

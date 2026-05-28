@@ -28,6 +28,31 @@ CREATE TABLE IF NOT EXISTS tracker_notes (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS tracker_categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  cat_key TEXT NOT NULL,
+  label TEXT NOT NULL,
+  color TEXT NOT NULL DEFAULT '#666',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(user_id, cat_key)
+);
+
+CREATE TABLE IF NOT EXISTS tracker_tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  day_index INTEGER NOT NULL,
+  activity_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  cat_key TEXT NOT NULL,
+  start_min INTEGER NOT NULL,
+  end_min INTEGER NOT NULL,
+  description TEXT DEFAULT '',
+  track INTEGER NOT NULL DEFAULT 1,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(user_id, day_index, activity_id)
+);
+
 CREATE TABLE IF NOT EXISTS blog_posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   slug TEXT NOT NULL UNIQUE,

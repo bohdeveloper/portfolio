@@ -1,7 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { CATS, DIAS, DIAS_F, SCHED, SCHED_V2, SCHED_SWITCH, Activity, tm } from './tracker-data';
+import { CATS, DIAS, DIAS_F, SCHED, SCHED_SWITCH, Activity } from './tracker-data';
+
+const CAT_CLS: Record<string, string> = {
+  kronoshin: 'ckr', mente: 'cm', flex: 'cf', prep: 'cp',
+  trabajo: 'cw', cardio: 'cc', shaolin: 'cs', psicologo: 'cpsi',
+  dormir: 'cd', libre: 'cl',
+};
 
 const TRACKER_CSS = `
 #tracker-root{font-family:system-ui,sans-serif;font-size:14px;background:#0f0f0f;color:#e8e6e0;padding-bottom:2rem}
@@ -87,9 +93,35 @@ const TRACKER_CSS = `
 .modal textarea{width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:8px;font-size:13px;color:#e8e6e0;resize:vertical;min-height:65px;font-family:inherit}
 .modal-btns{display:flex;gap:8px;margin-top:.65rem;justify-content:flex-end}
 .hidden{display:none}
+.cfg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.cfg-hdr h3{font-size:13px;font-weight:500;color:#e8e6e0;margin:0}
+.cat-row{display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid #222}
+.cat-row:last-child{border-bottom:none}
+.cat-sw{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.15);cursor:pointer}
+.cat-label{flex:1;font-size:13px;color:#ccc}
+.task-row{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid #1e1e1e;cursor:pointer;border-radius:4px}
+.task-row:hover{background:#222;margin:0 -4px;padding:7px 8px}
+.task-row:last-child{border-bottom:none}
+.task-time{font-size:11px;color:#555;width:86px;flex-shrink:0}
+.task-name{flex:1;font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-badge{font-size:10px;padding:2px 6px;border-radius:3px;color:#fff;flex-shrink:0;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-track{font-size:11px;flex-shrink:0;width:14px;text-align:center}
+.day-tabs-cfg{display:flex;gap:4px;margin-bottom:.75rem;flex-wrap:wrap}
+.dt-btn{padding:4px 10px;border-radius:5px;border:1px solid #2a2a2a;background:#1e1e1e;cursor:pointer;font-size:11px;color:#888}
+.dt-btn.active{background:#1D6B45;border-color:#1D6B45;color:#fff}
+.btn-sm{padding:4px 10px;border-radius:5px;border:1px solid #2a2a2a;background:#1e1e1e;cursor:pointer;font-size:11px;color:#ccc}
+.btn-sm:hover{background:#2a2a2a}
+.btn-del{color:#D85A30!important;border-color:#4a1010!important;background:#150808!important}
+.btn-del:hover{background:#200e0e!important}
+.cfg-empty{font-size:12px;color:#444;padding:.4rem 0;font-style:italic;margin:0}
+.form-row{margin-bottom:.6rem}
+.form-row label{display:block;font-size:11px;color:#666;margin-bottom:3px}
+.form-row input,.form-row select,.form-row textarea{width:100%;background:#111;border:1px solid #2a2a2a;border-radius:6px;padding:6px 8px;font-size:12px;color:#e8e6e0;font-family:inherit;box-sizing:border-box}
+.form-row textarea{resize:vertical;min-height:48px}
+.form-row select option{background:#1a1a1a;color:#e8e6e0}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 `;
 
-/* Light-mode overrides */
 const LIGHT_CSS = `
 html.light #tracker-root{background:#f5f5f5;color:#1a1a1a}
 html.light .header-bar{background:#fff;border-bottom-color:#e0e0e0}
@@ -130,18 +162,29 @@ html.light .modal h3{color:#1a1a1a}
 html.light .modal-sub{color:#777}
 html.light .modal textarea{background:#f5f5f5;border-color:#e0e0e0;color:#1a1a1a}
 html.light .week-nav span{color:#1a1a1a}
+html.light .cfg-hdr h3{color:#1a1a1a}
+html.light .cat-row{border-bottom-color:#e8e8e8}
+html.light .cat-label{color:#333}
+html.light .task-row:hover{background:#f0f0f0}
+html.light .task-time{color:#999}
+html.light .task-name{color:#333}
+html.light .dt-btn{background:#f0f0f0;border-color:#d0d0d0;color:#666}
+html.light .btn-sm{background:#f0f0f0;border-color:#d0d0d0;color:#333}
+html.light .btn-sm:hover{background:#e0e0e0}
+html.light .form-row input,html.light .form-row select,html.light .form-row textarea{background:#f5f5f5;border-color:#e0e0e0;color:#1a1a1a}
 `;
 
 const TRACKER_HTML = `
 <div class="header-bar">
-  <h2>⚡ Transformación Integral — Borja</h2>
-  <p>Estoicismo · Shaolin · BIZIKI — Fase 1: Fundación</p>
+  <h2 id="tracker-username">⚡ Tracker</h2>
+  <p id="tracker-subtitle"></p>
 </div>
 <div class="tabs">
   <button class="tab active" id="tab-semana">Semana</button>
   <button class="tab" id="tab-estadisticas">Estadísticas</button>
   <button class="tab" id="tab-resumen">Resumen</button>
   <button class="tab" id="tab-perdidas">Perdidas</button>
+  <button class="tab" id="tab-configurar">Configurar</button>
 </div>
 <div id="semana" class="page active">
   <div class="week-nav">
@@ -169,6 +212,16 @@ const TRACKER_HTML = `
 <div id="perdidas" class="page">
   <div id="perdidas-list"><p style="color:#555;font-size:13px">Sin actividades perdidas esta semana.</p></div>
 </div>
+<div id="configurar" class="page">
+  <div class="card" style="margin-bottom:1rem" id="cfg-cats-card">
+    <div id="cfg-cats"></div>
+  </div>
+  <div class="card">
+    <div class="cfg-hdr"><h3>Tareas</h3></div>
+    <div class="day-tabs-cfg" id="cfg-day-tabs"></div>
+    <div id="cfg-tasks-list"></div>
+  </div>
+</div>
 <div class="tip" id="tip"><strong id="tip-title"></strong><span id="tip-desc"></span><em class="tip-reason" id="tip-reason"></em></div>
 <div id="modal" class="modal-bg hidden">
   <div class="modal">
@@ -180,6 +233,16 @@ const TRACKER_HTML = `
       <button class="btn" id="modal-cancel">Cancelar</button>
       <button class="btn btn-miss" id="modal-miss">✗ Perdida</button>
       <button class="btn btn-done" id="modal-done">✓ Completada</button>
+    </div>
+  </div>
+</div>
+<div id="edit-modal" class="modal-bg hidden">
+  <div class="modal" style="width:380px;max-width:94vw">
+    <h3 id="em-title" style="margin-bottom:.75rem;font-size:14px;color:#e8e6e0"></h3>
+    <div id="em-body"></div>
+    <div class="modal-btns" style="margin-top:.75rem">
+      <button class="btn" id="em-cancel">Cancelar</button>
+      <button class="btn btn-done" id="em-save">Guardar</button>
     </div>
   </div>
 </div>
@@ -204,15 +267,25 @@ function getDays(off: number): Date[] {
   for (let i = 0; i < 7; i++) { const d = new Date(ws); d.setDate(ws.getDate() + i); days.push(d); }
   return days;
 }
-
-/* Returns the correct schedule for a given day, switching to V2 from SCHED_SWITCH */
-function getSchedForDay(di: number, dayDate: Date): Activity[] {
-  return dk(dayDate) >= SCHED_SWITCH ? (SCHED_V2[di] || []) : (SCHED[di] || []);
+function minToTime(min: number): string {
+  const h = Math.floor(min / 60), m = min % 60;
+  return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+}
+function timeToMin(t: string): number {
+  const [h, m] = t.split(':').map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+function slugCat(label: string): string {
+  const s = label.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 20);
+  return s || 'cat_' + Date.now().toString(36);
 }
 
 type StateRecord = { done: boolean; reason: string; ts: number | string };
+interface DynCat { id: number; cat_key: string; label: string; color: string; }
+interface RawTask { id: number; day_index: number; activity_id: string; name: string; cat_key: string; start_min: number; end_min: number; description: string; track: number; }
 
-// ── Tracker logic (vanilla DOM, runs inside useEffect) ─────────────────────────
 function initTracker() {
   const PX_PER_MIN = 1.6;
   const DAY_START  = 5 * 60;
@@ -223,6 +296,60 @@ function initTracker() {
   let weekOffset = 0;
   let pending: { dKey: string; act: Activity; dayIdx: number } | null = null;
   let chart: unknown = null;
+  let userId = 0;
+  let dynCats: Record<string, DynCat> = {};
+  let dynTasksByDay: Activity[][] = Array.from({ length: 7 }, () => []);
+  let rawTaskMap: Record<string, RawTask> = {};
+  let cfgDayIdx = 0;
+  let editMode: 'cat' | 'task' = 'cat';
+  let editCatId = 0;
+  let editTaskId = 0;
+
+  function getCatInfo(key: string): { label: string; color: string } {
+    if (dynCats[key]) return dynCats[key];
+    const c = CATS[key];
+    return c ? { label: c.label, color: c.color } : { label: key, color: '#555' };
+  }
+
+  function applyScheduleData(res: { ok: boolean; user_id?: number; categories?: DynCat[]; tasks?: RawTask[] }) {
+    if (!res.ok) return;
+    userId = res.user_id ?? 0;
+    dynCats = {};
+    for (const c of (res.categories ?? [])) dynCats[c.cat_key] = c;
+    rawTaskMap = {};
+    dynTasksByDay = Array.from({ length: 7 }, () => []);
+    for (const t of (res.tasks ?? [])) {
+      dynTasksByDay[t.day_index].push({ id: t.activity_id, name: t.name, cat: t.cat_key, start: t.start_min, end: t.end_min, desc: t.description, track: !!t.track });
+      rawTaskMap[t.day_index + '_' + t.activity_id] = t;
+    }
+    if (userId === 1) {
+      document.getElementById('tracker-username')!.textContent = '⚡ Transformación Integral — Borja';
+      document.getElementById('tracker-subtitle')!.textContent = 'Estoicismo · Shaolin · BIZIKI — Fase 1: Fundación';
+    } else {
+      document.getElementById('tracker-username')!.textContent = '⚡ Mi tracker';
+    }
+  }
+
+  function loadSchedule() {
+    fetch('/api/tracker/schedule')
+      .then(r => r.json())
+      .then((res: { ok: boolean; user_id?: number; categories?: DynCat[]; tasks?: RawTask[] }) => {
+        applyScheduleData(res);
+        loadState();
+      })
+      .catch(() => loadState());
+  }
+
+  function reloadSchedule() {
+    fetch('/api/tracker/schedule')
+      .then(r => r.json())
+      .then((res: { ok: boolean; user_id?: number; categories?: DynCat[]; tasks?: RawTask[] }) => {
+        applyScheduleData(res);
+        renderAll();
+        if (document.getElementById('configurar')?.classList.contains('active')) renderConfig();
+      })
+      .catch(() => {});
+  }
 
   // ── API ──────────────────────────────────────────────────────────────────────
   function loadState() {
@@ -248,7 +375,18 @@ function initTracker() {
     }).catch(() => {});
   }
 
-  function renderAll() { renderWeek(); renderStats(); renderResumen(); renderPerdidas(); }
+  function renderAll() {
+    renderWeek();
+    renderStats();
+    renderResumen();
+    renderPerdidas();
+    if (document.getElementById('configurar')?.classList.contains('active')) renderConfig();
+  }
+
+  function getSchedForDay(di: number, dayDate: Date): Activity[] {
+    if (userId === 1 && dk(dayDate) < SCHED_SWITCH) return SCHED[di] || [];
+    return dynTasksByDay[di] || [];
+  }
 
   // ── Tooltip ──────────────────────────────────────────────────────────────────
   const tipEl = document.getElementById('tip')!;
@@ -256,12 +394,8 @@ function initTracker() {
     document.getElementById('tip-title')!.textContent = name;
     document.getElementById('tip-desc')!.textContent = desc;
     const tipReason = document.getElementById('tip-reason')!;
-    if (reason) {
-      tipReason.textContent = '"' + reason + '"';
-      tipReason.style.display = 'block';
-    } else {
-      tipReason.style.display = 'none';
-    }
+    if (reason) { tipReason.textContent = '"' + reason + '"'; tipReason.style.display = 'block'; }
+    else { tipReason.style.display = 'none'; }
     tipEl.classList.add('on');
     posTip(e);
   }
@@ -331,8 +465,6 @@ function initTracker() {
     body.appendChild(timeCol);
 
     let totalActs = 0, doneActs = 0, missActs = 0;
-
-    /* Dynamic legend: collect categories present this week */
     const catSet = new Set<string>();
 
     for (let di = 0; di < 7; di++) {
@@ -345,13 +477,21 @@ function initTracker() {
         const topPx = ((act.start - DAY_START) / totalMins) * totalH;
         const hPx   = ((act.end - act.start) / totalMins) * totalH;
         const rec   = state[ak(dKey, act.id)];
-        const cat   = CATS[act.cat] || CATS.libre;
+        const catInfo = getCatInfo(act.cat);
+        const cls = CAT_CLS[act.cat] || '';
 
         if (act.cat !== 'prep' && act.cat !== 'libre' && act.cat !== 'dormir') catSet.add(act.cat);
 
         const el = document.createElement('button');
-        el.className = 'ab ' + cat.cls;
-        el.style.cssText = `top:${topPx}px;height:${hPx}px;`;
+        if (cls) {
+          el.className = 'ab ' + cls;
+        } else {
+          el.className = 'ab';
+          el.style.background = catInfo.color;
+          el.style.borderLeftColor = 'rgba(255,255,255,.25)';
+        }
+        el.style.top = topPx + 'px';
+        el.style.height = hPx + 'px';
         const timeStr = fmt(act.start) + '–' + fmt(act.end);
         if (hPx >= 28)      el.innerHTML = `<span>${act.name}</span><span class="ab-time">${timeStr}</span>`;
         else if (hPx >= 16) el.innerHTML = `<span style="font-size:9px">${act.name}</span>`;
@@ -365,7 +505,6 @@ function initTracker() {
             el.onclick = () => openModal(dk2, a, di2, DIAS_F[di2] + ' ' + d3.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
           })(dKey, act, di, d2);
         }
-        /* Tooltip with reason on hover */
         ((a: Activity, dstr: string) => {
           el.addEventListener('mouseenter', e => {
             const r = state[ak(dstr, a.id)];
@@ -388,19 +527,19 @@ function initTracker() {
       `<div class="mc"><div class="mc-v" style="color:#D85A30">${missActs}</div><div class="mc-l">Perdidas</div></div>` +
       `<div class="mc"><div class="mc-v" style="color:#666">${totalActs - doneActs - missActs}</div><div class="mc-l">Pendientes</div></div>`;
 
-    /* Legend — dynamic, sorted by category order in CATS */
-    const catOrder = Object.keys(CATS);
-    const sortedCats = [...catSet].sort((a, b) => catOrder.indexOf(a) - catOrder.indexOf(b));
-    document.getElementById('legend')!.innerHTML = sortedCats.map(c =>
-      `<div class="li"><div class="ld" style="background:${CATS[c].color}"></div>${CATS[c].label}</div>`
-    ).join('');
+    const catOrderKeys = Object.keys(dynCats).length > 0 ? Object.keys(dynCats) : Object.keys(CATS);
+    const sortedCats = [...catSet].sort((a, b) => catOrderKeys.indexOf(a) - catOrderKeys.indexOf(b));
+    document.getElementById('legend')!.innerHTML = sortedCats.map(c => {
+      const info = getCatInfo(c);
+      return `<div class="li"><div class="ld" style="background:${info.color}"></div>${info.label}</div>`;
+    }).join('');
 
     const wrap = document.getElementById('sched-wrap')!;
-    const scrollTo = ((tm(5, 30) - DAY_START) / totalMins) * totalH + 34;
+    const scrollTo = ((5 * 60 + 30 - DAY_START) / (DAY_END - DAY_START)) * totalH + 34;
     wrap.scrollTop = Math.max(0, scrollTo - 30);
   }
 
-  // ── Modal ─────────────────────────────────────────────────────────────────────
+  // ── Modal (tracking) ─────────────────────────────────────────────────────────
   function openModal(dKey: string, act: Activity, dayIdx: number, dayLabel: string) {
     pending = { dKey, act, dayIdx };
     document.getElementById('m-title')!.textContent = act.name;
@@ -424,8 +563,9 @@ function initTracker() {
   // ── Stats ─────────────────────────────────────────────────────────────────────
   function renderStats() {
     const days = getDays(weekOffset);
+    const catKeys = Object.keys(dynCats).length > 0 ? Object.keys(dynCats) : Object.keys(CATS);
     const catData: Record<string, { total: number; done: number }> = {};
-    Object.keys(CATS).forEach(k => catData[k] = { total: 0, done: 0 });
+    catKeys.forEach(k => catData[k] = { total: 0, done: 0 });
     const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0];
 
     for (let di = 0; di < 7; di++) {
@@ -433,6 +573,7 @@ function initTracker() {
       for (const act of getSchedForDay(di, days[di])) {
         if (!act.track) continue;
         const rec = state[ak(dKey, act.id)];
+        if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0 };
         catData[act.cat].total++; dt[di]++;
         if (rec && rec.done) { catData[act.cat].done++; dd[di]++; }
       }
@@ -451,12 +592,13 @@ function initTracker() {
       `<div class="mc"><div class="mc-v" style="color:#D85A30">${miss}</div><div class="mc-l">Perdidas</div></div>` +
       `<div class="mc"><div class="mc-v" style="color:#534AB7">${streak}</div><div class="mc-l">Días perfectos</div></div>`;
 
-    document.getElementById('cat-bars')!.innerHTML = Object.keys(CATS)
-      .filter(k => catData[k].total > 0)
+    document.getElementById('cat-bars')!.innerHTML = catKeys
+      .filter(k => catData[k] && catData[k].total > 0)
       .map(k => {
         const { total: t, done: d } = catData[k];
-        const p = Math.round(d / t * 100), col = CATS[k].color;
-        return `<div class="cr"><span class="cn">${CATS[k].label}</span><div style="flex:1"><div class="pb"><div class="pf" style="width:${p}%;background:${col}"></div></div></div><span class="cpct" style="color:${col}">${p}%</span></div>`;
+        const p = Math.round(d / t * 100);
+        const info = getCatInfo(k);
+        return `<div class="cr"><span class="cn">${info.label}</span><div style="flex:1"><div class="pb"><div class="pf" style="width:${p}%;background:${info.color}"></div></div></div><span class="cpct" style="color:${info.color}">${p}%</span></div>`;
       }).join('');
 
     if (chart) { (chart as { destroy(): void }).destroy(); chart = null; }
@@ -483,8 +625,9 @@ function initTracker() {
   // ── Resumen ───────────────────────────────────────────────────────────────────
   function renderResumen() {
     const days = getDays(weekOffset);
+    const catKeys = Object.keys(dynCats).length > 0 ? Object.keys(dynCats) : Object.keys(CATS);
     const catData: Record<string, { total: number; done: number }> = {};
-    Object.keys(CATS).forEach(k => catData[k] = { total: 0, done: 0 });
+    catKeys.forEach(k => catData[k] = { total: 0, done: 0 });
     const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0];
     let total = 0, done = 0;
 
@@ -493,6 +636,7 @@ function initTracker() {
       for (const act of getSchedForDay(di, days[di])) {
         if (!act.track) continue;
         const rec = state[ak(dKey, act.id)];
+        if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0 };
         total++; dt[di]++; catData[act.cat].total++;
         if (rec && rec.done) { done++; dd[di]++; catData[act.cat].done++; }
       }
@@ -506,7 +650,7 @@ function initTracker() {
     for (let i = 1; i < 7; i++) if (dd[i] > dd[bestD]) bestD = i;
     let worstD = 0;
     for (let i = 1; i < 7; i++) { const ra = dt[i] > 0 ? dd[i]/dt[i] : 1, rb = dt[worstD] > 0 ? dd[worstD]/dt[worstD] : 1; if (ra < rb) worstD = i; }
-    const sorted = Object.keys(CATS).filter(k => catData[k].total > 0).sort((a, b) => (catData[b].done/catData[b].total) - (catData[a].done/catData[a].total));
+    const sorted = catKeys.filter(k => catData[k] && catData[k].total > 0).sort((a, b) => (catData[b].done/catData[b].total) - (catData[a].done/catData[a].total));
     const bestCat = sorted[0], worstCat = sorted[sorted.length - 1];
     const miss = Object.values(state).filter(v => !v.done).length;
 
@@ -514,8 +658,8 @@ function initTracker() {
       `<div class="sb"><p style="font-weight:500">Cumplimiento global: ${pct}%</p><p style="font-size:11px;color:#555;margin-top:2px">${done} de ${total} actividades rastreadas.</p></div>` +
       `<div class="sb"><p style="font-weight:500">Mejor día: ${DIAS_F[bestD]}</p><p style="font-size:11px;color:#555;margin-top:2px">${dd[bestD]}/${dt[bestD]} actividades.</p></div>` +
       `<div class="sb sw"><p style="font-weight:500">Día a mejorar: ${DIAS_F[worstD]}</p><p style="font-size:11px;color:#555;margin-top:2px">${dd[worstD]}/${dt[worstD]} actividades.</p></div>`;
-    if (bestCat) { const bc = catData[bestCat]; html += `<div class="sb"><p style="font-weight:500">Mejor categoría: ${CATS[bestCat].label}</p><p style="font-size:11px;color:#555;margin-top:2px">${bc.done}/${bc.total} (${Math.round(bc.done/bc.total*100)}%)</p></div>`; }
-    if (worstCat && worstCat !== bestCat) { const wc = catData[worstCat]; html += `<div class="sb sw"><p style="font-weight:500">Reforzar: ${CATS[worstCat].label}</p><p style="font-size:11px;color:#555;margin-top:2px">${wc.done}/${wc.total} (${Math.round(wc.done/wc.total*100)}%)</p></div>`; }
+    if (bestCat) { const bc = catData[bestCat]; html += `<div class="sb"><p style="font-weight:500">Mejor categoría: ${getCatInfo(bestCat).label}</p><p style="font-size:11px;color:#555;margin-top:2px">${bc.done}/${bc.total} (${Math.round(bc.done/bc.total*100)}%)</p></div>`; }
+    if (worstCat && worstCat !== bestCat) { const wc = catData[worstCat]; html += `<div class="sb sw"><p style="font-weight:500">Reforzar: ${getCatInfo(worstCat).label}</p><p style="font-size:11px;color:#555;margin-top:2px">${wc.done}/${wc.total} (${Math.round(wc.done/wc.total*100)}%)</p></div>`; }
     html += `<div class="sb sw"><p style="font-weight:500">Perdidas: ${miss}</p>${miss === 0 ? '<p style="font-size:11px;color:#5DCAA5;margin-top:2px">¡Semana perfecta!</p>' : ''}</div>`;
     html += `<p style="font-size:10px;color:#333;margin-top:1rem;font-style:italic">"Pierde la batalla, nunca la guerra." — Estoicismo</p>`;
     el.innerHTML = html;
@@ -535,9 +679,177 @@ function initTracker() {
     }
     const el = document.getElementById('perdidas-list')!;
     if (missed.length === 0) { el.innerHTML = '<p style="color:#555;font-size:13px">Sin actividades perdidas. ¡Camino de guerrero! ⚡</p>'; return; }
-    el.innerHTML = missed.map(m =>
-      `<div class="mi"><div class="mi-d">${m.day} · <span style="color:${CATS[m.act.cat].color}">${CATS[m.act.cat].label}</span></div><div class="mi-n">${m.act.name}</div><div class="mi-r">${m.reason ? '"' + m.reason + '"' : 'Sin motivo registrado'}</div></div>`
+    el.innerHTML = missed.map(m => {
+      const info = getCatInfo(m.act.cat);
+      return `<div class="mi"><div class="mi-d">${m.day} · <span style="color:${info.color}">${info.label}</span></div><div class="mi-n">${m.act.name}</div><div class="mi-r">${m.reason ? '"' + m.reason + '"' : 'Sin motivo registrado'}</div></div>`;
+    }).join('');
+  }
+
+  // ── Configurar tab ────────────────────────────────────────────────────────────
+  function renderConfig() {
+    renderCatsList();
+    renderDayTabs();
+    renderTasksList();
+  }
+
+  function renderCatsList() {
+    const cats = Object.values(dynCats);
+    let inner = `<div class="cfg-hdr"><h3>Categorías</h3><button class="btn-sm" id="btn-add-cat">+ Añadir</button></div>`;
+    if (cats.length === 0) {
+      inner += `<p class="cfg-empty">Sin categorías. Añade una para empezar.</p>`;
+    } else {
+      inner += cats.map(c =>
+        `<div class="cat-row">` +
+        `<div class="cat-sw" style="background:${c.color}" data-cid="${c.id}" title="Editar color"></div>` +
+        `<span class="cat-label">${c.label}</span>` +
+        `<button class="btn-sm btn-edit-cat" data-cid="${c.id}" title="Editar">✎</button>` +
+        `<button class="btn-sm btn-del btn-del-cat" data-cid="${c.id}" title="Eliminar">✕</button>` +
+        `</div>`
+      ).join('');
+    }
+    document.getElementById('cfg-cats')!.innerHTML = inner;
+
+    document.getElementById('btn-add-cat')?.addEventListener('click', () => openCatModal(0));
+    document.querySelectorAll('.btn-edit-cat').forEach(btn =>
+      btn.addEventListener('click', () => openCatModal(parseInt((btn as HTMLElement).dataset.cid || '0')))
+    );
+    document.querySelectorAll('.cat-sw').forEach(sw =>
+      sw.addEventListener('click', () => openCatModal(parseInt((sw as HTMLElement).dataset.cid || '0')))
+    );
+    document.querySelectorAll('.btn-del-cat').forEach(btn =>
+      btn.addEventListener('click', () => {
+        const id = parseInt((btn as HTMLElement).dataset.cid || '0');
+        if (!id || !confirm('¿Eliminar esta categoría?')) return;
+        fetch('/api/tracker/categories?id=' + id, { method: 'DELETE' })
+          .then(() => reloadSchedule())
+          .catch(() => {});
+      })
+    );
+  }
+
+  function renderDayTabs() {
+    const el = document.getElementById('cfg-day-tabs');
+    if (!el) return;
+    el.innerHTML = DIAS.map((d, i) =>
+      `<button class="dt-btn${i === cfgDayIdx ? ' active' : ''}" data-di="${i}">${d}</button>`
     ).join('');
+    el.querySelectorAll('.dt-btn').forEach(btn =>
+      btn.addEventListener('click', () => {
+        cfgDayIdx = parseInt((btn as HTMLElement).dataset.di || '0');
+        renderDayTabs();
+        renderTasksList();
+      })
+    );
+  }
+
+  function renderTasksList() {
+    const el = document.getElementById('cfg-tasks-list');
+    if (!el) return;
+    const tasks = (dynTasksByDay[cfgDayIdx] || []).slice().sort((a, b) => a.start - b.start);
+    let html = '';
+    if (tasks.length === 0) {
+      html = `<p class="cfg-empty">Sin tareas para el ${DIAS_F[cfgDayIdx]}.</p>`;
+    } else {
+      html = tasks.map(t => {
+        const raw = rawTaskMap[cfgDayIdx + '_' + t.id];
+        const info = getCatInfo(t.cat);
+        return `<div class="task-row" data-aid="${t.id}">` +
+          `<span class="task-time">${fmt(t.start)}–${fmt(t.end)}</span>` +
+          `<span class="task-name">${t.name}</span>` +
+          `<span class="task-badge" style="background:${info.color}">${info.label}</span>` +
+          `<span class="task-track" style="color:${t.track ? '#5DCAA5' : '#444'}">${t.track ? '✓' : '—'}</span>` +
+          `<button class="btn-sm btn-del btn-del-task" data-tid="${raw?.id || 0}" title="Eliminar">✕</button>` +
+          `</div>`;
+      }).join('');
+    }
+    html += `<div style="margin-top:.75rem"><button class="btn-sm" id="btn-add-task">+ Añadir tarea</button></div>`;
+    el.innerHTML = html;
+
+    el.querySelectorAll('.task-row').forEach((row, i) => {
+      row.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).classList.contains('btn-del-task') || (e.target as HTMLElement).classList.contains('btn-del')) return;
+        const raw = rawTaskMap[cfgDayIdx + '_' + tasks[i].id];
+        if (raw) openTaskModal(raw);
+      });
+    });
+    el.querySelectorAll('.btn-del-task').forEach(btn =>
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt((btn as HTMLElement).dataset.tid || '0');
+        if (!id || !confirm('¿Eliminar esta tarea?')) return;
+        fetch('/api/tracker/tasks?id=' + id, { method: 'DELETE' })
+          .then(() => reloadSchedule())
+          .catch(() => {});
+      })
+    );
+    document.getElementById('btn-add-task')?.addEventListener('click', () => openTaskModal(null));
+  }
+
+  // ── Edit modal ────────────────────────────────────────────────────────────────
+  function openCatModal(catId: number) {
+    editMode = 'cat';
+    editCatId = catId;
+    const cat = catId ? Object.values(dynCats).find(c => c.id === catId) : null;
+    document.getElementById('em-title')!.textContent = catId ? 'Editar categoría' : 'Nueva categoría';
+    document.getElementById('em-body')!.innerHTML =
+      `<div class="form-row"><label>Nombre</label><input type="text" id="ef-label" value="${cat?.label || ''}" placeholder="Nombre de la categoría" /></div>` +
+      `<div class="form-row"><label>Color</label><input type="color" id="ef-color" value="${cat?.color || '#1a82b8'}" style="height:36px;cursor:pointer;padding:2px" /></div>`;
+    document.getElementById('edit-modal')!.classList.remove('hidden');
+    setTimeout(() => (document.getElementById('ef-label') as HTMLInputElement)?.focus(), 50);
+  }
+
+  function openTaskModal(raw: RawTask | null) {
+    editMode = 'task';
+    editTaskId = raw?.id || 0;
+    document.getElementById('em-title')!.textContent = raw ? 'Editar tarea' : 'Nueva tarea';
+    const catOpts = Object.values(dynCats).map(c =>
+      `<option value="${c.cat_key}"${raw?.cat_key === c.cat_key ? ' selected' : ''}>${c.label}</option>`
+    ).join('');
+    document.getElementById('em-body')!.innerHTML =
+      `<div class="form-row"><label>Nombre</label><input type="text" id="ef-name" value="${raw?.name || ''}" placeholder="Nombre de la tarea" /></div>` +
+      `<div class="form-row"><label>Categoría</label><select id="ef-cat">${catOpts || '<option value="">Sin categorías</option>'}</select></div>` +
+      `<div class="form-2col"><div class="form-row"><label>Inicio</label><input type="time" id="ef-start" value="${minToTime(raw?.start_min ?? 8 * 60)}" /></div>` +
+      `<div class="form-row"><label>Fin</label><input type="time" id="ef-end" value="${minToTime(raw?.end_min ?? 9 * 60)}" /></div></div>` +
+      `<div class="form-row"><label>Descripción</label><textarea id="ef-desc" rows="2" placeholder="Descripción opcional...">${raw?.description || ''}</textarea></div>` +
+      `<div class="form-row" style="display:flex;align-items:center;gap:8px;padding-top:.1rem">` +
+      `<input type="checkbox" id="ef-track" style="width:auto;margin:0"${raw === null || raw.track ? ' checked' : ''} />` +
+      `<label for="ef-track" style="margin:0;font-size:12px;color:#ccc">Rastrear cumplimiento</label></div>`;
+    document.getElementById('edit-modal')!.classList.remove('hidden');
+    setTimeout(() => (document.getElementById('ef-name') as HTMLInputElement)?.focus(), 50);
+  }
+
+  function closeEditModal() { document.getElementById('edit-modal')!.classList.add('hidden'); }
+
+  function saveEditModal() {
+    if (editMode === 'cat') {
+      const label = ((document.getElementById('ef-label') as HTMLInputElement)?.value || '').trim();
+      const color = (document.getElementById('ef-color') as HTMLInputElement)?.value || '#555';
+      if (!label) { alert('Introduce un nombre para la categoría.'); return; }
+      if (editCatId) {
+        fetch('/api/tracker/categories', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editCatId, label, color }) })
+          .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
+      } else {
+        const cat_key = slugCat(label);
+        fetch('/api/tracker/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cat_key, label, color }) })
+          .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
+      }
+    } else {
+      const name = ((document.getElementById('ef-name') as HTMLInputElement)?.value || '').trim();
+      const cat_key = (document.getElementById('ef-cat') as HTMLSelectElement)?.value || '';
+      const start_min = timeToMin((document.getElementById('ef-start') as HTMLInputElement)?.value || '08:00');
+      const end_min   = timeToMin((document.getElementById('ef-end') as HTMLInputElement)?.value || '09:00');
+      const description = ((document.getElementById('ef-desc') as HTMLTextAreaElement)?.value || '').trim();
+      const track = (document.getElementById('ef-track') as HTMLInputElement)?.checked ? 1 : 0;
+      if (!name) { alert('Introduce un nombre para la tarea.'); return; }
+      if (end_min <= start_min) { alert('La hora de fin debe ser posterior al inicio.'); return; }
+      if (editTaskId) {
+        fetch('/api/tracker/tasks', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editTaskId, name, cat_key, start_min, end_min, description, track }) })
+          .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
+      } else {
+        fetch('/api/tracker/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day_index: cfgDayIdx, name, cat_key, start_min, end_min, description, track }) })
+          .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
+      }
+    }
   }
 
   // ── Nav ───────────────────────────────────────────────────────────────────────
@@ -546,6 +858,7 @@ function initTracker() {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById(id)!.classList.add('active');
     document.getElementById(tabId)!.classList.add('active');
+    if (id === 'configurar') renderConfig();
   }
 
   // ── Event listeners ────────────────────────────────────────────────────────────
@@ -555,13 +868,16 @@ function initTracker() {
   document.getElementById('modal-cancel')!.onclick = closeModal;
   document.getElementById('modal-miss')!.onclick   = () => saveAct(false);
   document.getElementById('modal-done')!.onclick   = () => saveAct(true);
+  document.getElementById('edit-modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(); });
+  document.getElementById('em-cancel')!.onclick = closeEditModal;
+  document.getElementById('em-save')!.onclick    = saveEditModal;
   document.querySelectorAll('.tab').forEach(el => {
     (el as HTMLElement).addEventListener('click', function(this: HTMLElement) {
       showPage(this.id.replace('tab-', ''), this.id);
     });
   });
 
-  loadState();
+  loadSchedule();
 }
 
 // ── React component ────────────────────────────────────────────────────────────
