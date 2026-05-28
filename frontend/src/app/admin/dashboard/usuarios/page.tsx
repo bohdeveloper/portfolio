@@ -18,6 +18,7 @@ export default function UsuariosPage() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState({ username: '', password: '', role: 'editor' });
+  const [showPassword, setShowPassword] = useState(false);
 
   const loadUsers = async () => {
     try {
@@ -62,6 +63,7 @@ export default function UsuariosPage() {
       }
       setShowForm(false);
       setForm({ username: '', password: '', role: 'editor' });
+      setShowPassword(false);
       setEditingId(null);
       loadUsers();
     } catch (err) {
@@ -112,6 +114,7 @@ export default function UsuariosPage() {
           onClick={() => {
             setFormMode('create');
             setForm({ username: '', password: '', role: 'editor' });
+            setShowPassword(false);
             setEditingId(null);
             setShowForm(true);
           }}
@@ -168,21 +171,54 @@ export default function UsuariosPage() {
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--adm-muted)', marginBottom: '0.5rem' }}>
                   Contraseña
                 </label>
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={e => setForm({ ...form, password: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    background: 'var(--adm-bg)',
-                    border: '1px solid var(--adm-border)',
-                    borderRadius: '6px',
-                    color: 'var(--adm-text)',
-                    fontSize: '13px',
-                    boxSizing: 'border-box',
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={e => setForm({ ...form, password: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '8px 40px 8px 12px',
+                      background: 'var(--adm-bg)',
+                      border: '1px solid var(--adm-border)',
+                      borderRadius: '6px',
+                      color: 'var(--adm-text)',
+                      fontSize: '13px',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0',
+                      color: 'var(--adm-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
 
