@@ -1,4 +1,6 @@
-interface Env { DB: D1Database }
+import { verifyAuth } from '../_auth-util';
+
+interface Env { DB: D1Database; JWT_SECRET: string }
 
 const H = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
 
@@ -6,7 +8,18 @@ const H = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url     = new URL(request.url);
   const game_id = parseInt(url.searchParams.get('game_id') ?? '');
-  const limit   = Math.min(10, parseInt(url.searchParams.get('limit') ?? '3'));
+  const isAdmin = url.searchParams.get('admin') === 'true';
+  let limit: number;
+
+  if (isAdmin) {
+    const auth = await verifyAuth(request, env.JWT_SECRET);
+    if (!auth || auth.role !== 'super_admin') {
+      return new Response(JSON.stringify({ ok: false, error: 'Forbidden' }), { status: 403, headers: H });
+    }
+    limit = 100;
+  } else {
+    limit = Math.min(10, parseInt(url.searchParams.get('limit') ?? '3'));
+  }
 
   if (!game_id || isNaN(game_id)) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing game_id' }), { status: 400, headers: H });
@@ -76,6 +89,32 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const isRecord = rank === 1;
 
     return new Response(JSON.stringify({ ok: true, rank, isRecord }), { status: 200, headers: H });
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
+  }
+};
+
+/* ── DELETE /api/games/score?visitor_id=N&game_id=M — eliminar puntuación (admin) ── */
+export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth || auth.role !== 'super_admin') {
+    return new Response(JSON.stringify({ ok: false, error: 'Forbidden' }), { status: 403, headers: H });
+  }
+  const url        = new URL(request.url);
+  const visitor_id = parseInt(url.searchParams.get('visitor_id') ?? '');
+  const gid        = url.searchParams.get('game_id');
+  const game_id    = gid ? parseInt(gid) : null;
+
+  if (!visitor_id || isNaN(visitor_id)) {
+    return new Response(JSON.stringify({ ok: false, error: 'Missing visitor_id' }), { status: 400, headers: H });
+  }
+  try {
+    if (game_id) {
+      await env.DB.prepare('DELETE FROM game_scores WHERE visitor_id = ? AND game_id = ?').bind(visitor_id, game_id).run();
+    } else {
+      await env.DB.prepare('DELETE FROM game_scores WHERE visitor_id = ?').bind(visitor_id).run();
+    }
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }

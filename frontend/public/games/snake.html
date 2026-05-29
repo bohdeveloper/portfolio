@@ -75,7 +75,15 @@ const ctx    = canvas.getContext('2d');
 const OL     = document.getElementById('overlay');
 
 const CELL = 20;
-let W, H, snake, dir, next, food, score, best, running, raf, lastTick, speed, obstacles;
+const FOOD_COLORS = [
+  { r:   0, g: 231, b: 235, sr:   0, sg: 200, sb: 220 }, // cyan
+  { r: 255, g: 220, b:   0, sr: 255, sg: 190, sb:   0 }, // amarillo
+  { r: 160, g:  80, b: 255, sr: 130, sg:  50, sb: 220 }, // morado
+  { r:  50, g: 220, b: 100, sr:  30, sg: 190, sb:  80 }, // verde
+  { r: 240, g: 240, b: 240, sr: 200, sg: 200, sb: 200 }, // blanco
+  { r: 255, g: 100, b: 200, sr: 220, sg:  70, sb: 170 }, // rosa
+];
+let W, H, snake, dir, next, food, foodColor, score, best, running, raf, lastTick, speed, obstacles, obstacleCallCount;
 
 function resize() {
   const s = Math.min(window.innerWidth, window.innerHeight) - 4;
@@ -97,17 +105,38 @@ function placeFood() {
   let x, y, tries = 0;
   do { x = rnd(W); y = rnd(H); tries++; } while (occupied.has(x + ',' + y) && tries < 200);
   food = { x, y };
+  foodColor = FOOD_COLORS[rnd(FOOD_COLORS.length)];
 }
 
 function addObstacle() {
-  const occupied = new Set([
-    ...snake.map(s => s.x + ',' + s.y),
-    food.x + ',' + food.y,
-    ...obstacles.map(o => o.x + ',' + o.y),
-  ]);
-  let x, y, tries = 0;
-  do { x = rnd(W); y = rnd(H); tries++; } while ((occupied.has(x + ',' + y) || x < 1 || x >= W-1 || y < 1 || y >= H-1) && tries < 200);
-  if (tries < 200) obstacles.push({ x, y });
+  obstacleCallCount++;
+  const groupSize = Math.min(7, obstacleCallCount);
+  let placed = false, tries = 0;
+  while (!placed && tries < 300) {
+    tries++;
+    const horiz = Math.random() > 0.5;
+    const startX = rnd(W - 2) + 1;
+    const startY = rnd(H - 2) + 1;
+    const occupied = new Set([
+      ...snake.map(s => s.x + ',' + s.y),
+      food.x + ',' + food.y,
+      ...obstacles.map(o => o.x + ',' + o.y),
+    ]);
+    const cells = [];
+    let valid = true;
+    for (let i = 0; i < groupSize; i++) {
+      const cx = horiz ? startX + i : startX;
+      const cy = horiz ? startY : startY + i;
+      if (cx < 1 || cx >= W-1 || cy < 1 || cy >= H-1 || occupied.has(cx + ',' + cy)) {
+        valid = false; break;
+      }
+      cells.push({ x: cx, y: cy });
+    }
+    if (valid && cells.length === groupSize) {
+      obstacles.push(...cells);
+      placed = true;
+    }
+  }
 }
 
 function init() {
@@ -117,6 +146,7 @@ function init() {
   next = { x: 1, y: 0 };
   score = 0;
   obstacles = [];
+  obstacleCallCount = 0;
   speed = 200;
   placeFood();
 }
@@ -137,6 +167,7 @@ function tick(ts) {
   snake.unshift(head);
   if (head.x === food.x && head.y === food.y) {
     score++;
+    try { window.parent.postMessage({ type: 'boh_score_live', score }, '*'); } catch {}
     if (score > best) {
       best = score;
       try { localStorage.setItem('boh_snake', best); } catch {}
@@ -213,10 +244,11 @@ function draw() {
   // Comida
   const t = performance.now() / 600;
   const pulse = 0.65 + 0.35 * Math.sin(t);
+  const { r: fr, g: fg, b: fb, sr, sg, sb } = foodColor;
   ctx.save();
-  ctx.shadowColor = 'rgba(255,80,100,0.6)';
+  ctx.shadowColor = `rgba(${sr},${sg},${sb},0.6)`;
   ctx.shadowBlur  = 10 * pulse;
-  ctx.fillStyle   = `rgba(255,70,95,${0.75 + 0.25 * pulse})`;
+  ctx.fillStyle   = `rgba(${fr},${fg},${fb},${0.75 + 0.25 * pulse})`;
   ctx.beginPath();
   ctx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.38, 0, Math.PI * 2);
   ctx.fill();
@@ -338,6 +370,8 @@ canvas.addEventListener('touchend', e => {
 }, { passive: false });
 
 try { best = parseInt(localStorage.getItem('boh_snake') || '0') || 0; } catch { best = 0; }
+foodColor = FOOD_COLORS[0];
+obstacleCallCount = 0;
 bgDraw();
 </script>
 </body>

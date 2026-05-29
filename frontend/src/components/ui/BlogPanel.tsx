@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,8 +14,12 @@ interface Game {
   vote_count: number; is_community_top: number;
   reactions: Record<string, number>;
 }
+interface Leader  { rank: number; alias: string; score: number; visitor_id: number }
+interface Visitor { id: number; alias: string }
 
 type Tab = 'blog' | 'juegos';
+
+const MEDALS = ['🥇', '🥈', '🥉'];
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -46,6 +50,8 @@ const PANEL_STYLES = `
     0%,100% { box-shadow: 0 0 0 0 rgba(0,168,191,0); }
     50%      { box-shadow: 0 0 8px 3px rgba(0,168,191,0.16); }
   }
+  @keyframes pnlRankUp   { 0%{transform:translateY(5px);opacity:.5} 60%{transform:translateY(-2px)} 100%{transform:translateY(0);opacity:1} }
+  @keyframes pnlRankDown { 0%{background:rgba(255,50,50,.22);transform:translateY(-3px)} 100%{background:transparent;transform:translateY(0)} }
   html:not(.light) .blog-toggle-btn { animation: blog-pulse-dark 3s ease-in-out infinite; }
   html.light        .blog-toggle-btn { animation: blog-pulse-light 3s ease-in-out infinite; }
   html:not(.light) .top-game-float  { animation: top-pulse-dark 3s ease-in-out infinite; }
@@ -60,6 +66,8 @@ const PANEL_STYLES = `
   .game-react-btn { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 12px; font-size: 11px; cursor: pointer; border: 1px solid var(--pnl-border); background: none; color: var(--pnl-muted); font-family: inherit; transition: all 0.12s; }
   .game-react-btn:hover { border-color: var(--primary); color: var(--primary); }
   .game-react-btn.reacted { background: var(--primary); border-color: var(--primary); color: #fff; opacity: 0.9; }
+  .pnl-game-grid { display: grid; grid-template-columns: minmax(0,1fr) 240px; gap: 16px; align-items: start; }
+  @media(max-width:640px){ .pnl-game-grid { grid-template-columns: 1fr !important; } }
 `;
 
 const EMOJIS = ['👍', '❤️', '🔥', '💡'] as const;
@@ -85,19 +93,51 @@ function GameIcon({ size = 14 }: { size?: number }) {
 
 export default function BlogPanel() {
   const pathname = usePathname();
-  const [open,         setOpen]         = useState(false);
-  const [mobileOpen,   setMobileOpen]   = useState(false);
-  const [activeTab,    setActiveTab]    = useState<Tab>('blog');
-  const [posts,        setPosts]        = useState<Post[]>([]);
-  const [games,        setGames]        = useState<Game[]>([]);
-  const [postsLoaded,  setPostsLoaded]  = useState(false);
-  const [gamesLoaded,  setGamesLoaded]  = useState(false);
-  const [topGame,      setTopGame]      = useState<Game | null>(null);
-  const [gameReacted,  setGameReacted]  = useState<Record<string, Set<string>>>({});
-  const [gameCounts,   setGameCounts]   = useState<Record<number, Record<string, number>>>({});
-  const [gameModal,    setGameModal]    = useState<{ url: string; name: string } | null>(null);
+  const [open,           setOpen]           = useState(false);
+  const [mobileOpen,     setMobileOpen]     = useState(false);
+  const [activeTab,      setActiveTab]      = useState<Tab>('blog');
+  const [posts,          setPosts]          = useState<Post[]>([]);
+  const [games,          setGames]          = useState<Game[]>([]);
+  const [postsLoaded,    setPostsLoaded]    = useState(false);
+  const [gamesLoaded,    setGamesLoaded]    = useState(false);
+  const [topGame,        setTopGame]        = useState<Game | null>(null);
+  const [gameReacted,    setGameReacted]    = useState<Record<string, Set<string>>>({});
+  const [gameCounts,     setGameCounts]     = useState<Record<number, Record<string, number>>>({});
+  const [gameModal,      setGameModal]      = useState<{ url: string; name: string; id: number } | null>(null);
+
+  // Visitor / login
+  const [pnlVisitor,     setPnlVisitor]     = useState<Visitor | null>(null);
+  const [pnlShowLogin,   setPnlShowLogin]   = useState(false);
+  const [pnlLoginAlias,  setPnlLoginAlias]  = useState('');
+  const [pnlLoginSaving, setPnlLoginSaving] = useState(false);
+  const [pnlPendingScore,setPnlPendingScore]= useState<number | null>(null);
+  const [pnlScoreResult, setPnlScoreResult] = useState<{ score: number; rank: number; isRecord: boolean } | null>(null);
+  // Ranking live
+  const [pnlLeaders,     setPnlLeaders]     = useState<Leader[]>([]);
+  const [pnlLiveScore,   setPnlLiveScore]   = useState<number | null>(null);
+  const [pnlMeKey,       setPnlMeKey]       = useState(0);
+  const [pnlPassedKey,   setPnlPassedKey]   = useState<{ id: number; k: number } | null>(null);
+  const pnlIframeRef  = useRef<HTMLIFrameElement>(null);
+  const pnlPrevRank   = useRef<number | null>(null);
+  const pnlDisplayRef = useRef<Leader[]>([]);
 
   const hide = pathname.startsWith('/admin') || pathname.startsWith('/blog');
+
+  // Cargar visitor desde localStorage
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem('boh_visitor');
+      if (v) {
+        const parsed = JSON.parse(v) as Visitor;
+        fetch(`/api/games/visitor?id=${parsed.id}`)
+          .then(r => r.json())
+          .then((res: { ok: boolean; id?: number; alias?: string }) => {
+            if (res.ok) setPnlVisitor({ id: res.id!, alias: res.alias! });
+            else localStorage.removeItem('boh_visitor');
+          }).catch(() => {});
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     if (hide) return;
@@ -116,9 +156,7 @@ export default function BlogPanel() {
         if (res.ok) {
           const gList = res.games ?? [];
           setGames(gList);
-          // TOP = comunidad (más votos) o admin's pick como fallback
           setTopGame(res.top ?? gList.find((g: Game) => g.is_community_top === 1) ?? gList.find((g: Game) => g.is_top === 1) ?? null);
-          // Inicializar conteos desde API
           const counts: Record<number, Record<string, number>> = {};
           for (const g of (res.games ?? [])) counts[g.id] = g.reactions;
           setGameCounts(counts);
@@ -127,7 +165,6 @@ export default function BlogPanel() {
       })
       .catch(() => setGamesLoaded(true));
 
-    // Cargar reacciones guardadas en localStorage
     try {
       const stored = localStorage.getItem('game_reacted');
       if (stored) {
@@ -141,6 +178,121 @@ export default function BlogPanel() {
     setOpen(true);
   }, [hide]);
 
+  // Cargar leaderboard al abrir juego
+  useEffect(() => {
+    if (!gameModal) { setPnlLeaders([]); setPnlLiveScore(null); return; }
+    fetch(`/api/games/score?game_id=${gameModal.id}&limit=10`)
+      .then(r => r.json())
+      .then((res: { ok: boolean; data?: Leader[] }) => { if (res.ok) setPnlLeaders(res.data ?? []); })
+      .catch(() => {});
+  }, [gameModal?.id]); // eslint-disable-line
+
+  // PostMessage del iframe
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (!gameModal) return;
+      if (e.data?.type === 'boh_score_live') {
+        setPnlLiveScore(Number(e.data.score) || 0);
+        return;
+      }
+      if (e.data?.type !== 'boh_score') return;
+      const score = Number(e.data.score) || 0;
+      if (pnlVisitor) {
+        pnlSubmitScore(gameModal.id, pnlVisitor.id, score);
+      } else {
+        setPnlPendingScore(score);
+        setPnlShowLogin(true);
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [gameModal, pnlVisitor]); // eslint-disable-line
+
+  // Leaderboard live con posición del jugador
+  const pnlDisplay = useMemo(() => {
+    let d = [...pnlLeaders];
+    if (pnlVisitor && pnlLiveScore !== null && pnlLiveScore > 0) {
+      d = d.filter(l => l.visitor_id !== pnlVisitor!.id);
+      const ins = d.findIndex(l => l.score < pnlLiveScore);
+      const me: Leader = { rank: 0, alias: pnlVisitor!.alias, score: pnlLiveScore, visitor_id: pnlVisitor!.id };
+      if (ins === -1) d.push(me);
+      else d.splice(ins, 0, me);
+      d = d.slice(0, 10).map((l, i) => ({ ...l, rank: i + 1 }));
+    }
+    return d;
+  }, [pnlLeaders, pnlVisitor, pnlLiveScore]);
+
+  pnlDisplayRef.current = pnlDisplay;
+  const pnlMyRank = pnlDisplay.find(l => l.visitor_id === pnlVisitor?.id)?.rank ?? null;
+
+  // Detectar cuando el jugador supera a alguien
+  useEffect(() => {
+    const prev = pnlPrevRank.current;
+    pnlPrevRank.current = pnlMyRank;
+    if (pnlMyRank !== null && prev !== null && pnlMyRank < prev) {
+      const passed = pnlDisplayRef.current.find(l => l.rank === pnlMyRank + 1 && l.visitor_id !== pnlVisitor?.id);
+      setPnlMeKey(k => k + 1);
+      if (passed) {
+        const k = Date.now();
+        setPnlPassedKey({ id: passed.visitor_id, k });
+        setTimeout(() => setPnlPassedKey(p => p?.k === k ? null : p), 700);
+      }
+    }
+  }, [pnlMyRank]); // eslint-disable-line
+
+  function pnlLoadLeaderboard(gameId: number) {
+    fetch(`/api/games/score?game_id=${gameId}&limit=10`)
+      .then(r => r.json())
+      .then((res: { ok: boolean; data?: Leader[] }) => { if (res.ok) setPnlLeaders(res.data ?? []); })
+      .catch(() => {});
+  }
+
+  function pnlSubmitScore(gameId: number, visitorId: number, score: number) {
+    fetch('/api/games/score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game_id: gameId, visitor_id: visitorId, score }),
+    }).then(r => r.json())
+      .then((res: { ok: boolean; rank?: number; isRecord?: boolean }) => {
+        if (res.ok) {
+          setPnlScoreResult({ score, rank: res.rank ?? 99, isRecord: !!res.isRecord });
+          pnlLoadLeaderboard(gameId);
+        }
+      }).catch(() => {});
+  }
+
+  async function handlePnlLogin() {
+    if (!pnlLoginAlias.trim()) return;
+    setPnlLoginSaving(true);
+    try {
+      const res = await fetch('/api/games/visitor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alias: pnlLoginAlias.trim() }),
+      });
+      const data: { ok: boolean; id?: number; alias?: string } = await res.json();
+      if (data.ok && data.id) {
+        const v = { id: data.id, alias: data.alias! };
+        setPnlVisitor(v);
+        try { localStorage.setItem('boh_visitor', JSON.stringify(v)); } catch {}
+        setPnlShowLogin(false);
+        setPnlLoginAlias('');
+        if (pnlPendingScore !== null && gameModal) {
+          pnlSubmitScore(gameModal.id, data.id, pnlPendingScore);
+          setPnlPendingScore(null);
+        }
+      }
+    } catch {}
+    setPnlLoginSaving(false);
+  }
+
+  function openGame(game: { url: string; name: string; id: number }) {
+    setGameModal(game);
+    setPnlScoreResult(null);
+    setPnlLiveScore(null);
+    pnlPrevRank.current = null;
+  }
+
   if (hide) return null;
 
   function openOnTab(tab: Tab) {
@@ -152,7 +304,7 @@ export default function BlogPanel() {
   function reactToGame(gameId: number, emoji: string) {
     const key = String(gameId);
     const reacted = gameReacted[key] ?? new Set<string>();
-    const current = [...reacted][0]; // única reacción activa
+    const current = [...reacted][0];
     const isToggling = current === emoji;
     const newReacted = new Set<string>(isToggling ? [] : [emoji]);
 
@@ -234,7 +386,6 @@ export default function BlogPanel() {
           <p style={{ color: 'var(--pnl-muted)', fontSize: '11px', lineHeight: '1.5', marginBottom: '8px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{game.description}</p>
         )}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
-          {/* Reacciones */}
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
             {(hasReactions ? EMOJIS : EMOJIS.slice(0, 2)).map(emoji => (
               <button
@@ -247,12 +398,11 @@ export default function BlogPanel() {
               </button>
             ))}
           </div>
-          {/* Jugar */}
           {game.url ? (
             <button
               onClick={() => {
                 if (game.url.startsWith('/')) {
-                  setGameModal({ url: game.url, name: game.name });
+                  openGame({ url: game.url, name: game.name, id: game.id });
                 } else {
                   window.open(game.url, '_blank', 'noopener,noreferrer');
                   onNavigate();
@@ -274,7 +424,6 @@ export default function BlogPanel() {
     return <p style={{ color: 'var(--pnl-muted)', fontSize: '12px', padding: '2rem 1.25rem', textAlign: 'center', fontStyle: 'italic' }}>{msg}</p>;
   }
 
-  /* ── Contenido del panel según pestaña activa ── */
   function PanelContent({ onNavigate }: { onNavigate: () => void }) {
     if (activeTab === 'blog') {
       return (
@@ -305,10 +454,10 @@ export default function BlogPanel() {
     <>
       <style>{PANEL_STYLES}</style>
 
-      {/* ══ TOP game float — below logo ══ */}
+      {/* ══ TOP game float ══ */}
       {topGame && (
         <button
-          onClick={() => setGameModal({ url: topGame.url, name: topGame.name })}
+          onClick={() => openGame({ url: topGame.url, name: topGame.name, id: topGame.id })}
           className="top-game-float"
           aria-label={`Jugar a ${topGame.name}`}
           style={{
@@ -332,7 +481,6 @@ export default function BlogPanel() {
 
       {/* ══════════════ DESKTOP ══════════════ */}
 
-      {/* Toggle buttons (cuando el panel está cerrado) */}
       {!open && (
         <div
           className="hidden md:flex flex-col"
@@ -378,7 +526,6 @@ export default function BlogPanel() {
           fontFamily: 'system-ui, sans-serif',
         }}
       >
-        {/* Header con tabs */}
         <div style={{ flexShrink: 0 }}>
           <div style={{ padding: '0.75rem 1.25rem 0', background: 'var(--pnl-hdr)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <p style={{ color: 'var(--primary)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700 }}>
@@ -405,7 +552,6 @@ export default function BlogPanel() {
 
       {/* ══════════════ MOBILE ══════════════ */}
 
-      {/* Mobile toggle button */}
       <button
         onClick={() => setMobileOpen(true)}
         aria-label="Abrir panel"
@@ -422,7 +568,6 @@ export default function BlogPanel() {
         <GameIcon size={13} />
       </button>
 
-      {/* Mobile fullscreen overlay */}
       <div
         className="md:hidden flex flex-col"
         style={{
@@ -433,7 +578,6 @@ export default function BlogPanel() {
           fontFamily: 'system-ui, sans-serif',
         }}
       >
-        {/* Mobile header */}
         <div style={{ flexShrink: 0 }}>
           <div style={{ padding: '1rem 1.25rem', background: 'var(--pnl-hdr)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <button
@@ -459,38 +603,144 @@ export default function BlogPanel() {
         <PanelContent onNavigate={() => setMobileOpen(false)} />
       </div>
 
-      {/* ══ Game iframe modal ══ */}
+      {/* ══ Game modal con ranking + login ══ */}
       {gameModal && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 200,
-            background: 'rgba(0,0,0,0.92)',
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            padding: '16px',
-          }}
-          onClick={e => { if (e.target === e.currentTarget) setGameModal(null); }}
-        >
-          <div style={{ width: '100%', maxWidth: '640px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <span style={{ color: '#e8e6e0', fontSize: '15px', fontWeight: 600 }}>{gameModal.name}</span>
-              <button
-                onClick={() => setGameModal(null)}
-                style={{ color: '#666', background: 'none', border: 'none', cursor: 'pointer', fontSize: '28px', lineHeight: 1, padding: '0 4px', fontFamily: 'inherit' }}
-                aria-label="Cerrar juego"
-              >×</button>
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            onClick={e => { if (e.target === e.currentTarget) { setGameModal(null); setPnlLiveScore(null); } }}
+          >
+            <div className="pnl-game-grid" style={{ width: '100%', maxWidth: '900px' }}>
+              {/* Izquierda: juego */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <span style={{ color: '#e8e6e0', fontSize: '15px', fontWeight: 600 }}>🎮 {gameModal.name}</span>
+                  <button
+                    onClick={() => { setGameModal(null); setPnlLiveScore(null); }}
+                    style={{ color: '#666', background: 'none', border: 'none', cursor: 'pointer', fontSize: '26px', lineHeight: 1, fontFamily: 'inherit' }}
+                    aria-label="Cerrar"
+                  >×</button>
+                </div>
+                <iframe
+                  ref={pnlIframeRef}
+                  src={gameModal.url}
+                  style={{ width: '100%', aspectRatio: '1/1', border: 'none', borderRadius: '10px', display: 'block', background: '#0a0a0a' }}
+                  title={gameModal.name}
+                  allow="fullscreen"
+                />
+                {!pnlVisitor && !pnlShowLogin && (
+                  <p style={{ color: '#888', fontSize: '11px', textAlign: 'center', marginTop: '8px' }}>
+                    <button
+                      onClick={() => setPnlShowLogin(true)}
+                      style={{ color: '#00e7eb', background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}
+                    >Inicia sesión</button>{' '}para guardar tu puntuación en el ranking
+                  </p>
+                )}
+                {pnlVisitor && (
+                  <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'rgba(0,231,235,0.08)', border: '1px solid rgba(0,231,235,0.2)', borderRadius: '20px' }}>
+                    <span style={{ fontSize: '12px', color: '#00e7eb' }}>🎮 {pnlVisitor.alias}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Derecha: ranking */}
+              <div style={{ background: '#111', border: '1px solid #1f2937', borderRadius: '12px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <p style={{ color: '#9ca3af', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '10px' }}>Ranking</p>
+                  {pnlDisplay.length === 0 && (
+                    <p style={{ color: '#888', fontSize: '11px', fontStyle: 'italic', margin: 0 }}>Sé el primero en jugar</p>
+                  )}
+                  {pnlDisplay.map(l => {
+                    const isMe     = l.visitor_id === pnlVisitor?.id;
+                    const isPodium = l.rank <= 3;
+                    const isPassed = pnlPassedKey?.id === l.visitor_id;
+                    const rowKey   = isMe ? `me-${pnlMeKey}` : isPassed ? `passed-${pnlPassedKey?.k}` : `p-${l.visitor_id}`;
+                    return (
+                      <div key={rowKey} style={{
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        padding: isPodium ? '6px 4px' : '4px 4px',
+                        borderBottom: l.rank < pnlDisplay.length ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                        borderRadius: '4px',
+                        background: isMe ? 'rgba(0,231,235,0.09)' : 'transparent',
+                        animation: isMe ? 'pnlRankUp 0.5s ease' : isPassed ? 'pnlRankDown 0.4s ease' : 'none',
+                      }}>
+                        <span style={{ width: '24px', textAlign: 'center', flexShrink: 0, fontSize: isPodium ? '16px' : '10px', fontWeight: isPodium ? 700 : 500, color: isPodium ? undefined : '#666' }}>
+                          {isPodium ? MEDALS[l.rank - 1] : `#${l.rank}`}
+                        </span>
+                        <span style={{ flex: 1, fontSize: isPodium ? '13px' : '11px', color: isMe ? '#00e7eb' : '#d1d5db', fontWeight: isMe ? 700 : isPodium ? 500 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {l.alias}{isMe ? ' ← tú' : ''}
+                        </span>
+                        <span style={{ fontSize: isPodium ? '13px' : '11px', fontWeight: 700, color: isMe ? '#00e7eb' : isPodium ? '#00e7eb' : '#666', fontVariantNumeric: 'tabular-nums' }}>
+                          {l.score}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {pnlScoreResult && (
+                  <div style={{ borderTop: '1px solid #1f2937', paddingTop: '16px' }}>
+                    <p style={{ color: '#9ca3af', fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>Tu partida</p>
+                    <p style={{ color: '#00e7eb', fontSize: '32px', fontWeight: 800, margin: '0 0 4px', lineHeight: 1 }}>{pnlScoreResult.score}</p>
+                    <p style={{ color: pnlScoreResult.rank <= 3 ? '#ffc800' : '#6b7280', fontSize: '13px', marginBottom: '12px' }}>
+                      {pnlScoreResult.isRecord ? '🏆 ¡Nuevo récord!' : pnlScoreResult.rank <= 3 ? `${MEDALS[pnlScoreResult.rank - 1]} Posición #${pnlScoreResult.rank}` : `Posición #${pnlScoreResult.rank}`}
+                    </p>
+                    <button
+                      onClick={() => { setPnlScoreResult(null); pnlIframeRef.current?.contentWindow?.location.reload(); }}
+                      style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid #00e7eb', borderRadius: '7px', color: '#00e7eb', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      Jugar de nuevo
+                    </button>
+                  </div>
+                )}
+
+                {!pnlScoreResult && (
+                  <p style={{ color: '#888', fontSize: '11px', lineHeight: 1.5 }}>Juega y supera el récord para aparecer aquí</p>
+                )}
+              </div>
             </div>
-            <div style={{ border: '2px solid rgba(0,231,235,0.35)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 0 32px rgba(0,231,235,0.08)' }}>
-              <iframe
-                src={gameModal.url}
-                style={{ width: '100%', aspectRatio: '1 / 1', border: 'none', display: 'block', background: '#0a0a0a' }}
-                title={gameModal.name}
-                allow="fullscreen"
-              />
-            </div>
-            <p style={{ color: '#2a2a2a', fontSize: '10px', textAlign: 'center', marginTop: '8px' }}>Esc o click fuera para cerrar</p>
           </div>
-        </div>
+
+          {/* Login modal */}
+          {pnlShowLogin && (
+            <div
+              style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+              onClick={e => { if (e.target === e.currentTarget) setPnlShowLogin(false); }}
+            >
+              <div style={{ background: '#111', border: '1px solid #1f2937', borderRadius: '14px', padding: '2rem', width: '100%', maxWidth: '340px', textAlign: 'center' }}>
+                <p style={{ fontSize: '32px', marginBottom: '12px' }}>🎮</p>
+                <h3 style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 500, marginBottom: '4px' }}>¿Cómo te llamas?</h3>
+                <p style={{ color: '#9ca3af', fontSize: '12px', marginBottom: '20px' }}>Solo tu alias — para el ranking de puntuaciones.</p>
+                <input
+                  type="text"
+                  value={pnlLoginAlias}
+                  onChange={e => setPnlLoginAlias(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handlePnlLogin(); }}
+                  placeholder="Tu nombre o alias"
+                  maxLength={30}
+                  autoFocus
+                  style={{ width: '100%', padding: '10px 14px', background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#f3f4f6', fontSize: '14px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }}
+                />
+                {pnlPendingScore !== null && (
+                  <p style={{ color: '#9ca3af', fontSize: '12px', marginBottom: '12px' }}>Puntuación a guardar: <strong style={{ color: '#00e7eb' }}>{pnlPendingScore}</strong></p>
+                )}
+                <button
+                  onClick={handlePnlLogin}
+                  disabled={pnlLoginSaving || !pnlLoginAlias.trim()}
+                  style={{ width: '100%', padding: '10px', background: '#00e7eb', border: 'none', borderRadius: '8px', color: '#000', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', opacity: pnlLoginSaving || !pnlLoginAlias.trim() ? 0.5 : 1 }}
+                >
+                  {pnlLoginSaving ? 'Guardando...' : pnlPendingScore !== null ? 'Guardar en el ranking' : 'Continuar'}
+                </button>
+                <button
+                  onClick={() => setPnlShowLogin(false)}
+                  style={{ marginTop: '10px', background: 'none', border: 'none', color: '#9ca3af', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}
+                >
+                  Jugar sin registro
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   );

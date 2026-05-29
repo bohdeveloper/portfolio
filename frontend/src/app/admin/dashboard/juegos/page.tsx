@@ -14,11 +14,20 @@ interface Game {
   created_at: string;
 }
 
-type View = 'list' | 'editor';
+interface Leader {
+  rank: number;
+  alias: string;
+  score: number;
+  visitor_id: number;
+}
+
+type View = 'list' | 'editor' | 'ranking';
 
 const EMPTY: Omit<Game, 'id' | 'created_at'> = {
   name: '', slug: '', description: '', url: '', screenshot: '', is_top: 0,
 };
+
+const MEDALS = ['🥇', '🥈', '🥉'];
 
 const STYLES = `
   .gbtn { border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; background: transparent; padding: 7px 14px; transition: background 0.15s, color 0.15s, border-color 0.15s; }
@@ -31,6 +40,11 @@ const STYLES = `
   .gbtn-g:hover { border-color: var(--primary); color: var(--primary); }
   .gbtn-top { border: 1px solid #ffc800; color: #ffc800; }
   .gbtn-top:hover { background: #ffc800; color: #000; }
+  .gbtn-rank { border: 1px solid #6366f1; color: #818cf8; }
+  .gbtn-rank:hover { background: #6366f1; color: #fff; }
+  .rank-tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; border: 1px solid var(--adm-border); background: none; color: var(--adm-muted); transition: all 0.15s; }
+  .rank-tab.active { background: var(--primary); border-color: var(--primary); color: #000; }
+  .rank-tab:not(.active):hover { border-color: var(--primary); color: var(--primary); }
 `;
 
 function slugify(s: string) {
@@ -47,7 +61,6 @@ function compressImage(file: File, tw = 800, th = 450, quality = 0.82): Promise<
         const canvas = document.createElement('canvas');
         canvas.width = tw; canvas.height = th;
         const ctx = canvas.getContext('2d')!;
-        // Crop centrado para rellenar 16:9
         const imgR = img.width / img.height;
         const tgtR = tw / th;
         let sw: number, sh: number, sx: number, sy: number;
@@ -71,15 +84,21 @@ function compressImage(file: File, tw = 800, th = 450, quality = 0.82): Promise<
 
 export default function JuegosAdminPage() {
   const router = useRouter();
-  const [view,         setView]         = useState<View>('list');
-  const [games,        setGames]        = useState<Game[]>([]);
-  const [loading,      setLoading]      = useState(true);
-  const [saving,       setSaving]       = useState(false);
-  const [deleting,     setDeleting]     = useState<number | null>(null);
-  const [msg,          setMsg]          = useState('');
-  const [imgUploading, setImgUploading] = useState(false);
-  const [form,         setForm]         = useState<Omit<Game, 'id' | 'created_at'>>(EMPTY);
-  const [editId,       setEditId]       = useState<number | null>(null);
+  const [view,          setView]          = useState<View>('list');
+  const [games,         setGames]         = useState<Game[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [saving,        setSaving]        = useState(false);
+  const [deleting,      setDeleting]      = useState<number | null>(null);
+  const [msg,           setMsg]           = useState('');
+  const [imgUploading,  setImgUploading]  = useState(false);
+  const [form,          setForm]          = useState<Omit<Game, 'id' | 'created_at'>>(EMPTY);
+  const [editId,        setEditId]        = useState<number | null>(null);
+  // Ranking
+  const [rankGameId,    setRankGameId]    = useState<number | null>(null);
+  const [rankLeaders,   setRankLeaders]   = useState<Leader[]>([]);
+  const [rankLoading,   setRankLoading]   = useState(false);
+  const [rankDeleting,  setRankDeleting]  = useState<number | null>(null);
+  const [rankMsg,       setRankMsg]       = useState('');
 
   const inp: React.CSSProperties = {
     width: '100%', background: 'var(--adm-input)', border: '1px solid var(--adm-border)',
@@ -109,6 +128,43 @@ export default function JuegosAdminPage() {
       .finally(() => setLoading(false));
   }
   useEffect(loadGames, []);
+
+  function loadRanking(gameId: number) {
+    setRankLoading(true);
+    setRankLeaders([]);
+    setRankMsg('');
+    fetch(`/api/games/score?game_id=${gameId}&limit=100&admin=true`)
+      .then(r => r.json())
+      .then((res: { ok: boolean; data?: Leader[] }) => {
+        if (res.ok) setRankLeaders(res.data ?? []);
+        else setRankMsg('Error al cargar el ranking');
+      })
+      .catch(() => setRankMsg('Error de conexión'))
+      .finally(() => setRankLoading(false));
+  }
+
+  async function handleDeleteScore(visitorId: number, gameId: number) {
+    if (!confirm('¿Eliminar todas las puntuaciones de este jugador en este juego?')) return;
+    setRankDeleting(visitorId);
+    try {
+      const res = await fetch(`/api/games/score?visitor_id=${visitorId}&game_id=${gameId}`, { method: 'DELETE' });
+      const data: { ok: boolean } = await res.json();
+      if (data.ok) loadRanking(gameId);
+      else setRankMsg('Error al eliminar');
+    } catch { setRankMsg('Error de conexión'); }
+    setRankDeleting(null);
+  }
+
+  function openRanking() {
+    setView('ranking');
+    const firstGame = games[0];
+    if (firstGame && !rankGameId) {
+      setRankGameId(firstGame.id);
+      loadRanking(firstGame.id);
+    } else if (rankGameId) {
+      loadRanking(rankGameId);
+    }
+  }
 
   function set(k: keyof typeof form, v: string | number) {
     setForm(prev => {
@@ -178,11 +234,15 @@ export default function JuegosAdminPage() {
       <style>{STYLES}</style>
       <div style={{ maxWidth: '860px', margin: '0 auto' }}>
 
-        {view === 'list' ? (
+        {/* ── Lista de juegos ── */}
+        {view === 'list' && (
           <>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h1 style={{ color: 'var(--adm-text)', fontSize: '18px', fontWeight: 500 }}>Juegos</h1>
-              <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '2px' }}>{games.length} juego{games.length !== 1 ? 's' : ''} — el TOP lo decide la comunidad · tú marcas tu Favorito</p>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h1 style={{ color: 'var(--adm-text)', fontSize: '18px', fontWeight: 500 }}>Juegos</h1>
+                <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '2px' }}>{games.length} juego{games.length !== 1 ? 's' : ''} — el TOP lo decide la comunidad · tú marcas tu Favorito</p>
+              </div>
+              <button className="gbtn gbtn-rank" onClick={openRanking}>🏆 Ranking</button>
             </div>
 
             {loading && <p style={{ color: 'var(--adm-muted)', fontSize: '13px' }}>Cargando...</p>}
@@ -224,7 +284,10 @@ export default function JuegosAdminPage() {
               ))}
             </div>
           </>
-        ) : (
+        )}
+
+        {/* ── Editor de juego ── */}
+        {view === 'editor' && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
               <button className="gbtn gbtn-g" style={{ padding: '6px 10px' }} onClick={() => setView('list')}>←</button>
@@ -283,6 +346,97 @@ export default function JuegosAdminPage() {
             </div>
           </>
         )}
+
+        {/* ── Ranking ── */}
+        {view === 'ranking' && (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+              <button className="gbtn gbtn-g" style={{ padding: '6px 10px' }} onClick={() => setView('list')}>←</button>
+              <h1 style={{ color: 'var(--adm-text)', fontSize: '16px', fontWeight: 500 }}>🏆 Ranking</h1>
+              {rankMsg && <span style={{ fontSize: '12px', color: '#D85A30', marginLeft: 'auto' }}>{rankMsg}</span>}
+            </div>
+
+            {/* Tabs de juegos */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+              {games.map(g => (
+                <button
+                  key={g.id}
+                  className={`rank-tab${rankGameId === g.id ? ' active' : ''}`}
+                  onClick={() => { setRankGameId(g.id); loadRanking(g.id); }}
+                >
+                  {g.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Tabla de ranking */}
+            <div style={{ background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '10px', overflow: 'hidden' }}>
+              {/* Header */}
+              <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px', gap: '0', padding: '8px 1rem', background: 'var(--adm-border)', fontSize: '10px', fontWeight: 700, color: 'var(--adm-muted)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                <span>#</span>
+                <span>Jugador</span>
+                <span style={{ textAlign: 'right' }}>Puntos</span>
+                <span style={{ textAlign: 'right' }}>Acciones</span>
+              </div>
+
+              {rankLoading && (
+                <p style={{ color: 'var(--adm-muted)', fontSize: '13px', padding: '1.5rem 1rem', textAlign: 'center' }}>Cargando...</p>
+              )}
+
+              {!rankLoading && rankLeaders.length === 0 && !rankMsg && rankGameId && (
+                <p style={{ color: 'var(--adm-muted)', fontSize: '13px', padding: '1.5rem 1rem', textAlign: 'center', fontStyle: 'italic' }}>
+                  Nadie ha jugado todavía
+                </p>
+              )}
+
+              {!rankLoading && !rankGameId && (
+                <p style={{ color: 'var(--adm-muted)', fontSize: '13px', padding: '1.5rem 1rem', textAlign: 'center', fontStyle: 'italic' }}>
+                  Selecciona un juego arriba
+                </p>
+              )}
+
+              {rankLeaders.map((l, idx) => (
+                <div
+                  key={l.visitor_id}
+                  style={{
+                    display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px',
+                    alignItems: 'center', gap: '0',
+                    padding: '10px 1rem',
+                    borderTop: idx > 0 ? '1px solid var(--adm-border)' : 'none',
+                    background: rankDeleting === l.visitor_id ? 'rgba(216,90,48,0.05)' : 'none',
+                  }}
+                >
+                  <span style={{ fontSize: l.rank <= 3 ? '18px' : '12px', color: l.rank <= 3 ? undefined : 'var(--adm-muted)', fontWeight: 600 }}>
+                    {l.rank <= 3 ? MEDALS[l.rank - 1] : `#${l.rank}`}
+                  </span>
+                  <span style={{ color: 'var(--adm-text)', fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {l.alias}
+                  </span>
+                  <span style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 700, fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
+                    {l.score}
+                  </span>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      className="gbtn gbtn-d"
+                      style={{ padding: '4px 10px', fontSize: '11px' }}
+                      disabled={rankDeleting === l.visitor_id}
+                      onClick={() => rankGameId && handleDeleteScore(l.visitor_id, rankGameId)}
+                    >
+                      {rankDeleting === l.visitor_id ? '...' : 'Eliminar'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {rankLeaders.length > 0 && (
+              <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '8px', textAlign: 'right' }}>
+                {rankLeaders.length} jugador{rankLeaders.length !== 1 ? 'es' : ''} — eliminar borra todas sus puntuaciones en este juego
+              </p>
+            )}
+          </>
+        )}
+
       </div>
     </div>
   );

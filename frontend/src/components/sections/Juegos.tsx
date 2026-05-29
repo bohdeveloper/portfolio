@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 interface Game {
   id: number; name: string; slug: string; description: string;
@@ -53,6 +53,80 @@ function Leaderboard({ leaders, visitorId }: { leaders: Leader[]; visitorId?: nu
               color: isPodium ? 'var(--jg-primary)' : 'var(--jg-muted)',
               fontVariantNumeric: 'tabular-nums',
             }}>{l.score}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── AnimatedLeaderboard (live, durante el juego) ── */
+function AnimatedLeaderboard({ leaders, visitor, liveScore }: {
+  leaders: Leader[]; visitor: Visitor | null; liveScore: number | null;
+}) {
+  const prevRankRef = useRef<number | null>(null);
+  const displayRef  = useRef<Leader[]>([]);
+  const [meKey,      setMeKey]      = useState(0);
+  const [passedKey,  setPassedKey]  = useState<{ id: number; k: number } | null>(null);
+
+  const display = useMemo(() => {
+    let d = [...leaders];
+    if (visitor && liveScore !== null && liveScore > 0) {
+      d = d.filter(l => l.visitor_id !== visitor.id);
+      const ins = d.findIndex(l => l.score < liveScore);
+      const me: Leader = { rank: 0, alias: visitor.alias, score: liveScore, visitor_id: visitor.id };
+      if (ins === -1) d.push(me);
+      else d.splice(ins, 0, me);
+      d = d.slice(0, 10).map((l, i) => ({ ...l, rank: i + 1 }));
+    }
+    return d;
+  }, [leaders, visitor, liveScore]);
+
+  displayRef.current = display;
+  const myRank = display.find(l => l.visitor_id === visitor?.id)?.rank ?? null;
+
+  useEffect(() => {
+    const prev = prevRankRef.current;
+    prevRankRef.current = myRank;
+    if (myRank !== null && prev !== null && myRank < prev) {
+      const passed = displayRef.current.find(l => l.rank === myRank + 1 && l.visitor_id !== visitor?.id);
+      setMeKey(k => k + 1);
+      if (passed) {
+        const k = Date.now();
+        setPassedKey({ id: passed.visitor_id, k });
+        setTimeout(() => setPassedKey(p => p?.k === k ? null : p), 700);
+      }
+    }
+  }, [myRank]); // eslint-disable-line
+
+  if (display.length === 0) {
+    return <p style={{ color: '#888', fontSize: '11px', fontStyle: 'italic', margin: 0 }}>Sé el primero en jugar</p>;
+  }
+  return (
+    <div>
+      {display.map(l => {
+        const isMe     = l.visitor_id === visitor?.id;
+        const isPodium = l.rank <= 3;
+        const isPassed = passedKey?.id === l.visitor_id;
+        const rowKey   = isMe ? `me-${meKey}` : isPassed ? `passed-${passedKey?.k}` : `p-${l.visitor_id}`;
+        return (
+          <div key={rowKey} style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: isPodium ? '6px 4px' : '4px 4px',
+            borderBottom: l.rank < display.length ? '1px solid rgba(255,255,255,0.04)' : 'none',
+            borderRadius: '4px',
+            background: isMe ? 'rgba(0,231,235,0.09)' : 'transparent',
+            animation: isMe ? 'rankUp 0.5s ease' : isPassed ? 'rankDown 0.4s ease' : 'none',
+          }}>
+            <span style={{ width: '24px', textAlign: 'center', flexShrink: 0, fontSize: isPodium ? '16px' : '10px', fontWeight: isPodium ? 700 : 500, color: isPodium ? undefined : '#666' }}>
+              {isPodium ? MEDALS[l.rank - 1] : `#${l.rank}`}
+            </span>
+            <span style={{ flex: 1, fontSize: isPodium ? '13px' : '11px', color: isMe ? '#00e7eb' : '#d1d5db', fontWeight: isMe ? 700 : isPodium ? 500 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {l.alias}{isMe ? ' ← tú' : ''}
+            </span>
+            <span style={{ fontSize: isPodium ? '13px' : '11px', fontWeight: 700, color: isMe ? '#00e7eb' : isPodium ? '#00e7eb' : '#666', fontVariantNumeric: 'tabular-nums' }}>
+              {l.score}
+            </span>
           </div>
         );
       })}
@@ -166,6 +240,7 @@ export default function JuegosSection() {
   const [gameReacted,  setGameReacted]  = useState<Record<string, Set<string>>>({});
   const [gameCounts,   setGameCounts]   = useState<Record<number, Record<string, number>>>({});
   const [showWelcome,  setShowWelcome]  = useState(false);
+  const [liveScore,    setLiveScore]    = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const loadLeaderboard = useCallback((gameId: number) => {
@@ -213,9 +288,7 @@ export default function JuegosSection() {
             else { localStorage.removeItem('boh_visitor'); }
           }).catch(() => {});
       } else {
-        // Primera vez: mostrar welcome tras un pequeño delay
-        const skipped = sessionStorage.getItem('boh_welcome_skip');
-        if (!skipped) setTimeout(() => setShowWelcome(true), 900);
+        // Welcome aparece al interactuar con los juegos, no en carga de página
       }
     } catch {}
   }, [loadLeaderboard]);
@@ -223,7 +296,12 @@ export default function JuegosSection() {
   // Escuchar postMessage del iframe
   useEffect(() => {
     const handler = (e: MessageEvent) => {
-      if (e.data?.type !== 'boh_score' || !activeGame) return;
+      if (!activeGame) return;
+      if (e.data?.type === 'boh_score_live') {
+        setLiveScore(Number(e.data.score) || 0);
+        return;
+      }
+      if (e.data?.type !== 'boh_score') return;
       const score = Number(e.data.score) || 0;
       if (visitor) {
         doSubmitScore(activeGame.id, visitor.id, score);
@@ -318,6 +396,11 @@ export default function JuegosSection() {
     setActiveGame(game);
     setScoreResult(null);
     setPendingScore(null);
+    setLiveScore(null);
+    if (!visitor) {
+      const skipped = sessionStorage.getItem('boh_welcome_skip');
+      if (!skipped) setShowWelcome(true);
+    }
   }
 
   function closeGame() {
@@ -325,6 +408,7 @@ export default function JuegosSection() {
     setScoreResult(null);
     setShowLogin(false);
     setPendingScore(null);
+    setLiveScore(null);
   }
 
   if (!loaded || games.length === 0) return null;
@@ -338,6 +422,8 @@ export default function JuegosSection() {
       <style>{`
         html.light  { --jg-bg:#f9fafb; --jg-card:#fff; --jg-border:#e5e7eb; --jg-border-subtle:#f0f0f0; --jg-text:#111827; --jg-muted:#6b7280; --jg-primary:#00a8bf; }
         html.dark, html:not(.light) { --jg-bg:#0a0a0a; --jg-card:#111; --jg-border:#1f2937; --jg-border-subtle:#1a1a1a; --jg-text:#f3f4f6; --jg-muted:#9ca3af; --jg-primary:#00e7eb; }
+        @keyframes rankUp   { 0%{transform:translateY(5px);opacity:.5} 60%{transform:translateY(-2px)} 100%{transform:translateY(0);opacity:1} }
+        @keyframes rankDown { 0%{background:rgba(255,50,50,.22);transform:translateY(-3px)} 100%{background:transparent;transform:translateY(0)} }
       `}</style>
 
       <section id="juegos" style={{ background: 'var(--jg-bg)', padding: '5rem 1.5rem', fontFamily: 'system-ui,sans-serif' }}>
@@ -420,7 +506,7 @@ export default function JuegosSection() {
                 allow="fullscreen"
               />
               {!visitor && !showLogin && (
-                <p style={{ color: '#444', fontSize: '11px', textAlign: 'center', marginTop: '8px' }}>
+                <p style={{ color: '#888', fontSize: '11px', textAlign: 'center', marginTop: '8px' }}>
                   <button onClick={() => setShowLogin(true)} style={{ color: '#00e7eb', background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}>
                     Inicia sesión
                   </button>{' '}para guardar tu puntuación en el ranking
@@ -432,7 +518,7 @@ export default function JuegosSection() {
             <div style={{ background: '#111', border: '1px solid #1f2937', borderRadius: '12px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <p style={{ color: '#9ca3af', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '10px' }}>Ranking</p>
-                <Leaderboard leaders={leaders[activeGame.id] ?? []} visitorId={visitor?.id} />
+                <AnimatedLeaderboard leaders={leaders[activeGame.id] ?? []} visitor={visitor} liveScore={liveScore} />
               </div>
 
               {scoreResult && (
@@ -452,7 +538,7 @@ export default function JuegosSection() {
               )}
 
               {!scoreResult && (
-                <p style={{ color: '#333', fontSize: '11px', lineHeight: 1.5 }}>Juega y supera el récord para aparecer aquí</p>
+                <p style={{ color: '#888', fontSize: '11px', lineHeight: 1.5 }}>Juega y supera el récord para aparecer aquí</p>
               )}
             </div>
           </div>
@@ -524,7 +610,7 @@ export default function JuegosSection() {
             </button>
             <button
               onClick={() => { try { sessionStorage.setItem('boh_welcome_skip', '1'); } catch {} setShowWelcome(false); }}
-              style={{ background: 'none', border: 'none', color: '#4b5563', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+              style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}
             >
               Jugar sin registro
             </button>
