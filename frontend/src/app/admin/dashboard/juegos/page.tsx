@@ -38,17 +38,27 @@ function slugify(s: string) {
     .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80);
 }
 
-function compressImage(file: File, maxWidth = 800, quality = 0.82): Promise<string> {
+function compressImage(file: File, tw = 800, th = 450, quality = 0.82): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        const ratio = Math.min(1, maxWidth / img.width);
         const canvas = document.createElement('canvas');
-        canvas.width  = Math.round(img.width  * ratio);
-        canvas.height = Math.round(img.height * ratio);
-        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.width = tw; canvas.height = th;
+        const ctx = canvas.getContext('2d')!;
+        // Crop centrado para rellenar 16:9
+        const imgR = img.width / img.height;
+        const tgtR = tw / th;
+        let sw: number, sh: number, sx: number, sy: number;
+        if (imgR > tgtR) {
+          sh = img.height; sw = Math.round(img.height * tgtR);
+          sy = 0;          sx = Math.round((img.width - sw) / 2);
+        } else {
+          sw = img.width;  sh = Math.round(img.width / tgtR);
+          sx = 0;          sy = Math.round((img.height - sh) / 2);
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, tw, th);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
       img.onerror = reject;

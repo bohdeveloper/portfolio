@@ -15,28 +15,47 @@ interface Visitor { id: number; alias: string }
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
-/* ── Leaderboard mini ── */
-function Leaderboard({ leaders, visitorId, className = '' }: { leaders: Leader[]; visitorId?: number; className?: string }) {
+/* ── Leaderboard ── */
+function Leaderboard({ leaders, visitorId }: { leaders: Leader[]; visitorId?: number }) {
   if (leaders.length === 0) {
     return <p style={{ color: 'var(--jg-muted)', fontSize: '11px', fontStyle: 'italic', margin: 0 }}>Sé el primero en jugar</p>;
   }
   return (
-    <div className={className}>
-      {leaders.map(l => (
-        <div key={l.rank} style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          padding: '4px 0', borderBottom: l.rank < leaders.length ? '1px solid var(--jg-border-subtle)' : 'none',
-          background: l.visitor_id === visitorId ? 'rgba(0,231,235,0.07)' : 'none',
-          borderRadius: l.visitor_id === visitorId ? '4px' : 0,
-          paddingLeft: l.visitor_id === visitorId ? '4px' : 0,
-        }}>
-          <span style={{ fontSize: '14px', width: '20px' }}>{MEDALS[l.rank - 1]}</span>
-          <span style={{ flex: 1, fontSize: '12px', color: 'var(--jg-text)', fontWeight: l.visitor_id === visitorId ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {l.alias}{l.visitor_id === visitorId ? ' (tú)' : ''}
-          </span>
-          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--jg-primary)', fontVariantNumeric: 'tabular-nums' }}>{l.score}</span>
-        </div>
-      ))}
+    <div>
+      {leaders.map(l => {
+        const isMe = l.visitor_id === visitorId;
+        const isPodium = l.rank <= 3;
+        return (
+          <div key={l.rank} style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: isPodium ? '6px 4px' : '4px 4px',
+            borderBottom: l.rank < leaders.length ? '1px solid var(--jg-border-subtle)' : 'none',
+            background: isMe ? 'rgba(0,231,235,0.07)' : 'none',
+            borderRadius: '4px',
+          }}>
+            <span style={{
+              width: '24px', textAlign: 'center', flexShrink: 0,
+              fontSize: isPodium ? '16px' : '10px',
+              fontWeight: isPodium ? 700 : 500,
+              color: isPodium ? undefined : 'var(--jg-muted)',
+            }}>
+              {isPodium ? MEDALS[l.rank - 1] : `#${l.rank}`}
+            </span>
+            <span style={{
+              flex: 1, fontSize: isPodium ? '13px' : '11px',
+              color: 'var(--jg-text)', fontWeight: isMe ? 700 : isPodium ? 500 : 400,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
+              {l.alias}{isMe ? ' ← tú' : ''}
+            </span>
+            <span style={{
+              fontSize: isPodium ? '13px' : '11px', fontWeight: 700,
+              color: isPodium ? 'var(--jg-primary)' : 'var(--jg-muted)',
+              fontVariantNumeric: 'tabular-nums',
+            }}>{l.score}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -146,10 +165,11 @@ export default function JuegosSection() {
   const [scoreResult,  setScoreResult]  = useState<{ score: number; rank: number; isRecord: boolean } | null>(null);
   const [gameReacted,  setGameReacted]  = useState<Record<string, Set<string>>>({});
   const [gameCounts,   setGameCounts]   = useState<Record<number, Record<string, number>>>({});
+  const [showWelcome,  setShowWelcome]  = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const loadLeaderboard = useCallback((gameId: number) => {
-    fetch(`/api/games/score?game_id=${gameId}&limit=3`)
+    fetch(`/api/games/score?game_id=${gameId}&limit=10`)
       .then(r => r.json())
       .then((res: { ok: boolean; data?: Leader[] }) => {
         if (res.ok) setLeaders(prev => ({ ...prev, [gameId]: res.data ?? [] }));
@@ -186,13 +206,16 @@ export default function JuegosSection() {
       const v = localStorage.getItem('boh_visitor');
       if (v) {
         const parsed = JSON.parse(v) as Visitor;
-        // Verificar que sigue existiendo en BD
         fetch(`/api/games/visitor?id=${parsed.id}`)
           .then(r => r.json())
           .then((res: { ok: boolean; id?: number; alias?: string }) => {
             if (res.ok) setVisitor({ id: res.id!, alias: res.alias! });
             else { localStorage.removeItem('boh_visitor'); }
           }).catch(() => {});
+      } else {
+        // Primera vez: mostrar welcome tras un pequeño delay
+        const skipped = sessionStorage.getItem('boh_welcome_skip');
+        if (!skipped) setTimeout(() => setShowWelcome(true), 900);
       }
     } catch {}
   }, [loadLeaderboard]);
@@ -242,6 +265,7 @@ export default function JuegosSection() {
         setVisitor(v);
         try { localStorage.setItem('boh_visitor', JSON.stringify(v)); } catch {}
         setShowLogin(false);
+        setShowWelcome(false);
         setLoginAlias('');
         if (pendingScore !== null && activeGame) {
           doSubmitScore(activeGame.id, data.id, pendingScore);
@@ -464,6 +488,45 @@ export default function JuegosSection() {
               style={{ width: '100%', padding: '10px', background: '#00e7eb', border: 'none', borderRadius: '8px', color: '#000', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', opacity: loginSaving || !loginAlias.trim() ? 0.5 : 1 }}
             >
               {loginSaving ? 'Guardando...' : pendingScore !== null ? 'Guardar en el ranking' : 'Continuar'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Welcome modal — primera visita ── */}
+      {showWelcome && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 350, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={e => { if (e.target === e.currentTarget) { try { sessionStorage.setItem('boh_welcome_skip', '1'); } catch {} setShowWelcome(false); } }}
+        >
+          <div style={{ background: '#111', border: '1px solid #1f2937', borderRadius: '16px', padding: '2rem 1.75rem', width: '100%', maxWidth: '380px', textAlign: 'center' }}>
+            <p style={{ fontSize: '40px', marginBottom: '12px' }}>🏆</p>
+            <h3 style={{ color: '#f3f4f6', fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>¿Quieres entrar en el ranking?</h3>
+            <p style={{ color: '#6b7280', fontSize: '13px', lineHeight: 1.6, marginBottom: '24px' }}>
+              Elige un alias para guardar tus puntuaciones y competir por el podio. Tu nombre sirve para todos los juegos.
+            </p>
+            <input
+              type="text"
+              value={loginAlias}
+              onChange={e => setLoginAlias(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleLogin(); }}
+              placeholder="Tu nombre o alias"
+              maxLength={30}
+              autoFocus
+              style={{ width: '100%', padding: '11px 14px', background: '#0a0a0a', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#f3f4f6', fontSize: '14px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: '10px' }}
+            />
+            <button
+              onClick={handleLogin}
+              disabled={loginSaving || !loginAlias.trim()}
+              style={{ width: '100%', padding: '11px', background: '#00e7eb', border: 'none', borderRadius: '8px', color: '#000', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', opacity: loginSaving || !loginAlias.trim() ? 0.5 : 1, marginBottom: '10px' }}
+            >
+              {loginSaving ? 'Guardando...' : 'Entrar al ranking'}
+            </button>
+            <button
+              onClick={() => { try { sessionStorage.setItem('boh_welcome_skip', '1'); } catch {} setShowWelcome(false); }}
+              style={{ background: 'none', border: 'none', color: '#4b5563', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+            >
+              Jugar sin registro
             </button>
           </div>
         </div>
