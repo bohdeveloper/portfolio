@@ -42,8 +42,22 @@ const TRACKER_CSS = `
 .sh-day:last-child{border-right:none}
 .sh-name{font-size:11px;font-weight:500;color:#ccc}
 .sh-date{font-size:10px;color:#555;margin-top:1px}
-.sh-day.tod .sh-name{color:#5DCAA5}
-.sh-day.tod .sh-date{color:#1D6B45}
+.sh-day{cursor:pointer;transition:background .15s;border-radius:3px}
+.sh-day:hover{background:rgba(255,255,255,0.03)}
+.sh-edit-hint{font-size:9px;color:#2a2a2a;margin-top:2px;letter-spacing:.2px;transition:color .15s}
+.sh-day:hover .sh-edit-hint,.sh-day.tod .sh-edit-hint{color:#3a9a6a}
+.sh-day.tod{background:rgba(93,202,165,0.07)}
+.sh-day.tod .sh-name{color:#5DCAA5;font-weight:600}
+.sh-day.tod .sh-date{color:#3a9a6a}
+.day-col.today-col{background:rgba(29,107,69,0.05)!important;border-left:1px solid rgba(93,202,165,0.1);border-right:1px solid rgba(93,202,165,0.14)!important}
+.day-col.today-col::before{background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh)*1px - 1px),rgba(29,107,69,0.09) calc(var(--sh)*1px - 1px),rgba(29,107,69,0.09) calc(var(--sh)*1px))!important}
+#day-cfg-ov{position:fixed;inset:0;z-index:150;background:#0f0f0f;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+#day-cfg-ov.open{transform:translateX(0)}
+.dcfg-hdr{padding:.75rem 1rem;background:#111;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.dcfg-hdr h2{font-size:15px;font-weight:500;color:#e8e6e0;margin:0;flex:1}
+#day-cfg-scroll{flex:1;overflow-y:auto;padding:.75rem}
+.tcrd{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:.65rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:8px;transition:border-color .15s}
+.tcrd:hover{border-color:#3a3a3a}
 .sched-body{display:grid;position:relative}
 .time-col{display:flex;flex-direction:column}
 .time-row{border-bottom:1px solid #1e1e1e;display:flex;align-items:flex-start;justify-content:flex-end;padding:1px 6px 0;font-size:9px;color:#555;background:#111;border-right:1px solid #2a2a2a;flex-shrink:0}
@@ -172,6 +186,13 @@ html.light .dt-btn{background:#f0f0f0;border-color:#d0d0d0;color:#666}
 html.light .btn-sm{background:#f0f0f0;border-color:#d0d0d0;color:#333}
 html.light .btn-sm:hover{background:#e0e0e0}
 html.light .form-row input,html.light .form-row select,html.light .form-row textarea{background:#f5f5f5;border-color:#e0e0e0;color:#1a1a1a}
+html.light #day-cfg-ov{background:#f5f5f5}
+html.light .dcfg-hdr{background:#fff;border-bottom-color:#e0e0e0}
+html.light .dcfg-hdr h2{color:#1a1a1a}
+html.light .tcrd{background:#fff;border-color:#e0e0e0}
+html.light .tcrd:hover{border-color:#ccc}
+html.light .day-col.today-col{background:rgba(0,168,191,0.05)!important;border-color:rgba(0,168,191,0.15)!important}
+html.light .sh-day.tod{background:rgba(0,168,191,0.07)}
 `;
 
 const TRACKER_HTML = `
@@ -184,7 +205,7 @@ const TRACKER_HTML = `
   <button class="tab" id="tab-estadisticas">Estadísticas</button>
   <button class="tab" id="tab-resumen">Resumen</button>
   <button class="tab" id="tab-perdidas">Perdidas</button>
-  <button class="tab" id="tab-configurar">Configurar</button>
+  <button class="tab" id="tab-configurar">Categorías</button>
 </div>
 <div id="semana" class="page active">
   <div class="week-nav">
@@ -213,13 +234,19 @@ const TRACKER_HTML = `
   <div id="perdidas-list"><p style="color:#555;font-size:13px">Sin actividades perdidas esta semana.</p></div>
 </div>
 <div id="configurar" class="page">
-  <div class="card" style="margin-bottom:1rem" id="cfg-cats-card">
+  <div class="card" id="cfg-cats-card">
     <div id="cfg-cats"></div>
   </div>
-  <div class="card">
-    <div class="cfg-hdr"><h3>Tareas</h3></div>
-    <div class="day-tabs-cfg" id="cfg-day-tabs"></div>
-    <div id="cfg-tasks-list"></div>
+  <p style="font-size:11px;color:#444;margin-top:.5rem;font-style:italic">Para editar tareas, haz clic en la cabecera del día en la vista Semana.</p>
+</div>
+<div id="day-cfg-ov">
+  <div class="dcfg-hdr">
+    <button class="btn" id="day-cfg-back">← Volver</button>
+    <h2 id="day-cfg-title"></h2>
+    <button class="btn-sm" id="day-cfg-add">+ Tarea</button>
+  </div>
+  <div id="day-cfg-scroll">
+    <div id="day-cfg-tasks"></div>
   </div>
 </div>
 <div class="tip" id="tip"><strong id="tip-title"></strong><span id="tip-desc"></span><em class="tip-reason" id="tip-reason"></em></div>
@@ -301,6 +328,7 @@ function initTracker() {
   let dynTasksByDay: Activity[][] = Array.from({ length: 7 }, () => []);
   let rawTaskMap: Record<string, RawTask> = {};
   let cfgDayIdx = 0;
+  let cfgDayKey = '';
   let editMode: 'cat' | 'task' = 'cat';
   let editCatId = 0;
   let editTaskId = 0;
@@ -347,6 +375,7 @@ function initTracker() {
         applyScheduleData(res);
         renderAll();
         if (document.getElementById('configurar')?.classList.contains('active')) renderConfig();
+        if (document.getElementById('day-cfg-ov')?.classList.contains('open')) renderDayCfgTasks();
       })
       .catch(() => {});
   }
@@ -439,11 +468,18 @@ function initTracker() {
 
     const head = document.getElementById('sched-head')!;
     head.style.gridTemplateColumns = '48px repeat(7,1fr)';
-    head.innerHTML = '<div class="sh-corner" style="min-height:34px"></div>';
+    head.innerHTML = '<div class="sh-corner" style="min-height:44px"></div>';
     for (let di = 0; di < 7; di++) {
       const d = days[di], isT = d.getTime() === today.getTime();
-      head.innerHTML += `<div class="sh-day${isT ? ' tod' : ''}"><div class="sh-name">${DIAS[di]}</div><div class="sh-date">${d.getDate()} ${d.toLocaleDateString('es-ES', { month: 'short' })}</div></div>`;
+      head.innerHTML += `<div class="sh-day${isT ? ' tod' : ''}" data-di="${di}" data-dkey="${dk(d)}" title="Configurar ${DIAS[di]}"><div class="sh-name">${DIAS[di]}</div><div class="sh-date">${d.getDate()} ${d.toLocaleDateString('es-ES', { month: 'short' })}</div><div class="sh-edit-hint">✎ editar</div></div>`;
     }
+    document.querySelectorAll('.sh-day[data-di]').forEach(el => {
+      el.addEventListener('click', () => {
+        const di2 = parseInt((el as HTMLElement).dataset.di || '0');
+        const dkey = (el as HTMLElement).dataset.dkey || '';
+        openDayCfg(di2, dkey, DIAS_F[di2] + ', ' + days[di2].toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }));
+      });
+    });
 
     const body = document.getElementById('sched-body')!;
     body.innerHTML = '';
@@ -470,7 +506,8 @@ function initTracker() {
     for (let di = 0; di < 7; di++) {
       const d2 = days[di], dKey = dk(d2), isFut = d2 > today;
       const col = document.createElement('div');
-      col.className = 'day-col';
+      const isToday = d2.getTime() === today.getTime();
+      col.className = 'day-col' + (isToday ? ' today-col' : '');
       col.style.cssText = `height:${totalH}px;--sh:${Math.round((SLOT_MIN / totalMins) * totalH)}px;`;
 
       for (const act of getSchedForDay(di, d2)) {
@@ -685,11 +722,9 @@ function initTracker() {
     }).join('');
   }
 
-  // ── Configurar tab ────────────────────────────────────────────────────────────
+  // ── Configurar tab (solo categorías) ─────────────────────────────────────────
   function renderConfig() {
     renderCatsList();
-    renderDayTabs();
-    renderTasksList();
   }
 
   function renderCatsList() {
@@ -785,6 +820,59 @@ function initTracker() {
     document.getElementById('btn-add-task')?.addEventListener('click', () => openTaskModal(null));
   }
 
+  // ── Day config overlay ────────────────────────────────────────────────────────
+  function openDayCfg(di: number, dKey: string, label: string) {
+    cfgDayIdx = di;
+    cfgDayKey = dKey;
+    document.getElementById('day-cfg-title')!.textContent = label;
+    renderDayCfgTasks();
+    document.getElementById('day-cfg-ov')!.classList.add('open');
+  }
+
+  function closeDayCfg() {
+    document.getElementById('day-cfg-ov')!.classList.remove('open');
+  }
+
+  function renderDayCfgTasks() {
+    const tasks = (dynTasksByDay[cfgDayIdx] || []).slice().sort((a, b) => a.start - b.start);
+    const el = document.getElementById('day-cfg-tasks')!;
+
+    let html = tasks.length === 0
+      ? `<p class="cfg-empty" style="padding:.5rem 0">Sin tareas para este día.</p>`
+      : tasks.map((t, i) => {
+          const raw = rawTaskMap[cfgDayIdx + '_' + t.id];
+          const info = getCatInfo(t.cat);
+          return `<div class="tcrd" data-idx="${i}">` +
+            `<span style="font-size:11px;color:#555;width:90px;flex-shrink:0">${fmt(t.start)}–${fmt(t.end)}</span>` +
+            `<span style="flex:1;font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span>` +
+            `<span style="font-size:10px;padding:2px 7px;border-radius:4px;color:#fff;background:${info.color};flex-shrink:0;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${info.label}</span>` +
+            `<span style="font-size:11px;width:16px;text-align:center;flex-shrink:0;color:${t.track ? '#5DCAA5' : '#444'}">${t.track ? '✓' : '—'}</span>` +
+            `<button class="btn-sm dcfg-edit" data-tid="${raw?.id || 0}" data-idx="${i}" title="Editar">✎</button>` +
+            `<button class="btn-sm btn-del dcfg-del" data-tid="${raw?.id || 0}" title="Eliminar">✕</button>` +
+            `</div>`;
+        }).join('');
+
+    el.innerHTML = html;
+
+    el.querySelectorAll('.dcfg-edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt((btn as HTMLElement).dataset.idx || '0');
+        const raw = rawTaskMap[cfgDayIdx + '_' + tasks[idx].id];
+        if (raw) openTaskModal(raw);
+      });
+    });
+
+    el.querySelectorAll('.dcfg-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = parseInt((btn as HTMLElement).dataset.tid || '0');
+        if (!id || !confirm('¿Eliminar esta tarea?')) return;
+        fetch('/api/tracker/tasks?id=' + id, { method: 'DELETE' })
+          .then(() => reloadSchedule())
+          .catch(() => {});
+      });
+    });
+  }
+
   // ── Edit modal ────────────────────────────────────────────────────────────────
   function openCatModal(catId: number) {
     editMode = 'cat';
@@ -862,8 +950,10 @@ function initTracker() {
   }
 
   // ── Event listeners ────────────────────────────────────────────────────────────
-  document.getElementById('btn-prev')!.onclick = () => { weekOffset--; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
-  document.getElementById('btn-next')!.onclick = () => { weekOffset++; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
+  document.getElementById('btn-prev')!.onclick = () => { closeDayCfg(); weekOffset--; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
+  document.getElementById('btn-next')!.onclick = () => { closeDayCfg(); weekOffset++; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
+  document.getElementById('day-cfg-back')!.onclick = closeDayCfg;
+  document.getElementById('day-cfg-add')!.onclick = () => openTaskModal(null);
   document.getElementById('modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
   document.getElementById('modal-cancel')!.onclick = closeModal;
   document.getElementById('modal-miss')!.onclick   = () => saveAct(false);
