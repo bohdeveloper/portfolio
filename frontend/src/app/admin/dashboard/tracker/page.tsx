@@ -249,7 +249,16 @@ const TRACKER_HTML = `
     <div id="cfg-cats"></div>
   </div>
   <p style="font-size:11px;color:#444;margin-top:.5rem;font-style:italic">Para editar tareas, haz clic en la cabecera del día en la vista Semana.</p>
-  <div class="card" style="margin-top:1rem;border-color:#3a1010">
+  <div class="card" style="margin-top:1rem">
+    <div class="cfg-hdr" style="margin-bottom:.4rem"><h3 style="font-size:12px">Inicio del horario</h3></div>
+    <p style="font-size:12px;color:#666;margin-bottom:.6rem">El calendario no mostrará tareas antes de esta fecha.</p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="date" id="cfg-sched-start" style="background:#111;border:1px solid #2a2a2a;border-radius:5px;padding:5px 8px;color:#e8e6e0;font-size:12px;font-family:inherit" />
+      <button class="btn-sm" id="btn-sched-start-save">Aplicar</button>
+      <button class="btn-sm btn-del" id="btn-sched-start-clear" style="padding:4px 8px">✕ Sin límite</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:.75rem;border-color:#3a1010">
     <div class="cfg-hdr" style="margin-bottom:.5rem"><h3 style="color:#D85A30;font-size:12px">Zona peligrosa</h3></div>
     <p style="font-size:12px;color:#666;margin-bottom:.75rem">Elimina el historial de registros hasta la fecha indicada. El horario de tareas no se modifica.</p>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -350,6 +359,7 @@ function initTracker() {
   let rawTaskMap: Record<string, RawTask> = {};
   let cfgDayIdx = 0;
   let cfgDayKey = '';
+  let schedStartDate: string = (() => { try { return localStorage.getItem('tracker_sched_start') || ''; } catch { return ''; } })();
   let editMode: 'cat' | 'task' = 'cat';
   let editCatId = 0;
   let editTaskId = 0;
@@ -437,6 +447,7 @@ function initTracker() {
   }
 
   function getSchedForDay(di: number, dayDate: Date): Activity[] {
+    if (schedStartDate && dk(dayDate) < schedStartDate) return [];
     if (userId === 1 && dk(dayDate) < SCHED_SWITCH) return SCHED[di] || [];
     return dynTasksByDay[di] || [];
   }
@@ -1015,6 +1026,24 @@ function initTracker() {
   document.getElementById('day-cfg-prev')!.onclick = () => navigateDayCfg(-1);
   document.getElementById('day-cfg-next')!.onclick = () => navigateDayCfg(1);
   document.getElementById('day-cfg-add')!.onclick  = () => openTaskModal(null);
+  // Inicializar input con valor guardado
+  const schedStartInput = document.getElementById('cfg-sched-start') as HTMLInputElement | null;
+  if (schedStartInput && schedStartDate) schedStartInput.value = schedStartDate;
+
+  document.getElementById('btn-sched-start-save')?.addEventListener('click', () => {
+    const val = (document.getElementById('cfg-sched-start') as HTMLInputElement)?.value || '';
+    schedStartDate = val;
+    try { if (val) localStorage.setItem('tracker_sched_start', val); else localStorage.removeItem('tracker_sched_start'); } catch {}
+    renderAll();
+  });
+  document.getElementById('btn-sched-start-clear')?.addEventListener('click', () => {
+    schedStartDate = '';
+    try { localStorage.removeItem('tracker_sched_start'); } catch {}
+    const inp = document.getElementById('cfg-sched-start') as HTMLInputElement | null;
+    if (inp) inp.value = '';
+    renderAll();
+  });
+
   document.getElementById('btn-clear-history')?.addEventListener('click', () => {
     const until = (document.getElementById('cfg-clear-until') as HTMLInputElement)?.value;
     if (!until || !confirm(`¿Vaciar TODO el historial de registros hasta el ${until}?\n\nEsta acción no se puede deshacer.`)) return;
