@@ -58,6 +58,9 @@ const TRACKER_CSS = `
 #day-cfg-scroll{flex:1;overflow-y:auto;padding:.75rem}
 .tcrd{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:.65rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:8px;transition:border-color .15s}
 .tcrd:hover{border-color:#3a3a3a}
+.ef-warn{display:none;font-size:11px;padding:6px 9px;background:rgba(230,168,23,0.08);border:1px solid rgba(230,168,23,0.25);border-radius:5px;color:#e6a817;margin-bottom:.4rem}
+.btn-danger{border:1px solid #7a2a1a!important;color:#D85A30!important;background:#150808!important}
+.btn-danger:hover{background:#200e0e!important}
 .sched-body{display:grid;position:relative}
 .time-col{display:flex;flex-direction:column}
 .time-row{border-bottom:1px solid #1e1e1e;display:flex;align-items:flex-start;justify-content:flex-end;padding:1px 6px 0;font-size:9px;color:#555;background:#111;border-right:1px solid #2a2a2a;flex-shrink:0}
@@ -193,6 +196,12 @@ html.light .tcrd{background:#fff;border-color:#e0e0e0}
 html.light .tcrd:hover{border-color:#ccc}
 html.light .day-col.today-col{background:rgba(0,168,191,0.05)!important;border-color:rgba(0,168,191,0.15)!important}
 html.light .sh-day.tod{background:rgba(0,168,191,0.07)}
+html.light .ef-warn{background:rgba(230,168,23,0.06);border-color:rgba(230,168,23,0.2)}
+html.light #day-cfg-ov{background:#f5f5f5}
+html.light .dcfg-hdr{background:#fff;border-bottom-color:#e0e0e0}
+html.light .dcfg-hdr h2{color:#1a1a1a}
+html.light .tcrd{background:#fff;border-color:#e0e0e0}
+html.light .tcrd:hover{border-color:#ccc}
 `;
 
 const TRACKER_HTML = `
@@ -238,11 +247,21 @@ const TRACKER_HTML = `
     <div id="cfg-cats"></div>
   </div>
   <p style="font-size:11px;color:#444;margin-top:.5rem;font-style:italic">Para editar tareas, haz clic en la cabecera del día en la vista Semana.</p>
+  <div class="card" style="margin-top:1rem;border-color:#3a1010">
+    <div class="cfg-hdr" style="margin-bottom:.5rem"><h3 style="color:#D85A30;font-size:12px">Zona peligrosa</h3></div>
+    <p style="font-size:12px;color:#666;margin-bottom:.75rem">Elimina el historial de registros hasta la fecha indicada. El horario de tareas no se modifica.</p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="date" id="cfg-clear-until" value="2026-06-08" style="background:#111;border:1px solid #2a2a2a;border-radius:5px;padding:5px 8px;color:#e8e6e0;font-size:12px;font-family:inherit" />
+      <button class="btn-sm btn-danger" id="btn-clear-history">Vaciar historial hasta esta fecha</button>
+    </div>
+  </div>
 </div>
 <div id="day-cfg-ov">
   <div class="dcfg-hdr">
-    <button class="btn" id="day-cfg-back">← Volver</button>
-    <h2 id="day-cfg-title"></h2>
+    <button class="btn" id="day-cfg-back" title="Volver a la semana">←</button>
+    <button class="btn" id="day-cfg-prev" style="padding:6px 10px" title="Día anterior">‹</button>
+    <h2 id="day-cfg-title" style="flex:1;text-align:center;font-size:14px"></h2>
+    <button class="btn" id="day-cfg-next" style="padding:6px 10px" title="Día siguiente">›</button>
     <button class="btn-sm" id="day-cfg-add">+ Tarea</button>
   </div>
   <div id="day-cfg-scroll">
@@ -333,10 +352,13 @@ function initTracker() {
   let editCatId = 0;
   let editTaskId = 0;
 
+  const NO_CAT = { label: 'Sin categoría', color: '#3a3a3a' };
+
   function getCatInfo(key: string): { label: string; color: string } {
+    if (!key || key === '_none') return NO_CAT;
     if (dynCats[key]) return dynCats[key];
     const c = CATS[key];
-    return c ? { label: c.label, color: c.color } : { label: key, color: '#555' };
+    return c ? { label: c.label, color: c.color } : NO_CAT;
   }
 
   function applyScheduleData(res: { ok: boolean; user_id?: number; categories?: DynCat[]; tasks?: RawTask[] }) {
@@ -820,6 +842,13 @@ function initTracker() {
     document.getElementById('btn-add-task')?.addEventListener('click', () => openTaskModal(null));
   }
 
+  // ── Overlap check ─────────────────────────────────────────────────────────────
+  function checkTaskOverlap(startMin: number, endMin: number, excludeActivityId?: string): string[] {
+    return (dynTasksByDay[cfgDayIdx] || [])
+      .filter(t => t.id !== excludeActivityId && startMin < t.end && t.start < endMin)
+      .map(t => `${fmt(t.start)}–${fmt(t.end)} ${t.name}`);
+  }
+
   // ── Day config overlay ────────────────────────────────────────────────────────
   function openDayCfg(di: number, dKey: string, label: string) {
     cfgDayIdx = di;
@@ -833,37 +862,47 @@ function initTracker() {
     document.getElementById('day-cfg-ov')!.classList.remove('open');
   }
 
+  function navigateDayCfg(dir: number) {
+    cfgDayIdx = (cfgDayIdx + 7 + dir) % 7;
+    const days = getDays(weekOffset);
+    document.getElementById('day-cfg-title')!.textContent =
+      DIAS_F[cfgDayIdx] + ', ' + days[cfgDayIdx].toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+    renderDayCfgTasks();
+  }
+
   function renderDayCfgTasks() {
     const tasks = (dynTasksByDay[cfgDayIdx] || []).slice().sort((a, b) => a.start - b.start);
     const el = document.getElementById('day-cfg-tasks')!;
 
     let html = tasks.length === 0
-      ? `<p class="cfg-empty" style="padding:.5rem 0">Sin tareas para este día.</p>`
+      ? `<p class="cfg-empty" style="padding:.5rem 0">Sin tareas para este día. Usa "+ Tarea" para añadir.</p>`
       : tasks.map((t, i) => {
           const raw = rawTaskMap[cfgDayIdx + '_' + t.id];
           const info = getCatInfo(t.cat);
-          return `<div class="tcrd" data-idx="${i}">` +
-            `<span style="font-size:11px;color:#555;width:90px;flex-shrink:0">${fmt(t.start)}–${fmt(t.end)}</span>` +
+          return `<div class="tcrd" style="cursor:pointer" data-idx="${i}">` +
+            `<span style="font-size:11px;color:#555;width:90px;flex-shrink:0;font-variant-numeric:tabular-nums">${fmt(t.start)}–${fmt(t.end)}</span>` +
             `<span style="flex:1;font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span>` +
             `<span style="font-size:10px;padding:2px 7px;border-radius:4px;color:#fff;background:${info.color};flex-shrink:0;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${info.label}</span>` +
-            `<span style="font-size:11px;width:16px;text-align:center;flex-shrink:0;color:${t.track ? '#5DCAA5' : '#444'}">${t.track ? '✓' : '—'}</span>` +
-            `<button class="btn-sm dcfg-edit" data-tid="${raw?.id || 0}" data-idx="${i}" title="Editar">✎</button>` +
-            `<button class="btn-sm btn-del dcfg-del" data-tid="${raw?.id || 0}" title="Eliminar">✕</button>` +
+            `<span style="font-size:11px;width:16px;text-align:center;flex-shrink:0;color:${t.track ? '#5DCAA5' : '#333'}">${t.track ? '✓' : '—'}</span>` +
+            `<button class="btn-sm btn-del dcfg-del" data-tid="${raw?.id || 0}" title="Eliminar" style="flex-shrink:0">✕</button>` +
             `</div>`;
         }).join('');
 
     el.innerHTML = html;
 
-    el.querySelectorAll('.dcfg-edit').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt((btn as HTMLElement).dataset.idx || '0');
-        const raw = rawTaskMap[cfgDayIdx + '_' + tasks[idx].id];
+    // Tarjeta completa clickable para editar (excepto botón eliminar)
+    el.querySelectorAll('.tcrd').forEach((card, i) => {
+      card.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).classList.contains('dcfg-del') ||
+            (e.target as HTMLElement).classList.contains('btn-del')) return;
+        const raw = rawTaskMap[cfgDayIdx + '_' + tasks[i].id];
         if (raw) openTaskModal(raw);
       });
     });
 
     el.querySelectorAll('.dcfg-del').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = parseInt((btn as HTMLElement).dataset.tid || '0');
         if (!id || !confirm('¿Eliminar esta tarea?')) return;
         fetch('/api/tracker/tasks?id=' + id, { method: 'DELETE' })
@@ -890,20 +929,37 @@ function initTracker() {
     editMode = 'task';
     editTaskId = raw?.id || 0;
     document.getElementById('em-title')!.textContent = raw ? 'Editar tarea' : 'Nueva tarea';
-    const catOpts = Object.values(dynCats).map(c =>
-      `<option value="${c.cat_key}"${raw?.cat_key === c.cat_key ? ' selected' : ''}>${c.label}</option>`
-    ).join('');
+    const catOpts =
+      `<option value="_none"${(!raw?.cat_key || raw.cat_key === '_none') ? ' selected' : ''}>— Sin categoría</option>` +
+      Object.values(dynCats).map(c =>
+        `<option value="${c.cat_key}"${raw?.cat_key === c.cat_key ? ' selected' : ''}>${c.label}</option>`
+      ).join('');
     document.getElementById('em-body')!.innerHTML =
       `<div class="form-row"><label>Nombre</label><input type="text" id="ef-name" value="${raw?.name || ''}" placeholder="Nombre de la tarea" /></div>` +
-      `<div class="form-row"><label>Categoría</label><select id="ef-cat">${catOpts || '<option value="">Sin categorías</option>'}</select></div>` +
+      `<div class="form-row"><label>Categoría</label><select id="ef-cat">${catOpts}</select></div>` +
       `<div class="form-2col"><div class="form-row"><label>Inicio</label><input type="time" id="ef-start" value="${minToTime(raw?.start_min ?? 8 * 60)}" /></div>` +
       `<div class="form-row"><label>Fin</label><input type="time" id="ef-end" value="${minToTime(raw?.end_min ?? 9 * 60)}" /></div></div>` +
+      `<div id="ef-overlap-warn" class="ef-warn"></div>` +
       `<div class="form-row"><label>Descripción</label><textarea id="ef-desc" rows="2" placeholder="Descripción opcional...">${raw?.description || ''}</textarea></div>` +
       `<div class="form-row" style="display:flex;align-items:center;gap:8px;padding-top:.1rem">` +
       `<input type="checkbox" id="ef-track" style="width:auto;margin:0"${raw === null || raw.track ? ' checked' : ''} />` +
       `<label for="ef-track" style="margin:0;font-size:12px;color:#ccc">Rastrear cumplimiento</label></div>`;
     document.getElementById('edit-modal')!.classList.remove('hidden');
-    setTimeout(() => (document.getElementById('ef-name') as HTMLInputElement)?.focus(), 50);
+    setTimeout(() => {
+      (document.getElementById('ef-name') as HTMLInputElement)?.focus();
+      const startEl = document.getElementById('ef-start') as HTMLInputElement;
+      const endEl   = document.getElementById('ef-end')   as HTMLInputElement;
+      const warnEl  = document.getElementById('ef-overlap-warn')!;
+      function checkOverlap() {
+        const s = timeToMin(startEl?.value || ''), e = timeToMin(endEl?.value || '');
+        if (e <= s) { warnEl.style.display = 'none'; return; }
+        const hits = checkTaskOverlap(s, e, raw?.activity_id);
+        if (hits.length) { warnEl.textContent = '⚠ Solapa con: ' + hits.join(', '); warnEl.style.display = 'block'; }
+        else { warnEl.style.display = 'none'; }
+      }
+      startEl?.addEventListener('change', checkOverlap);
+      endEl?.addEventListener('change', checkOverlap);
+    }, 60);
   }
 
   function closeEditModal() { document.getElementById('edit-modal')!.classList.add('hidden'); }
@@ -953,7 +1009,20 @@ function initTracker() {
   document.getElementById('btn-prev')!.onclick = () => { closeDayCfg(); weekOffset--; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
   document.getElementById('btn-next')!.onclick = () => { closeDayCfg(); weekOffset++; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
   document.getElementById('day-cfg-back')!.onclick = closeDayCfg;
-  document.getElementById('day-cfg-add')!.onclick = () => openTaskModal(null);
+  document.getElementById('day-cfg-prev')!.onclick = () => navigateDayCfg(-1);
+  document.getElementById('day-cfg-next')!.onclick = () => navigateDayCfg(1);
+  document.getElementById('day-cfg-add')!.onclick  = () => openTaskModal(null);
+  document.getElementById('btn-clear-history')?.addEventListener('click', () => {
+    const until = (document.getElementById('cfg-clear-until') as HTMLInputElement)?.value;
+    if (!until || !confirm(`¿Vaciar TODO el historial de registros hasta el ${until}?\n\nEsta acción no se puede deshacer.`)) return;
+    fetch('/api/tracker/save?until=' + until, { method: 'DELETE' })
+      .then(r => r.json())
+      .then((res: { ok: boolean }) => {
+        if (res.ok) { loadState(); alert('Historial vaciado correctamente.'); }
+        else alert('Error al vaciar el historial.');
+      })
+      .catch(() => alert('Error de conexión.'));
+  });
   document.getElementById('modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
   document.getElementById('modal-cancel')!.onclick = closeModal;
   document.getElementById('modal-miss')!.onclick   = () => saveAct(false);

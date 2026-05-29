@@ -31,3 +31,21 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 };
+
+/* ── DELETE /api/tracker/save?until=YYYY-MM-DD — vaciar historial hasta fecha ── */
+export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
+  const headers = { 'Content-Type': 'application/json' };
+
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
+
+  const until = new URL(request.url).searchParams.get('until') ?? '';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(until)) {
+    return new Response(JSON.stringify({ ok: false, error: 'Missing or invalid until date (YYYY-MM-DD)' }), { status: 400, headers });
+  }
+
+  await env.DB.prepare('DELETE FROM tracker_records WHERE user_id = ? AND date <= ?')
+    .bind(auth.user_id, until).run();
+
+  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+};
