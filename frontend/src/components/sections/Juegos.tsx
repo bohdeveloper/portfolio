@@ -293,6 +293,20 @@ export default function JuegosSection() {
     } catch {}
   }, [loadLeaderboard]);
 
+  // Refrescar leaderboard de la sección cuando se envía puntuación desde BlogPanel
+  useEffect(() => {
+    const h = (e: Event) => loadLeaderboard((e as CustomEvent<{ gameId: number }>).detail.gameId);
+    window.addEventListener('boh_leaderboard_refresh', h);
+    return () => window.removeEventListener('boh_leaderboard_refresh', h);
+  }, [loadLeaderboard]);
+
+  // Polling automático mientras el juego está activo (cada 30s)
+  useEffect(() => {
+    if (!activeGame) return;
+    const id = setInterval(() => loadLeaderboard(activeGame.id), 30000);
+    return () => clearInterval(id);
+  }, [activeGame, loadLeaderboard]);
+
   // Escuchar postMessage del iframe
   useEffect(() => {
     const handler = (e: MessageEvent) => {

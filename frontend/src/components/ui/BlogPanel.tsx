@@ -257,6 +257,8 @@ export default function BlogPanel() {
         if (res.ok) {
           setPnlScoreResult({ score, rank: res.rank ?? 99, isRecord: !!res.isRecord });
           pnlLoadLeaderboard(gameId);
+          // Notificar a la sección Juegos para que refresque el ranking de la tarjeta
+          window.dispatchEvent(new CustomEvent('boh_leaderboard_refresh', { detail: { gameId } }));
         }
       }).catch(() => {});
   }
