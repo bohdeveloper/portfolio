@@ -53,8 +53,11 @@ const TRACKER_CSS = `
 .day-col.today-col::before{background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh)*1px - 1px),rgba(29,107,69,0.09) calc(var(--sh)*1px - 1px),rgba(29,107,69,0.09) calc(var(--sh)*1px))!important}
 #day-cfg-ov{position:fixed;inset:0;z-index:150;background:#0f0f0f;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
 #day-cfg-ov.open{transform:translateX(0)}
+#day-cfg-ov.today-day .dcfg-hdr{background:rgba(29,107,69,0.15);border-bottom-color:rgba(93,202,165,0.25)}
+#day-cfg-ov.today-day #day-cfg-title{color:#5DCAA5}
 .dcfg-hdr{padding:.75rem 1rem;background:#111;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .dcfg-hdr h2{font-size:15px;font-weight:500;color:#e8e6e0;margin:0;flex:1}
+.today-badge{font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(93,202,165,0.18);color:#5DCAA5;border:1px solid rgba(93,202,165,0.35);vertical-align:middle;margin-left:6px;font-weight:600;letter-spacing:.3px}
 #day-cfg-scroll{flex:1;overflow-y:auto;padding:.75rem}
 .tcrd{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:.65rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:8px;transition:border-color .15s}
 .tcrd:hover{border-color:#3a3a3a}
@@ -859,10 +862,19 @@ function initTracker() {
   }
 
   // ── Day config overlay ────────────────────────────────────────────────────────
+  function setDayCfgTitle(label: string, dayDate: Date) {
+    const isToday = dkLocal(dayDate) === dkLocal(new Date());
+    const ov = document.getElementById('day-cfg-ov')!;
+    ov.classList.toggle('today-day', isToday);
+    document.getElementById('day-cfg-title')!.innerHTML =
+      label + (isToday ? '<span class="today-badge">HOY</span>' : '');
+  }
+
   function openDayCfg(di: number, dKey: string, label: string) {
     cfgDayIdx = di;
     cfgDayKey = dKey;
-    document.getElementById('day-cfg-title')!.textContent = label;
+    const days = getDays(weekOffset);
+    setDayCfgTitle(label, days[di]);
     renderDayCfgTasks();
     document.getElementById('day-cfg-ov')!.classList.add('open');
   }
@@ -874,8 +886,8 @@ function initTracker() {
   function navigateDayCfg(dir: number) {
     cfgDayIdx = (cfgDayIdx + 7 + dir) % 7;
     const days = getDays(weekOffset);
-    document.getElementById('day-cfg-title')!.textContent =
-      DIAS_F[cfgDayIdx] + ', ' + days[cfgDayIdx].toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+    const label = DIAS_F[cfgDayIdx] + ', ' + days[cfgDayIdx].toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+    setDayCfgTitle(label, days[cfgDayIdx]);
     renderDayCfgTasks();
   }
 
