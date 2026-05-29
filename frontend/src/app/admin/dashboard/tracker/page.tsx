@@ -304,6 +304,9 @@ function fmt(min: number): string {
   return h + ':' + (m < 10 ? '0' : '') + m;
 }
 function dk(d: Date): string { return d.toISOString().slice(0, 10); }
+function dkLocal(d: Date): string {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
 function ak(dstr: string, id: string): string { return dstr + '_' + id; }
 function getWS(off: number): Date {
   const n = new Date(), day = n.getDay(), m = new Date(n);
@@ -439,7 +442,7 @@ function initTracker() {
   }
 
   function getSchedForDay(di: number, dayDate: Date): Activity[] {
-    if (schedStartDate && dk(dayDate) < schedStartDate) return [];
+    if (schedStartDate && dkLocal(dayDate) < schedStartDate) return [];
     if (userId === 1 && dk(dayDate) < SCHED_SWITCH) return SCHED[di] || [];
     return dynTasksByDay[di] || [];
   }
