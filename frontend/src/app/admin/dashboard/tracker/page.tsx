@@ -112,7 +112,8 @@ const TRACKER_CSS = `
 .hidden{display:none}
 .cfg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
 .cfg-hdr h3{font-size:13px;font-weight:500;color:#e8e6e0;margin:0}
-.cat-row{display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid #222}
+.cat-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid #222;cursor:pointer;border-radius:4px;margin:0 -6px;transition:background .12s}
+.cat-row:hover{background:rgba(255,255,255,0.04)}
 .cat-row:last-child{border-bottom:none}
 .cat-sw{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.15);cursor:pointer}
 .cat-label{flex:1;font-size:13px;color:#ccc}
@@ -181,6 +182,7 @@ html.light .modal textarea{background:#f5f5f5;border-color:#e0e0e0;color:#1a1a1a
 html.light .week-nav span{color:#1a1a1a}
 html.light .cfg-hdr h3{color:#1a1a1a}
 html.light .cat-row{border-bottom-color:#e8e8e8}
+html.light .cat-row:hover{background:rgba(0,0,0,0.03)}
 html.light .cat-label{color:#333}
 html.light .task-row:hover{background:#f0f0f0}
 html.light .task-time{color:#999}
@@ -756,10 +758,9 @@ function initTracker() {
       inner += `<p class="cfg-empty">Sin categorías. Añade una para empezar.</p>`;
     } else {
       inner += cats.map(c =>
-        `<div class="cat-row">` +
-        `<div class="cat-sw" style="background:${c.color}" data-cid="${c.id}" title="Editar color"></div>` +
+        `<div class="cat-row" data-cid="${c.id}">` +
+        `<div class="cat-sw" style="background:${c.color};pointer-events:none"></div>` +
         `<span class="cat-label">${c.label}</span>` +
-        `<button class="btn-sm btn-edit-cat" data-cid="${c.id}" title="Editar">✎</button>` +
         `<button class="btn-sm btn-del btn-del-cat" data-cid="${c.id}" title="Eliminar">✕</button>` +
         `</div>`
       ).join('');
@@ -767,14 +768,16 @@ function initTracker() {
     document.getElementById('cfg-cats')!.innerHTML = inner;
 
     document.getElementById('btn-add-cat')?.addEventListener('click', () => openCatModal(0));
-    document.querySelectorAll('.btn-edit-cat').forEach(btn =>
-      btn.addEventListener('click', () => openCatModal(parseInt((btn as HTMLElement).dataset.cid || '0')))
-    );
-    document.querySelectorAll('.cat-sw').forEach(sw =>
-      sw.addEventListener('click', () => openCatModal(parseInt((sw as HTMLElement).dataset.cid || '0')))
-    );
+    document.querySelectorAll('.cat-row[data-cid]').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).classList.contains('btn-del-cat') ||
+            (e.target as HTMLElement).classList.contains('btn-del')) return;
+        openCatModal(parseInt((row as HTMLElement).dataset.cid || '0'));
+      });
+    });
     document.querySelectorAll('.btn-del-cat').forEach(btn =>
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = parseInt((btn as HTMLElement).dataset.cid || '0');
         if (!id || !confirm('¿Eliminar esta categoría?')) return;
         fetch('/api/tracker/categories?id=' + id, { method: 'DELETE' })
