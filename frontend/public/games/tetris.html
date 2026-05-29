@@ -214,10 +214,14 @@ function lock() {
   }
 
   // 2. Colocar pieza
+  let placed = 0;
   for (let r = 0; r < piece.s.length; r++)
     for (let c = 0; c < piece.s[r].length; c++)
-      if (piece.s[r][c] && piece.y + r >= 0)
+      if (piece.s[r][c] && piece.y + r >= 0) {
         board[piece.y + r][piece.x + c] = piece.c;
+        placed++;
+      }
+  if (placed === 0) { gameOver(); return; }
 
   // 3. Completar filas
   let cleared = 0;
