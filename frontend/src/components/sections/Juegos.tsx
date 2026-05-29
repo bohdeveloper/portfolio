@@ -176,7 +176,7 @@ export default function JuegosSection() {
       if (stored) {
         const parsed = JSON.parse(stored) as Record<string, string[]>;
         const result: Record<string, Set<string>> = {};
-        for (const [k, arr] of Object.entries(parsed)) result[k] = new Set(arr);
+        for (const [k, arr] of Object.entries(parsed)) result[k] = new Set(arr.slice(0, 1));
         setGameReacted(result);
       }
     } catch {}
@@ -255,11 +255,10 @@ export default function JuegosSection() {
   function reactToGame(gameId: number, emoji: string) {
     const key = String(gameId);
     const reacted = gameReacted[key] ?? new Set<string>();
-    const hasReacted = reacted.has(emoji);
-    const delta = hasReacted ? -1 : 1;
+    const current = [...reacted][0]; // única reacción activa
+    const isToggling = current === emoji;
+    const newReacted = new Set<string>(isToggling ? [] : [emoji]);
 
-    const newReacted = new Set(reacted);
-    if (hasReacted) newReacted.delete(emoji); else newReacted.add(emoji);
     const newMap = { ...gameReacted, [key]: newReacted };
     setGameReacted(newMap);
     try {
@@ -268,15 +267,22 @@ export default function JuegosSection() {
       localStorage.setItem('game_reacted', JSON.stringify(toStore));
     } catch {}
 
-    setGameCounts(prev => ({
-      ...prev,
-      [gameId]: { ...prev[gameId], [emoji]: Math.max(0, ((prev[gameId]?.[emoji]) ?? 0) + delta) },
-    }));
+    setGameCounts(prev => {
+      const c = { ...prev[gameId] };
+      if (current && !isToggling) c[current] = Math.max(0, (c[current] ?? 0) - 1);
+      c[emoji] = Math.max(0, (c[emoji] ?? 0) + (isToggling ? -1 : 1));
+      return { ...prev, [gameId]: c };
+    });
 
+    if (current && !isToggling) {
+      fetch('/api/games/react', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ game_id: gameId, emoji: current, delta: -1 }),
+      }).catch(() => {});
+    }
     fetch('/api/games/react', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ game_id: gameId, emoji, delta }),
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game_id: gameId, emoji, delta: isToggling ? -1 : 1 }),
     }).then(r => r.json()).then((res: { ok: boolean; count?: number }) => {
       if (res.ok && res.count !== undefined) {
         setGameCounts(prev => ({ ...prev, [gameId]: { ...prev[gameId], [emoji]: res.count! } }));

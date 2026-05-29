@@ -148,24 +148,37 @@ function ReactionsBar({ slug }: { slug: string }) {
       });
     try {
       const stored = localStorage.getItem('blog_reacted_' + slug);
-      if (stored) setReacted(new Set(JSON.parse(stored)));
+      // Máximo 1 reacción activa
+      if (stored) setReacted(new Set((JSON.parse(stored) as string[]).slice(0, 1)));
     } catch {}
   }, [slug]);
 
   const react = async (emoji: string) => {
-    const hasReacted = reacted.has(emoji);
-    const delta = hasReacted ? -1 : 1;
-    // Optimistic update
-    setCounts(prev => ({ ...prev, [emoji]: Math.max(0, (prev[emoji] ?? 0) + delta) }));
-    const next = new Set(reacted);
-    if (hasReacted) next.delete(emoji); else next.add(emoji);
+    const current = [...reacted][0]; // única reacción activa (si hay)
+    const isToggling = current === emoji;
+    const next = new Set<string>(isToggling ? [] : [emoji]);
+
+    // Optimistic update de contadores
+    setCounts(prev => {
+      const c = { ...prev };
+      if (current && !isToggling) c[current] = Math.max(0, (c[current] ?? 0) - 1);
+      c[emoji] = Math.max(0, (c[emoji] ?? 0) + (isToggling ? -1 : 1));
+      return c;
+    });
     setReacted(next);
     try { localStorage.setItem('blog_reacted_' + slug, JSON.stringify([...next])); } catch {}
-    // API call
+
+    // Si había otra reacción activa, decrementarla en el servidor
+    if (current && !isToggling) {
+      fetch('/api/blog/reactions', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, emoji: current, delta: -1 }),
+      }).catch(() => {});
+    }
+    // Aplicar la reacción nueva (o quitar si toggle off)
     fetch('/api/blog/reactions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, emoji, delta }),
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, emoji, delta: isToggling ? -1 : 1 }),
     }).then(r => r.json()).then((res: { ok: boolean; count?: number }) => {
       if (res.ok && res.count !== undefined) setCounts(prev => ({ ...prev, [emoji]: res.count! }));
     }).catch(() => {});
