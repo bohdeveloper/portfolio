@@ -251,19 +251,11 @@ const TRACKER_HTML = `
   <p style="font-size:11px;color:#444;margin-top:.5rem;font-style:italic">Para editar tareas, haz clic en la cabecera del día en la vista Semana.</p>
   <div class="card" style="margin-top:1rem">
     <div class="cfg-hdr" style="margin-bottom:.4rem"><h3 style="font-size:12px">Inicio del horario</h3></div>
-    <p style="font-size:12px;color:#666;margin-bottom:.6rem">El calendario no mostrará tareas antes de esta fecha.</p>
+    <p style="font-size:12px;color:#666;margin-bottom:.6rem">Oculta las tareas anteriores a esta fecha y limpia los registros históricos hasta ese momento.</p>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <input type="date" id="cfg-sched-start" style="background:#111;border:1px solid #2a2a2a;border-radius:5px;padding:5px 8px;color:#e8e6e0;font-size:12px;font-family:inherit" />
       <button class="btn-sm" id="btn-sched-start-save">Aplicar</button>
-      <button class="btn-sm btn-del" id="btn-sched-start-clear" style="padding:4px 8px">✕ Sin límite</button>
-    </div>
-  </div>
-  <div class="card" style="margin-top:.75rem;border-color:#3a1010">
-    <div class="cfg-hdr" style="margin-bottom:.5rem"><h3 style="color:#D85A30;font-size:12px">Zona peligrosa</h3></div>
-    <p style="font-size:12px;color:#666;margin-bottom:.75rem">Elimina el historial de registros hasta la fecha indicada. El horario de tareas no se modifica.</p>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input type="date" id="cfg-clear-until" value="2026-06-08" style="background:#111;border:1px solid #2a2a2a;border-radius:5px;padding:5px 8px;color:#e8e6e0;font-size:12px;font-family:inherit" />
-      <button class="btn-sm btn-danger" id="btn-clear-history">Vaciar historial hasta esta fecha</button>
+      <button class="btn-sm btn-del" id="btn-sched-start-clear" style="padding:4px 8px">✕ Quitar</button>
     </div>
   </div>
 </div>
@@ -1032,8 +1024,13 @@ function initTracker() {
 
   document.getElementById('btn-sched-start-save')?.addEventListener('click', () => {
     const val = (document.getElementById('cfg-sched-start') as HTMLInputElement)?.value || '';
+    if (!val) { alert('Selecciona una fecha.'); return; }
+    if (!confirm(`¿Aplicar inicio del horario desde el ${val}?\n\nSe ocultarán las tareas anteriores y se limpiarán los registros históricos hasta esa fecha.`)) return;
     schedStartDate = val;
-    try { if (val) localStorage.setItem('tracker_sched_start', val); else localStorage.removeItem('tracker_sched_start'); } catch {}
+    try { localStorage.setItem('tracker_sched_start', val); } catch {}
+    fetch('/api/tracker/save?until=' + val, { method: 'DELETE' })
+      .then(() => loadState())
+      .catch(() => {});
     renderAll();
   });
   document.getElementById('btn-sched-start-clear')?.addEventListener('click', () => {
@@ -1042,18 +1039,6 @@ function initTracker() {
     const inp = document.getElementById('cfg-sched-start') as HTMLInputElement | null;
     if (inp) inp.value = '';
     renderAll();
-  });
-
-  document.getElementById('btn-clear-history')?.addEventListener('click', () => {
-    const until = (document.getElementById('cfg-clear-until') as HTMLInputElement)?.value;
-    if (!until || !confirm(`¿Vaciar TODO el historial de registros hasta el ${until}?\n\nEsta acción no se puede deshacer.`)) return;
-    fetch('/api/tracker/save?until=' + until, { method: 'DELETE' })
-      .then(r => r.json())
-      .then((res: { ok: boolean }) => {
-        if (res.ok) { loadState(); alert('Historial vaciado correctamente.'); }
-        else alert('Error al vaciar el historial.');
-      })
-      .catch(() => alert('Error de conexión.'));
   });
   document.getElementById('modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
   document.getElementById('modal-cancel')!.onclick = closeModal;
