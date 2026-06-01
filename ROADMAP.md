@@ -221,18 +221,11 @@
 
 ---
 
-:: FASE 9 — Infraestructura SSR + SEO avanzado (⬜ PLANIFICADA)
-· Objetivo: máximo SEO y rendimiento — eliminar las limitaciones del output:export actual.
-
-# ⬜ Migrar a @cloudflare/next-on-pages (SSR vía Workers)
-# ⬜ Eliminar output: 'export' de next.config.js
-# ⬜ URLs limpias: /blog/slug, /projects/slug (sin query params)
-# ⬜ Blog posts y proyectos con HTML pre-renderizado (meta tags reales por ruta)
-# ⬜ Sitemap dinámico: posts + proyectos
-# ⬜ OG images dinámicas por ruta
-# ⬜ Schema.org (Person, Article, Project)
-# ⬜ Links internos blog ↔ proyectos
-# ⬜ Lighthouse continuo
+:: FASE 9 — Infraestructura SSR + SEO avanzado (🚫 DESCARTADA)
+· Motivo: riesgo alto de romper el deploy en Cloudflare por bajo beneficio real.
+  El portfolio no justifica la migración de output:export a Workers SSR en este momento.
+  Googlebot indexa las query params correctamente; los previews en redes son el único
+  punto débil real pero no prioritario con el volumen actual de contenido.
 
 ---
 ---
