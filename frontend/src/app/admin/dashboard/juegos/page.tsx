@@ -12,6 +12,7 @@ interface Game {
   screenshot: string;
   is_top: number;
   ai_generated: number;
+  sort_order: number;
   created_at: string;
 }
 
@@ -25,7 +26,7 @@ interface Leader {
 type View = 'list' | 'editor' | 'ranking';
 
 const EMPTY: Omit<Game, 'id' | 'created_at'> = {
-  name: '', slug: '', description: '', url: '', screenshot: '', is_top: 0, ai_generated: 0,
+  name: '', slug: '', description: '', url: '', screenshot: '', is_top: 0, ai_generated: 0, sort_order: 0,
 };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -94,6 +95,9 @@ export default function JuegosAdminPage() {
   const [imgUploading,  setImgUploading]  = useState(false);
   const [form,          setForm]          = useState<Omit<Game, 'id' | 'created_at'>>(EMPTY);
   const [editId,        setEditId]        = useState<number | null>(null);
+  // Drag-and-drop reordering
+  const [dragIdx,       setDragIdx]       = useState<number | null>(null);
+  const [dragOverIdx,   setDragOverIdx]   = useState<number | null>(null);
   // Ranking
   const [rankGameId,    setRankGameId]    = useState<number | null>(null);
   const [rankLeaders,   setRankLeaders]   = useState<Leader[]>([]);
@@ -214,6 +218,24 @@ export default function JuegosAdminPage() {
     setDeleting(null);
   }
 
+  // Reordena localmente y persiste el nuevo orden en la BD via PUT /api/games/manage
+  async function handleReorder(fromIdx: number, toIdx: number) {
+    if (fromIdx === toIdx) return;
+    const reordered = [...games];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+    setGames(reordered);
+    setDragIdx(null);
+    setDragOverIdx(null);
+    try {
+      await fetch('/api/games/manage', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: reordered.map(g => g.id) }),
+      });
+    } catch { /* orden local ya actualizado */ }
+  }
+
   async function handleSetTop(id: number) {
     try {
       await fetch(`/api/games/manage?id=${id}`, { method: 'PATCH' });
@@ -241,7 +263,7 @@ export default function JuegosAdminPage() {
             <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
               <div>
                 <h1 style={{ color: 'var(--adm-text)', fontSize: '18px', fontWeight: 500 }}>Juegos</h1>
-                <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '2px' }}>{games.length} juego{games.length !== 1 ? 's' : ''} — el TOP lo decide la comunidad · tú marcas tu Favorito</p>
+                <p style={{ color: 'var(--adm-muted)', fontSize: '11px', marginTop: '2px' }}>{games.length} juego{games.length !== 1 ? 's' : ''} — arrastra ⠿ para reordenar · el orden aquí es el orden en el portfolio</p>
               </div>
               <button className="gbtn gbtn-rank" onClick={openRanking}>🏆 Ranking</button>
             </div>
@@ -254,9 +276,32 @@ export default function JuegosAdminPage() {
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {games.map(g => (
-                <div key={g.id} style={{ background: 'var(--adm-card)', border: `1px solid ${g.is_top ? '#ffc80040' : 'var(--adm-border)'}`, borderRadius: '10px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {games.map((g, i) => (
+                <div
+                  key={g.id}
+                  draggable
+                  onDragStart={() => setDragIdx(i)}
+                  onDragOver={e => { e.preventDefault(); setDragOverIdx(i); }}
+                  onDragLeave={() => setDragOverIdx(null)}
+                  onDrop={e => { e.preventDefault(); if(dragIdx !== null) handleReorder(dragIdx, i); }}
+                  onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                  style={{
+                    background: 'var(--adm-card)',
+                    border: `1px solid ${dragOverIdx === i && dragIdx !== i ? 'var(--primary)' : g.is_top ? '#ffc80040' : 'var(--adm-border)'}`,
+                    borderRadius: '10px', padding: '0.9rem 1.25rem',
+                    display: 'flex', alignItems: 'center', gap: '1rem',
+                    opacity: dragIdx === i ? 0.45 : 1,
+                    transition: 'opacity 0.15s, border-color 0.12s',
+                    boxShadow: dragOverIdx === i && dragIdx !== i ? '0 0 0 2px rgba(0,231,235,0.2)' : undefined,
+                  }}
+                >
+                  {/* Grip handle — arrastrar para reordenar */}
+                  <span
+                    title="Arrastrar para reordenar"
+                    style={{ color: 'var(--adm-muted)', cursor: 'grab', fontSize: '16px', flexShrink: 0, lineHeight: 1, userSelect: 'none', paddingRight: '4px' }}
+                  >⠿</span>
+
                   {g.screenshot ? (
                     <img src={g.screenshot} alt="" style={{ width: '56px', height: '40px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} />
                   ) : (
@@ -264,6 +309,7 @@ export default function JuegosAdminPage() {
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
+                      <span style={{ color: 'var(--adm-muted)', fontSize: '10px', fontWeight: 500, flexShrink: 0, minWidth: '16px' }}>#{i + 1}</span>
                       <span style={{ color: 'var(--adm-text)', fontSize: '14px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.name}</span>
                       {g.is_top === 1 && (
                         <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: '#ffc80020', color: '#ffc800', border: '1px solid #ffc80040', flexShrink: 0 }}>⭐ Favorito</span>

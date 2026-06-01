@@ -41,8 +41,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       }
       return new Response(JSON.stringify({ ok: true, id }), { status: 200, headers: H });
     } else {
+      // sort_order = max existente + 1 para que el nuevo juego aparezca al final de la lista
       const result = await env.DB.prepare(
-        `INSERT INTO games (name, slug, description, url, screenshot, is_top, ai_generated) VALUES (?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO games (name, slug, description, url, screenshot, is_top, ai_generated, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM games))`
       ).bind(name.trim(), slug, description, url, screenshot, is_top, ai_generated).run();
       const newId = Number(result.meta.last_row_id);
       if (is_top === 1) {
@@ -95,6 +97,28 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
       env.DB.prepare('UPDATE games SET is_top = 0').bind(),
       env.DB.prepare('UPDATE games SET is_top = 1 WHERE id = ?').bind(id),
     ]);
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
+  }
+};
+
+/* ── PUT /api/games/manage — reordenar juegos ── */
+export const onRequestPut: PagesFunction<Env> = async ({ request, env }) => {
+  const auth = await verifyAuth(request, env.JWT_SECRET);
+  if (!auth || auth.role !== 'super_admin') return forbidden();
+
+  let body: { order?: number[] };
+  try { body = await request.json(); } catch { return bad('Invalid JSON'); }
+
+  const { order } = body;
+  if (!order?.length) return bad('Missing order');
+
+  try {
+    // Batch atómico: asigna sort_order 0,1,2... según posición en el array
+    await env.DB.batch(
+      order.map((id, i) => env.DB.prepare('UPDATE games SET sort_order = ? WHERE id = ?').bind(i, id))
+    );
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
