@@ -48,15 +48,10 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a;cursor:pointer}
 }
 #btn:hover{background:#00e7eb;color:#000}
 
-/* ── Botón validar (aparece cuando hay 5 letras escritas) ── */
-#validate-wrap{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  z-index:100;display:none;
-}
-/* ── Botón pista / comodín (1 uso por partida, aparece cuando < 5 letras) ── */
-#hint-wrap{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  z-index:100;display:none;
+/* ── Botones validar/pista: absolute dentro de #wrap para que no rompan iframes en móvil ── */
+#validate-wrap, #hint-wrap{
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  z-index:100;display:none;white-space:nowrap;
 }
 #hint-btn{
   padding:clamp(10px,2.8vw,14px) clamp(36px,10vw,56px);
@@ -175,7 +170,12 @@ let comodinUsed, hintPos;   // comodín: ¿usado? + posición revelada
 let running = false;
 
 function resize(){
-  const s = Math.min(window.innerWidth, window.innerHeight) - 4;
+  // clientWidth/Height son más fiables que innerWidth/Height en iframes en iOS Safari,
+  // donde innerHeight puede devolver la altura total del dispositivo en lugar del iframe.
+  // Tomamos el mínimo de ambas medidas para evitar desbordamientos.
+  const W = Math.min(window.innerWidth  || 9999, document.documentElement.clientWidth  || 9999);
+  const H = Math.min(window.innerHeight || 9999, document.documentElement.clientHeight || 9999);
+  const s = Math.max(280, Math.min(W, H) - 4);
   canvas.width = canvas.height = s; SIZE = s;
   const HUD_H   = Math.round(s * 0.09);
   const pad     = Math.round(s * 0.012);
