@@ -6,6 +6,21 @@ export default function Aprendizaje() {
   const holo = useCardHolo();
   const cursos = [
     {
+      titulo: "Confección y Publicación de Páginas Web — Lanbide (480h)",
+      descripcion:
+        "Curso intensivo de iniciación a la programación web, aprobado por LANBIDE-Servicio Vasco de Empleo. Centro: CEINPRO Centro Informático Profesional.",
+      tecnologias: [
+        "HTML / CSS",
+        "JavaScript / jQuery",
+        "PHP",
+        "Bootstrap",
+        "WordPress",
+        "Node.js",
+        "Git",
+      ],
+      link: "/images/diploma_lanbide.jpg",
+    },
+    {
       titulo: "Curso Java POO & BD relacionales",
       descripcion:
         "Curso intensivo de Java orientado a objetos y bases de datos relacionales.",
