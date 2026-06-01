@@ -4,11 +4,11 @@ export default function Hero() {
       id="inicio"
       className="min-h-screen flex flex-col justify-center max-w-6xl mx-auto px-6 pt-32"
     >
-      <p className="text-gray-600 dark:text-gray-400 text-lg">
+      <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-lg">
         Hola, mi nombre es
       </p>
 
-      <h1 className="text-5xl md:text-6xl font-bold text-black dark:text-white mt-2">
+      <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-black dark:text-white mt-2 leading-tight">
         Borja Olazabal,
         <span className="block text-primary">
           programador web
@@ -35,7 +35,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-8 text-xl leading-relaxed">
+      <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-8 text-base sm:text-lg md:text-xl leading-relaxed">
         Especializado en <strong>desarrollo web</strong>, diseñando, desarrollando y manteniendo:
       </p>
 

@@ -18,16 +18,7 @@ export default function EmailPanel() {
         </a>
       </div>
 
-      {/* MOBILE */}
-      <div className="fixed bottom-2 right-2 md:hidden bg-white/80 dark:bg-black/80 backdrop-blur-md px-3 py-1 rounded-full shadow-lg border border-gray-300 dark:border-gray-700">
-        <a
-          href="mailto:ohb_1@outlook.com"
-          aria-label="Enviar correo electrónico a Borja Olazabal"
-          className="text-sm text-gray-700 dark:text-white hover:text-primary transition"
-        >
-          ohb_1@outlook.com
-        </a>
-      </div>
+      {/* MOBILE — oculto para no solaparse con el SocialPanel; el email está en la sección Contacto */}
     </>
   );
 }
