@@ -180,6 +180,24 @@
 
 ---
 
+:: PORTFOLIO — Responsive móvil & contenido (✅ COMPLETADA)
+· Mejoras de UI responsive y actualización de contenido de la sección Aprendizaje.
+
+### Responsive móvil
+# ✅ Hero: h1 text-5xl → text-3xl en móvil (evitaba 4 líneas en 342px), párrafo ajustado
+# ✅ SocialPanel móvil: pill centrado con left-1/2 + max-w para evitar overflow
+# ✅ SocialPanel móvil: añade icono email (envelope) antes del candado admin en el pill
+# ✅ EmailPanel: oculto en móvil (el email está integrado en el pill del SocialPanel)
+
+### Sección Aprendizaje
+# ✅ Nueva tarjeta: "Confección y Publicación de Páginas Web — Ceinpro" (480h, Completado)
+#    LANBIDE-Servicio Vasco de Empleo · Sep 2019 – Feb 2020
+#    Stack: HTML/CSS, JS/jQuery, PHP, Bootstrap, WordPress, Node.js, Git
+#    Enlace: /images/diploma_ceinpro.jpg (imagen pendiente de subir)
+# ✅ Títulos de cursos homogeneizados: "Nombre - Centro" sin horas entre paréntesis
+
+---
+
 :: APP — Bioptima (⬜ PLANIFICADA)
 · Seguimiento deportivo, cálculos y evolución personal.
 
