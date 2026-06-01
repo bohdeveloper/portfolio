@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>2048</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0a}
+body{
+  display:flex;align-items:center;justify-content:center;
+  font-family:system-ui,-apple-system,sans-serif;
+  color:#e8e6e0;user-select:none;touch-action:none;
+}
+#wrap{position:relative;line-height:0}
+canvas{display:block;border-radius:10px;border:2px solid #1e3a3a}
+#overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(14px,4vw,28px);
+  background:rgba(6,6,6,0.95);
+  border-radius:10px;padding:1.5rem;text-align:center;
+}
+#ov-icon{font-size:clamp(52px,14vw,80px);line-height:1.1}
+#ov-title{font-size:clamp(24px,7vw,40px);font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1}
+#ov-desc{font-size:clamp(12px,3vw,15px);color:#e8e6e0}
+#ov-controls{
+  font-size:clamp(11px,2.6vw,14px);color:rgba(255,255,255,0.45);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+#ov-controls .row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:center;}
+#ov-controls .k{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:2px 7px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.18);border-bottom:2px solid rgba(255,255,255,0.28);
+  border-radius:4px;color:rgba(255,255,255,0.82);font-size:0.85em;line-height:1.4;
+}
+#ov-controls .sep{color:rgba(255,255,255,0.22);margin:0 2px;}
+#overlay .final{font-size:clamp(36px,12vw,64px);font-weight:800;color:#00e7eb;line-height:1}
+#overlay .result-msg{font-size:clamp(11px,2.8vw,14px);color:#9ca3af}
+#btn{
+  padding:clamp(10px,2.8vw,14px) clamp(32px,9vw,52px);
+  border:2px solid #00e7eb;border-radius:8px;
+  background:transparent;color:#00e7eb;
+  font-size:clamp(14px,3.5vw,18px);font-weight:700;cursor:pointer;font-family:inherit;
+  transition:background .18s,color .18s;letter-spacing:0.5px;
+}
+#btn:hover{background:#00e7eb;color:#000}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+  <div id="overlay">
+    <div id="ov-icon">🔢</div>
+    <div id="ov-title">2048</div>
+    <div id="ov-desc">Combina los números · Llega al <span style="color:#FFD700;font-weight:600">2048</span></div>
+    <button id="btn" onclick="start()">Jugar</button>
+    <div id="ov-controls">
+      <div class="row">
+        <span class="k">↑</span><span class="k">↓</span><span class="k">←</span><span class="k">→</span>
+        <span class="sep">/</span><span class="k">WASD</span>
+        <span class="sep">/</span>Deslizar
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const OL     = document.getElementById('overlay');
+const N = 4;
+let SIZE, GAP, CELL, OX, OY;
+let board, score, best, running, won2048;
+
+const TILE_COLS = {
+  2:    ['#1e3232','#9ecece'],
+  4:    ['#224040','#b4e0e0'],
+  8:    ['#7a3010','#ffe0c4'],
+  16:   ['#943a10','#ffead0'],
+  32:   ['#b03010','#fff'],
+  64:   ['#c84800','#fff'],
+  128:  ['#a07000','#fffacc'],
+  256:  ['#c08a00','#fff5bb'],
+  512:  ['#006680','#ccf5ff'],
+  1024: ['#008090','#e0faff'],
+  2048: ['#FFD700','#1a1100'],
+};
+function tileStyle(v){ return TILE_COLS[v]||['#7c3aed','#fff']; }
+
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function resize(){
+  const s = Math.min(window.innerWidth, window.innerHeight) - 4;
+  canvas.width = canvas.height = s; SIZE = s;
+  GAP  = Math.max(4, Math.round(s * 0.014));
+  const hud  = Math.round(s * 0.14);
+  const avail = s - hud - Math.round(s * 0.04);
+  CELL = Math.floor((avail - GAP*(N+1)) / N);
+  const g = CELL*N + GAP*(N+1);
+  OX = Math.round((s - g) / 2);
+  OY = hud + Math.round((s - hud - g) / 2);
+}
+resize();
+window.addEventListener('resize', ()=>{ resize(); if(!running) bgDraw(); else draw(); });
+
+function emptyCell(b){
+  const c=[];
+  for(let i=0;i<N;i++) for(let j=0;j<N;j++) if(!b[i][j]) c.push([i,j]);
+  return c;
+}
+function spawn(b){
+  const c=emptyCell(b); if(!c.length) return;
+  const [r,col]=c[Math.floor(Math.random()*c.length)];
+  b[r][col]=Math.random()<0.9?2:4;
+}
+
+function slideRow(row){
+  let a=row.filter(v=>v), g=0;
+  for(let i=0;i<a.length-1;i++){
+    if(a[i]===a[i+1]){ a[i]*=2; g+=a[i]; a.splice(i+1,1); }
+  }
+  while(a.length<N) a.push(0);
+  return {row:a, gained:g};
+}
+
+function doMove(dir){
+  let changed=false, gained=0;
+  const b=board.map(r=>[...r]);
+  for(let i=0;i<N;i++){
+    const horiz=dir===0||dir===1;
+    let line=horiz?[...b[i]]:b.map(r=>r[i]);
+    if(dir===1||dir===3) line.reverse();
+    const {row:res, gained:g}=slideRow(line);
+    gained+=g;
+    if(dir===1||dir===3) res.reverse();
+    for(let j=0;j<N;j++){
+      const was=horiz?b[i][j]:b[j][i];
+      if(was!==res[j]) changed=true;
+      if(horiz) b[i][j]=res[j]; else b[j][i]=res[j];
+    }
+  }
+  if(!changed) return;
+  board=b; score+=gained;
+  if(!won2048 && board.some(r=>r.some(v=>v>=2048))) won2048=true;
+  if(score>best){ best=score; try{localStorage.setItem('boh_2048',best);}catch{} }
+  try{window.parent.postMessage({type:'boh_score_live',score},'*');}catch{}
+  spawn(board); draw();
+  if(!canMove()) endGame();
+}
+
+function canMove(){
+  for(let i=0;i<N;i++) for(let j=0;j<N;j++){
+    if(!board[i][j]) return true;
+    if(j<N-1&&board[i][j]===board[i][j+1]) return true;
+    if(i<N-1&&board[i][j]===board[i+1][j]) return true;
+  }
+  return false;
+}
+
+function drawTile(r,c,val){
+  const tx=OX+GAP+c*(CELL+GAP), ty=OY+GAP+r*(CELL+GAP);
+  const cx2=tx+CELL/2, cy2=ty+CELL/2;
+  const rad=Math.round(CELL*0.1);
+  const [bg,fg]=tileStyle(val);
+  ctx.save();
+  ctx.fillStyle=bg;
+  if(val>=128){ ctx.shadowColor=bg; ctx.shadowBlur=14; }
+  rr(tx,ty,CELL,CELL,rad); ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(255,255,255,0.09)';
+  rr(tx,ty,CELL,Math.round(CELL*0.38),rad); ctx.fill();
+  const s=String(val);
+  const fs=s.length>3?CELL*0.34:s.length>2?CELL*0.40:CELL*0.46;
+  ctx.fillStyle=fg;
+  ctx.font=`700 ${Math.round(fs)}px system-ui`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(s,cx2,cy2);
+  ctx.restore();
+}
+
+function drawGrid(){
+  const g=CELL*N+GAP*(N+1);
+  ctx.fillStyle='rgba(255,255,255,0.03)';
+  rr(OX,OY,g,g,Math.round(CELL*0.12)); ctx.fill();
+  ctx.strokeStyle='rgba(0,231,235,0.1)'; ctx.lineWidth=1;
+  rr(OX,OY,g,g,Math.round(CELL*0.12)); ctx.stroke();
+  for(let i=0;i<N;i++) for(let j=0;j<N;j++){
+    if(!board[i][j]){
+      ctx.fillStyle='rgba(255,255,255,0.025)';
+      rr(OX+GAP+j*(CELL+GAP),OY+GAP+i*(CELL+GAP),CELL,CELL,Math.round(CELL*0.1));
+      ctx.fill();
+    } else { drawTile(i,j,board[i][j]); }
+  }
+}
+
+function drawHUD(){
+  const fs=Math.max(10,Math.round(SIZE*0.036));
+  ctx.save();
+  ctx.textAlign='left';
+  ctx.font=`700 ${Math.round(fs*1.55)}px system-ui`;
+  ctx.fillStyle='rgba(0,231,235,0.9)';
+  ctx.fillText(score,12,fs*1.7);
+  ctx.font=`400 ${Math.round(fs*0.72)}px system-ui`;
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.fillText('PUNTOS',12,fs*2.65);
+  ctx.textAlign='right';
+  ctx.font=`700 ${Math.round(fs*1.55)}px system-ui`;
+  ctx.fillStyle=score>=best&&score>0?'rgba(255,200,0,0.9)':'rgba(255,255,255,0.28)';
+  ctx.fillText(best,SIZE-12,fs*1.7);
+  ctx.font=`400 ${Math.round(fs*0.72)}px system-ui`;
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.fillText('RÉCORD',SIZE-12,fs*2.65);
+  if(won2048){
+    ctx.textAlign='center';
+    ctx.font=`700 ${Math.round(fs*0.88)}px system-ui`;
+    ctx.fillStyle='rgba(255,215,0,0.85)';
+    ctx.fillText('🏆 ¡2048 alcanzado! Sigue jugando',SIZE/2,fs*1.7);
+  }
+  ctx.restore();
+}
+
+function draw(){
+  ctx.fillStyle='#0a0a0a';
+  ctx.fillRect(0,0,SIZE,SIZE);
+  drawHUD(); drawGrid();
+}
+
+function bgDraw(){
+  ctx.fillStyle='#0a0a0a';
+  ctx.fillRect(0,0,SIZE,SIZE);
+  const g=CELL*N+GAP*(N+1);
+  ctx.strokeStyle='rgba(0,231,235,0.08)'; ctx.lineWidth=1;
+  rr(OX,OY,g,g,Math.round(CELL*0.12)); ctx.stroke();
+}
+
+function init(){
+  board=Array.from({length:N},()=>Array(N).fill(0));
+  score=0; won2048=false;
+  spawn(board); spawn(board);
+}
+
+function endGame(){
+  running=false;
+  try{window.parent.postMessage({type:'boh_score',score,game:'2048'},'*');}catch{}
+  const isRecord=score>0&&score>=best;
+  OL.innerHTML=`
+    <div style="font-size:clamp(40px,11vw,64px);line-height:1">${isRecord&&score>0?'🏆':'💀'}</div>
+    <div class="final">${score}</div>
+    <div class="result-msg">${isRecord&&score>0?'¡Nuevo récord!':'Récord: '+best}</div>
+    <button id="btn" onclick="start()">Reintentar</button>
+    <div id="ov-controls">
+      <div class="row"><span class="k">↑</span><span class="k">↓</span><span class="k">←</span><span class="k">→</span><span class="sep">/</span><span class="k">WASD</span><span class="sep">/</span>Deslizar</div>
+    </div>`;
+  OL.style.display='flex';
+}
+
+function start(){
+  OL.style.display='none';
+  init(); running=true; draw();
+}
+
+document.addEventListener('keydown', e=>{
+  if(!running){
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d',' '].includes(e.key)){
+      e.preventDefault(); start();
+    }
+    return;
+  }
+  const map={ArrowLeft:0,ArrowRight:1,ArrowUp:2,ArrowDown:3,a:0,d:1,w:2,s:3};
+  if(e.key in map){ e.preventDefault(); doMove(map[e.key]); }
+});
+
+let ts=null;
+canvas.addEventListener('touchstart', e=>{ ts={x:e.touches[0].clientX,y:e.touches[0].clientY}; e.preventDefault(); },{passive:false});
+canvas.addEventListener('touchend', e=>{
+  if(!ts) return;
+  if(!running){ start(); ts=null; return; }
+  const dx=e.changedTouches[0].clientX-ts.x, dy=e.changedTouches[0].clientY-ts.y;
+  ts=null;
+  if(Math.abs(dx)<12&&Math.abs(dy)<12) return;
+  e.preventDefault();
+  if(Math.abs(dx)>Math.abs(dy)) doMove(dx>0?1:0); else doMove(dy>0?3:2);
+},{passive:false});
+
+try{best=parseInt(localStorage.getItem('boh_2048')||'0')||0;}catch{best=0;}
+bgDraw();
+</script>
+</body>
+</html>

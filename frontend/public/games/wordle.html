@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Wordle</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0a}
+body{
+  display:flex;align-items:center;justify-content:center;
+  font-family:system-ui,-apple-system,sans-serif;
+  color:#e8e6e0;user-select:none;touch-action:none;
+}
+#wrap{position:relative;line-height:0}
+canvas{display:block;border-radius:10px;border:2px solid #1e3a3a;cursor:pointer}
+#overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(14px,4vw,28px);
+  background:rgba(6,6,6,0.95);
+  border-radius:10px;padding:1.5rem;text-align:center;
+}
+#ov-icon{font-size:clamp(52px,14vw,80px);line-height:1.1}
+#ov-title{font-size:clamp(24px,7vw,40px);font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1}
+#ov-desc{font-size:clamp(12px,3vw,15px);color:#e8e6e0}
+#ov-controls{
+  font-size:clamp(11px,2.6vw,14px);color:rgba(255,255,255,0.45);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+#ov-controls .row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:center;}
+#ov-controls .k{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:2px 7px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.18);border-bottom:2px solid rgba(255,255,255,0.28);
+  border-radius:4px;color:rgba(255,255,255,0.82);font-size:0.85em;line-height:1.4;
+}
+#ov-controls .sep{color:rgba(255,255,255,0.22);margin:0 2px;}
+#overlay .final{font-size:clamp(28px,9vw,52px);font-weight:800;color:#00e7eb;line-height:1}
+#overlay .result-msg{font-size:clamp(11px,2.8vw,14px);color:#9ca3af}
+#overlay .the-word{font-size:clamp(22px,6vw,36px);font-weight:800;color:#FFD700;letter-spacing:4px}
+#btn{
+  padding:clamp(10px,2.8vw,14px) clamp(32px,9vw,52px);
+  border:2px solid #00e7eb;border-radius:8px;
+  background:transparent;color:#00e7eb;
+  font-size:clamp(14px,3.5vw,18px);font-weight:700;cursor:pointer;font-family:inherit;
+  transition:background .18s,color .18s;letter-spacing:0.5px;
+}
+#btn:hover{background:#00e7eb;color:#000}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+  <div id="overlay">
+    <div id="ov-icon">🟩</div>
+    <div id="ov-title">Wordle</div>
+    <div id="ov-desc">Adivina la palabra de 5 letras · 6 intentos</div>
+    <button id="btn" onclick="start()">Jugar</button>
+    <div id="ov-controls">
+      <div class="row">Teclado físico o pantalla táctil</div>
+      <div class="row">
+        <span style="color:#22c55e;font-weight:600">Verde</span><span class="sep">=</span>letra y posición correctas
+      </div>
+      <div class="row">
+        <span style="color:#ca8a04;font-weight:600">Amarillo</span><span class="sep">=</span>letra correcta, posición no
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const OL     = document.getElementById('overlay');
+
+const WORDS = [
+  'ABEJA','ABUSO','ACERO','ACTOR','AGUJA','AJENO','ALETA','AMBAR','AMIGA','AMIGO',
+  'ANCHO','ANGEL','ANSIA','ARBOL','ARENA','ARMAS','ARTES','ASADO','ASTRO','AZOTE',
+  'BANCO','BARCO','BARRO','BELLO','BLUSA','BOLSO','BOMBA','BOTAS','BRAZO','BREVE',
+  'BRISA','BRUMA','BURRO','CAJON','CALOR','CAMPO','CANAL','CARGO','CARTA','CELOS',
+  'CERDO','CHICA','CHICO','CIEGO','CIELO','CINCO','CIRCO','CLARO','CLASE','CLAVO',
+  'COBRE','COLOR','COMER','COSTA','CREDO','CREMA','CRUEL','CULPA','CURVA','DAMAS',
+  'DENSO','DIETA','DOLOR','DULCE','ENERO','ENTRE','ERROR','FALDA','FARSA','FERIA',
+  'FONDO','FRENO','FRUTA','FUEGO','FUERA','GANAS','GENIO','GENTE','GLOBO','GOLPE',
+  'GORDO','GOTAS','GRAMO','GRASA','GRATO','GRITO','GRUPO','GUAPO','GUSTO','HABLA',
+  'HECHO','HIELO','HIENA','HIMNO','HOGAR','HONDA','HONOR','HORAS','HOTEL','HUESO',
+  'HUEVO','HUMOR','IDEAS','JAMON','JOVEN','JUEGO','JUGAR','JUSTO','LABIO','LABOR',
+  'LAPIZ','LARGO','LAVAR','LECHE','LENTO','LIDER','LIMON','LINEA','LISTO','LLAMA',
+  'LLANO','LLENO','LODOS','LOGRO','LUCES','LUCHA','LUGAR','LUJOS','LUNAR','MADRE',
+  'MAGIA','MALES','MANGO','MANOS','MARCA','MAREA','MAREO','MARZO','MAYOR','MEDIA',
+  'MEDIO','MEJOR','MELON','MENOS','MENTE','MESES','METRO','MIEDO','MIRAR','MISMO',
+  'MOLDE','MONTE','MOTOR','MUCHO','MUNDO','MUSLO','NARCO','NEGRO','NIETO','NIVEL',
+  'NOBLE','NOCHE','NORTE','NOTAS','NUEVO','OBRAS','OCASO','ORDEN','OTOÑO','OTRAS',
+  'OVEJA','PADRE','PAGAR','PALCO','PALMA','PAPEL','PATAS','PECAS','PECHO','PEDAL',
+  'PEDIR','PELOS','PENAS','PERLA','PERRO','PESAR','PINTA','PISAR','PISTA','PIZCA',
+  'PLANO','PLATA','PLAZA','PODER','POEMA','POLAR','POLLO','POMPA','PONER','PRIMO',
+  'PULPO','PUNTO','QUESO','QUIEN','RADIO','RAMAS','RASGO','RATON','RAZON','RECIO',
+  'REINO','RENTA','REYES','RIEGO','RISAS','ROBLE','ROCAS','ROMBO','RONCO','ROSAS',
+  'ROTAR','ROZAR','RUIDO','SABIA','SABOR','SALON','SALSA','SALTO','SALUD','SAUCE',
+  'SELVA','SERIE','SEXTO','SIGLO','SIGNO','SOBRE','SOCIO','SOLAR','SOLES','SONAR',
+  'SUAVE','SUELO','SUMAR','TABLA','TACTO','TANTO','TENGO','TENER','TENSO','TEXTO',
+  'TIBIA','TILDE','TINTO','TIRAS','TOCAR','TOMAR','TOROS','TORTA','TOTAL','TRAJE',
+  'TRAMA','TRATO','TRECE','TRIGO','TROZO','TRUCO','TUMOR','TURNO','ULTRA','UNION',
+  'VALOR','VAPOR','VELAR','VENTA','VERSO','VIAJE','VIDEO','VIEJO','VINOS','VISTA',
+  'VOCAL','VOLAR','VUELO','YERNO','ZURDO','ZORRO','CANON','SUENO','BUENO','DUENO',
+];
+
+const KB_ROWS = [
+  ['Q','W','E','R','T','Y','U','I','O','P'],
+  ['A','S','D','F','G','H','J','K','L','Ñ'],
+  ['↵','Z','X','C','V','B','N','M','⌫'],
+];
+const COL_GREEN  = '#22c55e';
+const COL_YELLOW = '#ca8a04';
+const COL_GRAY   = '#374151';
+const COL_EMPTY  = 'rgba(255,255,255,0.06)';
+const COL_ACTIVE = 'rgba(255,255,255,0.12)';
+
+let SIZE;
+let TILE, TGAP, GRID_OX, GRID_OY;
+let KW, KH, KB_GAP_W, KB_GAP_H, KB_OX, KB_OY;
+let keyHitBoxes = [];
+
+let word, guesses, current, gameState, letterState, shakeRow, shakeTime;
+let running = false;
+
+function resize(){
+  const s = Math.min(window.innerWidth, window.innerHeight) - 4;
+  canvas.width = canvas.height = s; SIZE = s;
+  const HUD_H   = Math.round(s * 0.09);
+  const pad     = Math.round(s * 0.012);
+  TGAP = Math.max(3, Math.round(s * 0.009));
+  // Tile size: fit 5 wide and 6 tall in available space, leave room for keyboard
+  const maxTileW = Math.floor((s * 0.62 - TGAP * 4) / 5);
+  const maxTileH = Math.floor((s * 0.46 - TGAP * 5) / 6);
+  TILE = Math.min(maxTileW, maxTileH);
+  const gW = 5*TILE + 4*TGAP, gH = 6*TILE + 5*TGAP;
+  GRID_OX = Math.round((s - gW) / 2);
+  GRID_OY = HUD_H + pad;
+  // Keyboard: remaining space below grid
+  const kbTop  = GRID_OY + gH + pad;
+  const kbH    = s - kbTop - pad;
+  KB_GAP_W = Math.max(2, Math.round(s * 0.007));
+  KB_GAP_H = Math.max(2, Math.round(s * 0.008));
+  KH = Math.floor((kbH - 2*KB_GAP_H) / 3);
+  // Row 2 has 10 keys (widest row)
+  KW = Math.floor((s * 0.96 - 9*KB_GAP_W) / 10);
+  KB_OX = Math.round((s - (10*KW + 9*KB_GAP_W)) / 2);
+  KB_OY = kbTop;
+}
+resize();
+window.addEventListener('resize', ()=>{ resize(); if(running) draw(); else bgDraw(); });
+
+function getColors(guess, tgt){
+  const res = Array(5).fill('gray');
+  const rem = [...tgt];
+  for(let i=0;i<5;i++) if(guess[i]===tgt[i]){ res[i]='green'; rem[i]=null; }
+  for(let i=0;i<5;i++){
+    if(res[i]==='green') continue;
+    const j=rem.indexOf(guess[i]);
+    if(j!==-1){ res[i]='yellow'; rem[j]=null; }
+  }
+  return res;
+}
+
+function updateLetterState(guess, colors){
+  const priority = {green:3,yellow:2,gray:1};
+  guess.forEach((l,i)=>{
+    const cur = letterState[l]||'unknown';
+    const cp = priority[colors[i]]||0;
+    const pp = priority[cur]||0;
+    if(cp>pp) letterState[l]=colors[i];
+  });
+}
+
+function handleKey(k){
+  if(gameState!=='playing') return;
+  if(k==='↵'||k==='ENTER'){
+    if(current.length<5){ shake(guesses.length); return; }
+    const colors = getColors([...current], [...word]);
+    const row = {letters:[...current], colors};
+    guesses.push(row);
+    updateLetterState([...current], colors);
+    const won = colors.every(c=>c==='green');
+    row.revealStart=performance.now();
+    if(won){
+      gameState='won';
+      const sc2=(7-guesses.length)*100;
+      try{window.parent.postMessage({type:'boh_score_live',score:sc2},'*');}catch{}
+      if(sc2>best){ best=sc2; try{localStorage.setItem('boh_wordle',best);}catch{}  }
+      draw();
+      setTimeout(()=>showEnd(true, sc2), 1400);
+    } else if(guesses.length>=6){
+      gameState='lost';
+      draw();
+      setTimeout(()=>showEnd(false, 0), 1400);
+    } else {
+      current=''; requestAnimationFrame(draw);
+    }
+    return;
+  }
+  if(k==='⌫'||k==='BACKSPACE'){
+    if(current.length>0){ current=current.slice(0,-1); draw(); }
+    return;
+  }
+  if(/^[A-ZÑÁÉÍÓÚ]$/.test(k) && current.length<5){ current+=k; draw(); }
+}
+
+function shake(row){ shakeRow=row; shakeTime=performance.now(); draw(); }
+
+function colorHex(c){
+  if(c==='green')  return COL_GREEN;
+  if(c==='yellow') return COL_YELLOW;
+  if(c==='gray')   return COL_GRAY;
+  return null;
+}
+
+function drawTile(x,y,letter,color,scale){
+  scale=scale||1;
+  const cx=x+TILE/2, cy=y+TILE/2;
+  const rad=Math.round(TILE*0.1);
+  const bg=colorHex(color)||COL_EMPTY;
+  ctx.save();
+  if(scale!==1){ ctx.translate(cx,cy); ctx.scale(scale,scale); ctx.translate(-cx,-cy); }
+  ctx.fillStyle=bg;
+  if(color==='green'||color==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=8; }
+  rr2(x,y,TILE,TILE,rad); ctx.fill();
+  ctx.shadowBlur=0;
+  // border
+  ctx.strokeStyle=letter&&!color?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.07)';
+  ctx.lineWidth=1.5;
+  rr2(x,y,TILE,TILE,rad); ctx.stroke();
+  if(letter){
+    ctx.fillStyle='#fff';
+    const fs=Math.round(TILE*0.50);
+    ctx.font=`700 ${fs}px system-ui`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(letter,cx,cy+1);
+  }
+  ctx.restore();
+}
+
+function drawGrid(){
+  const now=performance.now();
+  for(let r=0;r<6;r++){
+    const isShaking=shakeRow===r && (now-shakeTime)<400;
+    const shakeX=isShaking?Math.round(Math.sin((now-shakeTime)*0.08)*5):0;
+    for(let c=0;c<5;c++){
+      const x=GRID_OX+c*(TILE+TGAP)+shakeX;
+      const y=GRID_OY+r*(TILE+TGAP);
+      if(r<guesses.length){
+        const g=guesses[r];
+        // flip reveal animation
+        const delay=c*80;
+        const elapsed=now-g.revealStart;
+        const t=Math.max(0,Math.min(1,(elapsed-delay)/200));
+        const sc=t<0.5?1-t*2:t*2-1;
+        const col=t>=0.5?g.colors[c]:null;
+        drawTile(x,y,g.letters[c],col,Math.max(0.01,sc));
+      } else if(r===guesses.length){
+        const letter=current[c]||'';
+        const isActive=letter.length>0;
+        drawTile(x,y,letter,null,isActive?1:1);
+      } else {
+        drawTile(x,y,'',null,1);
+      }
+    }
+  }
+  if(isShaking && shakeTime){ requestAnimationFrame(draw); }
+  // keep animating reveals
+  if(guesses.some(g=>g.revealStart&&now-g.revealStart<5*80+200)){
+    requestAnimationFrame(draw);
+  }
+}
+
+function drawKey(x,y,w,h,label,state){
+  const rad=Math.round(h*0.2);
+  let bg='rgba(255,255,255,0.1)';
+  if(state==='green')  bg=COL_GREEN;
+  if(state==='yellow') bg=COL_YELLOW;
+  if(state==='gray')   bg='rgba(255,255,255,0.06)';
+  ctx.fillStyle=bg;
+  if(state==='green'||state==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=6; }
+  rr2(x,y,w,h,rad); ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle=state?'#fff':'rgba(255,255,255,0.85)';
+  const fs=Math.round(h*0.42);
+  ctx.font=`600 ${fs}px system-ui`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(label,x+w/2,y+h/2+1);
+}
+
+function drawKeyboard(){
+  keyHitBoxes=[];
+  const wide=Math.round(KW*1.55);
+  for(let ri=0;ri<3;ri++){
+    const row=KB_ROWS[ri];
+    // calculate total width of this row
+    let totalW=0;
+    row.forEach(k=>{ totalW+=(k==='↵'||k==='⌫')?wide:KW; });
+    totalW+=KB_GAP_W*(row.length-1);
+    let x=Math.round((SIZE-totalW)/2);
+    const y=KB_OY+ri*(KH+KB_GAP_H);
+    row.forEach(k=>{
+      const w=(k==='↵'||k==='⌫')?wide:KW;
+      const state=letterState[k];
+      drawKey(x,y,w,KH,k,state);
+      keyHitBoxes.push({x,y,w,h:KH,key:k});
+      x+=w+KB_GAP_W;
+    });
+  }
+}
+
+function drawHUD(){
+  const fs=Math.max(10,Math.round(SIZE*0.036));
+  ctx.save();
+  ctx.textAlign='left';
+  ctx.font=`700 ${Math.round(fs*1.3)}px system-ui`;
+  ctx.fillStyle='rgba(0,231,235,0.9)';
+  const sc=guesses.filter(g=>g.colors&&g.colors.every(c=>c==='green')).length;
+  ctx.fillText(sc,12,fs*1.55);
+  ctx.font=`400 ${Math.round(fs*0.72)}px system-ui`;
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.fillText('GANADAS',12,fs*2.5);
+  ctx.textAlign='right';
+  ctx.font=`700 ${Math.round(fs*1.3)}px system-ui`;
+  ctx.fillStyle='rgba(255,255,255,0.28)';
+  ctx.fillText(best,SIZE-12,fs*1.55);
+  ctx.font=`400 ${Math.round(fs*0.72)}px system-ui`;
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.fillText('RÉCORD',SIZE-12,fs*2.5);
+  // intento indicator
+  ctx.textAlign='center';
+  ctx.font=`400 ${Math.round(fs*0.72)}px system-ui`;
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.fillText(`Intento ${Math.min(guesses.length+1,6)} / 6`,SIZE/2,fs*1.55);
+  ctx.restore();
+}
+
+function draw(){
+  ctx.fillStyle='#0a0a0a';
+  ctx.fillRect(0,0,SIZE,SIZE);
+  if(!running) return;
+  drawHUD(); drawGrid(); drawKeyboard();
+}
+
+function bgDraw(){
+  ctx.fillStyle='#0a0a0a';
+  ctx.fillRect(0,0,SIZE,SIZE);
+}
+
+function rr2(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function init(){
+  word  = WORDS[Math.floor(Math.random()*WORDS.length)].split('').filter((_,i)=>i<5).join('');
+  guesses=[]; current=''; gameState='playing'; letterState={}; shakeRow=-1; shakeTime=0;
+}
+
+function showEnd(won, sc){
+  try{window.parent.postMessage({type:'boh_score',score:sc,game:'wordle'},'*');}catch{}
+  const isRecord=sc>0&&sc>=best;
+  OL.innerHTML=`
+    <div style="font-size:clamp(40px,11vw,64px);line-height:1">${won?'🟩':'💀'}</div>
+    <div class="final">${won?'¡Ganaste!':'Sin suerte'}</div>
+    ${won?'':`<div class="the-word">${word}</div>`}
+    <div class="result-msg">${isRecord&&sc>0?'¡Nuevo récord! '+sc+' pts':won?sc+' puntos':'Récord: '+best}</div>
+    <button id="btn" onclick="start()">Otra palabra</button>
+    <div id="ov-controls">
+      <div class="row">Teclado o toca las letras en pantalla</div>
+    </div>`;
+  OL.style.display='flex';
+  running=false;
+}
+
+function start(){
+  OL.style.display='none';
+  init(); running=true; draw();
+}
+
+document.addEventListener('keydown', e=>{
+  if(!running){
+    if(e.key===' '||e.key==='Enter'){ e.preventDefault(); start(); }
+    return;
+  }
+  e.preventDefault();
+  const k=e.key.toUpperCase();
+  if(k==='ENTER')     handleKey('↵');
+  else if(k==='BACKSPACE') handleKey('⌫');
+  else if(/^[A-ZÁÉÍÓÚÑ]$/.test(k)) handleKey(k.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase());
+});
+
+canvas.addEventListener('click', e=>{
+  if(!running){ start(); return; }
+  const rect=canvas.getBoundingClientRect();
+  const x=(e.clientX-rect.left)*(SIZE/rect.width);
+  const y=(e.clientY-rect.top)*(SIZE/rect.height);
+  for(const kb of keyHitBoxes){
+    if(x>=kb.x&&x<=kb.x+kb.w&&y>=kb.y&&y<=kb.y+kb.h){
+      handleKey(kb.key); break;
+    }
+  }
+});
+canvas.addEventListener('touchstart', e=>{
+  if(!running){ start(); return; }
+  e.preventDefault();
+  const rect=canvas.getBoundingClientRect();
+  const x=(e.touches[0].clientX-rect.left)*(SIZE/rect.width);
+  const y=(e.touches[0].clientY-rect.top)*(SIZE/rect.height);
+  for(const kb of keyHitBoxes){
+    if(x>=kb.x&&x<=kb.x+kb.w&&y>=kb.y&&y<=kb.y+kb.h){
+      handleKey(kb.key); break;
+    }
+  }
+},{passive:false});
+
+try{best=parseInt(localStorage.getItem('boh_wordle')||'0')||0;}catch{best=0;}
+bgDraw();
+</script>
+</body>
+</html>

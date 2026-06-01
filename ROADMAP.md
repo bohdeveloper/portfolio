@@ -152,6 +152,34 @@
 
 ---
 
+:: FASE 8 — Minijuegos propios (🚧 EN PROGRESO)
+· Objetivo: implementar juegos propios alojados en /public/games/ como HTML standalone.
+  Cada juego es un fichero .html autocontenido — sin dependencias externas.
+  Se comunica con el panel lateral via postMessage (boh_score_live, boh_score).
+  El récord personal persiste en localStorage con clave boh_<slug>.
+
+### Juegos implementados
+# ✅ Snake       — /public/games/snake.html   · puntuación, impulso, obstáculos, récord
+# ✅ Tetris      — /public/games/tetris.html  · piezas, ghost, combos, encaje, récord
+# ✅ 2048        — /public/games/2048.html    · grid 4×4, merge, win 2048, récord
+# ✅ Wordle      — /public/games/wordle.html  · 5 letras ES, 6 intentos, teclado canvas, récord
+# ✅ Flappy Bird — /public/games/flappy.html  · física, tubos, dificultad progresiva, récord
+
+### Patrón técnico común (todos los juegos)
+# Canvas responsive: Math.min(window.innerWidth, window.innerHeight) - 4
+# Overlay HTML encima del canvas: pantalla inicio + game over (misma CSS en todos)
+# HUD en canvas: puntuación actual (cyan) + récord (dorado si nuevo récord)
+# postMessage al padre: { type: 'boh_score_live', score } durante partida
+# postMessage al padre: { type: 'boh_score', score, game: '<slug>' } al terminar
+# localStorage: clave boh_<slug> → récord personal del visitante
+# Controles: teclado + touch (swipe o tap según el juego)
+
+### Registro en admin (pendiente)
+# ⬜ Añadir Snake, Tetris, 2048, Wordle y Flappy Bird en /admin/dashboard/juegos
+#    con sus URLs, descripciones y screenshots correspondientes
+
+---
+
 :: APP — Bioptima (⬜ PLANIFICADA)
 · Seguimiento deportivo, cálculos y evolución personal.
 
