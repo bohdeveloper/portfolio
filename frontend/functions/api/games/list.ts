@@ -5,8 +5,8 @@ const H = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '
 export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   try {
     const { results: games } = await env.DB.prepare(
-      'SELECT id, name, slug, description, url, screenshot, is_top, vote_count, created_at FROM games ORDER BY is_top DESC, created_at DESC'
-    ).all<{ id: number; name: string; slug: string; description: string; url: string; screenshot: string; is_top: number; vote_count: number; created_at: string }>();
+      'SELECT id, name, slug, description, url, screenshot, is_top, vote_count, ai_generated, created_at FROM games ORDER BY is_top DESC, created_at DESC'
+    ).all<{ id: number; name: string; slug: string; description: string; url: string; screenshot: string; is_top: number; vote_count: number; ai_generated: number; created_at: string }>();
 
     const { results: reactions } = await env.DB.prepare(
       'SELECT game_id, emoji, count FROM game_reactions'

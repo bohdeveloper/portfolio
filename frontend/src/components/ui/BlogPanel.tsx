@@ -13,6 +13,7 @@ interface Game {
   id: number; name: string; slug: string; description: string;
   url: string; screenshot: string; is_top: number;
   vote_count: number; is_community_top: number;
+  ai_generated: number;
   reactions: Record<string, number>;
 }
 interface Leader  { rank: number; alias: string; score: number; visitor_id: number }
@@ -408,7 +409,12 @@ export default function BlogPanel() {
         ) : (
           <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: '6px', background: 'var(--pnl-border)', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🎮</div>
         )}
-        <h3 style={{ color: 'var(--pnl-text)', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>{game.name}</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
+          <h3 style={{ color: 'var(--pnl-text)', fontSize: '13px', fontWeight: 500, margin: 0 }}>{game.name}</h3>
+          {game.ai_generated === 1 && (
+            <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.4px', padding: '1px 5px', borderRadius: '3px', border: '1px solid rgba(0,231,235,0.3)', color: 'var(--primary)', background: 'rgba(0,231,235,0.06)', opacity: 0.8, flexShrink: 0 }}>✦ IA</span>
+          )}
+        </div>
         {game.description && (
           <p style={{ color: 'var(--pnl-muted)', fontSize: '11px', lineHeight: '1.5', marginBottom: '8px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{game.description}</p>
         )}

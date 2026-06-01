@@ -19,10 +19,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const auth = await verifyAuth(request, env.JWT_SECRET);
   if (!auth || auth.role !== 'super_admin') return forbidden();
 
-  let body: { id?: number; name?: string; slug?: string; description?: string; url?: string; screenshot?: string; is_top?: number };
+  let body: { id?: number; name?: string; slug?: string; description?: string; url?: string; screenshot?: string; is_top?: number; ai_generated?: number };
   try { body = await request.json(); } catch { return bad('Invalid JSON'); }
 
-  const { id, name, slug: rawSlug, description = '', url = '', screenshot = '', is_top = 0 } = body;
+  const { id, name, slug: rawSlug, description = '', url = '', screenshot = '', is_top = 0, ai_generated = 0 } = body;
   if (!name?.trim()) return bad('Name is required');
 
   const slug = slugify(rawSlug || name);
@@ -33,8 +33,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
     if (id) {
       await env.DB.prepare(
-        `UPDATE games SET name = ?, slug = ?, description = ?, url = ?, screenshot = ?, is_top = ? WHERE id = ?`
-      ).bind(name.trim(), slug, description, url, screenshot, is_top, id).run();
+        `UPDATE games SET name = ?, slug = ?, description = ?, url = ?, screenshot = ?, is_top = ?, ai_generated = ? WHERE id = ?`
+      ).bind(name.trim(), slug, description, url, screenshot, is_top, ai_generated, id).run();
       // Si se marca como TOP, quitar el TOP de los demás
       if (is_top === 1) {
         await env.DB.prepare('UPDATE games SET is_top = 0 WHERE id != ?').bind(id).run();
@@ -42,8 +42,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       return new Response(JSON.stringify({ ok: true, id }), { status: 200, headers: H });
     } else {
       const result = await env.DB.prepare(
-        `INSERT INTO games (name, slug, description, url, screenshot, is_top) VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(name.trim(), slug, description, url, screenshot, is_top).run();
+        `INSERT INTO games (name, slug, description, url, screenshot, is_top, ai_generated) VALUES (?, ?, ?, ?, ?, ?, ?)`
+      ).bind(name.trim(), slug, description, url, screenshot, is_top, ai_generated).run();
       const newId = Number(result.meta.last_row_id);
       if (is_top === 1) {
         await env.DB.prepare('UPDATE games SET is_top = 0 WHERE id != ?').bind(newId).run();

@@ -11,6 +11,7 @@ interface Game {
   url: string;
   screenshot: string;
   is_top: number;
+  ai_generated: number;
   created_at: string;
 }
 
@@ -24,7 +25,7 @@ interface Leader {
 type View = 'list' | 'editor' | 'ranking';
 
 const EMPTY: Omit<Game, 'id' | 'created_at'> = {
-  name: '', slug: '', description: '', url: '', screenshot: '', is_top: 0,
+  name: '', slug: '', description: '', url: '', screenshot: '', is_top: 0, ai_generated: 0,
 };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -182,7 +183,7 @@ export default function JuegosAdminPage() {
   }
   function openEdit(g: Game) {
     setEditId(g.id);
-    setForm({ name: g.name, slug: g.slug, description: g.description, url: g.url, screenshot: g.screenshot, is_top: g.is_top });
+    setForm({ name: g.name, slug: g.slug, description: g.description, url: g.url, screenshot: g.screenshot, is_top: g.is_top, ai_generated: g.ai_generated ?? 0 });
     setMsg('');
     setView('editor');
   }
@@ -267,6 +268,9 @@ export default function JuegosAdminPage() {
                       {g.is_top === 1 && (
                         <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: '#ffc80020', color: '#ffc800', border: '1px solid #ffc80040', flexShrink: 0 }}>⭐ Favorito</span>
                       )}
+                      {g.ai_generated === 1 && (
+                        <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: 'rgba(0,231,235,0.08)', color: 'var(--primary)', border: '1px solid rgba(0,231,235,0.25)', flexShrink: 0 }}>✦ IA</span>
+                      )}
                     </div>
                     <div style={{ color: 'var(--adm-muted)', fontSize: '11px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       {g.description && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{g.description}</span>}
@@ -337,10 +341,15 @@ export default function JuegosAdminPage() {
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '20px', padding: '12px', background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '8px' }}>
                 <label style={{ color: 'var(--adm-text)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" checked={form.is_top === 1} onChange={e => set('is_top', e.target.checked ? 1 : 0)} style={{ width: '16px', height: '16px', accentColor: '#ffc800' }} />
                   ⭐ Marcar como Favorito (el TOP lo decide la comunidad con reacciones)
+                </label>
+                <label style={{ color: 'var(--adm-text)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} title="Reglamento UE AI Act — obliga a etiquetar contenido donde la IA haya sido sustancial (desde agosto 2026)">
+                  <input type="checkbox" checked={form.ai_generated === 1} onChange={e => set('ai_generated', e.target.checked ? 1 : 0)} style={{ width: '16px', height: '16px', accentColor: 'var(--primary)' }} />
+                  <span>✦ Descripción generada con IA</span>
+                  <span style={{ fontSize: '10px', color: 'var(--adm-muted)', fontWeight: 400 }}>(AI Act EU)</span>
                 </label>
               </div>
             </div>

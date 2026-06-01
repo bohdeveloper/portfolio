@@ -6,7 +6,7 @@ interface Game {
   id: number; name: string; slug: string; description: string;
   url: string; screenshot: string; is_top: number;
   vote_count: number; is_community_top: number;
-  total_reactions: number; reactions: Record<string, number>;
+  total_reactions: number; ai_generated: number; reactions: Record<string, number>;
 }
 
 const EMOJIS = ['👍', '❤️', '🔥', '💡'] as const;
@@ -180,7 +180,12 @@ function GameCard({ game, leaders, isCommunityTop, visitorId, reacted, counts, o
       {/* Content */}
       <div style={{ padding: isCommunityTop ? '1.25rem' : '1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div>
-          <h3 style={{ color: 'var(--jg-text)', fontSize: isCommunityTop ? '18px' : '14px', fontWeight: 600, marginBottom: '4px' }}>{game.name}</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+            <h3 style={{ color: 'var(--jg-text)', fontSize: isCommunityTop ? '18px' : '14px', fontWeight: 600, margin: 0 }}>{game.name}</h3>
+            {game.ai_generated === 1 && (
+              <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.4px', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(0,231,235,0.3)', color: 'var(--jg-primary)', background: 'rgba(0,231,235,0.06)', flexShrink: 0 }} title="Descripción generada con IA · EU AI Act 2026">✦ IA</span>
+            )}
+          </div>
           {game.description && <p style={{ color: 'var(--jg-muted)', fontSize: '12px', lineHeight: 1.55, margin: 0 }}>{game.description}</p>}
         </div>
 
