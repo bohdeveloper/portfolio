@@ -18,7 +18,7 @@ export default function Aprendizaje() {
         "Node.js",
         "Git",
       ],
-      link: "/images/diploma_ceinpro.jpg",
+      link: "/images/diploma_ceinpro.png",
     },
     {
       titulo: "Curso Java POO & BD relacionales - Ipartek",
