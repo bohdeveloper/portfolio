@@ -208,15 +208,6 @@
 # ✅ Wordle: fix teclado invisible en móvil (iOS Safari / iframe)
 # ✅ Juegos: nuevo layout featured + carrusel horizontal en BlogPanel
 
-### Pendiente
-# ⬜ Añadir Snake, Tetris, 2048, Wordle y Flappy Bird en /admin/dashboard/juegos
-#    con sus URLs, descripciones y screenshots correspondientes
-
----
----
-
-## ⬜ PLANIFICADAS
-
 ---
 
 :: FASE 8 — Visibilidad y retención de usuarios (⬜ PLANIFICADA)
