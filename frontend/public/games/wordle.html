@@ -53,6 +53,23 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a;cursor:pointer}
   position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
   z-index:100;display:none;
 }
+/* ── Botón pista / comodín (1 uso por partida, aparece cuando < 5 letras) ── */
+#hint-wrap{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  z-index:100;display:none;
+}
+#hint-btn{
+  padding:clamp(10px,2.8vw,14px) clamp(36px,10vw,56px);
+  border:2px solid #FFD700;border-radius:8px;
+  background:rgba(6,6,6,0.92);color:#FFD700;
+  font-size:clamp(14px,3.5vw,17px);font-weight:700;
+  cursor:pointer;font-family:inherit;letter-spacing:0.5px;
+  box-shadow:0 0 22px rgba(255,215,0,0.18);
+  transition:background .18s,box-shadow .18s;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+#hint-btn:hover{background:rgba(255,215,0,0.12);box-shadow:0 0 32px rgba(255,215,0,0.35);}
+#hint-btn:active{transform:scale(0.97);}
 #validate-btn{
   padding:clamp(10px,2.8vw,14px) clamp(36px,10vw,56px);
   border:2px solid #00e7eb;border-radius:8px;
@@ -72,6 +89,9 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a;cursor:pointer}
   <canvas id="c"></canvas>
   <div id="validate-wrap">
     <button id="validate-btn" onclick="handleKey('↵')">✓ Validar</button>
+  </div>
+  <div id="hint-wrap">
+    <button id="hint-btn" onclick="useComodin()">★ Pista</button>
   </div>
   <div id="overlay">
     <div id="ov-icon">🟩</div>
@@ -151,6 +171,7 @@ let KW, KH, KB_GAP_W, KB_GAP_H, KB_OX, KB_OY;
 let keyHitBoxes = [];
 
 let word, guesses, current, gameState, letterState, shakeRow, shakeTime;
+let comodinUsed, hintPos;   // comodín: ¿usado? + posición revelada
 let running = false;
 
 function resize(){
@@ -233,28 +254,47 @@ function handleKey(k){
       const sc2=(7-guesses.length)*100;
       try{window.parent.postMessage({type:'boh_score_live',score:sc2},'*');}catch{}
       if(sc2>best){ best=sc2; try{localStorage.setItem('boh_wordle',best);}catch{}  }
-      updateValidateBtn(); draw();
-      setTimeout(()=>showEnd(true, sc2), 800);
+      updateValidateBtn(); updateHintBtn(); draw();
+      setTimeout(()=>showEnd(true, sc2), 600);
     } else if(guesses.length>=6){
       gameState='lost';
-      updateValidateBtn(); draw();
-      setTimeout(()=>showEnd(false, 0), 800);
+      updateValidateBtn(); updateHintBtn(); draw();
+      setTimeout(()=>showEnd(false, 0), 400);
     } else {
-      current=''; updateValidateBtn(); requestAnimationFrame(draw);
+      current=''; updateValidateBtn(); updateHintBtn(); requestAnimationFrame(draw);
     }
     return;
   }
   if(k==='⌫'||k==='BACKSPACE'){
-    if(current.length>0){ current=current.slice(0,-1); updateValidateBtn(); draw(); }
+    if(current.length>0){ current=current.slice(0,-1); updateValidateBtn(); updateHintBtn(); draw(); }
     return;
   }
-  if(/^[A-ZÑÁÉÍÓÚ]$/.test(k) && current.length<5){ current+=k; updateValidateBtn(); draw(); }
+  if(/^[A-ZÑÁÉÍÓÚ]$/.test(k) && current.length<5){ current+=k; updateValidateBtn(); updateHintBtn(); draw(); }
 }
 
 // Muestra u oculta el botón Validar según si hay exactamente 5 letras escritas
 function updateValidateBtn(){
   const wrap=document.getElementById('validate-wrap');
   if(wrap) wrap.style.display=(running&&gameState==='playing'&&current.length===5)?'block':'none';
+}
+// Muestra u oculta el comodín: solo cuando no se ha usado, hay < 5 letras y se está jugando
+function updateHintBtn(){
+  const wrap=document.getElementById('hint-wrap');
+  if(wrap) wrap.style.display=(!comodinUsed&&running&&gameState==='playing'&&current.length<5)?'block':'none';
+}
+// Comodín: revela la siguiente letra correcta en la posición actual del cursor
+function useComodin(){
+  if(comodinUsed||gameState!=='playing'||current.length>=5) return;
+  const pos=current.length;
+  const letter=word[pos];
+  current+=letter;
+  comodinUsed=true;
+  hintPos=pos;
+  // Marcar la letra en el teclado con color dorado ('hint') si aún no tiene color
+  if(!letterState[letter]) letterState[letter]='hint';
+  updateHintBtn();
+  updateValidateBtn();
+  draw();
 }
 
 function shake(row){ shakeRow=row; shakeTime=performance.now(); draw(); }
@@ -266,23 +306,29 @@ function colorHex(c){
   return null;
 }
 
-function drawTile(x,y,letter,color,scale){
+function drawTile(x,y,letter,color,scale,isHint){
   scale=scale||1;
   const cx=x+TILE/2, cy=y+TILE/2;
   const rad=Math.round(TILE*0.1);
-  // tile con letra pero sin evaluar → fondo resaltado; vacío → fondo tenue
   const bg=colorHex(color)||(letter?COL_ACTIVE:COL_EMPTY);
   ctx.save();
-  // escala uniforme para el efecto pop al revelar
   if(scale!==1){ ctx.translate(cx,cy); ctx.scale(scale,scale); ctx.translate(-cx,-cy); }
   ctx.fillStyle=bg;
   if(color==='green'||color==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=8; }
+  // Tile pista: fondo con tinte dorado suave
+  if(isHint&&!color){ ctx.fillStyle='rgba(255,215,0,0.15)'; }
   rr2(x,y,TILE,TILE,rad); ctx.fill();
   ctx.shadowBlur=0;
-  // borde más visible en tiles con letra; sutil en tiles vacíos y coloreados
-  ctx.strokeStyle=color?'rgba(255,255,255,0.12)':letter?'rgba(255,255,255,0.65)':'rgba(255,255,255,0.22)';
-  ctx.lineWidth=1.5;
+  // Borde dorado brillante para tile de pista; normal para el resto
+  if(isHint&&!color){
+    ctx.strokeStyle='rgba(255,215,0,0.85)';
+    ctx.shadowColor='rgba(255,215,0,0.5)'; ctx.shadowBlur=6;
+  } else {
+    ctx.strokeStyle=color?'rgba(255,255,255,0.12)':letter?'rgba(255,255,255,0.65)':'rgba(255,255,255,0.22)';
+  }
+  ctx.lineWidth=isHint?2:1.5;
   rr2(x,y,TILE,TILE,rad); ctx.stroke();
+  ctx.shadowBlur=0;
   if(letter){
     ctx.fillStyle='#fff';
     const fs=Math.round(TILE*0.50);
@@ -310,8 +356,9 @@ function drawGrid(){
         drawTile(x,y,g.letters[c],g.colors[c],sc);
       } else if(r===guesses.length){
         const letter=current[c]||'';
-        const isActive=letter.length>0;
-        drawTile(x,y,letter,null,isActive?1:1);
+        // Marcar la celda de la pista con borde dorado
+        const isHint = c===hintPos && !comodinUsed===false && letter!=='';
+        drawTile(x,y,letter,null,1,isHint);
       } else {
         drawTile(x,y,'',null,1);
       }
@@ -328,7 +375,8 @@ function drawKey(x,y,w,h,label,state){
   let bg='rgba(255,255,255,0.12)';
   if(state==='green')  bg=COL_GREEN;
   if(state==='yellow') bg=COL_YELLOW;
-  if(state==='gray')   bg=COL_GRAY;  // gris oscuro visible, no casi-transparente
+  if(state==='gray')   bg=COL_GRAY;
+  if(state==='hint')   bg='rgba(255,215,0,0.45)';  // letra revelada por el comodín
   ctx.fillStyle=bg;
   if(state==='green'||state==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=6; }
   rr2(x,y,w,h,rad); ctx.fill();
@@ -428,29 +476,33 @@ function rr2(x,y,w,h,r){
 
 function init(){
   word  = WORDS[Math.floor(Math.random()*WORDS.length)].split('').filter((_,i)=>i<5).join('');
-  guesses=[]; current=''; gameState='playing'; letterState={}; shakeRow=-1; shakeTime=0;
+  guesses=[]; current=''; gameState='playing'; letterState={};
+  shakeRow=-1; shakeTime=0; comodinUsed=false; hintPos=-1;
 }
 
 function showEnd(won, sc){
   try{window.parent.postMessage({type:'boh_score',score:sc,game:'wordle'},'*');}catch{}
   const isRecord=sc>0&&sc>=best;
+  const attempts=guesses.length;
   OL.innerHTML=`
     <div style="font-size:clamp(40px,11vw,64px);line-height:1">${won?'🟩':'💀'}</div>
-    <div class="final">${won?'¡Ganaste!':'Sin suerte'}</div>
-    ${won?'':`<div class="the-word">${word}</div>`}
-    <div class="result-msg">${isRecord&&sc>0?'¡Nuevo récord! '+sc+' pts':won?sc+' puntos':'Récord: '+best}</div>
-    <button id="btn" onclick="start()">Otra palabra</button>
-    <div id="ov-controls">
-      <div class="row">Teclado o toca las letras en pantalla</div>
-    </div>`;
+    <div class="final">${won?'¡Adivinada!':'Sin suerte'}</div>
+    <div class="the-word">${word}</div>
+    <div class="result-msg">${
+      won
+        ? (isRecord?'★ ¡Nuevo récord! '+sc+' pts':attempts===1?'¡Al primer intento!':'En '+attempts+' intentos · '+sc+' pts')
+        : 'Esa era la palabra · Récord: '+best+' pts'
+    }</div>
+    <button id="btn" onclick="start()">↺ Nueva partida</button>`;
   OL.style.display='flex';
   running=false;
   updateValidateBtn();
+  updateHintBtn();
 }
 
 function start(){
   OL.style.display='none';
-  init(); running=true; updateValidateBtn(); draw();
+  init(); running=true; updateValidateBtn(); updateHintBtn(); draw();
 }
 
 document.addEventListener('keydown', e=>{
