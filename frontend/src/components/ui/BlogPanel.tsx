@@ -456,31 +456,6 @@ export default function BlogPanel() {
     <>
       <style>{PANEL_STYLES}</style>
 
-      {/* ══ TOP game float ══ */}
-      {topGame && (
-        <button
-          onClick={() => openGame({ url: topGame.url, name: topGame.name, id: topGame.id })}
-          className="top-game-float"
-          aria-label={`Jugar a ${topGame.name}`}
-          style={{
-            position: 'fixed', top: '96px', left: '16px', zIndex: 50,
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 14px',
-            background: 'var(--pnl-bg)',
-            border: '1.5px solid rgba(0,231,235,0.6)',
-            borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit',
-            color: 'var(--pnl-text)',
-            transition: 'transform 0.15s, border-color 0.15s',
-            boxShadow: '0 2px 12px rgba(0,231,235,0.08)',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'rgba(0,231,235,1)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(0,231,235,0.6)'; }}
-        >
-          <span style={{ fontSize: '13px', background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.4)', borderRadius: '5px', padding: '1px 6px', color: '#ff6060', fontWeight: 700, letterSpacing: '0.5px', flexShrink: 0 }}>🔥 TOP</span>
-          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--pnl-text)', whiteSpace: 'nowrap' }}>Juega a {topGame.name}</span>
-        </button>
-      )}
-
       {/* ══════════════ DESKTOP ══════════════ */}
 
       {!open && (
