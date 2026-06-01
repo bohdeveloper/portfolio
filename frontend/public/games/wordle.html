@@ -55,15 +55,23 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a;cursor:pointer}
   <div id="overlay">
     <div id="ov-icon">🟩</div>
     <div id="ov-title">Wordle</div>
-    <div id="ov-desc">Adivina la palabra de 5 letras · 6 intentos</div>
+    <div id="ov-desc">Adivina la palabra de 5 letras en 6 intentos</div>
     <button id="btn" onclick="start()">Jugar</button>
     <div id="ov-controls">
-      <div class="row">Teclado físico o pantalla táctil</div>
-      <div class="row">
-        <span style="color:#22c55e;font-weight:600">Verde</span><span class="sep">=</span>letra y posición correctas
+      <div class="row" style="gap:8px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#22c55e;border-radius:4px;font-weight:700;color:#fff;font-size:13px">A</span>
+        <span>Letra y posición <strong style="color:#22c55e">correctas</strong></span>
       </div>
-      <div class="row">
-        <span style="color:#ca8a04;font-weight:600">Amarillo</span><span class="sep">=</span>letra correcta, posición no
+      <div class="row" style="gap:8px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#ca8a04;border-radius:4px;font-weight:700;color:#fff;font-size:13px">A</span>
+        <span>Letra presente, <strong style="color:#ca8a04">posición incorrecta</strong></span>
+      </div>
+      <div class="row" style="gap:8px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#374151;border-radius:4px;font-weight:700;color:#fff;font-size:13px">A</span>
+        <span>Letra <strong style="color:#9ca3af">no está</strong> en la palabra</span>
+      </div>
+      <div class="row" style="color:rgba(255,255,255,0.35);font-size:0.85em;margin-top:4px">
+        Teclado en pantalla o físico · <span class="k">↵</span> para confirmar
       </div>
     </div>
   </div>
@@ -113,8 +121,8 @@ const KB_ROWS = [
 const COL_GREEN  = '#22c55e';
 const COL_YELLOW = '#ca8a04';
 const COL_GRAY   = '#374151';
-const COL_EMPTY  = 'rgba(255,255,255,0.06)';
-const COL_ACTIVE = 'rgba(255,255,255,0.12)';
+const COL_EMPTY  = 'rgba(255,255,255,0.10)';  // suficientemente visible en fondo oscuro
+const COL_ACTIVE = 'rgba(255,255,255,0.20)';  // tile con letra escrita (resaltado)
 
 let SIZE;
 let TILE, TGAP, GRID_OX, GRID_OY;
@@ -236,15 +244,16 @@ function drawTile(x,y,letter,color,scale){
   scale=scale||1;
   const cx=x+TILE/2, cy=y+TILE/2;
   const rad=Math.round(TILE*0.1);
-  const bg=colorHex(color)||COL_EMPTY;
+  // tile con letra pero sin evaluar → fondo resaltado; vacío → fondo tenue
+  const bg=colorHex(color)||(letter?COL_ACTIVE:COL_EMPTY);
   ctx.save();
   if(scale!==1){ ctx.translate(cx,cy); ctx.scale(scale,scale); ctx.translate(-cx,-cy); }
   ctx.fillStyle=bg;
   if(color==='green'||color==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=8; }
   rr2(x,y,TILE,TILE,rad); ctx.fill();
   ctx.shadowBlur=0;
-  // border
-  ctx.strokeStyle=letter&&!color?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.07)';
+  // borde más visible en tiles con letra; sutil en tiles vacíos y coloreados
+  ctx.strokeStyle=color?'rgba(255,255,255,0.12)':letter?'rgba(255,255,255,0.65)':'rgba(255,255,255,0.22)';
   ctx.lineWidth=1.5;
   rr2(x,y,TILE,TILE,rad); ctx.stroke();
   if(letter){
@@ -296,10 +305,10 @@ function drawGrid(){
 
 function drawKey(x,y,w,h,label,state){
   const rad=Math.round(h*0.2);
-  let bg='rgba(255,255,255,0.1)';
+  let bg='rgba(255,255,255,0.12)';
   if(state==='green')  bg=COL_GREEN;
   if(state==='yellow') bg=COL_YELLOW;
-  if(state==='gray')   bg='rgba(255,255,255,0.06)';
+  if(state==='gray')   bg=COL_GRAY;  // gris oscuro visible, no casi-transparente
   ctx.fillStyle=bg;
   if(state==='green'||state==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=6; }
   rr2(x,y,w,h,rad); ctx.fill();

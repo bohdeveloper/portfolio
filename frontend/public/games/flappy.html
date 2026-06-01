@@ -101,10 +101,9 @@ function rr(x,y,w,h,r){
   ctx.closePath();
 }
 
-// Velocidad de los tubos: base fija más incremento lineal hasta score=30.
-// Se limita a 30 para que la dificultad no escale infinitamente y el juego sea asequible.
-// El factor Math.min(score,30) hace que el incremento sea efectivamente lineal (no logarítmico).
-function pipeSpeed(){ return S * (0.0028 + Math.min(score, 30) * 0.00012); }
+// Velocidad de los tubos (px/ms): los tubos cruzan la pantalla en ~3s al inicio.
+// Se incrementa linealmente hasta score=30 (~40% más rápido al máximo).
+function pipeSpeed(){ return S * (0.000333 + Math.min(score, 30) * 0.0000044); }
 
 function spawnPipe(){
   // El hueco puede aparecer entre el 18% y el 60% de la altura jugable.
@@ -120,8 +119,8 @@ function spawnPipe(){
 
 function flap(){
   if(!running) return;
-  // velocidad de aleteo inversamente proporcional a la altura para dar más control
-  bird.vy = -S * 0.016;
+  // Velocidad de aleteo: sube ~75px (15% del canvas) y alcanza el tope en ~0.4s
+  bird.vy = -S * 0.00075;
 }
 
 function init(){
@@ -129,7 +128,7 @@ function init(){
   pipes = []; score = 0;
   died = false;
   pipeTimer = 0;
-  pipeInterval = Math.round(S * 0.92); // frames-based distance
+  pipeInterval = Math.round(S * 0.70); // distancia acumulada entre spawns (~2.1s al inicio)
 }
 
 function tick(ts){
@@ -141,23 +140,25 @@ function tick(ts){
   lastTime = ts;
 
   if(died){
-    // Fase post-muerte: el pájaro sigue cayendo con gravedad aumentada (35 vs 28) durante
-    // 600ms para crear una caída dramática antes de mostrar el overlay de game over
-    const gravity = S * 0.000035;
+    // Fase post-muerte: caída dramática con gravedad ligeramente mayor que en juego
+    const gravity = S * 0.0000022;
     bird.vy += gravity * dt;
     bird.y  += bird.vy * dt;
-    bird.angle = Math.min(Math.PI/2, bird.angle + 0.12);
+    // Rotación progresiva hacia abajo (~0.04 rad/frame = 2.3°/frame a 60fps)
+    bird.angle = Math.min(Math.PI/2, bird.angle + 0.04);
     if(ts - dieTime > 600) { running = false; gameOver(); return; }
     draw(); return;
   }
 
-  // Física del pájaro: acumulación de gravedad sobre dt (integración de Euler)
-  const gravity = S * 0.000028;
+  // Física: gravedad en px/ms² acumulada sobre dt. Con dt≈16ms a 60fps y S=500:
+  // gravity*dt ≈ 0.0152/frame → vy sube ~0.015 por frame (flap pone vy=-0.375)
+  // Bird sube ~75px tras aletear y alcanza el tope en ~25 frames (0.4s)
+  const gravity = S * 0.0000019;
   bird.vy += gravity * dt;
   bird.y  += bird.vy * dt;
-  // Interpolación suave del ángulo visual hacia el ángulo objetivo (lerp con factor 0.18)
-  // Sube → -20° (nariz arriba), baja → hasta +72° (nariz abajo)
-  const targetAngle = bird.vy < 0 ? -0.35 : Math.min(Math.PI*0.4, bird.vy * 0.04);
+  // Ángulo: nariz arriba al subir (-0.35 rad), nariz abajo al caer (hasta +72°)
+  // El factor 2 escala bien con vy en rango ±0.4 px/ms
+  const targetAngle = bird.vy < 0 ? -0.35 : Math.min(Math.PI*0.4, bird.vy * 2);
   bird.angle += (targetAngle - bird.angle) * 0.18;
 
   // colisión suelo/techo
@@ -199,7 +200,7 @@ function die(ts){
   // Impulso inicial hacia arriba al morir: vy negativo produce un pequeño rebote
   // antes de que la gravedad post-muerte lo arrastre hacia abajo, dando sensación
   // de impacto físico en lugar de una caída directa
-  bird.vy = -S * 0.008;
+  bird.vy = -S * 0.0003;
 }
 
 function drawBird(){
