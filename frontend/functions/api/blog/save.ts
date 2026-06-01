@@ -12,13 +12,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   let body: {
     id?: number; slug: string; title: string; excerpt?: string; cover_image?: string;
-    content: string; tags?: string; published?: number; reading_time?: number;
+    content: string; tags?: string; published?: number; reading_time?: number; ai_generated?: number;
   };
   try { body = await request.json(); } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid JSON' }), { status: 400, headers });
   }
 
-  const { id, slug, title, excerpt = '', cover_image = '', content, tags = '', published = 0, reading_time = 0 } = body;
+  const { id, slug, title, excerpt = '', cover_image = '', content, tags = '', published = 0, reading_time = 0, ai_generated = 0 } = body;
   if (!slug || !title || !content) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing fields' }), { status: 400, headers });
   }
@@ -31,12 +31,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
     if (id) {
       await env.DB.prepare(
-        `UPDATE blog_posts SET slug=?, title=?, excerpt=?, cover_image=?, content=?, tags=?, published=?, reading_time=?, updated_at=datetime('now') WHERE id=?`
-      ).bind(slug, title, excerpt, cover_image, content, tags, published, reading_time, id).run();
+        `UPDATE blog_posts SET slug=?, title=?, excerpt=?, cover_image=?, content=?, tags=?, published=?, reading_time=?, ai_generated=?, updated_at=datetime('now') WHERE id=?`
+      ).bind(slug, title, excerpt, cover_image, content, tags, published, reading_time, ai_generated, id).run();
     } else {
       await env.DB.prepare(
-        `INSERT INTO blog_posts (slug, title, excerpt, cover_image, content, tags, published, reading_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-      ).bind(slug, title, excerpt, cover_image, content, tags, published, reading_time).run();
+        `INSERT INTO blog_posts (slug, title, excerpt, cover_image, content, tags, published, reading_time, ai_generated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(slug, title, excerpt, cover_image, content, tags, published, reading_time, ai_generated).run();
     }
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
   } catch (err: unknown) {

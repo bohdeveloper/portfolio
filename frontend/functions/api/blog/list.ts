@@ -22,8 +22,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const where = adminMode ? '' : 'WHERE published = 1';
   const fields = adminMode
-    ? `id, slug, title, excerpt, cover_image, content, tags, published, views, reading_time, created_at, updated_at`
-    : `id, slug, title, excerpt, cover_image, tags, published, views, reading_time, created_at, updated_at`;
+    ? `id, slug, title, excerpt, cover_image, content, tags, published, views, reading_time, ai_generated, created_at, updated_at`
+    : `id, slug, title, excerpt, cover_image, tags, published, views, reading_time, ai_generated, created_at, updated_at`;
   try {
     const { results } = await env.DB.prepare(
       `SELECT ${fields} FROM blog_posts ${where} ORDER BY created_at DESC`

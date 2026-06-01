@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 interface Post {
   id: number; slug: string; title: string; excerpt: string;
   cover_image: string; reading_time: number; created_at: string;
+  ai_generated: number;
 }
 interface Game {
   id: number; name: string; slug: string; description: string;
@@ -376,7 +377,12 @@ export default function BlogPanel() {
         {post.excerpt && (
           <p style={{ color: 'var(--pnl-muted)', fontSize: '11px', lineHeight: '1.5', marginBottom: '4px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{post.excerpt}</p>
         )}
-        <p style={{ color: 'var(--pnl-muted)', fontSize: '10px' }}>{fmtDate(post.created_at)} · {post.reading_time} min</p>
+        <p style={{ color: 'var(--pnl-muted)', fontSize: '10px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <span>{fmtDate(post.created_at)} · {post.reading_time} min</span>
+          {post.ai_generated === 1 && (
+            <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.4px', padding: '1px 5px', borderRadius: '3px', border: '1px solid rgba(0,231,235,0.3)', color: 'var(--primary)', background: 'rgba(0,231,235,0.06)', opacity: 0.8 }}>✦ IA</span>
+          )}
+        </p>
       </Link>
     );
   }

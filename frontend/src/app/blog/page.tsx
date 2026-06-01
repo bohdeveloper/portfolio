@@ -14,7 +14,30 @@ interface Post {
   published: number;
   views: number;
   reading_time: number;
+  ai_generated: number;
   created_at: string;
+}
+
+function AIBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded border border-primary/30 text-primary/60 bg-primary/5 select-none"
+      title="Contenido generado con asistencia de inteligencia artificial · EU AI Act 2026">
+      ✦ Generado con IA
+    </span>
+  );
+}
+
+// Inyecta un metatag machine-readable para cumplir el doble requisito del AI Act:
+// aviso visual (AIBadge/aviso inline) + marcado técnico detectable por crawlers.
+function AIMetaTag() {
+  useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name    = 'ai-generated';
+    meta.content = 'true';
+    document.head.appendChild(meta);
+    return () => { meta.remove(); };
+  }, []);
+  return null;
 }
 
 function fmtDate(iso: string) {
@@ -482,9 +505,26 @@ function PostView({ slug }: { slug: string }) {
           <span>{post.reading_time} min de lectura</span>
           <span>·</span>
           <span>{post.views} lecturas</span>
+          {post.ai_generated === 1 && <AIBadge />}
           <span className="ml-auto"><ShareButton title={post.title} slug={post.slug} /></span>
         </div>
       </header>
+
+      {/* Aviso de contenido IA — cumplimiento EU AI Act (agosto 2026).
+          Visible para personas + metatag para lectura automática de crawlers. */}
+      {post.ai_generated === 1 && (
+        <>
+          <AIMetaTag />
+          <div className="mb-6 flex items-start gap-2.5 px-4 py-3 rounded-lg border border-primary/20 bg-primary/5 text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-primary mt-0.5 text-sm leading-none">✦</span>
+            <p>
+              <span className="font-medium text-primary/80">Contenido generado con IA.</span>{' '}
+              Este artículo ha sido creado con asistencia de inteligencia artificial (Claude, Anthropic).
+              Información verificada y publicada por Borja Olazabal.
+            </p>
+          </div>
+        </>
+      )}
 
       <style>{POST_CONTENT_STYLES}</style>
       <div id="blog-content" className="post-body">
@@ -517,10 +557,11 @@ function PostCard({ post, onClick, onTagClick }: { post: Post; onClick: () => vo
       {post.excerpt && (
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">{post.excerpt}</p>
       )}
-      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
         <span>{fmtDate(post.created_at)}</span>
         <span>·</span>
         <span>{post.reading_time} min</span>
+        {post.ai_generated === 1 && <AIBadge />}
         <span className="ml-auto text-primary opacity-0 group-hover:opacity-100 transition text-sm">Leer →</span>
       </div>
     </article>

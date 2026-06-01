@@ -18,6 +18,7 @@ interface Post {
   published: number;
   views: number;
   reading_time: number;
+  ai_generated: number;
   created_at: string;
   updated_at: string;
 }
@@ -26,7 +27,7 @@ type View = 'list' | 'editor' | 'comments';
 interface AdminComment { id: number; post_id: number; parent_id: number | null; alias: string; body: string; ip_hash: string; created_at: string; approved: number; slug: string; title: string; }
 
 const EMPTY: Omit<Post, 'id' | 'views' | 'created_at' | 'updated_at'> = {
-  slug: '', title: '', excerpt: '', content: '', cover_image: '', tags: '', published: 0, reading_time: 0,
+  slug: '', title: '', excerpt: '', content: '', cover_image: '', tags: '', published: 0, reading_time: 0, ai_generated: 0,
 };
 
 const BLOG_STYLES = `
@@ -281,7 +282,7 @@ export default function AdminBlogPage() {
   }
   function openEdit(p: Post) {
     setEditId(p.id);
-    setForm({ slug: p.slug, title: p.title, excerpt: p.excerpt, content: p.content, cover_image: p.cover_image || '', tags: p.tags, published: p.published, reading_time: p.reading_time });
+    setForm({ slug: p.slug, title: p.title, excerpt: p.excerpt, content: p.content, cover_image: p.cover_image || '', tags: p.tags, published: p.published, reading_time: p.reading_time, ai_generated: p.ai_generated ?? 0 });
     setMsg('');
     setEditorKey(k => k + 1);
     setView('editor');
@@ -444,6 +445,11 @@ export default function AdminBlogPage() {
                       <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: p.published ? '#1D6B4520' : '#33333360', color: p.published ? '#5DCAA5' : '#777', border: `1px solid ${p.published ? '#1D6B4540' : '#444'}`, flexShrink: 0 }}>
                         {p.published ? 'Publicado' : 'Borrador'}
                       </span>
+                      {p.ai_generated === 1 && (
+                        <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '10px', background: 'rgba(0,231,235,0.08)', color: 'var(--primary)', border: '1px solid rgba(0,231,235,0.25)', flexShrink: 0 }}>
+                          ✦ IA
+                        </span>
+                      )}
                     </div>
                     <div style={{ color: 'var(--adm-muted)', fontSize: '11px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       <span>{fmtDate(p.created_at)}</span>
@@ -531,10 +537,15 @@ export default function AdminBlogPage() {
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '20px', padding: '12px', background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '8px' }}>
                 <label style={{ color: 'var(--adm-text)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" checked={form.published === 1} onChange={e => set('published', e.target.checked ? 1 : 0)} style={{ width: '16px', height: '16px', accentColor: 'var(--primary)' }} />
                   Publicar (visible en /blog)
+                </label>
+                <label style={{ color: 'var(--adm-text)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} title="Reglamento UE AI Act — obliga a etiquetar contenido donde la IA haya sido sustancial (desde agosto 2026)">
+                  <input type="checkbox" checked={form.ai_generated === 1} onChange={e => set('ai_generated', e.target.checked ? 1 : 0)} style={{ width: '16px', height: '16px', accentColor: 'var(--primary)' }} />
+                  <span>✦ Generado con IA</span>
+                  <span style={{ fontSize: '10px', color: 'var(--adm-muted)', fontWeight: 400 }}>(AI Act EU)</span>
                 </label>
               </div>
             </div>
