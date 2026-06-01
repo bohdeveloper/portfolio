@@ -156,11 +156,11 @@ function GameCard({ game, leaders, isCommunityTop, visitorId, reacted, counts, o
       boxShadow: glow, display: 'flex', flexDirection: 'column',
     }}>
       {/* Screenshot */}
-      <div style={{ position: 'relative', aspectRatio: isCommunityTop ? '16/7' : '16/9', overflow: 'hidden', background: '#0a0a0a' }}>
+      <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a' }}>
         {game.screenshot ? (
           <img src={game.screenshot} alt={game.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isCommunityTop ? '64px' : '40px', opacity: 0.4 }}>🎮</div>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px', opacity: 0.4 }}>🎮</div>
         )}
         {/* Badges */}
         <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -178,10 +178,10 @@ function GameCard({ game, leaders, isCommunityTop, visitorId, reacted, counts, o
       </div>
 
       {/* Content */}
-      <div style={{ padding: isCommunityTop ? '1.25rem' : '1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ padding: '1.1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
-            <h3 style={{ color: 'var(--jg-text)', fontSize: isCommunityTop ? '18px' : '14px', fontWeight: 600, margin: 0 }}>{game.name}</h3>
+            <h3 style={{ color: 'var(--jg-text)', fontSize: '16px', fontWeight: 600, margin: 0 }}>{game.name}</h3>
             {game.ai_generated === 1 && (
               <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.4px', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(0,231,235,0.3)', color: 'var(--jg-primary)', background: 'rgba(0,231,235,0.06)', flexShrink: 0 }} title="Descripción generada con IA · EU AI Act 2026">✦ IA</span>
             )}
@@ -223,7 +223,7 @@ function GameCard({ game, leaders, isCommunityTop, visitorId, reacted, counts, o
             marginTop: 'auto', padding: '8px 0',
             background: 'transparent', border: `1px solid var(--jg-primary)`,
             borderRadius: '8px', color: 'var(--jg-primary)',
-            fontSize: isCommunityTop ? '14px' : '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+            fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
             transition: 'background 0.18s, color 0.18s',
           }}
           onMouseEnter={e => { e.currentTarget.style.background = 'var(--jg-primary)'; e.currentTarget.style.color = '#000'; }}
@@ -236,6 +236,70 @@ function GameCard({ game, leaders, isCommunityTop, visitorId, reacted, counts, o
   );
 }
 
+/* ── Carousel card (compacta para el carrusel inferior) ── */
+function CarouselCard({ game, topLeader, visitorId, reacted, counts, onPlay, onReact }: {
+  game: Game; topLeader: Leader | null; visitorId?: number;
+  reacted: Set<string>; counts: Record<string, number>;
+  onPlay: () => void; onReact: (emoji: string) => void;
+}) {
+  const isCommunityTop = game.is_community_top === 1;
+  const isAdminPick    = game.is_top === 1;
+  return (
+    <div style={{
+      minWidth: '220px', width: '220px', background: 'var(--jg-card)', flexShrink: 0,
+      border: `1px solid ${isCommunityTop ? 'rgba(255,80,80,0.4)' : isAdminPick ? 'rgba(255,200,0,0.3)' : 'var(--jg-border)'}`,
+      borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+      scrollSnapAlign: 'start',
+    }}>
+      <div style={{ aspectRatio: '16/9', background: '#0a0a0a', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+        {game.screenshot
+          ? <img src={game.screenshot} alt={game.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', opacity: 0.3 }}>🎮</div>
+        }
+        <div style={{ position: 'absolute', top: '7px', left: '7px', display: 'flex', gap: '4px' }}>
+          {isCommunityTop && <span style={{ background: 'rgba(255,60,60,0.18)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,80,80,0.5)', borderRadius: '5px', padding: '2px 7px', fontSize: '9px', fontWeight: 700, color: '#ff6060', letterSpacing: '0.8px' }}>🔥 TOP</span>}
+          {isAdminPick    && <span style={{ background: 'rgba(255,200,0,0.12)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '5px', padding: '2px 6px', fontSize: '9px', fontWeight: 700, color: '#e6b400' }}>⭐</span>}
+        </div>
+      </div>
+      <div style={{ padding: '10px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '3px' }}>
+            <h3 style={{ color: 'var(--jg-text)', fontSize: '13px', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{game.name}</h3>
+            {game.ai_generated === 1 && <span style={{ fontSize: '8px', fontWeight: 700, padding: '1px 4px', borderRadius: '3px', border: '1px solid rgba(0,231,235,0.3)', color: 'var(--jg-primary)', background: 'rgba(0,231,235,0.06)', flexShrink: 0 }}>✦ IA</span>}
+          </div>
+          <p style={{ color: 'var(--jg-muted)', fontSize: '10px', margin: 0, fontStyle: topLeader ? 'normal' : 'italic' }}>
+            {topLeader ? `🥇 ${topLeader.alias} · ${topLeader.score}` : 'Sé el primero'}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
+          {EMOJIS.map(emoji => (
+            <button key={emoji} onClick={() => onReact(emoji)} style={{
+              display: 'inline-flex', alignItems: 'center', gap: '2px',
+              padding: '2px 6px', borderRadius: '10px', fontSize: '10px', cursor: 'pointer',
+              border: `1px solid ${reacted.has(emoji) ? 'var(--jg-primary)' : 'var(--jg-border)'}`,
+              background: reacted.has(emoji) ? 'var(--jg-primary)' : 'none',
+              color: reacted.has(emoji) ? '#fff' : 'var(--jg-muted)',
+              fontFamily: 'inherit', transition: 'all 0.12s',
+            }}>
+              <span>{emoji}</span>
+              {(counts[emoji] ?? 0) > 0 && <span style={{ fontWeight: 600 }}>{counts[emoji]}</span>}
+            </button>
+          ))}
+        </div>
+        <button onClick={onPlay} style={{
+          marginTop: 'auto', padding: '7px 0', background: 'transparent',
+          border: '1px solid var(--jg-primary)', borderRadius: '7px',
+          color: 'var(--jg-primary)', fontSize: '12px', fontWeight: 600,
+          cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s, color 0.15s',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--jg-primary)'; e.currentTarget.style.color = '#000'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--jg-primary)'; }}
+        >Jugar →</button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main section ── */
 export default function JuegosSection() {
   const [games,        setGames]        = useState<Game[]>([]);
@@ -243,6 +307,7 @@ export default function JuegosSection() {
   const [leaders,      setLeaders]      = useState<Record<number, Leader[]>>({});
   const [activeGame,   setActiveGame]   = useState<Game | null>(null);
   const [visitor,      setVisitor]      = useState<Visitor | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const [showLogin,    setShowLogin]    = useState(false);
   const [loginAlias,   setLoginAlias]   = useState('');
   const [loginSaving,  setLoginSaving]  = useState(false);
@@ -436,6 +501,10 @@ export default function JuegosSection() {
     }
   }
 
+  function scrollCarousel(dir: number) {
+    carouselRef.current?.scrollBy({ left: dir * (220 + 14) * 2, behavior: 'smooth' });
+  }
+
   function closeGame() {
     setActiveGame(null);
     setScoreResult(null);
@@ -446,19 +515,23 @@ export default function JuegosSection() {
 
   if (!loaded || games.length === 0) return null;
 
-  // El juego TOP se determina por prioridad: comunidad > favorito del admin.
-  // El resto se muestra en una cuadrícula secundaria de menor tamaño visual
-  const topGame = games.find(g => g.is_community_top === 1) ?? games.find(g => g.is_top === 1) ?? null;
-  const otherGames = games.filter(g => g.id !== topGame?.id);
+  // Juego destacado izquierda: TOP por comunidad (más reacciones)
+  // Juego destacado derecha: favorito del admin (is_top=1)
+  const communityTop  = games.find(g => g.is_community_top === 1) ?? null;
+  const adminFavorite = games.find(g => g.is_top === 1) ?? null;
+  // Si son el mismo juego, solo se muestra una tarjeta full-width
+  const sameGame = !!(communityTop && adminFavorite && communityTop.id === adminFavorite.id);
+  const showRight = !!(adminFavorite && !sameGame);
 
   return (
     <>
-      {/* CSS vars */}
       <style>{`
         html.light  { --jg-bg:#f9fafb; --jg-card:#fff; --jg-border:#e5e7eb; --jg-border-subtle:#f0f0f0; --jg-text:#111827; --jg-muted:#6b7280; --jg-primary:#00a8bf; }
         html.dark, html:not(.light) { --jg-bg:#0a0a0a; --jg-card:#111; --jg-border:#1f2937; --jg-border-subtle:#1a1a1a; --jg-text:#f3f4f6; --jg-muted:#9ca3af; --jg-primary:#00e7eb; }
         @keyframes rankUp   { 0%{transform:translateY(5px);opacity:.5} 60%{transform:translateY(-2px)} 100%{transform:translateY(0);opacity:1} }
         @keyframes rankDown { 0%{background:rgba(255,50,50,.22);transform:translateY(-3px)} 100%{background:transparent;transform:translateY(0)} }
+        .jg-carousel::-webkit-scrollbar { display: none; }
+        @media(max-width:640px){ .jg-featured-grid { grid-template-columns: 1fr !important; } }
       `}</style>
 
       <section id="juegos" style={{ background: 'var(--jg-bg)', padding: '5rem 1.5rem', fontFamily: 'system-ui,sans-serif' }}>
@@ -481,37 +554,92 @@ export default function JuegosSection() {
             )}
           </div>
 
-          {/* TOP game (comunidad) */}
-          {topGame && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <GameCard
-                game={topGame}
-                leaders={leaders[topGame.id] ?? []}
-                isCommunityTop={topGame.is_community_top === 1}
-                visitorId={visitor?.id}
-                reacted={gameReacted[String(topGame.id)] ?? new Set()}
-                counts={gameCounts[topGame.id] ?? {}}
-                onPlay={() => playGame(topGame)}
-                onReact={emoji => reactToGame(topGame.id, emoji)}
-              />
+          {/* ── Featured: TOP (izquierda) + Favorito admin (derecha) ── */}
+          {(communityTop || adminFavorite) && (
+            <div
+              className="jg-featured-grid"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: showRight ? '1fr 1fr' : '1fr',
+                gap: '16px', marginBottom: '2.5rem',
+              }}
+            >
+              {communityTop && (
+                <GameCard
+                  game={communityTop}
+                  leaders={leaders[communityTop.id] ?? []}
+                  isCommunityTop
+                  visitorId={visitor?.id}
+                  reacted={gameReacted[String(communityTop.id)] ?? new Set()}
+                  counts={gameCounts[communityTop.id] ?? {}}
+                  onPlay={() => playGame(communityTop)}
+                  onReact={emoji => reactToGame(communityTop.id, emoji)}
+                />
+              )}
+              {showRight && adminFavorite && (
+                <GameCard
+                  game={adminFavorite}
+                  leaders={leaders[adminFavorite.id] ?? []}
+                  isCommunityTop={false}
+                  visitorId={visitor?.id}
+                  reacted={gameReacted[String(adminFavorite.id)] ?? new Set()}
+                  counts={gameCounts[adminFavorite.id] ?? {}}
+                  onPlay={() => playGame(adminFavorite)}
+                  onReact={emoji => reactToGame(adminFavorite.id, emoji)}
+                />
+              )}
             </div>
           )}
 
-          {otherGames.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
-              {otherGames.map(g => (
-                <GameCard
-                  key={g.id}
-                  game={g}
-                  leaders={leaders[g.id] ?? []}
-                  isCommunityTop={g.is_community_top === 1}
-                  visitorId={visitor?.id}
-                  reacted={gameReacted[String(g.id)] ?? new Set()}
-                  counts={gameCounts[g.id] ?? {}}
-                  onPlay={() => playGame(g)}
-                  onReact={emoji => reactToGame(g.id, emoji)}
-                />
-              ))}
+          {/* ── Carrusel: todos los juegos ── */}
+          {games.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                <p style={{ color: 'var(--jg-muted)', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, margin: 0 }}>
+                  Todos los juegos
+                </p>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {[[-1,'‹'],[1,'›']].map(([dir, label]) => (
+                    <button
+                      key={String(dir)}
+                      onClick={() => scrollCarousel(dir as number)}
+                      style={{
+                        width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--jg-border)',
+                        background: 'none', color: 'var(--jg-muted)', cursor: 'pointer', fontFamily: 'inherit',
+                        fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'border-color 0.15s, color 0.15s',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--jg-primary)'; e.currentTarget.style.color = 'var(--jg-primary)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--jg-border)'; e.currentTarget.style.color = 'var(--jg-muted)'; }}
+                    >{label}</button>
+                  ))}
+                </div>
+              </div>
+              <div
+                ref={carouselRef}
+                className="jg-carousel"
+                style={{
+                  display: 'flex', gap: '14px',
+                  overflowX: 'auto', scrollBehavior: 'smooth',
+                  scrollSnapType: 'x mandatory',
+                  WebkitOverflowScrolling: 'touch',
+                  msOverflowStyle: 'none', scrollbarWidth: 'none',
+                  paddingBottom: '4px',
+                }}
+              >
+                {games.map(g => (
+                  <CarouselCard
+                    key={g.id}
+                    game={g}
+                    topLeader={(leaders[g.id] ?? [])[0] ?? null}
+                    visitorId={visitor?.id}
+                    reacted={gameReacted[String(g.id)] ?? new Set()}
+                    counts={gameCounts[g.id] ?? {}}
+                    onPlay={() => playGame(g)}
+                    onReact={emoji => reactToGame(g.id, emoji)}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>
