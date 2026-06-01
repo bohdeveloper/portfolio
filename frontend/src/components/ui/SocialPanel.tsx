@@ -133,7 +133,7 @@ export default function SocialPanel() {
       </div>
 
       {/* ================= MOBILE ================= */}
-      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 flex md:hidden items-center gap-5 bg-white/80 dark:bg-black/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-lg border border-gray-300 dark:border-gray-700 z-50 max-w-[calc(100vw-2rem)]">
+      <div className="fixed bottom-14 left-1/2 -translate-x-1/2 flex md:hidden items-center gap-5 bg-white/80 dark:bg-black/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-lg border border-gray-300 dark:border-gray-700 z-50 max-w-[calc(100vw-2rem)]">
         {/* Scroll arriba */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
