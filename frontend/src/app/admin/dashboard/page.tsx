@@ -55,13 +55,23 @@ function JuegosIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+function ProyectosIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+      <path d="M7 8h4M7 11h6" />
+    </svg>
+  );
+}
 
 const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
-  Tracker:  TrackerIcon,
-  Blog:     BlogIcon,
-  Moneta:   MonetaIcon,
-  Usuarios: UsersIcon,
-  Juegos:   JuegosIcon,
+  Tracker:   TrackerIcon,
+  Blog:      BlogIcon,
+  Moneta:    MonetaIcon,
+  Usuarios:  UsersIcon,
+  Juegos:    JuegosIcon,
+  Proyectos: ProyectosIcon,
 };
 
 /* ── App registry — add new tools here ── */
@@ -85,6 +95,11 @@ const APPS = [
     name: 'Juegos',
     desc: 'Gestión de minijuegos del portfolio',
     path: '/admin/dashboard/juegos',
+  },
+  {
+    name: 'Proyectos',
+    desc: 'Gestión de proyectos del portfolio',
+    path: '/admin/dashboard/proyectos',
   },
   {
     name: 'Usuarios',
@@ -217,7 +232,7 @@ export default function DashboardPage() {
     ? []
     : role === 'super_admin'
       ? APPS
-      : APPS.filter(a => a.name !== 'Blog' && a.name !== 'Usuarios' && a.name !== 'Juegos');
+      : APPS.filter(a => a.name !== 'Blog' && a.name !== 'Usuarios' && a.name !== 'Juegos' && a.name !== 'Proyectos');
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });

@@ -180,28 +180,6 @@
 # ✅ Wordle: fix teclado invisible en móvil (iOS Safari / iframe)
 # ✅ Juegos: nuevo layout featured + carrusel horizontal en BlogPanel
 
-### Registro en admin (pendiente)
-# ⬜ Añadir Snake, Tetris, 2048, Wordle y Flappy Bird en /admin/dashboard/juegos
-#    con sus URLs, descripciones y screenshots correspondientes
-
----
-
-:: PORTFOLIO — Responsive móvil & contenido (✅ COMPLETADA)
-· Mejoras de UI responsive y actualización de contenido de la sección Aprendizaje.
-
-### Responsive móvil
-# ✅ Hero: h1 text-5xl → text-3xl en móvil (evitaba 4 líneas en 342px), párrafo ajustado
-# ✅ SocialPanel móvil: pill centrado con left-1/2 + max-w para evitar overflow
-# ✅ SocialPanel móvil: añade icono email (envelope) antes del candado admin en el pill
-# ✅ EmailPanel: oculto en móvil (el email está integrado en el pill del SocialPanel)
-
-### Sección Aprendizaje
-# ✅ Nueva tarjeta: "Confección y Publicación de Páginas Web — Ceinpro" (480h, Completado)
-#    LANBIDE-Servicio Vasco de Empleo · Sep 2019 – Feb 2020
-#    Stack: HTML/CSS, JS/jQuery, PHP, Bootstrap, WordPress, Node.js, Git
-#    Enlace: /images/diploma_ceinpro.jpg (imagen pendiente de subir)
-# ✅ Títulos de cursos homogeneizados: "Nombre - Centro" sin horas entre paréntesis
-
 ---
 
 :: APP — Bioptima (⬜ PLANIFICADA)
@@ -228,13 +206,23 @@
 
 ---
 
-:: FASE 12 — Proyectos dinámicos + páginas individuales (⬜ PLANIFICADA)
+:: FASE 12 — Proyectos dinámicos + páginas individuales (✅ COMPLETADA)
 · Objetivo: proyectos en D1, páginas SEO por proyecto.
+· Patrón: misma arquitectura que el blog — query params (?slug=xxx) para mantener output:export sin romper Cloudflare.
 
-# ⬜ Tabla projects en D1
-# ⬜ Página individual /projects/[slug] con case study
-# ⬜ Admin: gestor de proyectos
-# ⬜ Editor en admin (similar al blog)
+# ✅ D1: tabla projects — slug, title, excerpt, content, cover_image, tags, github_url, demo_url, architecture, published, featured, views
+# ✅ API pública: GET /api/projects/list, GET /api/projects/post?slug=xxx
+# ✅ API admin (super_admin): POST /api/projects/save, POST /api/projects/delete
+# ✅ Página pública /projects — lista + case study individual (?slug=xxx)
+# ✅ Admin /dashboard/proyectos — lista + editor TipTap + imagen portada + featured
+# ✅ Proyectos.tsx — carga desde API con fallback al array estático si BD vacía
+# ✅ Dashboard admin — nueva card Proyectos (solo super_admin)
+# ✅ Botón "Case study →" en tarjeta homepage solo si el proyecto tiene contenido en BD
+
+### Notas de arquitectura
+# output: 'export' → /projects usa ?slug=xxx (igual que /blog), sin dynamic routes
+# Fallback estático en Proyectos.tsx: la sección homepage nunca queda vacía durante la migración
+# featured=1 → el proyecto aparece primero en la lista pública
 
 ---
 
@@ -309,22 +297,3 @@
 # ⬜ Notificaciones push (Service Worker) para nuevos posts o juegos
 # ⬜ Tests de API (Vitest + Miniflare)
 
----
-
-### Decisiones técnicas fase 5
-# moneta_* prefix en tablas D1 — evita conflictos con otras tablas del mismo namespace
-# Modelo plano (ítems libres) en lugar de árbol fijo — más flexible para uso real mensual
-# Total real solo suma real_amount explícitos — evita mezclar estimados con reales
-# UPSERT (ON CONFLICT DO UPDATE) en moneta_monthly_summary — cubre insert y update en una sola query
-# APIs separadas por entidad (item, copy, summary) — cada fichero = un endpoint limpio
-# onRequestGet/Post/Delete en mismo fichero — Pages Functions soporta named exports por método
-
-### Decisiones técnicas activas
-# bcryptjs — compatible Workers, sin deps nativas
-# jose — JWT, Web Crypto API compatible
-# TipTap (@tiptap/react) — editor WYSIWYG, genera HTML que se renderiza directamente en /blog
-# marked (CDN) — fallback legacy para posts escritos en Markdown antes del editor TipTap
-# Chart.js (CDN) — gráficas tracker sin bundle adicional
-# CSS variables --adm-* en admin/layout.tsx — theming consistente claro/oscuro
-# NeuralCanvas — canvas animado, lee html.light/dark cada frame sin re-renders React
-# output: 'export' — estático puro, migración a SSR planificada en Fase 9
