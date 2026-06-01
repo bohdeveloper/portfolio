@@ -234,11 +234,11 @@ function handleKey(k){
       try{window.parent.postMessage({type:'boh_score_live',score:sc2},'*');}catch{}
       if(sc2>best){ best=sc2; try{localStorage.setItem('boh_wordle',best);}catch{}  }
       updateValidateBtn(); draw();
-      setTimeout(()=>showEnd(true, sc2), 1400);
+      setTimeout(()=>showEnd(true, sc2), 800);
     } else if(guesses.length>=6){
       gameState='lost';
       updateValidateBtn(); draw();
-      setTimeout(()=>showEnd(false, 0), 1400);
+      setTimeout(()=>showEnd(false, 0), 800);
     } else {
       current=''; updateValidateBtn(); requestAnimationFrame(draw);
     }
@@ -273,8 +273,8 @@ function drawTile(x,y,letter,color,scale){
   // tile con letra pero sin evaluar → fondo resaltado; vacío → fondo tenue
   const bg=colorHex(color)||(letter?COL_ACTIVE:COL_EMPTY);
   ctx.save();
-  // flip horizontal (scaleX) para que el efecto sea un volteo de carta, no un zoom
-  if(scale!==1){ ctx.translate(cx,cy); ctx.scale(scale,1); ctx.translate(-cx,-cy); }
+  // escala uniforme para el efecto pop al revelar
+  if(scale!==1){ ctx.translate(cx,cy); ctx.scale(scale,scale); ctx.translate(-cx,-cy); }
   ctx.fillStyle=bg;
   if(color==='green'||color==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=8; }
   rr2(x,y,TILE,TILE,rad); ctx.fill();
@@ -304,15 +304,10 @@ function drawGrid(){
       const y=GRID_OY+r*(TILE+TGAP);
       if(r<guesses.length){
         const g=guesses[r];
-        // Flip horizontal: cada tile arranca con delay escalonado de 100ms.
-        // Duración del flip: 320ms. Primera mitad: tile se cierra (sin color).
-        // Segunda mitad: tile se abre mostrando el color verde/amarillo/gris.
-        const delay=c*100;
-        const elapsed=now-(g.revealStart||0);
-        const t=Math.max(0,Math.min(1,(elapsed-delay)/320));
-        const sc=t<0.5?1-t*2:t*2-1;
-        const col=t>=0.5?g.colors[c]:null;
-        drawTile(x,y,g.letters[c],col,Math.max(0.02,sc));
+        // Colores visibles al instante + pop uniforme de 120ms en toda la fila
+        const elapsed=g.revealStart?(now-g.revealStart):9999;
+        const sc=elapsed<120?(0.88+0.12*(elapsed/120)):1;
+        drawTile(x,y,g.letters[c],g.colors[c],sc);
       } else if(r===guesses.length){
         const letter=current[c]||'';
         const isActive=letter.length>0;
@@ -322,12 +317,10 @@ function drawGrid(){
       }
     }
   }
-  if(isShaking && shakeTime){ requestAnimationFrame(draw); }
-  // mantener el bucle de animación mientras alguna fila aún esté revelándose
-  // mantener bucle mientras el reveal de alguna fila aún no ha terminado (4*100+320 = 720ms)
-  if(guesses.some(g=>g.revealStart&&now-g.revealStart<720)){
-    requestAnimationFrame(draw);
-  }
+  // Continuar el bucle solo mientras haya shake activo o pop reciente (< 120ms)
+  const needsAnim = (isShaking && shakeTime) ||
+    guesses.some(g=>g.revealStart&&now-g.revealStart<120);
+  if(needsAnim) requestAnimationFrame(draw);
 }
 
 function drawKey(x,y,w,h,label,state){
