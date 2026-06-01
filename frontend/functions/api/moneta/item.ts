@@ -28,9 +28,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   try {
     const result = await env.DB.prepare(`
-      INSERT INTO moneta_items (profile_id, year, month, name, amount, type, user_id, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(profile_id, year, month, name, amount ?? 0, type, auth.user_id, sort_order).run();
+      INSERT INTO moneta_items (profile_id, year, month, name, amount, type, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).bind(profile_id, year, month, name, amount ?? 0, type, sort_order).run();
 
     return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id }), { status: 200, headers: H });
   } catch (err: unknown) {
@@ -58,8 +58,10 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   if (parts.length === 0) return bad('Nada que actualizar');
 
   try {
-    await env.DB.prepare(`UPDATE moneta_items SET ${parts.join(', ')} WHERE id=? AND user_id=?`)
-      .bind(...vals, id, auth.user_id).run();
+    await env.DB.prepare(
+      `UPDATE moneta_items SET ${parts.join(', ')}
+       WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)`
+    ).bind(...vals, id, auth.user_id).run();
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Database error';
@@ -77,7 +79,9 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   if (!id) return bad('Falta id');
 
   try {
-    await env.DB.prepare('DELETE FROM moneta_items WHERE id=? AND user_id=?').bind(id, auth.user_id).run();
+    await env.DB.prepare(
+      'DELETE FROM moneta_items WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)'
+    ).bind(id, auth.user_id).run();
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Database error';
