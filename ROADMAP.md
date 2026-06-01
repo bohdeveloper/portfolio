@@ -174,6 +174,12 @@
 # localStorage: clave boh_<slug> → récord personal del visitante
 # Controles: teclado + touch (swipe o tap según el juego)
 
+### Mejoras post-lanzamiento
+# ✅ Wordle: colores al instante al validar — eliminado flip de 720ms
+# ✅ Wordle: comodín Pista + game over inmediato + overlay mejorado
+# ✅ Wordle: fix teclado invisible en móvil (iOS Safari / iframe)
+# ✅ Juegos: nuevo layout featured + carrusel horizontal en BlogPanel
+
 ### Registro en admin (pendiente)
 # ⬜ Añadir Snake, Tetris, 2048, Wordle y Flappy Bird en /admin/dashboard/juegos
 #    con sus URLs, descripciones y screenshots correspondientes
@@ -222,7 +228,7 @@
 
 ---
 
-:: FASE 8 — Proyectos dinámicos + páginas individuales (⬜ PLANIFICADA)
+:: FASE 12 — Proyectos dinámicos + páginas individuales (⬜ PLANIFICADA)
 · Objetivo: proyectos en D1, páginas SEO por proyecto.
 
 # ⬜ Tabla projects en D1
@@ -295,7 +301,7 @@
 :: FASE 11 — Visibilidad y retención de usuarios (⬜ FUTURO)
 · Ideas para aumentar tiempo en web y retorno de usuarios.
 
-# ⬜ Juego TOP flotante en landing (implementado en Fase 7)
+# ✅ Juego TOP flotante en landing (implementado en Fase 7)
 # ⬜ Analytics propios: pageviews, tiempo de sesión estimado, posts más leídos (D1, sin terceros)
 # ⬜ Newsletter: email capture + envío de nuevos posts con Cloudflare Email Workers
 # ⬜ Formulario de contacto con notificación vía D1 + email
