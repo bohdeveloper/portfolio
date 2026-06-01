@@ -213,10 +213,8 @@
 :: FASE 8 — Visibilidad y retención de usuarios (⬜ PLANIFICADA)
 · Objetivo: aumentar tiempo en web y retorno de usuarios.
 
-# ✅ Juego TOP flotante en landing (implementado en Fase 4)
 # ⬜ Analytics propios: pageviews, tiempo de sesión estimado, posts más leídos (D1, sin terceros)
-# ⬜ Newsletter: email capture + envío de nuevos posts con Cloudflare Email Workers
-# ⬜ Formulario de contacto con notificación vía D1 + email
+# ⬜ Newsletter: email capture + envío de nuevos posts
 # ⬜ Cache Cloudflare KV para posts populares (reduce lecturas D1)
 # ⬜ Notificaciones push (Service Worker) para nuevos posts o juegos
 # ⬜ Tests de API (Vitest + Miniflare)
