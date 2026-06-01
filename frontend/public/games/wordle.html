@@ -47,11 +47,32 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a;cursor:pointer}
   transition:background .18s,color .18s;letter-spacing:0.5px;
 }
 #btn:hover{background:#00e7eb;color:#000}
+
+/* ── Botón validar (aparece cuando hay 5 letras escritas) ── */
+#validate-wrap{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  z-index:100;display:none;
+}
+#validate-btn{
+  padding:clamp(10px,2.8vw,14px) clamp(36px,10vw,56px);
+  border:2px solid #00e7eb;border-radius:8px;
+  background:rgba(6,6,6,0.92);color:#00e7eb;
+  font-size:clamp(14px,3.5vw,17px);font-weight:700;
+  cursor:pointer;font-family:inherit;letter-spacing:0.5px;
+  box-shadow:0 0 22px rgba(0,231,235,0.22);
+  transition:background .18s,box-shadow .18s;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+#validate-btn:hover{background:rgba(0,231,235,0.13);box-shadow:0 0 32px rgba(0,231,235,0.38);}
+#validate-btn:active{transform:scale(0.97);}
 </style>
 </head>
 <body>
 <div id="wrap">
   <canvas id="c"></canvas>
+  <div id="validate-wrap">
+    <button id="validate-btn" onclick="handleKey('↵')">✓ Validar</button>
+  </div>
   <div id="overlay">
     <div id="ov-icon">🟩</div>
     <div id="ov-title">Wordle</div>
@@ -198,7 +219,7 @@ function handleKey(k){
   if(gameState!=='playing') return;
   if(k==='↵'||k==='ENTER'){
     // Validar longitud: si el intento tiene menos de 5 letras se activa el shake
-    if(current.length<5){ shake(guesses.length); return; }
+    if(current.length<5){ shake(guesses.length); updateValidateBtn(); return; }
     const colors = getColors([...current], [...word]);
     const row = {letters:[...current], colors};
     guesses.push(row);
@@ -212,23 +233,28 @@ function handleKey(k){
       const sc2=(7-guesses.length)*100;
       try{window.parent.postMessage({type:'boh_score_live',score:sc2},'*');}catch{}
       if(sc2>best){ best=sc2; try{localStorage.setItem('boh_wordle',best);}catch{}  }
-      draw();
-      // Esperar a que termine la animación de reveal (5 columnas × 80ms + 200ms = 1400ms)
+      updateValidateBtn(); draw();
       setTimeout(()=>showEnd(true, sc2), 1400);
     } else if(guesses.length>=6){
       gameState='lost';
-      draw();
+      updateValidateBtn(); draw();
       setTimeout(()=>showEnd(false, 0), 1400);
     } else {
-      current=''; requestAnimationFrame(draw);
+      current=''; updateValidateBtn(); requestAnimationFrame(draw);
     }
     return;
   }
   if(k==='⌫'||k==='BACKSPACE'){
-    if(current.length>0){ current=current.slice(0,-1); draw(); }
+    if(current.length>0){ current=current.slice(0,-1); updateValidateBtn(); draw(); }
     return;
   }
-  if(/^[A-ZÑÁÉÍÓÚ]$/.test(k) && current.length<5){ current+=k; draw(); }
+  if(/^[A-ZÑÁÉÍÓÚ]$/.test(k) && current.length<5){ current+=k; updateValidateBtn(); draw(); }
+}
+
+// Muestra u oculta el botón Validar según si hay exactamente 5 letras escritas
+function updateValidateBtn(){
+  const wrap=document.getElementById('validate-wrap');
+  if(wrap) wrap.style.display=(running&&gameState==='playing'&&current.length===5)?'block':'none';
 }
 
 function shake(row){ shakeRow=row; shakeTime=performance.now(); draw(); }
@@ -338,9 +364,22 @@ function drawKeyboard(){
     const y=KB_OY+ri*(KH+KB_GAP_H);
     row.forEach(k=>{
       const w=(k==='↵'||k==='⌫')?wide:KW;
-      const state=letterState[k];
-      drawKey(x,y,w,KH,k,state);
-      // guardar hitbox para detección de clic/touch
+      // Tecla ↵ se ilumina en cyan con ✓ cuando hay 5 letras listas para validar
+      if(k==='↵' && current.length===5 && gameState==='playing'){
+        const rad=Math.round(KH*0.2);
+        ctx.save();
+        ctx.fillStyle='#00e7eb'; ctx.shadowColor='#00e7eb'; ctx.shadowBlur=10;
+        rr2(x,y,w,KH,rad); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.fillStyle='#000';
+        ctx.font=`700 ${Math.round(KH*0.42)}px system-ui`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('✓',x+w/2,y+KH/2+1);
+        ctx.restore();
+      } else {
+        const state=letterState[k];
+        drawKey(x,y,w,KH,k,state);
+      }
       keyHitBoxes.push({x,y,w,h:KH,key:k});
       x+=w+KB_GAP_W;
     });
@@ -413,11 +452,12 @@ function showEnd(won, sc){
     </div>`;
   OL.style.display='flex';
   running=false;
+  updateValidateBtn();
 }
 
 function start(){
   OL.style.display='none';
-  init(); running=true; draw();
+  init(); running=true; updateValidateBtn(); draw();
 }
 
 document.addEventListener('keydown', e=>{
