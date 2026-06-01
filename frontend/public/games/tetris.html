@@ -124,6 +124,9 @@ function randPiece() {
            x: Math.floor(COLS / 2) - Math.floor(p.s[0].length / 2), y: -1 };
 }
 function rotate(shape) {
+  // Rotación 90° en sentido horario mediante transposición matricial + inversión de filas.
+  // La nueva matriz tiene dimensiones intercambiadas: cols×rows → rows×cols.
+  // Fórmula: res[c][rows-1-r] = shape[r][c] equivale a transponer y luego voltear horizontalmente.
   const rows = shape.length, cols = shape[0].length;
   const res = Array.from({ length: cols }, () => Array(rows).fill(0));
   for (let r = 0; r < rows; r++)
@@ -136,18 +139,28 @@ function fits(s, x, y) {
     for (let c = 0; c < s[r].length; c++)
       if (s[r][c]) {
         const nx = x + c, ny = y + r;
+        // Fuera de límites laterales o por debajo del tablero → no cabe
         if (nx < 0 || nx >= COLS || ny >= ROWS) return false;
+        // Solo se comprueba colisión con el tablero cuando ny >= 0:
+        // la pieza puede estar parcialmente en la "zona oculta" por encima del
+        // tablero visible (ny < 0) durante el spawn, lo que es válido
         if (ny >= 0 && board[ny][nx]) return false;
       }
   return true;
 }
 function ghostY() {
+  // Descenso iterativo: avanza una fila hacia abajo mientras la pieza quepa.
+  // El resultado es la fila más baja posible con la posición horizontal actual,
+  // que es donde se renderiza la pieza fantasma y donde cae el hard drop.
   let gy = piece.y;
   while (fits(piece.s, piece.x, gy + 1)) gy++;
   return gy;
 }
 function tryRotate() {
   const rot = rotate(piece.s);
+  // Wall kick: prueba la rotación en la posición actual (k=0) y, si colisiona,
+  // desplaza la pieza 1 o 2 celdas a izquierda/derecha. Esto permite rotar
+  // junto a paredes y columnas de piezas como en el Tetris oficial (SRS simplificado).
   for (const k of [0, -1, 1, -2, 2])
     if (fits(rot, piece.x + k, piece.y)) { piece.s = rot; piece.x += k; return; }
 }
@@ -156,13 +169,18 @@ function tryRotate() {
 function addFloat(text, color, small) {
   const cx = boardX + COLS * CELL / 2;
   const base = boardY + ROWS * CELL * 0.42;
+  // Los textos se apilan verticalmente: cada nuevo texto se coloca más arriba que
+  // el anterior separándolos 1.1×CELL. Así los mensajes simultáneos no se solapan.
   floatTexts.push({ text, color: color || '#fff', x: cx,
     y: base - floatTexts.length * Math.round(CELL * 1.1),
     alpha: 1, vel: -0.7, small: !!small });
+  // Límite de 6 textos simultáneos; si hay más se elimina el más antiguo
   if (floatTexts.length > 6) floatTexts.shift();
 }
 function tickFloats() {
+  // Se filtran antes de actualizar para evitar procesar textos ya invisibles
   floatTexts = floatTexts.filter(f => f.alpha > 0.02);
+  // vel negativa sube el texto; alpha decrece 0.016 por frame → desaparece en ~60 frames
   floatTexts.forEach(f => { f.y += f.vel; f.alpha -= 0.016; });
 }
 function drawFloats() {
@@ -174,7 +192,7 @@ function drawFloats() {
       : Math.max(11, Math.round(CELL * 0.68));
     ctx.globalAlpha = f.alpha;
     ctx.font = `800 ${fs2}px system-ui`;
-    // Shadow for readability
+    // Sombra negra desplazada 1px para legibilidad sobre cualquier color de fondo
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
     ctx.fillText(f.text, f.x + 1, f.y + 1);
     ctx.fillStyle = f.color;
@@ -186,6 +204,10 @@ function drawFloats() {
 
 // ── Game logic ────────────────────────────────────────────────────────────────
 function calcContacts() {
+  // Cuenta los lados de la pieza que están adyacentes a una pared o a otra pieza ya colocada.
+  // Se usa como métrica de "encaje": más contactos = pieza mejor integrada en el tablero.
+  // Solo se cuentan tres lados (izquierda, derecha, abajo) porque el lado superior no
+  // contribuye al encaje; además, el techo del tablero (ay < 0) se ignora.
   let contacts = 0;
   for (let r = 0; r < piece.s.length; r++)
     for (let c = 0; c < piece.s[r].length; c++) {
@@ -202,9 +224,11 @@ function calcContacts() {
 function lock() {
   // 1. Bonus de encaje ANTES de colocar la pieza
   const contacts  = calcContacts();
+  // totalSides: máximo teórico de contactos útiles (cada bloque tiene 3 lados relevantes)
   const totalSides = piece.s.flat().filter(Boolean).length * 3;
   const ratio = contacts / totalSides;
   if (contacts >= 2) {
+    // El bonus escala con el nivel para que encajar bien sea más valioso conforme avanza la partida
     const fitBonus = Math.round(contacts * (level + 1) * 2);
     score += fitBonus;
     const lv = ratio;
@@ -214,6 +238,8 @@ function lock() {
   }
 
   // 2. Colocar pieza
+  // placed === 0 significa que la pieza entró completamente en zona oculta (por encima
+  // del tablero): condición de game over silencioso
   let placed = 0;
   for (let r = 0; r < piece.s.length; r++)
     for (let c = 0; c < piece.s[r].length; c++)
@@ -224,6 +250,8 @@ function lock() {
   if (placed === 0) { gameOver(); return; }
 
   // 3. Completar filas
+  // Se recorre de abajo a arriba; al eliminar una fila se incrementa r para
+  // recomprobar la misma posición (que ahora tiene la fila que bajó)
   let cleared = 0;
   for (let r = ROWS - 1; r >= 0; r--) {
     if (board[r].every(c => c)) {
@@ -237,10 +265,13 @@ function lock() {
   if (cleared > 0) {
     combo++;
     lines += cleared;
+    // Puntuación clásica de Tetris: 1/2/3/4 líneas valen 100/300/500/800 × (nivel+1)
     const base     = [0, 100, 300, 500, 800][cleared] * (level + 1);
+    // El multiplicador de combo crece 0.5× por cada turno consecutivo con líneas
     const comboMult = combo > 1 ? 1 + (combo - 1) * 0.5 : 1;
     const lineScore = Math.round(base * comboMult);
     score += lineScore;
+    // El nivel sube cada 10 líneas; dropInterval baja 60ms por nivel hasta el mínimo de 50ms
     level  = Math.floor(lines / 10);
     dropInterval = Math.max(50, 700 - level * 60);
     flashTime = performance.now();
@@ -266,6 +297,7 @@ function lock() {
 
   piece     = nextPiece;
   nextPiece = randPiece();
+  // Si la siguiente pieza no cabe en su posición inicial el tablero está lleno
   if (!fits(piece.s, piece.x, piece.y)) gameOver();
 }
 
@@ -327,6 +359,8 @@ function drawBlock(px, py, color, alpha) {
   roundRect(px + pad, py + pad, CELL - pad * 2, CELL - pad * 2, r);
   ctx.fill();
   ctx.shadowBlur = 0;
+  // Highlight superior: una franja blanca semitransparente en el 18% superior del bloque
+  // simula iluminación desde arriba y da sensación de profundidad/relieve sin usar gradientes
   ctx.fillStyle = 'rgba(255,255,255,0.2)';
   roundRect(px + pad, py + pad, CELL - pad * 2, Math.max(2, CELL * 0.18), r);
   ctx.fill();
@@ -437,7 +471,9 @@ function drawInfo() {
   label('NIVEL');
   value(level + 1, 'rgba(255,255,255,0.7)');
 
-  // Barra progreso nivel
+  // Barra progreso nivel: muestra el avance dentro del nivel actual.
+  // lines % 10 da las líneas completadas desde el último cambio de nivel (0–9);
+  // dividido entre 10 produce una fracción 0–1 para el ancho de la barra.
   const barH = Math.max(3, Math.round(fs * 0.32));
   ctx.fillStyle = 'rgba(255,255,255,0.06)';
   roundRect(ix, cy, iw, barH, 2); ctx.fill();

@@ -25,6 +25,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     /* Guarda saldo inicial */
     if ('saldo_inicial' in body) {
+      // UPSERT: si ya existe un resumen para (profile_id, year, month) actualiza solo saldo_inicial;
+      // si no existe lo crea. Se usa 'in body' (no !=null) para permitir guardar null explícitamente
+      // (el usuario borra el saldo inicial del mes).
       await env.DB.prepare(`
         INSERT INTO moneta_monthly_summary (profile_id, year, month, saldo_inicial)
         VALUES (?, ?, ?, ?)
@@ -34,6 +37,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     /* Cierra el mes */
     if (body.action === 'close') {
+      // UPSERT que activa el cierre: crea la fila si aún no existe ningún resumen para el mes
+      // (puede ocurrir si el usuario nunca guardó saldo inicial) y registra el timestamp de cierre.
       await env.DB.prepare(`
         INSERT INTO moneta_monthly_summary (profile_id, year, month, closed, closed_at)
         VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)
@@ -43,6 +48,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     /* Reabre el mes */
     if (body.action === 'reopen') {
+      // Al reabrir se pone closed=0 y se borra closed_at para indicar que no hay fecha de cierre válida.
       await env.DB.prepare(`
         INSERT INTO moneta_monthly_summary (profile_id, year, month, closed)
         VALUES (?, ?, ?, 0)

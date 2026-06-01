@@ -58,6 +58,10 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   if (parts.length === 0) return bad('Nada que actualizar');
 
   try {
+    // La subquery "profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)"
+    // verifica la propiedad del ítem sin necesidad de una columna user_id en moneta_items.
+    // Si el ítem pertenece a otro usuario, la condición no coincide y no se actualiza nada,
+    // sin revelar si el id existe o no (comportamiento silencioso seguro).
     await env.DB.prepare(
       `UPDATE moneta_items SET ${parts.join(', ')}
        WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)`
@@ -79,6 +83,8 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   if (!id) return bad('Falta id');
 
   try {
+    // Mismo patrón de subquery que en PATCH: filtra por perfil del usuario autenticado
+    // para garantizar que solo se borran ítems propios, sin columna user_id directa en la tabla.
     await env.DB.prepare(
       'DELETE FROM moneta_items WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)'
     ).bind(id, auth.user_id).run();

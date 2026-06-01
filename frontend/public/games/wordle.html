@@ -130,20 +130,22 @@ function resize(){
   const HUD_H   = Math.round(s * 0.09);
   const pad     = Math.round(s * 0.012);
   TGAP = Math.max(3, Math.round(s * 0.009));
-  // Tile size: fit 5 wide and 6 tall in available space, leave room for keyboard
+  // TILE se elige como el mínimo entre la restricción horizontal (5 columnas en 62% del canvas)
+  // y la vertical (6 filas en 46% del canvas), para que la rejilla quepa en ambas dimensiones
   const maxTileW = Math.floor((s * 0.62 - TGAP * 4) / 5);
   const maxTileH = Math.floor((s * 0.46 - TGAP * 5) / 6);
   TILE = Math.min(maxTileW, maxTileH);
   const gW = 5*TILE + 4*TGAP, gH = 6*TILE + 5*TGAP;
   GRID_OX = Math.round((s - gW) / 2);
   GRID_OY = HUD_H + pad;
-  // Keyboard: remaining space below grid
+  // El teclado ocupa el espacio restante por debajo de la rejilla
   const kbTop  = GRID_OY + gH + pad;
   const kbH    = s - kbTop - pad;
   KB_GAP_W = Math.max(2, Math.round(s * 0.007));
   KB_GAP_H = Math.max(2, Math.round(s * 0.008));
+  // KH: alto de cada tecla, 3 filas con sus dos separadores
   KH = Math.floor((kbH - 2*KB_GAP_H) / 3);
-  // Row 2 has 10 keys (widest row)
+  // KW se calcula sobre la fila más ancha (10 teclas en la fila 2) para que no desborde
   KW = Math.floor((s * 0.96 - 9*KB_GAP_W) / 10);
   KB_OX = Math.round((s - (10*KW + 9*KB_GAP_W)) / 2);
   KB_OY = kbTop;
@@ -153,8 +155,15 @@ window.addEventListener('resize', ()=>{ resize(); if(running) draw(); else bgDra
 
 function getColors(guess, tgt){
   const res = Array(5).fill('gray');
+  // rem es una copia mutable de la palabra objetivo; se usa para "consumir" letras
+  // y evitar contar la misma letra del objetivo más de una vez
   const rem = [...tgt];
+  // 1ª pasada: detectar aciertos exactos (posición y letra correctas → verde)
+  // Se marca rem[i]=null para que esa letra no vuelva a contarse en la 2ª pasada
   for(let i=0;i<5;i++) if(guess[i]===tgt[i]){ res[i]='green'; rem[i]=null; }
+  // 2ª pasada: detectar letras presentes en otra posición (→ amarillo)
+  // Se omiten las ya marcadas verdes y se anula la primera coincidencia en rem
+  // para respetar el conteo exacto de letras repetidas
   for(let i=0;i<5;i++){
     if(res[i]==='green') continue;
     const j=rem.indexOf(guess[i]);
@@ -164,6 +173,10 @@ function getColors(guess, tgt){
 }
 
 function updateLetterState(guess, colors){
+  // Sistema de prioridad para el color de cada tecla del teclado:
+  // verde(3) > amarillo(2) > gris(1) > desconocido(0)
+  // Una tecla que ya es verde no puede retroceder a amarillo o gris
+  // aunque la misma letra aparezca con peor resultado en otro intento
   const priority = {green:3,yellow:2,gray:1};
   guess.forEach((l,i)=>{
     const cur = letterState[l]||'unknown';
@@ -176,19 +189,23 @@ function updateLetterState(guess, colors){
 function handleKey(k){
   if(gameState!=='playing') return;
   if(k==='↵'||k==='ENTER'){
+    // Validar longitud: si el intento tiene menos de 5 letras se activa el shake
     if(current.length<5){ shake(guesses.length); return; }
     const colors = getColors([...current], [...word]);
     const row = {letters:[...current], colors};
     guesses.push(row);
     updateLetterState([...current], colors);
     const won = colors.every(c=>c==='green');
+    // revealStart marca el timestamp de inicio de la animación de volteo para esta fila
     row.revealStart=performance.now();
     if(won){
       gameState='won';
+      // Puntuación: más puntos cuantos menos intentos se hayan usado
       const sc2=(7-guesses.length)*100;
       try{window.parent.postMessage({type:'boh_score_live',score:sc2},'*');}catch{}
       if(sc2>best){ best=sc2; try{localStorage.setItem('boh_wordle',best);}catch{}  }
       draw();
+      // Esperar a que termine la animación de reveal (5 columnas × 80ms + 200ms = 1400ms)
       setTimeout(()=>showEnd(true, sc2), 1400);
     } else if(guesses.length>=6){
       gameState='lost';
@@ -243,6 +260,7 @@ function drawTile(x,y,letter,color,scale){
 function drawGrid(){
   const now=performance.now();
   for(let r=0;r<6;r++){
+    // shake: la fila oscila horizontalmente con una sinusoide durante 400ms
     const isShaking=shakeRow===r && (now-shakeTime)<400;
     const shakeX=isShaking?Math.round(Math.sin((now-shakeTime)*0.08)*5):0;
     for(let c=0;c<5;c++){
@@ -250,7 +268,10 @@ function drawGrid(){
       const y=GRID_OY+r*(TILE+TGAP);
       if(r<guesses.length){
         const g=guesses[r];
-        // flip reveal animation
+        // Animación de reveal: cada columna arranca con un delay escalonado de c*80ms
+        // t va de 0→1 durante 200ms; la escala simula un volteo en Y (aplana y expande)
+        // La primera mitad (t<0.5) la ficha se aplana → se muestra sin color
+        // La segunda mitad (t≥0.5) la ficha se expande → se revela el color definitivo
         const delay=c*80;
         const elapsed=now-g.revealStart;
         const t=Math.max(0,Math.min(1,(elapsed-delay)/200));
@@ -267,7 +288,7 @@ function drawGrid(){
     }
   }
   if(isShaking && shakeTime){ requestAnimationFrame(draw); }
-  // keep animating reveals
+  // mantener el bucle de animación mientras alguna fila aún esté revelándose
   if(guesses.some(g=>g.revealStart&&now-g.revealStart<5*80+200)){
     requestAnimationFrame(draw);
   }
@@ -291,11 +312,15 @@ function drawKey(x,y,w,h,label,state){
 }
 
 function drawKeyboard(){
+  // keyHitBoxes se reconstruye en cada frame para que las coordenadas sean siempre exactas
+  // (importante si el canvas se redimensiona); cada entrada almacena el rect de la tecla
+  // y la letra asociada para que click/touch puedan identificar qué tecla se pulsó
   keyHitBoxes=[];
+  // Las teclas ↵ y ⌫ son 1.55× más anchas que el resto
   const wide=Math.round(KW*1.55);
   for(let ri=0;ri<3;ri++){
     const row=KB_ROWS[ri];
-    // calculate total width of this row
+    // calcular el ancho total de esta fila para poder centrarla horizontalmente
     let totalW=0;
     row.forEach(k=>{ totalW+=(k==='↵'||k==='⌫')?wide:KW; });
     totalW+=KB_GAP_W*(row.length-1);
@@ -305,6 +330,7 @@ function drawKeyboard(){
       const w=(k==='↵'||k==='⌫')?wide:KW;
       const state=letterState[k];
       drawKey(x,y,w,KH,k,state);
+      // guardar hitbox para detección de clic/touch
       keyHitBoxes.push({x,y,w,h:KH,key:k});
       x+=w+KB_GAP_W;
     });

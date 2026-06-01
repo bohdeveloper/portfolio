@@ -7,6 +7,9 @@ import { usePathname } from "next/navigation";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // onHome determina si los links de navegación usan anclas relativas (#section)
+  // o rutas absolutas (/#section). Evita que desde páginas internas el hash
+  // enlace a un fragmento inexistente en lugar de volver al home primero.
   const onHome = pathname === '/' || pathname === '';
 
   return (
@@ -108,7 +111,8 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* MENÚ MÓVIL — fuera del header para evitar que backdrop-blur rompa el fixed */}
+      {/* MENÚ MÓVIL — renderizado fuera del <header> para evitar que el
+          backdrop-filter del navbar corte el z-index del overlay a pantalla completa */}
       {open && (
         <div className="md:hidden fixed inset-0 bg-white dark:bg-[#0d0d0d] z-[60] flex flex-col">
           {/* Cabecera del overlay */}
@@ -134,7 +138,8 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Links centrados verticalmente */}
+          {/* Links del menú móvil: setOpen(false) cierra el overlay al navegar.
+              Reutilizan la misma lógica onHome que el menú desktop. */}
           <ul className="flex flex-col flex-1 justify-center px-8 gap-8 text-xl font-medium text-black dark:text-white">
             <li><a onClick={() => setOpen(false)} href={onHome ? '#quien-soy' : '/#quien-soy'} className="block hover:text-primary transition">Quién soy</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#experiencia' : '/#experiencia'} className="block hover:text-primary transition">Experiencia</a></li>

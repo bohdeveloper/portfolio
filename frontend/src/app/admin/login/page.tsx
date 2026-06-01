@@ -31,6 +31,8 @@ function NeuralCanvas() {
     resize();
     window.addEventListener('resize', resize);
 
+    // 110 nodos distribuidos al azar con velocidades y radio variables.
+    // 'pulse' arranca en una fase aleatoria para que los nodos no parpadeen sincronizados.
     const MAX_DIST = 150;
     const nodes: NNode[] = Array.from({ length: 110 }, () => ({
       x:     Math.random() * w,
@@ -42,17 +44,22 @@ function NeuralCanvas() {
     }));
 
     function draw() {
+      // Detecta el tema en cada frame para adaptarse a cambios en tiempo real
       const isLight = document.documentElement.classList.contains('light');
       const [r, g, b] = isLight ? [0, 168, 191] : [0, 231, 235];
 
       ctx!.clearRect(0, 0, w, h);
 
+      // Mover nodos y rebotar en los bordes del canvas
       for (const n of nodes) {
         n.x += n.vx; n.y += n.vy; n.pulse += 0.016;
         if (n.x < 0 || n.x > w) { n.vx *= -1; n.x = Math.max(0, Math.min(w, n.x)); }
         if (n.y < 0 || n.y > h) { n.vy *= -1; n.y = Math.max(0, Math.min(h, n.y)); }
       }
 
+      // Dibujar las aristas (conexiones): solo entre pares de nodos que están
+      // a menos de MAX_DIST px. La opacidad disminuye linealmente con la distancia
+      // para simular que las conexiones más lejanas son más "débiles"
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].x - nodes[j].x;
@@ -69,6 +76,9 @@ function NeuralCanvas() {
         }
       }
 
+      // Dibujar los nodos con efecto de pulso sinusoidal:
+      // el radio y la opacidad varían con sin(pulse) para simular
+      // que cada nodo "late" de forma independiente
       for (const n of nodes) {
         const p = (Math.sin(n.pulse) + 1) / 2;
         ctx!.beginPath();
@@ -135,7 +145,11 @@ export default function AdminLogin() {
     );
   }, []);
 
-  /* Drift animation — moves labels directly via DOM to avoid React re-renders */
+  // Animación de deriva de los nombres de app: mueve los elementos directamente
+  // por el DOM (style.transform) en lugar de actualizar estado de React, evitando
+  // re-renders en cada frame del requestAnimationFrame. Cada label tiene parámetros
+  // de velocidad y amplitud propios para que los movimientos no sean síncronos.
+  // Las funciones seno/coseno en X e Y generan una trayectoria tipo Lissajous.
   useEffect(() => {
     if (!appPositions) return;
     let animId: number;

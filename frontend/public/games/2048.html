@@ -100,11 +100,17 @@ function rr(x,y,w,h,r){
 function resize(){
   const s = Math.min(window.innerWidth, window.innerHeight) - 4;
   canvas.width = canvas.height = s; SIZE = s;
+  // GAP proporcional al tamaño del canvas (mínimo 4px)
   GAP  = Math.max(4, Math.round(s * 0.014));
+  // hud: banda superior reservada para puntuación (14% del canvas)
   const hud  = Math.round(s * 0.14);
+  // avail: altura útil para la cuadrícula descontando hud y margen inferior
   const avail = s - hud - Math.round(s * 0.04);
+  // CELL: tamaño de cada celda para que las 4 quepan con sus separadores
   CELL = Math.floor((avail - GAP*(N+1)) / N);
+  // g: ancho total de la cuadrícula (celdas + separadores)
   const g = CELL*N + GAP*(N+1);
+  // OX, OY: desplazamiento para centrar la cuadrícula horizontal y verticalmente
   OX = Math.round((s - g) / 2);
   OY = hud + Math.round((s - hud - g) / 2);
 }
@@ -123,23 +129,32 @@ function spawn(b){
 }
 
 function slideRow(row){
+  // 1ª pasada: eliminar los ceros para compactar las fichas hacia la izquierda
   let a=row.filter(v=>v), g=0;
+  // 2ª pasada: fusionar pares consecutivos iguales (solo una fusión por ficha)
+  // splice elimina el duplicado; el índice i NO avanza para no encadenar triple fusión
   for(let i=0;i<a.length-1;i++){
     if(a[i]===a[i+1]){ a[i]*=2; g+=a[i]; a.splice(i+1,1); }
   }
+  // rellenar con ceros a la derecha hasta recuperar la longitud original
   while(a.length<N) a.push(0);
   return {row:a, gained:g};
 }
 
 function doMove(dir){
+  // dir: 0=izquierda, 1=derecha, 2=arriba, 3=abajo
   let changed=false, gained=0;
   const b=board.map(r=>[...r]);
   for(let i=0;i<N;i++){
     const horiz=dir===0||dir===1;
+    // extraer la fila (movimiento horizontal) o columna (movimiento vertical)
     let line=horiz?[...b[i]]:b.map(r=>r[i]);
+    // truco clave: para derecha/abajo se invierte la línea antes de deslizar,
+    // así slideRow siempre trabaja hacia la izquierda y sirve para los 4 sentidos
     if(dir===1||dir===3) line.reverse();
     const {row:res, gained:g}=slideRow(line);
     gained+=g;
+    // deshacer la inversión para escribir los valores en la dirección correcta
     if(dir===1||dir===3) res.reverse();
     for(let j=0;j<N;j++){
       const was=horiz?b[i][j]:b[j][i];
@@ -157,6 +172,8 @@ function doMove(dir){
 }
 
 function canMove(){
+  // La partida sigue si hay al menos una casilla vacía O algún par adyacente fusionable
+  // (horizontal o vertical). Solo si ninguna condición se cumple se declara fin de partida.
   for(let i=0;i<N;i++) for(let j=0;j<N;j++){
     if(!board[i][j]) return true;
     if(j<N-1&&board[i][j]===board[i][j+1]) return true;
@@ -172,6 +189,8 @@ function drawTile(r,c,val){
   const [bg,fg]=tileStyle(val);
   ctx.save();
   ctx.fillStyle=bg;
+  // el efecto glow (shadowBlur) solo se aplica a tiles de valor alto (≥128)
+  // para evitar saturar visualmente las fichas bajas y remarcar las poderosas
   if(val>=128){ ctx.shadowColor=bg; ctx.shadowBlur=14; }
   rr(tx,ty,CELL,CELL,rad); ctx.fill();
   ctx.shadowBlur=0;

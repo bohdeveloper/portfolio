@@ -6,6 +6,9 @@ const H = { 'Content-Type': 'application/json' };
 const bad = (msg: string) => new Response(JSON.stringify({ ok: false, error: msg }), { status: 400, headers: H });
 const forbidden = () => new Response(JSON.stringify({ ok: false, error: 'Forbidden' }), { status: 403, headers: H });
 
+// normalize('NFD') descompone caracteres acentuados en letra base + diacrítico;
+// el regex posterior elimina los diacríticos (rango Unicode combining chars),
+// produciendo slugs ASCII sin tildes ni caracteres especiales.
 function slugify(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80);
@@ -62,6 +65,9 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   if (!id || isNaN(id)) return bad('Missing id');
 
   try {
+    // Se usa batch para ejecutar las tres deletes como una unidad atómica:
+    // primero se borran las tablas dependientes (reacciones y puntuaciones) y
+    // luego el propio juego, evitando errores de clave foránea si estuvieran activas.
     await env.DB.batch([
       env.DB.prepare('DELETE FROM game_reactions WHERE game_id = ?').bind(id),
       env.DB.prepare('DELETE FROM game_scores WHERE game_id = ?').bind(id),
@@ -82,6 +88,9 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   if (!id || isNaN(id)) return bad('Missing id');
 
   try {
+    // Se usa batch para garantizar que el cambio de TOP es atómico:
+    // primero se quita is_top a todos y luego se asigna solo al juego indicado,
+    // asegurando que en ningún momento haya dos juegos marcados como TOP simultáneamente.
     await env.DB.batch([
       env.DB.prepare('UPDATE games SET is_top = 0').bind(),
       env.DB.prepare('UPDATE games SET is_top = 1 WHERE id = ?').bind(id),

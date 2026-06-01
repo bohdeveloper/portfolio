@@ -20,11 +20,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     if (!game) return new Response(JSON.stringify({ ok: false, error: 'Game not found' }), { status: 404, headers: H });
 
     if (delta === 1) {
+      // INSERT OR REPLACE con ON CONFLICT: si aún no existe la fila (game_id, emoji) la crea con count=1;
+      // si ya existe, incrementa el contador. MIN(MAX_COUNT, ...) actúa como tope para evitar
+      // desbordamientos o inflado masivo por peticiones repetidas.
       await env.DB.prepare(
         `INSERT INTO game_reactions (game_id, emoji, count) VALUES (?, ?, 1)
          ON CONFLICT(game_id, emoji) DO UPDATE SET count = MIN(${MAX_COUNT}, count + 1)`
       ).bind(game_id, emoji).run();
     } else {
+      // MAX(0, count - 1) garantiza que el contador nunca baje de 0 aunque lleguen
+      // más decrementos que incrementos (p.ej. doble clic del usuario en "quitar reacción").
       await env.DB.prepare(
         'UPDATE game_reactions SET count = MAX(0, count - 1) WHERE game_id = ? AND emoji = ?'
       ).bind(game_id, emoji).run();

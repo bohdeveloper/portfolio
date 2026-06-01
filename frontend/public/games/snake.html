@@ -105,9 +105,12 @@ let W, H, snake, dir, next, food, foodColor, score, best, running, raf, lastTick
 let energy = 0, maxEnergy = 100, boosting = false, boostKey = false, touchBoost = false, touchBoostTimer = null;
 
 function resize() {
+  // Usa el lado menor para mantener el canvas cuadrado en cualquier orientación.
+  // Trunca al múltiplo de CELL más cercano para que las celdas no queden cortadas.
   const s = Math.min(window.innerWidth, window.innerHeight) - 4;
   const size = Math.floor(s / CELL) * CELL;
   canvas.width = canvas.height = size;
+  // W y H son dimensiones en celdas, no en píxeles
   W = canvas.width / CELL;
   H = canvas.height / CELL;
 }
@@ -117,11 +120,15 @@ window.addEventListener('resize', () => { resize(); if (!running) bgDraw(); });
 function rnd(n) { return Math.floor(Math.random() * n); }
 
 function placeFood() {
+  // Construye un Set con las posiciones ocupadas (serpiente + obstáculos) en formato
+  // "x,y" para que la búsqueda sea O(1) en cada intento. Sin esto habría que recorrer
+  // arrays con every() en cada iteración del bucle.
   const occupied = new Set([
     ...snake.map(s => s.x + ',' + s.y),
     ...(obstacles || []).map(o => o.x + ',' + o.y),
   ]);
   let x, y, tries = 0;
+  // El límite de 200 intentos evita un bucle infinito si el tablero está casi lleno
   do { x = rnd(W); y = rnd(H); tries++; } while (occupied.has(x + ',' + y) && tries < 200);
   food = { x, y };
   foodColor = FOOD_COLORS[rnd(FOOD_COLORS.length)];
@@ -129,11 +136,16 @@ function placeFood() {
 
 function addObstacle() {
   obstacleCallCount++;
+  // El tamaño del grupo crece con cada llamada (máx 7): los primeros obstáculos
+  // son pequeños para no castigar al jugador cuando apenas empieza.
   const groupSize = Math.min(7, obstacleCallCount);
   let placed = false, tries = 0;
   while (!placed && tries < 300) {
     tries++;
+    // Elige orientación horizontal o vertical al azar para el bloque lineal
     const horiz = Math.random() > 0.5;
+    // El punto de inicio se mantiene al menos 1 celda alejado del borde para que
+    // los obstáculos nunca toquen la pared (que ya es mortal de por sí)
     const startX = rnd(W - 2) + 1;
     const startY = rnd(H - 2) + 1;
     const occupied = new Set([
@@ -143,6 +155,8 @@ function addObstacle() {
     ]);
     const cells = [];
     let valid = true;
+    // Valida cada celda del grupo antes de comprometerse: si cualquiera está ocupada
+    // o fuera del margen interior, descarta todo el intento
     for (let i = 0; i < groupSize; i++) {
       const cx = horiz ? startX + i : startX;
       const cy = horiz ? startY : startY + i;
@@ -175,10 +189,16 @@ function init() {
 function tick(ts) {
   if (!running) return;
   raf = requestAnimationFrame(tick);
+  // El boost solo está activo si hay energía disponible; no se puede sostener indefinidamente
   boosting = (boostKey || touchBoost) && energy > 0;
+  // En modo boost se divide el intervalo entre ~3, con un mínimo de 20ms para que
+  // la serpiente nunca supere la tasa de refresco del navegador
   const effectiveSpeed = boosting ? Math.max(20, Math.round(speed / 3)) : speed;
+  // Patrón "time-based tick": se acumula tiempo real entre frames y se actúa
+  // solo cuando ha pasado el intervalo necesario, independientemente del FPS
   if (ts - lastTick < effectiveSpeed) return;
   lastTick = ts;
+  // Cada tick en boost consume 2 unidades de energía; se vaciará en 50 ticks
   if (boosting) energy = Math.max(0, energy - 2);
 
   dir = { ...next };
@@ -250,11 +270,15 @@ function drawEnergyBar() {
   if (frac > 0) {
     ctx.save();
     if (boosting) {
+      // Efecto pulso: oscila la opacidad con Math.sin sobre performance.now para
+      // dar retroalimentación visual de que el boost está activo y consumiendo energía
       const pulse = 0.85 + 0.15 * Math.sin(performance.now() / 80);
       ctx.shadowColor = 'rgba(255,215,0,0.9)';
       ctx.shadowBlur = 10;
       ctx.fillStyle = `rgba(255,247,150,${pulse})`;
     } else {
+      // En reposo usa un degradado lineal proporcional a la energía restante,
+      // de marrón oscuro a dorado, para que la barra "se vea llena" cuando hay mucha energía
       const gr = ctx.createLinearGradient(0, 0, canvas.width * frac, 0);
       gr.addColorStop(0, 'rgba(120,85,10,0.9)');
       gr.addColorStop(1, 'rgba(255,215,0,0.9)');
@@ -315,8 +339,12 @@ function draw() {
   // Serpiente
   const len = snake.length;
   snake.forEach((s, i) => {
+    // frac va de 1 (cabeza) a casi 0 (cola): permite degradar tanto el color
+    // como la opacidad de forma proporcional a la posición en el cuerpo
     const frac = 1 - i / len;
     const alpha = 0.35 + 0.65 * frac;
+    // El canal verde baja de 260 a 80 y el azul de 250 a 30 hacia la cola,
+    // creando un degradado cian→azul oscuro sin necesidad de gradiente canvas
     const g = Math.round(180 * frac + 80);
     const b = Math.round(220 * frac + 30);
     if (i === 0) {
@@ -334,7 +362,10 @@ function draw() {
     if (i === 0) ctx.restore();
   });
 
-  // Ojos
+  // Ojos — posición direccional
+  // Cada ojo tiene coordenadas (ex, ey) que varían según dir para que los ojos
+  // queden siempre en la "cara delantera" de la cabeza. Los valores son offsets
+  // en píxeles dentro de la celda de 20px: lado frontal ≈ 13, trasero ≈ 5, centro ≈ 7/13.
   const h = snake[0];
   ctx.fillStyle = '#0a0a0a';
   const ex1 = dir.x === 1 ? 13 : dir.x === -1 ? 5 : dir.y === 1 ? 7  : 7;
@@ -431,12 +462,16 @@ canvas.addEventListener('touchstart', e => {
   tsMoved = false;
   e.preventDefault();
   if (running) {
+    // Pulsación larga (≥140ms sin moverse) activa el boost táctil.
+    // Si el dedo se mueve antes, touchmove cancelará el timer y en cambio
+    // interpretará el gesto como swipe de dirección.
     touchBoostTimer = setTimeout(() => { if (ts && !tsMoved) touchBoost = true; }, 140);
   }
 }, { passive: false });
 canvas.addEventListener('touchmove', e => {
   if (!ts) return;
   const dx = e.touches[0].clientX - ts.x, dy = e.touches[0].clientY - ts.y;
+  // Un movimiento de más de 10px cancela el boost y marca el gesto como swipe
   if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
     tsMoved = true;
     if (touchBoostTimer) { clearTimeout(touchBoostTimer); touchBoostTimer = null; }
@@ -452,8 +487,11 @@ canvas.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - ts.x;
   const dy = e.changedTouches[0].clientY - ts.y;
   ts = null;
+  // Umbral de 8px: movimientos menores se ignoran como falsos positivos táctiles
   if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
   e.preventDefault();
+  // El eje dominante determina la dirección; se valida contra la dirección actual
+  // para evitar que el jugador gire 180° sobre sí mismo (movimiento ilegal en Snake)
   if (Math.abs(dx) > Math.abs(dy)) { if (dir.x === 0) next = { x: dx > 0 ? 1 : -1, y: 0 }; }
   else                              { if (dir.y === 0) next = { x: 0, y: dy > 0 ? 1 : -1 }; }
 }, { passive: false });

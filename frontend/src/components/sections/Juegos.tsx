@@ -69,6 +69,9 @@ function AnimatedLeaderboard({ leaders, visitor, liveScore }: {
   const [meKey,      setMeKey]      = useState(0);
   const [passedKey,  setPassedKey]  = useState<{ id: number; k: number } | null>(null);
 
+  // Calcula el ranking visual en tiempo real: inserta al jugador actual en la
+  // posición que le corresponde por puntuación sin esperar a que la API confirme,
+  // y recalcula los rangos del top 10 para mantener la numeración correcta
   const display = useMemo(() => {
     let d = [...leaders];
     if (visitor && liveScore !== null && liveScore > 0) {
@@ -85,6 +88,9 @@ function AnimatedLeaderboard({ leaders, visitor, liveScore }: {
   displayRef.current = display;
   const myRank = display.find(l => l.visitor_id === visitor?.id)?.rank ?? null;
 
+  // Detecta cuando el jugador sube de posición comparando el rango actual
+  // con el del frame anterior (ref). Al subir: incrementa meKey para reanimar
+  // la fila propia y marca al jugador superado durante 700ms con rankDown
   useEffect(() => {
     const prev = prevRankRef.current;
     prevRankRef.current = myRank;
@@ -307,7 +313,11 @@ export default function JuegosSection() {
     return () => clearInterval(id);
   }, [activeGame, loadLeaderboard]);
 
-  // Escuchar postMessage del iframe
+  // Escucha postMessage del iframe para dos tipos de evento:
+  // - 'boh_score_live': puntuación parcial durante la partida, actualiza el
+  //   ranking sin persistir (solo visual)
+  // - 'boh_score': puntuación definitiva al game over; si no hay visitor
+  //   registrado, guarda la puntuación como pendiente y muestra el login
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (!activeGame) return;
@@ -368,6 +378,10 @@ export default function JuegosSection() {
     setLoginSaving(false);
   }
 
+  // Gestiona las reacciones con actualización optimista y una sola reacción
+  // activa por juego. El flujo es: actualizar estado local → persistir en
+  // localStorage → enviar delta -1 de la reacción anterior (si la hay) →
+  // enviar delta ±1 de la nueva y reconciliar el contador con la respuesta API
   function reactToGame(gameId: number, emoji: string) {
     const key = String(gameId);
     const reacted = gameReacted[key] ?? new Set<string>();
@@ -427,6 +441,8 @@ export default function JuegosSection() {
 
   if (!loaded || games.length === 0) return null;
 
+  // El juego TOP se determina por prioridad: comunidad > favorito del admin.
+  // El resto se muestra en una cuadrícula secundaria de menor tamaño visual
   const topGame = games.find(g => g.is_community_top === 1) ?? games.find(g => g.is_top === 1) ?? null;
   const otherGames = games.filter(g => g.id !== topGame?.id);
 

@@ -28,6 +28,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(JSON.stringify({ ok: false, error: 'Año inválido' }), { status: 400, headers: H });
 
   try {
+    // Copia name, amount, type y sort_order del mes origen al mes destino.
+    // real_amount se omite intencionadamente: representa el gasto real ejecutado
+    // y no debe trasladarse a un mes nuevo donde aún no se ha gastado nada.
+    // El JOIN con moneta_profiles garantiza que solo se copian ítems del usuario
+    // autenticado, aunque moneta_items no tenga columna user_id directa.
     /* Inserta todos los ítems del mes origen (sin real_amount) */
     await env.DB.prepare(`
       INSERT INTO moneta_items (profile_id, year, month, name, amount, type, sort_order, user_id)

@@ -101,15 +101,20 @@ function rr(x,y,w,h,r){
   ctx.closePath();
 }
 
-// velocidad base de los tubos, aumenta con la puntuación
+// Velocidad de los tubos: base fija más incremento lineal hasta score=30.
+// Se limita a 30 para que la dificultad no escale infinitamente y el juego sea asequible.
+// El factor Math.min(score,30) hace que el incremento sea efectivamente lineal (no logarítmico).
 function pipeSpeed(){ return S * (0.0028 + Math.min(score, 30) * 0.00012); }
 
 function spawnPipe(){
-  // posición Y del hueco: entre 20% y 60% del área de juego
+  // El hueco puede aparecer entre el 18% y el 60% de la altura jugable.
+  // El límite inferior evita huecos imposibles pegados al suelo y el superior
+  // evita huecos pegados al techo, garantizando siempre un paso transitable.
   const playH = S - GROUND_H;
   const minGapY = Math.round(playH * 0.18);
   const maxGapY = Math.round(playH * 0.60);
   const gapY    = Math.floor(Math.random()*(maxGapY-minGapY)) + minGapY;
+  // passed=false: flag que se activará cuando el pájaro supere este tubo (+1 punto)
   pipes.push({ x: S + PIPE_W/2, gapY, passed: false });
 }
 
@@ -131,11 +136,13 @@ function tick(ts){
   if(!running) return;
   raf = requestAnimationFrame(tick);
 
-  const dt = Math.min(ts - (lastTime||ts), 50); // cap delta para evitar saltos grandes
+  // dt en ms, limitado a 50ms para evitar saltos físicos grandes si el tab pierde foco
+  const dt = Math.min(ts - (lastTime||ts), 50);
   lastTime = ts;
 
   if(died){
-    // animación de caída post-muerte durante 600ms antes de game over
+    // Fase post-muerte: el pájaro sigue cayendo con gravedad aumentada (35 vs 28) durante
+    // 600ms para crear una caída dramática antes de mostrar el overlay de game over
     const gravity = S * 0.000035;
     bird.vy += gravity * dt;
     bird.y  += bird.vy * dt;
@@ -144,32 +151,35 @@ function tick(ts){
     draw(); return;
   }
 
-  // física del pájaro
+  // Física del pájaro: acumulación de gravedad sobre dt (integración de Euler)
   const gravity = S * 0.000028;
   bird.vy += gravity * dt;
   bird.y  += bird.vy * dt;
-  // ángulo visual: sube → -20°, baja → hasta +70°
+  // Interpolación suave del ángulo visual hacia el ángulo objetivo (lerp con factor 0.18)
+  // Sube → -20° (nariz arriba), baja → hasta +72° (nariz abajo)
   const targetAngle = bird.vy < 0 ? -0.35 : Math.min(Math.PI*0.4, bird.vy * 0.04);
   bird.angle += (targetAngle - bird.angle) * 0.18;
 
   // colisión suelo/techo
   if(bird.y - BIRD_R < 0 || bird.y + BIRD_R > S - GROUND_H){ die(ts); return; }
 
-  // mover y generar tubos
+  // acumular distancia recorrida para espaciar la generación de tubos
   pipeTimer += pipeSpeed() * dt;
   if(pipeTimer >= pipeInterval){ pipeTimer = 0; spawnPipe(); }
 
   for(let i = pipes.length - 1; i >= 0; i--){
     pipes[i].x -= pipeSpeed() * dt;
 
-    // colisión con tubo
+    // Colisión con tubo: se usa BIRD_R*0.85 (radio ligeramente reducido) para dar
+    // un margen de tolerancia visual que hace la detección más justa al jugador
     if(Math.abs(pipes[i].x - BIRD_X) < PIPE_W/2 + BIRD_R * 0.85){
       if(bird.y < pipes[i].gapY || bird.y > pipes[i].gapY + GAP_H){
         die(ts); return;
       }
     }
 
-    // punto cuando el pájaro pasa el tubo
+    // Punto: se comprueba con el flag `passed` para contabilizarlo exactamente una vez
+    // cuando el borde delantero del tubo supera la posición X del pájaro
     if(!pipes[i].passed && pipes[i].x < BIRD_X - PIPE_W/2){
       pipes[i].passed = true;
       score++;
@@ -186,15 +196,19 @@ function tick(ts){
 
 function die(ts){
   died = true; dieTime = ts;
-  // pequeño impulso hacia arriba en la muerte (efecto rebote)
+  // Impulso inicial hacia arriba al morir: vy negativo produce un pequeño rebote
+  // antes de que la gravedad post-muerte lo arrastre hacia abajo, dando sensación
+  // de impacto físico en lugar de una caída directa
   bird.vy = -S * 0.008;
 }
 
 function drawBird(){
   ctx.save();
   ctx.translate(BIRD_X, bird.y);
+  // La rotación se aplica sobre el centro del pájaro; bird.angle se interpola en tick()
+  // de forma que el ángulo sigue la velocidad vertical con suavidad (lerp)
   ctx.rotate(bird.angle);
-  // cuerpo con degradado
+  // Degradado radial: foco desplazado hacia arriba-izquierda para simular luz cenital
   const grad = ctx.createRadialGradient(-BIRD_R*0.2,-BIRD_R*0.2,1,0,0,BIRD_R);
   grad.addColorStop(0,'#FFE066');
   grad.addColorStop(1,'#F59E0B');

@@ -19,9 +19,13 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const startDate = new Date(start);
   const endDate   = new Date(startDate);
+  // Se calcula el fin de semana sumando 6 días al inicio para cubrir exactamente 7 días (lun-dom).
   endDate.setDate(startDate.getDate() + 6);
   const end = endDate.toISOString().slice(0, 10);
 
+  // La query devuelve todos los registros de la semana sin agrupar: el cliente es responsable
+  // de organizar los datos por día (date) y por actividad (activity_id).
+  // day_index permite ordenar actividades que se repiten múltiples veces en el mismo día.
   const { results } = await env.DB.prepare(
     'SELECT date, activity_id, day_index, done, reason, updated_at FROM tracker_records WHERE user_id = ? AND date >= ? AND date <= ? ORDER BY date, activity_id'
   ).bind(auth.user_id, start, end).all();

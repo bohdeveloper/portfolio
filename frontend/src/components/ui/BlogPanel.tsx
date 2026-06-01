@@ -121,6 +121,7 @@ export default function BlogPanel() {
   const pnlPrevRank   = useRef<number | null>(null);
   const pnlDisplayRef = useRef<Leader[]>([]);
 
+  // El panel se oculta completamente en rutas de admin y blog para no interferir
   const hide = pathname.startsWith('/admin') || pathname.startsWith('/blog');
 
   // Cargar visitor desde localStorage
@@ -139,6 +140,8 @@ export default function BlogPanel() {
     } catch {}
   }, []);
 
+  // Al montar (y si la ruta es visible), precarga posts y juegos en paralelo
+  // y abre el panel lateral automáticamente en desktop
   useEffect(() => {
     if (hide) return;
 
@@ -156,6 +159,7 @@ export default function BlogPanel() {
         if (res.ok) {
           const gList = res.games ?? [];
           setGames(gList);
+          // Prioridad del TOP: campo explícito de la API > comunidad > favorito del admin
           setTopGame(res.top ?? gList.find((g: Game) => g.is_community_top === 1) ?? gList.find((g: Game) => g.is_top === 1) ?? null);
           const counts: Record<number, Record<string, number>> = {};
           for (const g of (res.games ?? [])) counts[g.id] = g.reactions;
@@ -165,6 +169,8 @@ export default function BlogPanel() {
       })
       .catch(() => setGamesLoaded(true));
 
+    // Restaurar reacciones previas guardadas: se limita a 1 reacción por juego
+    // (slice(0,1)) para mantener el invariante de una sola reacción activa
     try {
       const stored = localStorage.getItem('game_reacted');
       if (stored) {
@@ -187,7 +193,10 @@ export default function BlogPanel() {
       .catch(() => {});
   }, [gameModal?.id]); // eslint-disable-line
 
-  // PostMessage del iframe
+  // Escucha mensajes postMessage que envía el iframe del juego:
+  // - 'boh_score_live': puntuación en curso para actualizar el ranking en tiempo real
+  // - 'boh_score': puntuación final al terminar la partida; si no hay visitor
+  //   registrado, guarda la puntuación como pendiente y abre el modal de login
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (!gameModal) return;
@@ -208,7 +217,9 @@ export default function BlogPanel() {
     return () => window.removeEventListener('message', handler);
   }, [gameModal, pnlVisitor]); // eslint-disable-line
 
-  // Leaderboard live con posición del jugador
+  // Construye el ranking visible en tiempo real: toma el leaderboard guardado,
+  // elimina al jugador actual (para evitar duplicados), lo inserta en la posición
+  // correcta según su puntuación en curso y recalcula los rangos del top 10
   const pnlDisplay = useMemo(() => {
     let d = [...pnlLeaders];
     if (pnlVisitor && pnlLiveScore !== null && pnlLiveScore > 0) {
@@ -225,7 +236,9 @@ export default function BlogPanel() {
   pnlDisplayRef.current = pnlDisplay;
   const pnlMyRank = pnlDisplay.find(l => l.visitor_id === pnlVisitor?.id)?.rank ?? null;
 
-  // Detectar cuando el jugador supera a alguien
+  // Detecta cuando el jugador sube de posición en el ranking:
+  // - Incrementa pnlMeKey para forzar la animación de subida en la fila propia
+  // - Marca durante 700ms al jugador que acaba de ser superado para animarlo
   useEffect(() => {
     const prev = pnlPrevRank.current;
     pnlPrevRank.current = pnlMyRank;
@@ -303,6 +316,12 @@ export default function BlogPanel() {
     setMobileOpen(true);
   }
 
+  // Sistema de reacciones con actualización optimista:
+  // 1. Se aplica el cambio localmente de forma inmediata (UX fluida)
+  // 2. Se persiste en localStorage para que sobreviva recargas
+  // 3. Si el usuario cambia de emoji, se envía primero el delta -1 del anterior
+  //    y luego el delta +1 del nuevo (dos llamadas independientes a la API)
+  // 4. La respuesta de la API reconcilia el contador definitivo contra el optimista
   function reactToGame(gameId: number, emoji: string) {
     const key = String(gameId);
     const reacted = gameReacted[key] ?? new Set<string>();
@@ -488,7 +507,9 @@ export default function BlogPanel() {
         </div>
       )}
 
-      {/* Side panel */}
+      {/* Panel lateral desktop: se desliza desde la derecha con CSS transform.
+          Siempre está montado en el DOM; open controla si está visible u oculto
+          para preservar el estado de scroll y evitar recargar los datos. */}
       <div
         className="hidden md:flex flex-col"
         style={{
@@ -529,6 +550,8 @@ export default function BlogPanel() {
 
       {/* ══════════════ MOBILE ══════════════ */}
 
+      {/* Botón flotante visible solo en móvil; combina los dos iconos para indicar
+          que hay tanto blog como juegos disponibles en el panel */}
       <button
         onClick={() => setMobileOpen(true)}
         aria-label="Abrir panel"
@@ -545,6 +568,8 @@ export default function BlogPanel() {
         <GameIcon size={13} />
       </button>
 
+      {/* Panel móvil a pantalla completa: entra desde abajo con translateY.
+          Usa inset: 0 para cubrir también la barra de navegación del portfolio. */}
       <div
         className="md:hidden flex flex-col"
         style={{
@@ -598,6 +623,9 @@ export default function BlogPanel() {
                     aria-label="Cerrar"
                   >×</button>
                 </div>
+                {/* El iframe se crea directamente con src al abrir el modal:
+                    no hay lazy-load extra porque gameModal solo se establece
+                    cuando el usuario pulsa "Jugar", lo que ya actúa como lazy trigger */}
                 <iframe
                   ref={pnlIframeRef}
                   src={gameModal.url}
@@ -631,6 +659,8 @@ export default function BlogPanel() {
                     const isMe     = l.visitor_id === pnlVisitor?.id;
                     const isPodium = l.rank <= 3;
                     const isPassed = pnlPassedKey?.id === l.visitor_id;
+                    // La key cambia al subir de posición (meKey) o al superar a alguien
+                    // (passedKey), forzando el remontaje y disparando pnlRankUp / pnlRankDown
                     const rowKey   = isMe ? `me-${pnlMeKey}` : isPassed ? `passed-${pnlPassedKey?.k}` : `p-${l.visitor_id}`;
                     return (
                       <div key={rowKey} style={{

@@ -12,6 +12,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
       'SELECT game_id, emoji, count FROM game_reactions'
     ).all<{ game_id: number; emoji: string; count: number }>();
 
+    // Se construye un mapa { game_id → { emoji → count } } para acceder en O(1)
+    // a las reacciones al componer la respuesta final de cada juego.
     const reactionMap: Record<number, Record<string, number>> = {};
     for (const r of reactions) {
       if (!reactionMap[r.game_id]) reactionMap[r.game_id] = {};
@@ -19,9 +21,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
     }
 
     // TOP comunidad = juego con más reacciones totales (suma de todos los emojis)
+    // Se suman todos los emojis del juego para obtener un único índice de popularidad.
     const totalReactions = (id: number) =>
       Object.values(reactionMap[id] ?? {}).reduce((s, n) => s + n, 0);
 
+    // Si ningún juego tiene reacciones aún, se cae al juego marcado como is_top por el admin.
     const maxReactions = Math.max(0, ...games.map(g => totalReactions(g.id)));
     const communityTopId = maxReactions > 0
       ? games.find(g => totalReactions(g.id) === maxReactions)?.id ?? null

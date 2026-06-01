@@ -22,10 +22,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     start = `${ref.getFullYear()}-01-01`;
     end   = `${ref.getFullYear()}-12-31`;
   } else if (period === 'quarterly') {
+    // Math.floor(month / 3) determina el trimestre (0-3); multiplicar por 3 da el mes inicial.
+    // new Date(year, q*3+3, 0) usa el día 0 del mes siguiente para obtener el último día del trimestre.
     const q = Math.floor(ref.getMonth() / 3);
     start = new Date(ref.getFullYear(), q * 3, 1).toISOString().slice(0, 10);
     end   = new Date(ref.getFullYear(), q * 3 + 3, 0).toISOString().slice(0, 10);
   } else {
+    // new Date(year, month+1, 0) usa el día 0 del mes siguiente para obtener el último día del mes actual,
+    // funcionando correctamente en meses con 28, 29, 30 o 31 días sin tablas de lookup.
     start = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}-01`;
     end   = new Date(ref.getFullYear(), ref.getMonth() + 1, 0).toISOString().slice(0, 10);
   }

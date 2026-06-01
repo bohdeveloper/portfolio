@@ -279,7 +279,10 @@ const STYLES = `
 /* ── Fila de ítem ─────────────────────────────────────────────
    Nombre y previsto son clicables para editar.
    showReal = true (gastos): muestra botón "=" y columna real.
-   Borrar el campo real y confirmar con Enter lo resetea a null. */
+   Borrar el campo real y confirmar con Enter lo resetea a null.
+   El flujo de edición inline es: click sobre el valor → se monta un <input>
+   con autoFocus → al salir (blur) o al pulsar Enter se llama al handler del padre
+   → el padre actualiza el estado optimistamente y dispara el PATCH a la API. */
 function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSave }: {
   item: Item; showReal?: boolean;
   onDelete:     (id: number) => void;
@@ -308,6 +311,8 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
     if (!isNaN(n)) onAmountSave(item.id, n);
     setEditAmount(false);
   }
+  // Vaciar el campo y confirmar equivale a borrar el importe real (null),
+  // lo que hace que el ítem deje de contabilizarse en el total real del mes
   function confirmReal() {
     const t = realVal.trim();
     onRealSave?.(item.id, t === '' ? null : (parseFloat(t) || 0));
@@ -437,7 +442,11 @@ function StatsView() {
   for (const r of rows) if (!profilesSeen.has(r.profile_id)) profilesSeen.set(r.profile_id, r.profile_name);
   const profiles = Array.from(profilesSeen.entries());
 
-  /* Ahorro por (mes-key, profile_id) */
+  // Construye un mapa (mes-perfil → ahorro) eligiendo la fuente más fidedigna:
+  // si el mes tiene al menos un gasto real registrado (n_real > 0) se usa
+  // gastos_real; si no, se usa el estimado. Esto replica la misma lógica que
+  // ProfileColumn usa en pantalla, garantizando consistencia entre la vista
+  // de registros y la de estadísticas históricas.
   const ahorroMap = new Map<string, number>();
   for (const r of rows) {
     const mKey = `${r.year}-${String(r.month).padStart(2, '0')}`;
@@ -601,12 +610,16 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
   const totalPrevGastos   = gastos.reduce((s, i) => s + i.amount, 0);
   const totalPrevIngresos = ingresos.reduce((s, i) => s + i.amount, 0);
 
-  /* Real: solo suma los ítems que tienen real_amount establecido */
+  // Solo se suma el real de los ítems que tienen real_amount explícito (≠ null).
+  // Si no hay ninguno, ahorroReal es null y se muestra únicamente el estimado.
+  // Esto evita que ítems sin importe real tiren el total hacia abajo: el ahorro
+  // real solo se activa cuando el usuario ha registrado al menos un gasto real.
   const gastosConReal   = gastos.filter(i => i.real_amount != null);
   const totalRealGastos = gastosConReal.reduce((s, i) => s + i.real_amount!, 0);
   const hasAnyReal      = gastosConReal.length > 0;
 
   const ahorroEstimado = totalPrevIngresos - totalPrevGastos;
+  // ahorroReal solo existe si hay al menos un gasto con importe real registrado
   const ahorroReal     = hasAnyReal ? totalPrevIngresos - totalRealGastos : null;
 
   /* Saldo final = saldo_inicial + ahorro real (si ambos disponibles) */
@@ -640,6 +653,10 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
     });
   }
 
+  // doMove equivalente para el importe real: actualiza el estado local
+  // de forma optimista antes de la llamada a la API y muestra feedback
+  // visual a través de saveStatus ('saving' → 'saved'/'error' → 'idle').
+  // El timeout de 2s devuelve el indicador a idle sin necesidad de acción del usuario.
   async function handleRealSave(id: number, real_amount: number | null) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, real_amount } : i));
     setSaveStatus('saving');
@@ -676,6 +693,12 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
     });
   }
 
+  // Cierre de mes: consolida el estado actual del mes de forma permanente.
+  // Se envía action:'close' a la API, que guarda el snapshot de ahorro
+  // real/estimado y la fecha de cierre. El mes queda en solo lectura para el
+  // usuario hasta que lo reabra con handleReopenMes. El confirm previo
+  // muestra el ahorro definitivo (real si existe, estimado si no) para que
+  // el usuario pueda revisar antes de confirmar la operación.
   async function handleCerrarMes() {
     const lines = [
       `¿Cerrar ${monthLabel(year, month)} para ${profile.name}?`,

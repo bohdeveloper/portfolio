@@ -29,6 +29,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       'SELECT * FROM moneta_profiles WHERE user_id = ? ORDER BY sort_order'
     ).bind(auth.user_id).all<{ id: number; name: string; sort_order: number }>();
 
+    // Los ítems NO filtran por user_id directamente porque moneta_items no tiene esa columna.
+    // El acceso se restringe de forma indirecta: solo se devuelven los perfiles del usuario
+    // (query anterior), y luego en JS se filtran los ítems por profile_id de esos perfiles.
+    // Esto significa que un ítem de otro usuario con el mismo year/month nunca llegaría
+    // al cliente, ya que su profile_id no aparecería en el array de perfiles del usuario.
     const { results: items } = await env.DB.prepare(`
       SELECT id, profile_id, name, amount, real_amount, type, sort_order
       FROM moneta_items

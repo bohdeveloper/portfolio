@@ -18,6 +18,16 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers: H });
 
   try {
+    // La query agrega todos los ítems por perfil y mes para calcular el ahorro histórico.
+    // Se calculan tres métricas clave:
+    //   · gastos_prev  = suma de amount de gastos (presupuesto previsto)
+    //   · gastos_real  = suma de real_amount de gastos que tienen importe real registrado
+    //   · n_real       = número de gastos con importe real registrado
+    //
+    // En el cliente, el ahorro se calcula así:
+    //   si n_real > 0  →  ingresos_prev - gastos_real   (mes parcial o cerrado con datos reales)
+    //   si n_real == 0 →  ingresos_prev - gastos_prev   (mes sin importe real: se usa el presupuesto)
+    // Esto permite mostrar el ahorro real cuando existe y el estimado cuando no.
     const { results } = await env.DB.prepare(`
       SELECT
         i.profile_id,
