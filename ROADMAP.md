@@ -1,6 +1,11 @@
 🗺️ ROADMAP — bohdeveloper.com
 
 ---
+---
+
+## ✅ COMPLETADAS
+
+---
 
 :: FASE 0 — Panel Admin + Tracker (✅ COMPLETADA)
 · Objetivo: primer backend real en producción. Acceso exclusivo del propietario.
@@ -25,7 +30,7 @@
 
 ---
 
-:: FASE 4 — Blog técnico (✅ COMPLETADA — MVP en producción)
+:: FASE 1 — Blog técnico (✅ COMPLETADA — MVP en producción)
 · Objetivo: autoridad + tráfico orgánico. Artículos sobre Next.js, CF Workers, D1...
 
 ### Implementación
@@ -53,7 +58,7 @@
 
 ---
 
-:: FASE 5 — App Moneta (Control Presupuestal) (✅ COMPLETADA — MVP en producción)
+:: FASE 2 — App Moneta (Control Presupuestal) (✅ COMPLETADA — MVP en producción)
 · Objetivo: control mensual de presupuesto — PREVISTO vs REAL — con dos perfiles (Pareja / Personal).
 
 ### Implementación
@@ -79,24 +84,22 @@
 # ✅ Navegación mensual: adelante/atrás sin recarga
 # ✅ Tabs de perfil: Pareja / Personal
 # ✅ Dashboard card Moneta con icono SVG
-
-### Pendiente (sin fase asignada)
 # ✅ Exportación CSV mensual — botón ↓ CSV en topbar, descarga client-side con BOM UTF-8
 # ✅ Vista histórico: evolución del ahorro mes a mes — gráfica SVG de barras por perfil
 # ✅ Alertas visuales al superar el presupuesto — ⚠ en celda real + total gastos cuando real > previsto
 
+### Notas de arquitectura
+# moneta_* prefix en tablas D1 — evita conflictos con otras tablas del mismo namespace
+# Modelo plano (ítems libres) en lugar de árbol fijo — más flexible para uso real mensual
+# Total real solo suma real_amount explícitos — evita mezclar estimados con reales
+# UPSERT (ON CONFLICT DO UPDATE) en moneta_monthly_summary — cubre insert y update en una sola query
+# APIs separadas por entidad (item, copy, summary) — cada fichero = un endpoint limpio
+# onRequestGet/Post/Delete en mismo fichero — Pages Functions soporta named exports por método
+
 ---
 
-:: FASE 6 — Interacción social en Blog (✅ COMPLETADA)
+:: FASE 3 — Interacción social en Blog (✅ COMPLETADA)
 · Objetivo: convertir el blog en una experiencia bidireccional — lectores pueden reaccionar y comentar.
-
-### Funcionalidades
-# Reacciones por post: emojis (👍❤️🔥💡) con contador en tiempo real
-# Comentarios públicos: nombre/alias + texto, sin registro
-# Respuestas a comentarios: hilo de un nivel de profundidad
-# Compartir post: botones nativos Web Share API + fallback copiar enlace
-# Admin: moderar/borrar comentarios desde /dashboard/blog
-#   · Vista de comentarios por post, banear por IP (hash)
 
 ### Implementación
 # ✅ D1: blog_reactions (post_id, emoji, count UNIQUE), blog_comments (hilo 1 nivel), blog_banned_ips
@@ -106,33 +109,14 @@
 # ✅ Blog público: botón Compartir (Web Share API + fallback clipboard), ReactionsBar, CommentsSection
 # ✅ Admin blog: vista Comentarios con filtros Pendientes/Aprobados/Todos + Aprobar/Eliminar/Banear IP
 # ✅ Alias del comentarista persistido en localStorage
+# ✅ Reacciones por post: emojis (👍❤️🔥💡) con contador en tiempo real
+# ✅ Respuestas a comentarios: hilo de un nivel de profundidad
 
 ---
 
-:: FASE 7 — Panel lateral: Blog + Minijuegos (✅ COMPLETADA)
-· Objetivo: panel lateral con 2 pestañas — el blog ya existente + showcase de minijuegos propios.
+:: FASE 4 — Panel lateral: Blog + Minijuegos (✅ COMPLETADA)
+· Objetivo: panel lateral con 2 pestañas — blog ya existente + showcase de minijuegos propios.
   El juego TOP se muestra también como elemento flotante en la landing para captar atención.
-
-### Panel lateral rediseñado
-# 2 pestañas: "Blog" (comportamiento actual) y "Juegos" (nuevo)
-# En móvil: botón flotante que abre un overlay con las 2 pestañas (actualmente solo el blog)
-# Pestaña Juegos: lista de minijuegos con nombre, descripción, screenshot, badge TOP
-# El juego marcado como TOP aparece resaltado en la lista
-
-### Juego TOP en la landing
-# Botón/card flotante animado que aparece en la landing (pulso, movimiento suave)
-# Al hacer click abre el panel lateral directo en la pestaña Juegos con el TOP destacado
-# Posición: esquina inferior-izquierda, sobre el nivel del footer
-
-### Admin — gestor de minijuegos
-# Nueva card en dashboard: Juegos
-# /admin/dashboard/juegos: lista de juegos, campo URL/embed, descripción, screenshot
-# Botón "Marcar como TOP" — solo 1 activo a la vez (el anterior pierde el badge)
-# D1: tabla games → id, name, description, url, screenshot, is_top, created_at
-
-### Interacción en juegos (misma infraestructura que blog — Fase 6)
-# Reacciones, comentarios y respuestas vinculados a game_id
-# Compartir: URL directa al juego en el portfolio
 
 ### Implementación
 # ✅ D1: tabla games (id, name, slug, description, url, screenshot, is_top) + game_reactions
@@ -152,7 +136,51 @@
 
 ---
 
-:: FASE 8 — Minijuegos propios (🚧 EN PROGRESO)
+:: FASE 5 — Sistema multiusuario + roles (✅ COMPLETADA)
+· Objetivo: soporte para múltiples usuarios admin con roles y datos independientes.
+  Borja mantiene el rol super_admin y puede dar de alta usuarios con permisos inferiores.
+
+### Roles
+# super_admin — acceso total + gestión de usuarios + Blog + todos los datos
+# user        — acceso completo a sus apps propias (Tracker, Moneta)
+
+### Implementación
+# ✅ D1: ALTER TABLE admin_users ADD COLUMN role + active
+# ✅ D1: Tracker y Moneta con user_id FK — migración no destructiva (user_id = 1 para datos existentes)
+# ✅ JWT payload: { user_id, role } — todas las APIs leen user_id del JWT y filtran registros
+# ✅ Middleware: bloqueo por role (viewer sin POST/PATCH/DELETE, solo super_admin en /usuarios)
+# ✅ /admin/dashboard/usuarios: lista + crear + editar role + activar/desactivar
+# ✅ Dashboard: visibilidad de apps filtrada por role
+
+### Notas de arquitectura
+# bcryptjs ya disponible en el stack — sin nueva dependencia para hash de contraseñas
+# Migración segura: datos actuales (user_id = 1, Borja) no se tocan
+# Blog global compartido — sin user_id; Tracker y Moneta son por usuario
+
+---
+
+:: FASE 6 — Proyectos dinámicos + case study pages (✅ COMPLETADA)
+· Objetivo: proyectos en D1, gestión desde admin, páginas de case study por proyecto.
+· Patrón: misma arquitectura que el blog — query params (?slug=xxx) para mantener output:export sin romper Cloudflare.
+
+### Implementación
+# ✅ D1: tabla projects — slug, title, excerpt, content, cover_image, tags, github_url, demo_url, architecture, published, featured, views
+# ✅ API pública: GET /api/projects/list, GET /api/projects/post?slug=xxx
+# ✅ API admin (super_admin): POST /api/projects/save, POST /api/projects/delete
+# ✅ Página pública /projects — lista + case study individual (?slug=xxx)
+# ✅ Admin /dashboard/proyectos — lista + editor TipTap + imagen portada + featured
+# ✅ Proyectos.tsx — carga desde API con fallback al array estático si BD vacía
+# ✅ Dashboard admin — nueva card Proyectos (solo super_admin)
+# ✅ Botón "Case study →" en tarjeta homepage solo si el proyecto tiene contenido en BD
+
+### Notas de arquitectura
+# output: 'export' → /projects usa ?slug=xxx (igual que /blog), sin dynamic routes
+# Fallback estático en Proyectos.tsx: la sección homepage nunca queda vacía durante la migración
+# featured=1 → el proyecto aparece primero en la lista pública
+
+---
+
+:: FASE 7 — Minijuegos propios (🚧 EN PROGRESO)
 · Objetivo: implementar juegos propios alojados en /public/games/ como HTML standalone.
   Cada juego es un fichero .html autocontenido — sin dependencias externas.
   Se comunica con el panel lateral via postMessage (boh_score_live, boh_score).
@@ -180,12 +208,53 @@
 # ✅ Wordle: fix teclado invisible en móvil (iOS Safari / iframe)
 # ✅ Juegos: nuevo layout featured + carrusel horizontal en BlogPanel
 
+### Pendiente
+# ⬜ Añadir Snake, Tetris, 2048, Wordle y Flappy Bird en /admin/dashboard/juegos
+#    con sus URLs, descripciones y screenshots correspondientes
+
+---
+---
+
+## ⬜ PLANIFICADAS
+
+---
+
+:: FASE 8 — Visibilidad y retención de usuarios (⬜ PLANIFICADA)
+· Objetivo: aumentar tiempo en web y retorno de usuarios.
+
+# ✅ Juego TOP flotante en landing (implementado en Fase 4)
+# ⬜ Analytics propios: pageviews, tiempo de sesión estimado, posts más leídos (D1, sin terceros)
+# ⬜ Newsletter: email capture + envío de nuevos posts con Cloudflare Email Workers
+# ⬜ Formulario de contacto con notificación vía D1 + email
+# ⬜ Cache Cloudflare KV para posts populares (reduce lecturas D1)
+# ⬜ Notificaciones push (Service Worker) para nuevos posts o juegos
+# ⬜ Tests de API (Vitest + Miniflare)
+
+---
+
+:: FASE 9 — Infraestructura SSR + SEO avanzado (⬜ PLANIFICADA)
+· Objetivo: máximo SEO y rendimiento — eliminar las limitaciones del output:export actual.
+
+# ⬜ Migrar a @cloudflare/next-on-pages (SSR vía Workers)
+# ⬜ Eliminar output: 'export' de next.config.js
+# ⬜ URLs limpias: /blog/slug, /projects/slug (sin query params)
+# ⬜ Blog posts y proyectos con HTML pre-renderizado (meta tags reales por ruta)
+# ⬜ Sitemap dinámico: posts + proyectos
+# ⬜ OG images dinámicas por ruta
+# ⬜ Schema.org (Person, Article, Project)
+# ⬜ Links internos blog ↔ proyectos
+# ⬜ Lighthouse continuo
+
+---
+---
+
+## 🔮 APPS FUTURAS
+
 ---
 
 :: APP — Bioptima (⬜ PLANIFICADA)
 · Seguimiento deportivo, cálculos y evolución personal.
 
-### Funcionalidades previstas
 # Registro de entrenamientos: tipo, duración, series/repeticiones, carga
 # Métricas biométricas: peso, frecuencia cardíaca, VO2max estimado
 # Evolución gráfica: progreso en el tiempo por métrica y ejercicio
@@ -197,7 +266,6 @@
 :: APP — TintAI (⬜ PLANIFICADA)
 · Ebooks didácticos generados por IA.
 
-### Funcionalidades previstas
 # Generación de ebooks temáticos con Claude AI
 # Biblioteca personal de ebooks generados
 # Lectura en app con progreso guardado
@@ -205,95 +273,16 @@
 # Admin: configurar temas, prompts y parámetros de generación
 
 ---
-
-:: FASE 12 — Proyectos dinámicos + páginas individuales (✅ COMPLETADA)
-· Objetivo: proyectos en D1, páginas SEO por proyecto.
-· Patrón: misma arquitectura que el blog — query params (?slug=xxx) para mantener output:export sin romper Cloudflare.
-
-# ✅ D1: tabla projects — slug, title, excerpt, content, cover_image, tags, github_url, demo_url, architecture, published, featured, views
-# ✅ API pública: GET /api/projects/list, GET /api/projects/post?slug=xxx
-# ✅ API admin (super_admin): POST /api/projects/save, POST /api/projects/delete
-# ✅ Página pública /projects — lista + case study individual (?slug=xxx)
-# ✅ Admin /dashboard/proyectos — lista + editor TipTap + imagen portada + featured
-# ✅ Proyectos.tsx — carga desde API con fallback al array estático si BD vacía
-# ✅ Dashboard admin — nueva card Proyectos (solo super_admin)
-# ✅ Botón "Case study →" en tarjeta homepage solo si el proyecto tiene contenido en BD
-
-### Notas de arquitectura
-# output: 'export' → /projects usa ?slug=xxx (igual que /blog), sin dynamic routes
-# Fallback estático en Proyectos.tsx: la sección homepage nunca queda vacía durante la migración
-# featured=1 → el proyecto aparece primero en la lista pública
-
 ---
 
-:: FASE 9 — Infraestructura SSR + SEO avanzado (⬜ PLANIFICADA)
-· Objetivo: máximo SEO y rendimiento.
+## 🔧 DECISIONES TÉCNICAS ACTIVAS
 
-# ⬜ Migrar a @cloudflare/next-on-pages (SSR vía Workers)
-# ⬜ Eliminar output: 'export' de next.config.js
-# ⬜ Blog posts con HTML pre-renderizado (meta tags reales por post)
-# ⬜ Sitemap dinámico: posts + proyectos
-# ⬜ OG images dinámicas por ruta
-# ⬜ Schema.org (Person, Article, Project)
-# ⬜ Links internos blog ↔ proyectos
-# ⬜ Lighthouse continuo
-
----
-
-:: FASE 10 — Sistema multiusuario + roles (✅ COMPLETADA)
-· Objetivo: soporte para múltiples usuarios admin con roles y datos independientes.
-  Borja mantiene el rol super_admin y puede dar de alta usuarios con permisos inferiores.
-
-### Roles
-# super_admin — acceso total + gestión de usuarios + Blog + todos los datos
-# user        — acceso completo a sus apps propias (Tracker, Moneta)
-
-### D1 — cambios de esquema
-# ALTER TABLE admin_users ADD COLUMN role TEXT NOT NULL DEFAULT 'editor'
-# ALTER TABLE admin_users ADD COLUMN active INTEGER NOT NULL DEFAULT 1
-# Moneta: moneta_profiles ya actúa como separador — añadir user_id FK
-# Tracker: ALTER TABLE tracker_records ADD COLUMN user_id INTEGER
-#          ALTER TABLE tracker_notes   ADD COLUMN user_id INTEGER
-# Migración no destructiva: UPDATE ... SET user_id = 1 para todos los datos existentes
-# Blog: global compartido — sin user_id (super_admin + editors publican, viewers leen)
-
-### Autenticación — cambios
-# JWT payload: añadir { user_id, role } al sign en /api/auth/login
-# /api/auth/me: devolver user_id y role
-# Middleware: leer role del JWT, bloquear según ruta y role
-#   · viewer no puede acceder a rutas POST/PATCH/DELETE
-#   · solo super_admin puede acceder a /admin/dashboard/usuarios
-
-### APIs — filtrado por user_id
-# Todas las APIs de Tracker leen user_id del JWT y filtran registros
-# Todas las APIs de Moneta filtran moneta_profiles por user_id del JWT
-# APIs de Blog: sin cambio (global) — solo role check para escritura
-# Cada usuario ve exclusivamente sus datos de Tracker y Moneta
-
-### Panel de gestión de usuarios (solo super_admin)
-# Nueva card en /admin/dashboard: Usuarios
-# /admin/dashboard/usuarios: lista de usuarios con role y estado activo/inactivo
-# Crear usuario: username, email, password, role (editor o viewer)
-# Editar: cambiar role, activar/desactivar (no se puede crear otro super_admin)
-# No se puede desactivar ni editar al propio super_admin desde el panel
-
-### Notas de arquitectura
-# Moneta: cada usuario tiene sus propios perfiles y sus propios meses — sin cruce de datos
-# Tracker: registros y notas independientes por usuario — patrones distintos por persona
-# Blog: un solo blog público — el contenido es del proyecto, no de cada usuario
-# bcryptjs ya disponible en el stack — sin nueva dependencia para hash de contraseñas
-# Migración segura: datos actuales (user_id = 1, Borja) no se tocan
-
----
-
-:: FASE 11 — Visibilidad y retención de usuarios (⬜ FUTURO)
-· Ideas para aumentar tiempo en web y retorno de usuarios.
-
-# ✅ Juego TOP flotante en landing (implementado en Fase 7)
-# ⬜ Analytics propios: pageviews, tiempo de sesión estimado, posts más leídos (D1, sin terceros)
-# ⬜ Newsletter: email capture + envío de nuevos posts con Cloudflare Email Workers
-# ⬜ Formulario de contacto con notificación vía D1 + email
-# ⬜ Cache Cloudflare KV para posts populares (reduce lecturas D1)
-# ⬜ Notificaciones push (Service Worker) para nuevos posts o juegos
-# ⬜ Tests de API (Vitest + Miniflare)
-
+# bcryptjs — compatible Workers, sin deps nativas
+# jose — JWT, Web Crypto API compatible
+# TipTap (@tiptap/react) — editor WYSIWYG, genera HTML que se renderiza directamente en /blog y /projects
+# marked (CDN) — fallback legacy para posts escritos en Markdown antes del editor TipTap
+# Chart.js (CDN) — gráficas tracker sin bundle adicional
+# CSS variables --adm-* en admin/layout.tsx — theming consistente claro/oscuro
+# NeuralCanvas — canvas animado, lee html.light/dark cada frame sin re-renders React
+# output: 'export' — estático puro, migración a SSR planificada en Fase 9
+# Query params (?slug=xxx) en blog y proyectos — workaround para output:export compatible con Cloudflare Pages
