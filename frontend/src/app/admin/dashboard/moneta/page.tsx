@@ -589,6 +589,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
   const [editingSaldo, setEditingSaldo] = useState(false);
   const [saldoVal,     setSaldoVal]     = useState('');
   const [closing,      setClosing]      = useState(false);
+  const [saveStatus,   setSaveStatus]   = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   const summary = profile.summary;
   const closed  = !!(summary?.closed);
@@ -639,12 +640,20 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
     });
   }
 
-  function handleRealSave(id: number, real_amount: number | null) {
+  async function handleRealSave(id: number, real_amount: number | null) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, real_amount } : i));
-    fetch(`/api/moneta/item?id=${id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ real_amount }),
-    });
+    setSaveStatus('saving');
+    try {
+      const res  = await fetch(`/api/moneta/item?id=${id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ real_amount }),
+      });
+      const data = await res.json() as { ok: boolean };
+      setSaveStatus(data.ok ? 'saved' : 'error');
+    } catch {
+      setSaveStatus('error');
+    }
+    setTimeout(() => setSaveStatus('idle'), 2000);
   }
 
   function handleNameSave(id: number, name: string) {
@@ -725,7 +734,12 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
       </div>
 
       {/* ── GASTOS ── */}
-      <div className="moneta-section-label">Gastos</div>
+      <div className="moneta-section-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>Gastos</span>
+        {saveStatus === 'saving' && <span style={{ fontSize: 10, color: 'var(--adm-muted)', fontWeight: 400 }}>Guardando…</span>}
+        {saveStatus === 'saved'  && <span style={{ fontSize: 10, color: '#22c55e',         fontWeight: 400 }}>✓ Guardado</span>}
+        {saveStatus === 'error'  && <span style={{ fontSize: 10, color: '#ef4444',         fontWeight: 400 }}>⚠ Error al guardar</span>}
+      </div>
       <div className="moneta-col-headers">
         <span className="mch-name" />
         <span className="mch-cell">PREVISTO</span>
