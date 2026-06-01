@@ -6,7 +6,7 @@ export default function Aprendizaje() {
   const holo = useCardHolo();
   const cursos = [
     {
-      titulo: "Confección y Publicación de Páginas Web — Lanbide (480h)",
+      titulo: "Confección y Publicación de Páginas Web — Ceinpro (480h)",
       descripcion:
         "Curso intensivo de iniciación a la programación web, aprobado por LANBIDE-Servicio Vasco de Empleo. Centro: CEINPRO Centro Informático Profesional.",
       tecnologias: [
@@ -18,10 +18,10 @@ export default function Aprendizaje() {
         "Node.js",
         "Git",
       ],
-      link: "/images/diploma_lanbide.jpg",
+      link: "/images/ceinpro.jpg",
     },
     {
-      titulo: "Curso Java POO & BD relacionales",
+      titulo: "Curso Java POO & BD relacionales - Ipartek (200h)",
       descripcion:
         "Curso intensivo de Java orientado a objetos y bases de datos relacionales.",
       tecnologias: [
@@ -35,7 +35,7 @@ export default function Aprendizaje() {
       link: "/images/diploma_ipartek.jpg",
     },
     {
-      titulo: "Curso de Oracle PL/SQL desde Cero",
+      titulo: "Curso de Oracle PL/SQL desde Cero - Udemy (100h)",
       descripcion: "Curso intensivo de Oracle PL/SQL para principiantes.",
       tecnologias: [
         "Bloques",
