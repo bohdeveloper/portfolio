@@ -54,7 +54,7 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a}
   <div id="overlay">
     <div id="ov-icon">🔢</div>
     <div id="ov-title">2048</div>
-    <div id="ov-desc">Desliza y los tiles del mismo número se fusionan · Llega al <span style="color:#FFD700;font-weight:600">2048</span></div>
+    <div id="ov-desc">Desliza · Los tiles iguales se fusionan · Llega al <span style="color:#FFD700;font-weight:600">2048</span></div>
     <button id="btn" onclick="start()">Jugar</button>
     <div id="ov-controls">
       <div class="row">
@@ -62,13 +62,12 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a}
         <span class="sep">/</span><span class="k">WASD</span>
         <span class="sep">/</span>Deslizar
       </div>
-      <div class="row" style="color:rgba(255,255,255,0.35);font-size:0.9em">
-        Cada movimiento desplaza <em>todos</em> los tiles · Los iguales se suman
-      </div>
-      <div class="row" style="color:rgba(255,255,255,0.35);font-size:0.9em">
-        <span style="color:#9ecece">2</span>+<span style="color:#9ecece">2</span>=<span style="color:#ffe0c4">4</span> &nbsp;·&nbsp;
-        <span style="color:#ffe0c4">4</span>+<span style="color:#ffe0c4">4</span>=<span style="color:#fff">8</span> &nbsp;·&nbsp;
-        <span style="color:#fffacc">128</span>+<span style="color:#fffacc">128</span>=<span style="color:#ccf5ff">256</span>…
+      <div class="row" style="color:rgba(255,255,255,0.30);font-size:0.82em">
+        <span style="color:#9ecece">2</span>+<span style="color:#9ecece">2</span>=<span style="color:#ffe0c4;font-weight:600">4</span>
+        &nbsp;·&nbsp;
+        <span style="color:#ffe0c4">4</span>+<span style="color:#ffe0c4">4</span>=<span style="color:#fff;font-weight:600">8</span>
+        &nbsp;·&nbsp;
+        <span style="color:#fffacc">128</span>+<span style="color:#fffacc">128</span>=<span style="color:#ccf5ff;font-weight:600">256</span>
       </div>
     </div>
   </div>

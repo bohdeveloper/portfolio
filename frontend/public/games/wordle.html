@@ -71,7 +71,7 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a;cursor:pointer}
         <span>Letra <strong style="color:#9ca3af">no está</strong> en la palabra</span>
       </div>
       <div class="row" style="color:rgba(255,255,255,0.35);font-size:0.85em;margin-top:4px">
-        Teclado en pantalla o físico · <span class="k">↵</span> para confirmar
+        Escribe 5 letras y pulsa <span class="k">↵</span> para ver los colores
       </div>
     </div>
   </div>
@@ -247,7 +247,8 @@ function drawTile(x,y,letter,color,scale){
   // tile con letra pero sin evaluar → fondo resaltado; vacío → fondo tenue
   const bg=colorHex(color)||(letter?COL_ACTIVE:COL_EMPTY);
   ctx.save();
-  if(scale!==1){ ctx.translate(cx,cy); ctx.scale(scale,scale); ctx.translate(-cx,-cy); }
+  // flip horizontal (scaleX) para que el efecto sea un volteo de carta, no un zoom
+  if(scale!==1){ ctx.translate(cx,cy); ctx.scale(scale,1); ctx.translate(-cx,-cy); }
   ctx.fillStyle=bg;
   if(color==='green'||color==='yellow'){ ctx.shadowColor=bg; ctx.shadowBlur=8; }
   rr2(x,y,TILE,TILE,rad); ctx.fill();
@@ -277,16 +278,15 @@ function drawGrid(){
       const y=GRID_OY+r*(TILE+TGAP);
       if(r<guesses.length){
         const g=guesses[r];
-        // Animación de reveal: cada columna arranca con un delay escalonado de c*80ms
-        // t va de 0→1 durante 200ms; la escala simula un volteo en Y (aplana y expande)
-        // La primera mitad (t<0.5) la ficha se aplana → se muestra sin color
-        // La segunda mitad (t≥0.5) la ficha se expande → se revela el color definitivo
-        const delay=c*80;
-        const elapsed=now-g.revealStart;
-        const t=Math.max(0,Math.min(1,(elapsed-delay)/200));
+        // Flip horizontal: cada tile arranca con delay escalonado de 100ms.
+        // Duración del flip: 320ms. Primera mitad: tile se cierra (sin color).
+        // Segunda mitad: tile se abre mostrando el color verde/amarillo/gris.
+        const delay=c*100;
+        const elapsed=now-(g.revealStart||0);
+        const t=Math.max(0,Math.min(1,(elapsed-delay)/320));
         const sc=t<0.5?1-t*2:t*2-1;
         const col=t>=0.5?g.colors[c]:null;
-        drawTile(x,y,g.letters[c],col,Math.max(0.01,sc));
+        drawTile(x,y,g.letters[c],col,Math.max(0.02,sc));
       } else if(r===guesses.length){
         const letter=current[c]||'';
         const isActive=letter.length>0;
@@ -298,7 +298,8 @@ function drawGrid(){
   }
   if(isShaking && shakeTime){ requestAnimationFrame(draw); }
   // mantener el bucle de animación mientras alguna fila aún esté revelándose
-  if(guesses.some(g=>g.revealStart&&now-g.revealStart<5*80+200)){
+  // mantener bucle mientras el reveal de alguna fila aún no ha terminado (4*100+320 = 720ms)
+  if(guesses.some(g=>g.revealStart&&now-g.revealStart<720)){
     requestAnimationFrame(draw);
   }
 }

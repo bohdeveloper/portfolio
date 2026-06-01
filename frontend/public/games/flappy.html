@@ -52,9 +52,9 @@ canvas{display:block;border-radius:10px;border:2px solid #1e3a3a}
 <div id="wrap">
   <canvas id="c"></canvas>
   <div id="overlay">
-    <div id="ov-icon">🐦</div>
-    <div id="ov-title">Flappy Bird</div>
-    <div id="ov-desc">Esquiva las tuberías · No toques los bordes</div>
+    <div id="ov-icon">🤖</div>
+    <div id="ov-title">Flappy Bot</div>
+    <div id="ov-desc">Esquiva los muros de metal · No toques los bordes</div>
     <button id="btn" onclick="start()">Jugar</button>
     <div id="ov-controls">
       <div class="row">
@@ -206,28 +206,62 @@ function die(ts){
 function drawBird(){
   ctx.save();
   ctx.translate(BIRD_X, bird.y);
-  // La rotación se aplica sobre el centro del pájaro; bird.angle se interpola en tick()
-  // de forma que el ángulo sigue la velocidad vertical con suavidad (lerp)
   ctx.rotate(bird.angle);
-  // Degradado radial: foco desplazado hacia arriba-izquierda para simular luz cenital
-  const grad = ctx.createRadialGradient(-BIRD_R*0.2,-BIRD_R*0.2,1,0,0,BIRD_R);
-  grad.addColorStop(0,'#FFE066');
-  grad.addColorStop(1,'#F59E0B');
-  ctx.shadowColor='rgba(255,200,0,0.5)';
-  ctx.shadowBlur = died ? 0 : 12;
-  ctx.fillStyle = died ? '#6b7280' : grad;
-  ctx.beginPath(); ctx.arc(0,0,BIRD_R,0,Math.PI*2); ctx.fill();
-  ctx.shadowBlur=0;
-  // ojo
-  ctx.fillStyle='#fff';
-  ctx.beginPath(); ctx.arc(BIRD_R*0.38,-BIRD_R*0.25,BIRD_R*0.28,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#1a1a2e';
-  ctx.beginPath(); ctx.arc(BIRD_R*0.46,-BIRD_R*0.22,BIRD_R*0.14,0,Math.PI*2); ctx.fill();
-  // ala
-  ctx.fillStyle = died ? '#4b5563' : 'rgba(245,158,11,0.7)';
-  ctx.beginPath();
-  ctx.ellipse(-BIRD_R*0.1, BIRD_R*0.2, BIRD_R*0.55, BIRD_R*0.22, -0.3, 0, Math.PI*2);
+
+  const W = BIRD_R * 1.7, H = BIRD_R * 2.1;
+  const bodyColor = died ? '#1a2535' : '#0d1829';
+  const accentColor = died ? '#374151' : '#00e7eb';
+
+  // Cuerpo del robot: rectángulo oscuro con borde cyan
+  ctx.fillStyle = bodyColor;
+  ctx.shadowColor = accentColor;
+  ctx.shadowBlur = died ? 0 : 10;
+  rr(-W/2, -H/2, W, H, Math.round(W*0.18));
   ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = died ? 1 : 1.5;
+  ctx.globalAlpha = died ? 0.4 : 1;
+  rr(-W/2, -H/2, W, H, Math.round(W*0.18));
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Antena
+  ctx.strokeStyle = accentColor; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, -H/2); ctx.lineTo(0, -H/2 - BIRD_R*0.5); ctx.stroke();
+  ctx.fillStyle = accentColor;
+  ctx.shadowColor = accentColor; ctx.shadowBlur = died ? 0 : 5;
+  ctx.beginPath(); ctx.arc(0, -H/2 - BIRD_R*0.5, BIRD_R*0.13, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Ojos: dos rectángulos con glow cyan
+  const eyeW = W*0.28, eyeH = H*0.18;
+  ctx.fillStyle = accentColor;
+  ctx.shadowColor = accentColor; ctx.shadowBlur = died ? 0 : 8;
+  rr(-W*0.35, -H*0.18, eyeW, eyeH, 2); ctx.fill();
+  rr(W*0.07,  -H*0.18, eyeW, eyeH, 2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Rejilla de ventilación (3 líneas horizontales en la zona inferior)
+  ctx.strokeStyle = `rgba(0,231,235,${died?0.1:0.35})`; ctx.lineWidth = 0.8;
+  for(let i=0;i<3;i++){
+    const ly = H*0.08 + i*(H*0.12);
+    ctx.beginPath(); ctx.moveTo(-W*0.35,ly); ctx.lineTo(W*0.35,ly); ctx.stroke();
+  }
+
+  // Propulsor: llama cyan cuando acaba de aletear (vy<0)
+  if(!died && bird.vy < 0.1){
+    const thrust = Math.max(0, -bird.vy / (S*0.00075)); // 0→1 según la fuerza del aleteo
+    const tH = BIRD_R * (0.3 + thrust * 0.5);
+    const tGrad = ctx.createLinearGradient(0, H/2, 0, H/2+tH);
+    tGrad.addColorStop(0, `rgba(0,231,235,${0.9*thrust})`);
+    tGrad.addColorStop(1, 'rgba(0,231,235,0)');
+    ctx.fillStyle = tGrad;
+    ctx.shadowColor='#00e7eb'; ctx.shadowBlur=8*thrust;
+    rr(-W*0.25, H/2, W*0.5, tH, 2); ctx.fill();
+    ctx.shadowBlur=0;
+  }
+
   ctx.restore();
 }
 
@@ -241,27 +275,40 @@ function drawPipes(){
     const cx    = p.x - PIPE_W/2;
     const rad   = 4;
 
-    // Tubo superior
+    // Muro de metal superior — degradado horizontal oscuro→cyan→oscuro
     const gradT = ctx.createLinearGradient(cx,0,cx+PIPE_W,0);
-    gradT.addColorStop(0,'#065f46'); gradT.addColorStop(0.4,'#10b981'); gradT.addColorStop(1,'#064e3b');
+    gradT.addColorStop(0,'#001a22'); gradT.addColorStop(0.35,'#005f7a'); gradT.addColorStop(0.65,'#00b8c2'); gradT.addColorStop(1,'#001520');
     ctx.fillStyle = gradT;
-    ctx.shadowColor='rgba(16,185,129,0.3)'; ctx.shadowBlur=8;
+    ctx.shadowColor='rgba(0,231,235,0.25)'; ctx.shadowBlur=8;
     rr(cx, 0, PIPE_W, topH - capH, 0); ctx.fill();
     ctx.shadowBlur=0;
-    // capuchón superior
-    ctx.fillStyle='#059669';
+    // remaches decorativos (3 puntos en el borde izquierdo)
+    ctx.fillStyle='rgba(0,231,235,0.55)';
+    for(let i=1;i<=3;i++) { ctx.beginPath(); ctx.arc(cx+4, (topH-capH)*i/4, 2, 0, Math.PI*2); ctx.fill(); }
+    // capuchón superior cyan metálico
+    const capGradT = ctx.createLinearGradient(cx-(capW-PIPE_W)/2,0,cx+capW/2+PIPE_W/2,0);
+    capGradT.addColorStop(0,'#003a4a'); capGradT.addColorStop(0.5,'#00e7eb'); capGradT.addColorStop(1,'#002a38');
+    ctx.fillStyle = capGradT;
+    ctx.shadowColor='rgba(0,231,235,0.5)'; ctx.shadowBlur=10;
     rr(cx-(capW-PIPE_W)/2, topH-capH, capW, capH, rad); ctx.fill();
+    ctx.shadowBlur=0;
 
-    // Tubo inferior
+    // Muro de metal inferior
     const gradB = ctx.createLinearGradient(cx,0,cx+PIPE_W,0);
-    gradB.addColorStop(0,'#065f46'); gradB.addColorStop(0.4,'#10b981'); gradB.addColorStop(1,'#064e3b');
+    gradB.addColorStop(0,'#001a22'); gradB.addColorStop(0.35,'#005f7a'); gradB.addColorStop(0.65,'#00b8c2'); gradB.addColorStop(1,'#001520');
     ctx.fillStyle = gradB;
-    ctx.shadowColor='rgba(16,185,129,0.3)'; ctx.shadowBlur=8;
+    ctx.shadowColor='rgba(0,231,235,0.25)'; ctx.shadowBlur=8;
     rr(cx, botY+capH, PIPE_W, botH-capH, 0); ctx.fill();
     ctx.shadowBlur=0;
-    // capuchón inferior
-    ctx.fillStyle='#059669';
+    ctx.fillStyle='rgba(0,231,235,0.55)';
+    for(let i=1;i<=3;i++) { ctx.beginPath(); ctx.arc(cx+4, botY+capH+(botH-capH)*i/4, 2, 0, Math.PI*2); ctx.fill(); }
+    // capuchón inferior cyan metálico
+    const capGradB = ctx.createLinearGradient(cx-(capW-PIPE_W)/2,0,cx+capW/2+PIPE_W/2,0);
+    capGradB.addColorStop(0,'#003a4a'); capGradB.addColorStop(0.5,'#00e7eb'); capGradB.addColorStop(1,'#002a38');
+    ctx.fillStyle = capGradB;
+    ctx.shadowColor='rgba(0,231,235,0.5)'; ctx.shadowBlur=10;
     rr(cx-(capW-PIPE_W)/2, botY, capW, capH, rad); ctx.fill();
+    ctx.shadowBlur=0;
   });
 }
 
