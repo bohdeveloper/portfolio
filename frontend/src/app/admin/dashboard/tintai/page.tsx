@@ -131,8 +131,11 @@ const STYLES = `
   .tintai-toc li:hover { color:var(--primary); }
   .tintai-toc-num { font-size:11px; color:var(--adm-muted); min-width:20px; }
   .tintai-section-title { font-size:13px; font-weight:600; color:var(--adm-label); text-transform:uppercase; letter-spacing:.05em; margin-bottom:1rem; }
-  .tintai-textarea { background:var(--adm-input); border:1px solid var(--adm-border); border-radius:6px; padding:8px 10px; color:var(--adm-text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; resize:vertical; min-height:72px; width:100%; box-sizing:border-box; }
+  .tintai-textarea { background:var(--adm-input); border:1px solid var(--adm-border); border-radius:6px; padding:10px 12px; color:var(--adm-text); font-size:13px; font-family:'Courier New',Consolas,monospace; outline:none; transition:border-color .15s; resize:vertical; min-height:140px; width:100%; box-sizing:border-box; line-height:1.6; }
   .tintai-textarea:focus { border-color:var(--primary); }
+  .tintai-tpl-btns { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+  .tintai-tpl-btn { background:none; border:1px solid var(--adm-border); border-radius:5px; padding:4px 10px; font-size:11px; color:var(--adm-muted); cursor:pointer; font-family:inherit; transition:border-color .15s,color .15s; }
+  .tintai-tpl-btn:hover { border-color:var(--primary); color:var(--primary); }
   .tintai-page-box { height:46vh; overflow-y:auto; padding:1.25rem; background:var(--adm-card); border:1px solid var(--adm-border); border-radius:10px; }
   .tintai-page-box::-webkit-scrollbar { width:4px; }
   .tintai-page-box::-webkit-scrollbar-thumb { background:var(--adm-border); border-radius:2px; }
@@ -143,6 +146,38 @@ const STYLES = `
     .tintai-books-grid { grid-template-columns:1fr 1fr; }
   }
 `;
+
+/* ── Plantillas XML de instrucciones ─────────────────────────────────── */
+const XML_TEMPLATES: Record<string, string> = {
+  'Técnico/Didáctico': `<instrucciones>
+  <audiencia>Desarrolladores con conocimientos básicos del tema</audiencia>
+  <tono>Técnico pero accesible, con ejemplos prácticos reales</tono>
+  <estructura>Cada capítulo incluye: teoría, ejemplo de código y resumen</estructura>
+  <temas_obligatorios>Lista aquí los temas que no pueden faltar</temas_obligatorios>
+  <temas_excluidos>Lista aquí lo que NO quieres incluir</temas_excluidos>
+  <profundidad>Explicar el porqué de cada concepto, no solo el cómo</profundidad>
+</instrucciones>`,
+
+  'Novela/Ficción': `<instrucciones>
+  <genero>Thriller psicológico</genero>
+  <ambientacion>Ciudad europea contemporánea</ambientacion>
+  <protagonista>Mujer de 35 años con un pasado complicado</protagonista>
+  <antagonista>Personaje ambiguo, no claramente malvado</antagonista>
+  <tono>Oscuro y tenso, con giros inesperados cada dos capítulos</tono>
+  <estilo>Prosa cinematográfica, capítulos cortos con gancho al final</estilo>
+  <temas>Identidad, traición, redención personal</temas>
+  <final>Abierto e interpretable por el lector</final>
+</instrucciones>`,
+
+  'General': `<instrucciones>
+  <audiencia>Describe aquí a quién va dirigido el libro</audiencia>
+  <tono>Formal / Divulgativo / Coloquial / Académico</tono>
+  <enfoque>Qué ángulo o perspectiva debe tomar el contenido</enfoque>
+  <incluir>Aspectos que deben aparecer obligatoriamente</incluir>
+  <excluir>Aspectos que no deben mencionarse</excluir>
+  <longitud_capitulos>Breves y densos / Extensos y narrativos</longitud_capitulos>
+</instrucciones>`,
+};
 
 /* ── Subvista: Generar ───────────────────────────────────────────────── */
 function VistaGenerar({ onBookReady }: { onBookReady: () => void }) {
@@ -257,9 +292,30 @@ function VistaGenerar({ onBookReady }: { onBookReady: () => void }) {
               onChange={e => setNum(parseInt(e.target.value) || 6)} />
           </div>
           <div className="tintai-field" style={{ gridColumn: 'span 2' }}>
-            <label className="tintai-label">Descripción adicional (opcional)</label>
-            <textarea className="tintai-textarea" value={description} onChange={e => setDesc(e.target.value)}
-              placeholder="Aspectos concretos a cubrir, enfoque, audiencia…" />
+            <label className="tintai-label">Instrucciones para Claude (prompt / XML)</label>
+            <div className="tintai-tpl-btns">
+              <span style={{ fontSize: 11, color: 'var(--adm-muted)', alignSelf: 'center' }}>Plantillas:</span>
+              {Object.keys(XML_TEMPLATES).map(k => (
+                <button key={k} className="tintai-tpl-btn" onClick={() => setDesc(XML_TEMPLATES[k])}>
+                  {k}
+                </button>
+              ))}
+              {description && (
+                <button className="tintai-tpl-btn" style={{ marginLeft: 'auto' }} onClick={() => setDesc('')}>
+                  Limpiar
+                </button>
+              )}
+            </div>
+            <textarea
+              className="tintai-textarea"
+              value={description}
+              onChange={e => setDesc(e.target.value)}
+              placeholder={`Escribe instrucciones en texto libre o en formato XML para definir con precisión el libro.\n\nEjemplo:\n<instrucciones>\n  <audiencia>Programadores junior</audiencia>\n  <tono>Técnico y práctico</tono>\n  <incluir>Ejemplos de código reales</incluir>\n</instrucciones>`}
+              spellCheck={false}
+            />
+            <div style={{ fontSize: 11, color: 'var(--adm-muted)', marginTop: 4 }}>
+              Claude lee estas instrucciones y las aplica al generar el índice y cada capítulo. Cuanto más detallado, mejor resultado.
+            </div>
           </div>
         </div>
         <div style={{ marginTop: '1rem' }}>

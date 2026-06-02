@@ -74,9 +74,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       if (!title || !category || !level || !language || !num_chapters)
         return new Response(JSON.stringify({ ok: false, error: 'Faltan campos obligatorios' }), { status: 400, headers: H });
 
-      const tocPrompt = `Crea un índice para un ebook titulado "${title}" sobre "${category}". Nivel: ${level}. Idioma: ${language}. Tendrá exactamente ${num_chapters} capítulos.${description ? ` Descripción: ${description}` : ''}
+      // Las instrucciones del usuario pueden ser texto libre o XML estructurado.
+      // Se inyectan en una sección dedicada para que Claude las aplique con precisión.
+      const instrBlock = description
+        ? `\n\n<instrucciones_usuario>\n${description}\n</instrucciones_usuario>\n\nSigue estas instrucciones al pie de la letra al diseñar el índice y el contenido.`
+        : '';
 
-Devuelve ÚNICAMENTE este JSON, sin texto adicional:
+      const tocPrompt = `Crea un índice para un ebook titulado "${title}" sobre la categoría "${category}". Nivel: ${level}. Idioma: ${language}. El libro tendrá exactamente ${num_chapters} capítulos.${instrBlock}
+
+Devuelve ÚNICAMENTE este JSON válido, sin texto adicional ni bloques de código:
 {"description":"descripción del libro en 1-2 frases","chapters":["Título cap 1","Título cap 2",...]}`;
 
       let tocText: string;
@@ -118,8 +124,8 @@ Devuelve ÚNICAMENTE este JSON, sin texto adicional:
         return new Response(JSON.stringify({ ok: false, error: 'book_id y chapter_index requeridos' }), { status: 400, headers: H });
 
       const { results } = await env.DB.prepare(
-        'SELECT title, category, level, language, toc FROM tintai_books WHERE id = ? AND user_id = ?'
-      ).bind(book_id, auth.user_id).all<{ title: string; category: string; level: string; language: string; toc: string }>();
+        'SELECT title, category, level, language, toc, description FROM tintai_books WHERE id = ? AND user_id = ?'
+      ).bind(book_id, auth.user_id).all<{ title: string; category: string; level: string; language: string; toc: string; description: string | null }>();
 
       const book = results[0];
       if (!book)
@@ -128,12 +134,17 @@ Devuelve ÚNICAMENTE este JSON, sin texto adicional:
       const toc: string[]  = JSON.parse(book.toc ?? '[]');
       const chapterTitle   = toc[chapter_index] ?? `Capítulo ${chapter_index + 1}`;
 
+      // Inyectar instrucciones del usuario también en cada capítulo
+      const instrBlock = book.description
+        ? `\n\n<instrucciones_usuario>\n${book.description}\n</instrucciones_usuario>\n\nAplica estas instrucciones al escribir este capítulo.`
+        : '';
+
       const chapterPrompt = `Escribe el capítulo ${chapter_index + 1} del ebook "${book.title}" (categoría: ${book.category}, nivel: ${book.level}, idioma: ${book.language}).
 
-Índice:
-${toc.map((t, i) => `${i + 1}. ${t}`).join('\n')}
+Índice completo:
+${toc.map((t, i) => `${i + 1}. ${t}`).join('\n')}${instrBlock}
 
-Escribe ahora: "${chapterTitle}". Entre 400-600 palabras, subtítulos ##, sin repetir el título.`;
+Escribe ahora el capítulo: "${chapterTitle}". Entre 400-600 palabras, subtítulos ##, sin repetir el título al inicio.`;
 
       let content: string;
       try {
