@@ -7,8 +7,12 @@ const H = { 'Content-Type': 'application/json' };
 const SYSTEM_PROMPT = `Eres un escritor didáctico especializado en crear contenido educativo claro, estructurado y ameno. Tu estilo es accesible pero riguroso: usas ejemplos concretos, analogías útiles y una estructura clara con subtítulos. Escribes exclusivamente en Markdown. Cada capítulo tiene entre 400 y 600 palabras, con esta estructura: una introducción breve (1-2 frases), el desarrollo con 2-3 subtítulos (##), y un párrafo de cierre. No incluyas el título del capítulo al inicio del contenido.`;
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'programación': '#00e7eb', 'filosofía': '#a78bfa', 'ciencia': '#34d399',
-  'idiomas': '#fb923c', 'historia': '#f59e0b', 'psicología': '#ec4899',
+  'programación':  '#00e7eb', 'filosofía':     '#a78bfa', 'ciencia':       '#34d399',
+  'idiomas':       '#fb923c', 'historia':      '#f59e0b', 'psicología':    '#ec4899',
+  'literatura':    '#38bdf8', 'novela':        '#f472b6', 'matemáticas':   '#818cf8',
+  'economía':      '#4ade80', 'salud':         '#f87171', 'autoayuda':     '#a3e635',
+  'tecnología':    '#facc15', 'arte':          '#e879f9', 'espiritualidad':'#67e8f9',
+  'educación':     '#fdba74',
 };
 
 // Haiku 4.5 — significativamente más rápido que Sonnet, ideal para generación en Workers

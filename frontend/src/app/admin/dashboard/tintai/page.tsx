@@ -13,13 +13,31 @@ interface Chapter {
 }
 
 /* ── Constantes ──────────────────────────────────────────────────────── */
-const CATEGORIES = ['programación', 'filosofía', 'ciencia', 'idiomas', 'historia', 'psicología'];
+const CATEGORIES = [
+  'programación', 'filosofía', 'ciencia', 'idiomas', 'historia', 'psicología',
+  'literatura', 'novela', 'matemáticas', 'economía', 'salud', 'autoayuda',
+  'tecnología', 'arte', 'espiritualidad', 'educación',
+];
 const LEVELS     = ['básico', 'intermedio', 'avanzado'];
-const LANGUAGES  = ['español', 'inglés', 'francés', 'alemán'];
+const LANGUAGES  = ['español', 'inglés', 'francés', 'alemán', 'italiano', 'portugués'];
 
 const CAT_COLORS: Record<string, string> = {
-  'programación': '#00e7eb', 'filosofía': '#a78bfa', 'ciencia': '#34d399',
-  'idiomas': '#fb923c', 'historia': '#f59e0b', 'psicología': '#ec4899',
+  'programación':  '#00e7eb',
+  'filosofía':     '#a78bfa',
+  'ciencia':       '#34d399',
+  'idiomas':       '#fb923c',
+  'historia':      '#f59e0b',
+  'psicología':    '#ec4899',
+  'literatura':    '#38bdf8',
+  'novela':        '#f472b6',
+  'matemáticas':   '#818cf8',
+  'economía':      '#4ade80',
+  'salud':         '#f87171',
+  'autoayuda':     '#a3e635',
+  'tecnología':    '#facc15',
+  'arte':          '#e879f9',
+  'espiritualidad':'#67e8f9',
+  'educación':     '#fdba74',
 };
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
@@ -301,8 +319,12 @@ function VistaBiblioteca({ books, onRefresh, onRead, readingId, onCloseReader }:
   readingId: number | null; onCloseReader: () => void;
 }) {
   const EMOJI: Record<string, string> = {
-    'programación': '💻', 'filosofía': '🧠', 'ciencia': '🔬',
-    'idiomas': '🌍', 'historia': '📜', 'psicología': '💡',
+    'programación':  '💻', 'filosofía':     '🧠', 'ciencia':       '🔬',
+    'idiomas':       '🌍', 'historia':      '📜', 'psicología':    '💡',
+    'literatura':    '📖', 'novela':        '✍️', 'matemáticas':   '🔢',
+    'economía':      '📈', 'salud':         '🩺', 'autoayuda':     '🌱',
+    'tecnología':    '⚡', 'arte':          '🎨', 'espiritualidad':'🌿',
+    'educación':     '🎓',
   };
 
   async function del(e: React.MouseEvent, id: number) {
