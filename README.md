@@ -1,12 +1,8 @@
-
 # Portfolio personal — bohdeveloper.com
 
-🌐 **Disponible en:** https://bohdeveloper.com
+🌐 **Disponible en:** [bohdeveloper.com](https://bohdeveloper.com)
 
----
-
-Portfolio personal Full Stack construido sobre **Next.js + Cloudflare Pages + D1**.  
-Frontend estático servido desde la CDN global de Cloudflare, con API edge en Pages Functions y base de datos SQLite (D1) sin servidor.
+Portfolio Full Stack en producción. Frontend estático en la CDN global de Cloudflare, API edge en Pages Functions y base de datos SQLite (D1) sin servidor.
 
 ---
 
@@ -14,12 +10,13 @@ Frontend estático servido desde la CDN global de Cloudflare, con API edge en Pa
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | Next.js 15, React 19, TypeScript, TailwindCSS 4 |
-| API | Cloudflare Pages Functions (Edge Workers) |
-| Base de datos | Cloudflare D1 (SQLite) |
-| Auth | JWT · `jose` · `httpOnly` cookie 7 días |
-| Editor WYSIWYG | TipTap (`@tiptap/react`, StarterKit, Link, Underline, Placeholder) |
-| Deploy | Cloudflare Pages (git push → deploy automático) |
+| Frontend | Next.js 15 · React 18 · TypeScript · Tailwind CSS |
+| API | Cloudflare Pages Functions (Edge Workers, TypeScript) |
+| Base de datos | Cloudflare D1 (SQLite distribuido) |
+| Auth | JWT · `jose` · `bcryptjs` · httpOnly cookie |
+| Editor WYSIWYG | TipTap (`@tiptap/react`) |
+| IA | Claude API — Haiku 4.5 (via fetch nativo) |
+| Deploy | Cloudflare Pages — git push → deploy automático |
 
 ---
 
@@ -28,32 +25,43 @@ Frontend estático servido desde la CDN global de Cloudflare, con API edge en Pa
 ```
 Cloudflare Pages (CDN global)
 ├── Next.js estático (output: 'export')    → servido desde ~300 PoPs
-└── Pages Functions (functions/api/)       → API en el mismo dominio
+└── Pages Functions (functions/api/)       → API serverless en el edge
     └── D1 Database                        → datos junto al código
 ```
 
-- Sin servidor central. Código y datos en el edge, cerca del usuario.
-- Auth JWT protege todas las rutas `/admin/*` via `functions/admin/_middleware.ts`.
-- Blog usa query params (`?slug=xxx`, `?tag=xxx`) por compatibilidad con `output: 'export'`.
+Sin servidor central. Auth JWT protege todas las rutas `/admin/*` via `functions/admin/_middleware.ts`. Blog y proyectos usan query params (`?slug=xxx`) por compatibilidad con `output: 'export'`.
 
 ---
 
-## Módulos en producción
+## Apps en producción
 
-### Portfolio público (`/`)
-- Landing con sección de proyectos, skills, experiencia y contacto
-- NeuralCanvas animado (canvas API, lee `html.light/dark` sin re-renders)
-- Modo claro/oscuro, SEO técnico optimizado
+### Portfolio público
+- Landing con proyectos, skills, experiencia, blog panel lateral y juegos
+- Case studies en `/projects?slug=xxx` para cada proyecto
+- NeuralCanvas animado, modo claro/oscuro, SEO técnico
 
 ### Blog técnico (`/blog`)
-- Lista de artículos con filtro por tags (URL semántica `/blog?tag=xxx`)
-- Vista individual de post con HTML generado por TipTap
-- Rendering legacy Markdown via `marked.js` (CDN) para posts anteriores
+- Editor WYSIWYG TipTap — cover image con compresión Canvas, publicar/borrador
+- Filtro por tags (`/blog?tag=xxx`), reacciones emoji, comentarios con moderación
+- Rendering dual: HTML (TipTap) + Markdown legacy via marked.js
 
-### Panel Admin (`/admin`)
-- Login con JWT, sesión persistente 7 días
-- **Tracker de hábitos** (`/admin/dashboard/tracker`): registro diario, estadísticas semanales, gráfica de calor
-- **Gestor de blog** (`/admin/dashboard/blog`): editor WYSIWYG TipTap, cover image con compresión Canvas, publicar/borrador
+### Minijuegos (`/public/games/`)
+- Snake · Tetris · 2048 · Wordle ES · Flappy Bird
+- HTML standalone sin dependencias, canvas responsive, récord en localStorage
+- Comunicación con panel lateral via postMessage
+
+### Panel Admin (`/admin/dashboard/`)
+
+| App | Ruta | Descripción |
+|---|---|---|
+| **Tracker** | `/tracker` | Rutinas y hábitos semanales, horario visual, estadísticas |
+| **Blog** | `/blog` | Editor TipTap, posts, comentarios y moderación |
+| **Moneta** | `/moneta` | Presupuesto mensual previsto vs real, dos perfiles, CSV |
+| **Bioptima** | `/bioptima` | Biometría (peso, medidas, IMC, % MG, TMB, TDEE), calorías y balance |
+| **TintAI** | `/tintai` | Generador de ebooks con Claude API + lector con paginación |
+| **Proyectos** | `/proyectos` | Case studies con editor TipTap |
+| **Juegos** | `/juegos` | Gestión de minijuegos publicados |
+| **Usuarios** | `/usuarios` | Multi-usuario con roles (super_admin / user) |
 
 ---
 
@@ -62,24 +70,38 @@ Cloudflare Pages (CDN global)
 ```
 portfolio/
 ├── frontend/
-│   ├── src/app/
-│   │   ├── page.tsx                    ← Landing
-│   │   ├── blog/page.tsx               ← Blog público
-│   │   └── admin/
-│   │       ├── login/page.tsx
-│   │       └── dashboard/
-│   │           ├── page.tsx            ← Dashboard admin
-│   │           ├── tracker/page.tsx
-│   │           └── blog/page.tsx       ← Editor WYSIWYG
-│   ├── src/components/
-│   │   ├── layout/AdminNavbar.tsx
-│   │   ├── sections/                   ← Secciones de la landing
-│   │   └── ui/                         ← BlogPanel, SocialPanel…
-│   └── functions/api/                  ← Pages Functions (Edge API)
-│       ├── auth/
-│       ├── blog/
-│       └── tracker/
-├── blog-drafts/                        ← Posts pendientes de publicar
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx                     ← Landing
+│   │   │   ├── blog/page.tsx                ← Blog público
+│   │   │   ├── projects/page.tsx            ← Case studies
+│   │   │   └── admin/dashboard/
+│   │   │       ├── tracker/
+│   │   │       ├── blog/
+│   │   │       ├── moneta/
+│   │   │       ├── bioptima/
+│   │   │       ├── tintai/
+│   │   │       ├── proyectos/
+│   │   │       ├── juegos/
+│   │   │       └── usuarios/
+│   │   └── components/
+│   │       ├── layout/                      ← Navbar, AdminNavbar, Footer
+│   │       ├── sections/                    ← Secciones de la landing
+│   │       └── ui/                          ← BlogPanel, SocialPanel
+│   └── functions/api/
+│       ├── auth/                            ← login · logout · me
+│       ├── blog/                            ← posts · reactions · comments
+│       ├── tracker/                         ← schedule · save · stats
+│       ├── moneta/                          ← data · item · summary · copy
+│       ├── bioptima/                        ← profile · biometrics · daily · stats
+│       ├── tintai/                          ← generate · books · chapter · progress
+│       ├── projects/                        ← list · post · save · delete
+│       ├── games/                           ← list · manage · react
+│       └── admin/                           ← users
+├── schema.sql                               ← Tablas base (auth, tracker, blog, games, projects)
+├── schema-moneta.sql
+├── schema-bioptima.sql
+├── schema-tintai.sql
 ├── ROADMAP.md
 └── README.md
 ```
@@ -91,12 +113,27 @@ portfolio/
 ```bash
 cd frontend
 npm install
+npm run dev
 ```
 
-Copia `.dev.vars.example` a `.dev.vars` y añade `JWT_SECRET`:
+Crea `frontend/.dev.vars` con:
 
 ```
 JWT_SECRET=tu_secreto_local
+ANTHROPIC_API_KEY=sk-ant-...   # necesario solo para TintAI
+```
+
+---
+
+## Base de datos D1
+
+Aplicar schemas en producción:
+
+```bash
+wrangler d1 execute bohdeveloper-admin --file=frontend/schema.sql --remote
+wrangler d1 execute bohdeveloper-admin --file=schema-moneta.sql --remote
+wrangler d1 execute bohdeveloper-admin --file=schema-bioptima.sql --remote
+wrangler d1 execute bohdeveloper-admin --file=schema-tintai.sql --remote
 ```
 
 ---
@@ -104,24 +141,16 @@ JWT_SECRET=tu_secreto_local
 ## Scripts
 
 ```bash
-npm run dev      # Desarrollo (Next.js + Wrangler Pages local)
+npm run dev      # Desarrollo Next.js
 npm run build    # Build estático para producción
-npm run lint     # ESLint
 ```
 
 ---
 
 ## Deploy
 
-`git push origin main` → Cloudflare Pages detecta el push y despliega automáticamente.
+```bash
+git push origin main
+```
 
----
-
-## Estado actual
-
-✅ Portfolio productivo en Cloudflare Pages  
-✅ Blog técnico con editor WYSIWYG (TipTap) — WYSIWYG real  
-✅ Panel admin con tracker de hábitos  
-✅ Auth JWT con sesión persistente  
-✅ Filtrado de posts por tags con URL semántica  
-✅ SEO: sitemap estático, títulos dinámicos, tags en URL indexables  
+Cloudflare Pages detecta el push y despliega automáticamente.
