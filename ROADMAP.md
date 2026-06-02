@@ -289,14 +289,48 @@
 
 ---
 
-:: APP — TintAI (⬜ PLANIFICADA)
-· Ebooks didácticos generados por IA.
+:: FASE 11 — App TintAI (⬜ PLANIFICADA)
+· Ebooks didácticos generados por IA con Claude. Biblioteca personal, lectura en app y progreso guardado.
 
-# Generación de ebooks temáticos con Claude AI
-# Biblioteca personal de ebooks generados
-# Lectura en app con progreso guardado
-# Categorías: programación, filosofía, ciencia, idiomas...
-# Admin: configurar temas, prompts y parámetros de generación
+### Stack y arquitectura
+# D1: tablas tintai_books, tintai_chapters, tintai_progress
+# API Pages Functions: /api/tintai/generate, /books, /chapter, /progress
+# Admin: /admin/dashboard/tintai — generación, biblioteca y configuración
+# Claude API (claude-sonnet-4-6): generación de contenido por capítulos con prompt caching
+# Sin dependencias de PDF — el ebook se almacena como HTML/Markdown en D1 y se renderiza en app
+
+### Datos de libro (tintai_books)
+# Metadatos: título, categoría, descripción, cover_color, total_chapters, status, created_at
+# status: 'generating' | 'ready' | 'error' — la generación es asíncrona por capítulos
+# Categorías predefinidas: programación, filosofía, ciencia, idiomas, historia, psicología
+
+### Capítulos (tintai_chapters)
+# Cada libro se divide en N capítulos generados individualmente (max ~2000 tokens por capítulo)
+# chapter_index (0-based), title, content (Markdown), word_count
+# Generación incremental: se va guardando capítulo a capítulo para no perder progreso si falla
+
+### Progreso de lectura (tintai_progress)
+# Un registro por libro por user_id: current_chapter, last_read_at
+# UPSERT por (user_id, book_id) — actualiza al cambiar de capítulo
+
+### Generación con Claude API
+# Prompt sistema fijo (cacheado): rol de escritor didáctico, estilo claro y estructurado
+# Prompt usuario: tema + categoría + índice de capítulos (generado primero)
+# Flujo en 2 pasos:
+#   1. Generar índice (títulos de N capítulos) — guardado en tintai_books.toc (JSON)
+#   2. Generar cada capítulo por separado — guardado en tintai_chapters según van llegando
+# El admin puede configurar: N capítulos (3-12), nivel (básico/intermedio/avanzado), idioma
+
+### Vista Admin /dashboard/tintai
+# Subvista "Generar": formulario (tema, categoría, capítulos, nivel, idioma) + botón Generar
+#   · Barra de progreso en tiempo real mientras se generan los capítulos
+#   · Preview del primer capítulo al terminar
+# Subvista "Biblioteca": grid de libros con cover_color, título, categoría, fecha y estado
+#   · Botón Leer → abre lector / Eliminar con confirmación
+# Subvista "Lector": navegación prev/next por capítulos, progreso guardado automáticamente
+#   · Renderizado Markdown → HTML con marked.js (ya en el stack)
+#   · Barra de progreso visual (capítulo N de M)
+# Subvista "Config": prompts del sistema editables, modelo seleccionable, temperatura
 
 ---
 ---
