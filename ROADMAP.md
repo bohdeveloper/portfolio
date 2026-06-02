@@ -234,14 +234,58 @@
 
 ---
 
-:: APP — Bioptima (⬜ PLANIFICADA)
-· Seguimiento deportivo, cálculos y evolución personal.
+:: FASE 10 — App Bioptima (⬜ PLANIFICADA)
+· Seguimiento dietético-deportivo personal: biometría, calorías, evolución y balance energético.
+· Integrada con el Tracker de hábitos para registro y visualización temporal unificada.
 
-# Registro de entrenamientos: tipo, duración, series/repeticiones, carga
-# Métricas biométricas: peso, frecuencia cardíaca, VO2max estimado
-# Evolución gráfica: progreso en el tiempo por métrica y ejercicio
-# Calculadoras deportivas: RM, TDEE, macros, ritmo de carrera
-# Integración con el tracker de hábitos
+### Stack y arquitectura
+# D1: tablas bioptima_profile, bioptima_biometrics, bioptima_daily
+# API Pages Functions: /api/bioptima/profile, /biometrics, /daily, /stats
+# Admin: /admin/dashboard/bioptima — vista principal con subvistas
+# Integración con tracker: los registros diarios se vinculan a la fecha del Tracker
+
+### Datos de perfil (bioptima_profile)
+# Datos fijos del usuario: sexo, edad, talla — base para cálculos TMB y MG
+# Un solo perfil por user_id (UPSERT)
+
+### Registro biométrico (bioptima_biometrics)
+# Peso corporal (kg) — campo principal con fecha
+# Medidas corporales: cintura, cadera, cuello, tórax, bíceps, muslo (cm)
+# Cálculo automático al guardar:
+#   · IMC = peso / talla² — categoría asociada (bajo, normal, sobrepeso, obesidad)
+#   · % MG (fórmula US Navy): hombre = 86.01·log10(cintura-cuello) − 70.04·log10(talla) + 36.76
+#                              mujer  = 163.2·log10(cintura+cadera-cuello) − 97.72·log10(talla) − 78.39
+#   · MM (Masa Muscular estimada) = peso × (1 − %MG/100)
+#   · TMB Mifflin-St Jeor: hombre = 10·peso + 6.25·talla − 5·edad + 5
+#                           mujer  = 10·peso + 6.25·talla − 5·edad − 161
+# Todos los cálculos se almacenan en la fila junto al registro
+
+### Registro diario de calorías (bioptima_daily)
+# Un registro por día (date UNIQUE) vinculado a user_id
+# Dos inputs independientes con sus botones de guardar:
+#   · [Input + Botón] Calorías quemadas en entrenamiento (kcal_exercise)
+#   · [Input + Botón] Calorías ingeridas en el día (kcal_intake)
+# UPSERT por fecha — cada botón actualiza solo su campo
+# Balance calórico diario = kcal_intake − (TDEE + kcal_exercise)
+#   · TDEE = TMB × factor_actividad (sedentario 1.2, ligero 1.375, moderado 1.55...)
+#   · Déficit negativo → pérdida; positivo → ganancia
+# Comunicación con Tracker: al guardar calorías del día se añade nota automática al Tracker
+#   en el registro de esa fecha (tracker_notes: "Bioptima — Balance: −450 kcal")
+
+### Cálculos y visualización (stats)
+# Panel de indicadores actuales: IMC, % MG, MM, TMB, TDEE
+# Balance diario: calorías ingeridas − (TDEE + ejercicio) con badge déficit/superávit
+# Resumen semanal: suma de balances diarios + media de kcal_intake y kcal_exercise
+# Resumen mensual: evolución del peso, MG y balance acumulado
+# Gráficas SVG (sin Chart.js externo): evolución de peso, % MG y balance calórico
+#   · Eje X: fechas de registros
+#   · Overlay con hito del último registro biométrico
+
+### Vista Admin /dashboard/bioptima
+# Subvista "Perfil": formulario con datos fijos (sexo, edad, talla) + valores calculados actuales
+# Subvista "Biometría": formulario de nuevo registro + histórico con valores calculados
+# Subvista "Diario": inputs de calorías del día + historial de los últimos 30 días
+# Subvista "Evolución": gráficas SVG de tendencias con filtro semanal/mensual/todo
 
 ---
 
