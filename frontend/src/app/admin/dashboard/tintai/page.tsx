@@ -125,20 +125,39 @@ function VistaGenerar({ onBookReady }: { onBookReady: () => void }) {
 
   function addLog(msg: string) { setLog(prev => [...prev, msg]); }
 
+  async function apiFetch(body: Record<string, unknown>): Promise<{ ok: boolean; [k: string]: unknown }> {
+    // Timeout de 40s en cliente — da margen sobre el límite de 30s del servidor
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 40000);
+    try {
+      const res = await fetch('/api/tintai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (!res.ok) {
+        const text = await res.text().catch(() => `HTTP ${res.status}`);
+        return { ok: false, error: `Error del servidor (${res.status}): ${text.slice(0, 200)}` };
+      }
+      return res.json();
+    } catch (err: unknown) {
+      clearTimeout(timer);
+      const isAbort = err instanceof Error && err.name === 'AbortError';
+      return { ok: false, error: isAbort ? 'Timeout: el servidor tardó demasiado. Inténtalo de nuevo con menos capítulos.' : `Error de red: ${String(err)}` };
+    }
+  }
+
   async function generate() {
     setGenerating(true); setError(''); setLog([]); setProgress(0);
     setPhase('toc'); addLog('Generando índice de capítulos…');
 
     // Paso 1: TOC
-    const tocRes = await fetch('/api/tintai/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ step: 'toc', title, category, description, level, language, num_chapters: numChapters }),
-    });
-    const tocJson = await tocRes.json() as { ok: boolean; book_id?: number; toc?: string[]; error?: string };
+    const tocJson = await apiFetch({ step: 'toc', title, category, description, level, language, num_chapters: numChapters }) as { ok: boolean; book_id?: number; toc?: string[]; error?: string };
     if (!tocJson.ok) { setError(tocJson.error ?? 'Error generando índice'); setGenerating(false); return; }
 
-    const bid  = tocJson.book_id!;
+    const bid      = tocJson.book_id!;
     const chapters = tocJson.toc!;
     setBookId(bid); setToc(chapters); setTotal(chapters.length);
     addLog(`Índice generado: ${chapters.length} capítulos. Creando contenido…`);
@@ -147,12 +166,7 @@ function VistaGenerar({ onBookReady }: { onBookReady: () => void }) {
     for (let i = 0; i < chapters.length; i++) {
       setPhase(`chapter-${i}`);
       addLog(`Escribiendo capítulo ${i + 1}/${chapters.length}: "${chapters[i]}"…`);
-      const chRes = await fetch('/api/tintai/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ step: 'chapter', book_id: bid, chapter_index: i }),
-      });
-      const chJson = await chRes.json() as { ok: boolean; word_count?: number; error?: string };
+      const chJson = await apiFetch({ step: 'chapter', book_id: bid, chapter_index: i }) as { ok: boolean; word_count?: number; error?: string };
       if (!chJson.ok) { setError(chJson.error ?? `Error en capítulo ${i + 1}`); setGenerating(false); return; }
       addLog(`  ✓ ${chJson.word_count} palabras`);
       setProgress(i + 1);
@@ -160,12 +174,7 @@ function VistaGenerar({ onBookReady }: { onBookReady: () => void }) {
 
     // Paso 3: finalizar
     setPhase('finalize'); addLog('Finalizando libro…');
-    const finRes = await fetch('/api/tintai/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ step: 'finalize', book_id: bid }),
-    });
-    const finJson = await finRes.json() as { ok: boolean; word_count?: number; error?: string };
+    const finJson = await apiFetch({ step: 'finalize', book_id: bid }) as { ok: boolean; word_count?: number; error?: string };
     if (!finJson.ok) { setError(finJson.error ?? 'Error finalizando'); setGenerating(false); return; }
 
     addLog(`¡Libro completado! ${fmtWords(finJson.word_count ?? 0)} palabras en total.`);
