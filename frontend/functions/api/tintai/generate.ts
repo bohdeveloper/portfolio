@@ -18,40 +18,27 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 async function callClaude(apiKey: string, userPrompt: string): Promise<string> {
-  // Abort a los 25s — Cloudflare Pages Functions corta a los 30s de wall-clock
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25000);
+  // Promise.race para timeout — más compatible con Cloudflare Workers que AbortController
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('Timeout: Claude tardó demasiado. Inténtalo de nuevo.')), 25000)
+  );
 
-  let res: Response;
-  try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'x-api-key':         apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-beta':    'prompt-caching-2024-07-31',
-        'content-type':      'application/json',
-      },
-      body: JSON.stringify({
-        model:      'claude-sonnet-4-6',
-        max_tokens: 2048,
-        system: [
-          {
-            type: 'text',
-            text: SYSTEM_PROMPT,
-            cache_control: { type: 'ephemeral' },
-          },
-        ],
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    });
-  } catch (err: unknown) {
-    clearTimeout(timer);
-    const isAbort = err instanceof Error && err.name === 'AbortError';
-    throw new Error(isAbort ? 'Timeout: Claude tardó demasiado. Inténtalo de nuevo.' : String(err));
-  }
-  clearTimeout(timer);
+  const request = fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key':         apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type':      'application/json',
+    },
+    body: JSON.stringify({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 2048,
+      system:     SYSTEM_PROMPT,
+      messages:   [{ role: 'user', content: userPrompt }],
+    }),
+  });
+
+  const res = await Promise.race([request, timeout]);
 
   if (!res.ok) {
     const err = await res.text();
