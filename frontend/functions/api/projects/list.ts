@@ -20,7 +20,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const where = isAdmin ? '' : 'WHERE published = 1';
   const fields = isAdmin
     ? 'id, slug, title, excerpt, cover_image, content, tags, github_url, demo_url, architecture, published, featured, views, created_at, updated_at'
-    : 'id, slug, title, excerpt, cover_image, tags, github_url, demo_url, architecture, published, featured, views, created_at';
+    : "id, slug, title, excerpt, cover_image, tags, github_url, demo_url, architecture, published, featured, views, created_at, (CASE WHEN content IS NOT NULL AND TRIM(content) != '' AND content != '<p></p>' THEN 1 ELSE 0 END) AS has_content";
 
   try {
     const { results } = await env.DB.prepare(

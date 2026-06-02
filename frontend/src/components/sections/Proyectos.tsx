@@ -13,6 +13,7 @@ interface Project {
   demo_url?: string;
   architecture?: string;
   content?: string;
+  has_content?: number;
   featured?: number;
   /* campos legacy del array estático */
   nombre?: string;
@@ -81,7 +82,7 @@ function normalize(p: Project): {
     architecture: p.architecture || "",
     tecnologias: p.tecnologias || (p.tags ? p.tags.split(",").map(t => t.trim()).filter(Boolean) : []),
     github: p.github_url || p.github || "",
-    hasContent: !!(p.content && p.content.trim() && p.content !== "<p></p>"),
+    hasContent: !!(p.has_content === 1 || (p.content && p.content.trim() && p.content !== "<p></p>")),
   };
 }
 
