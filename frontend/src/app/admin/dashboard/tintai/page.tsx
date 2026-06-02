@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 interface Book {
   id: number; title: string; category: string; description: string | null;
   level: string; language: string; num_chapters: number; cover_color: string;
-  status: string; word_count: number; created_at: string; chapters_done: number;
+  toc?: string | null; status: string; word_count: number; created_at: string; chapters_done: number;
 }
 interface Chapter {
   chapter_index: number; title: string; content: string; word_count: number;
@@ -97,6 +97,11 @@ const STYLES = `
   .tintai-toc li:hover { color:var(--primary); }
   .tintai-toc-num { font-size:11px; color:var(--adm-muted); min-width:20px; }
   .tintai-section-title { font-size:13px; font-weight:600; color:var(--adm-label); text-transform:uppercase; letter-spacing:.05em; margin-bottom:1rem; }
+  .tintai-textarea { background:var(--adm-input); border:1px solid var(--adm-border); border-radius:6px; padding:8px 10px; color:var(--adm-text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; resize:vertical; min-height:72px; width:100%; box-sizing:border-box; }
+  .tintai-textarea:focus { border-color:var(--primary); }
+  .tintai-page-box { height:46vh; overflow-y:auto; padding:1.25rem; background:var(--adm-card); border:1px solid var(--adm-border); border-radius:10px; }
+  .tintai-page-box::-webkit-scrollbar { width:4px; }
+  .tintai-page-box::-webkit-scrollbar-thumb { background:var(--adm-border); border-radius:2px; }
   .tintai-saving-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--primary); animation:tblink .7s infinite; margin-right:6px; }
   @keyframes tblink { 0%,100%{opacity:1} 50%{opacity:.2} }
   @media(max-width:600px) {
@@ -219,7 +224,7 @@ function VistaGenerar({ onBookReady }: { onBookReady: () => void }) {
           </div>
           <div className="tintai-field" style={{ gridColumn: 'span 2' }}>
             <label className="tintai-label">Descripción adicional (opcional)</label>
-            <input className="tintai-input" value={description} onChange={e => setDesc(e.target.value)}
+            <textarea className="tintai-textarea" value={description} onChange={e => setDesc(e.target.value)}
               placeholder="Aspectos concretos a cubrir, enfoque, audiencia…" />
           </div>
         </div>
@@ -332,116 +337,160 @@ function VistaBiblioteca({ books, onRefresh, onRead }: {
   );
 }
 
+/* ── Partición de capítulo en páginas (~180 palabras por página) ──────── */
+function splitIntoPages(content: string): string[] {
+  const WORDS_PER_PAGE = 180;
+  const paragraphs = content.split(/\n\n+/).filter(p => p.trim());
+  const pages: string[] = [];
+  let cur = '', words = 0;
+  for (const para of paragraphs) {
+    const pw = para.trim().split(/\s+/).length;
+    if (words > 0 && words + pw > WORDS_PER_PAGE) {
+      pages.push(cur.trim());
+      cur = para; words = pw;
+    } else {
+      cur += (cur ? '\n\n' : '') + para; words += pw;
+    }
+  }
+  if (cur.trim()) pages.push(cur.trim());
+  return pages.length > 0 ? pages : [content];
+}
+
 /* ── Subvista: Lector ────────────────────────────────────────────────── */
 function VistaLector({ book, onBack }: { book: Book; onBack: () => void }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [chapter, setChapter]           = useState<Chapter | null>(null);
-  const [loading, setLoading]           = useState(false);
-  const [showToc, setShowToc]           = useState(false);
-  const toc: string[]                   = (() => { try { return JSON.parse((book as unknown as { toc: string }).toc ?? '[]'); } catch { return []; } })();
+  const toc: string[] = (() => { try { return JSON.parse(book.toc ?? '[]'); } catch { return []; } })();
 
-  const loadChapter = useCallback(async (index: number) => {
+  const [chapterIdx, setChapterIdx]   = useState(0);
+  const [pageIdx, setPageIdx]         = useState(0);
+  const [pages, setPages]             = useState<string[]>([]);
+  const [chapter, setChapter]         = useState<Chapter | null>(null);
+  const [loading, setLoading]         = useState(false);
+  const [showToc, setShowToc]         = useState(false);
+
+  const loadChapter = useCallback(async (ci: number, startPage = 0) => {
     setLoading(true);
-    const r = await fetch(`/api/tintai/chapter?book_id=${book.id}&index=${index}`);
+    const r = await fetch(`/api/tintai/chapter?book_id=${book.id}&index=${ci}`);
     const j = await r.json() as { ok: boolean; chapter?: Chapter };
-    if (j.ok && j.chapter) setChapter(j.chapter);
+    if (j.ok && j.chapter) {
+      setChapter(j.chapter);
+      const ps = splitIntoPages(j.chapter.content);
+      setPages(ps);
+      setPageIdx(Math.min(startPage, ps.length - 1));
+    }
     setLoading(false);
-    // Guardar progreso
     fetch('/api/tintai/progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ book_id: book.id, current_chapter: index }),
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ book_id: book.id, current_chapter: ci }),
     });
   }, [book.id]);
 
   useEffect(() => {
-    // Recuperar progreso guardado
     fetch(`/api/tintai/progress?book_id=${book.id}`)
       .then(r => r.json())
       .then((j: { ok: boolean; progress?: { current_chapter: number } }) => {
-        const idx = j.ok ? (j.progress?.current_chapter ?? 0) : 0;
-        setCurrentIndex(idx);
-        loadChapter(idx);
+        const ci = j.ok ? (j.progress?.current_chapter ?? 0) : 0;
+        setChapterIdx(ci);
+        loadChapter(ci, 0);
       });
   }, [book.id, loadChapter]);
 
-  function goTo(index: number) {
-    if (index < 0 || index >= book.num_chapters) return;
-    setCurrentIndex(index);
-    loadChapter(index);
-    setShowToc(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  function goToChapter(ci: number, startPage = 0) {
+    if (ci < 0 || ci >= book.num_chapters) return;
+    setChapterIdx(ci); setShowToc(false);
+    loadChapter(ci, startPage);
   }
 
-  const pct = Math.round(((currentIndex + 1) / book.num_chapters) * 100);
+  function nextPage() {
+    if (pageIdx < pages.length - 1) { setPageIdx(p => p + 1); }
+    else if (chapterIdx < book.num_chapters - 1) { goToChapter(chapterIdx + 1, 0); }
+  }
+  function prevPage() {
+    if (pageIdx > 0) { setPageIdx(p => p - 1); }
+    else if (chapterIdx > 0) {
+      // Cargar capítulo anterior en su última página
+      const ci = chapterIdx - 1;
+      setChapterIdx(ci); setShowToc(false);
+      setLoading(true);
+      fetch(`/api/tintai/chapter?book_id=${book.id}&index=${ci}`)
+        .then(r => r.json())
+        .then((j: { ok: boolean; chapter?: Chapter }) => {
+          if (j.ok && j.chapter) {
+            setChapter(j.chapter);
+            const ps = splitIntoPages(j.chapter.content);
+            setPages(ps); setPageIdx(ps.length - 1);
+          }
+          setLoading(false);
+        });
+    }
+  }
+
+  const isFirst = chapterIdx === 0 && pageIdx === 0;
+  const isLast  = chapterIdx === book.num_chapters - 1 && pageIdx === pages.length - 1;
+  const totalPagesRead = chapterIdx * 10 + pageIdx; // aprox para barra
+  const pct = Math.round(((chapterIdx + (pages.length > 0 ? (pageIdx + 1) / pages.length : 0)) / book.num_chapters) * 100);
 
   return (
     <div className="tintai-body tintai-reader">
-      {/* Header del lector */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
         <button className="tintai-btn-ghost" onClick={onBack}>← Biblioteca</button>
         <span style={{ flex: 1, fontSize: 13, color: 'var(--adm-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{book.title}</span>
         <button className="tintai-btn-ghost" onClick={() => setShowToc(v => !v)}>
-          {showToc ? 'Ocultar índice' : 'Índice ☰'}
+          Índice ☰
         </button>
       </div>
 
-      {/* Índice desplegable */}
-      {showToc && toc.length > 0 && (
+      {/* Índice desplegable — usa toc del libro directamente */}
+      {showToc && (
         <div className="tintai-card" style={{ marginBottom: '1rem' }}>
-          <ul className="tintai-toc">
-            {toc.map((t, i) => (
-              <li key={i} onClick={() => goTo(i)}
-                style={{ color: i === currentIndex ? 'var(--primary)' : undefined, fontWeight: i === currentIndex ? 600 : undefined }}>
-                <span className="tintai-toc-num">{i + 1}</span>{t}
-              </li>
-            ))}
-          </ul>
+          {toc.length > 0 ? (
+            <ul className="tintai-toc">
+              {toc.map((t, i) => (
+                <li key={i} onClick={() => goToChapter(i, 0)}
+                  style={{ color: i === chapterIdx ? 'var(--primary)' : undefined, fontWeight: i === chapterIdx ? 600 : undefined }}>
+                  <span className="tintai-toc-num">{i + 1}</span>{t}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span style={{ fontSize: 13, color: 'var(--adm-muted)' }}>Índice no disponible</span>
+          )}
         </div>
       )}
 
-      {/* Barra de progreso */}
-      <div className="tintai-reader-nav">
-        <div className="tintai-chapter-progress">
-          <div style={{ fontSize: 11, color: 'var(--adm-muted)', marginBottom: 3 }}>
-            Capítulo {currentIndex + 1} de {book.num_chapters}
-          </div>
-          <div className="tintai-progress-bar" style={{ margin: 0 }}>
-            <div className="tintai-progress-fill" style={{ width: `${pct}%` }} />
-          </div>
+      {/* Barra de progreso + info de página */}
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--adm-muted)', marginBottom: 4 }}>
+          <span>Cap. {chapterIdx + 1}/{book.num_chapters}{chapter ? ` · ${chapter.title}` : ''}</span>
+          <span>Pág. {pageIdx + 1}{pages.length > 0 ? `/${pages.length}` : ''}</span>
         </div>
-        <button className="tintai-btn-ghost" disabled={currentIndex === 0} onClick={() => goTo(currentIndex - 1)}>←</button>
-        <button className="tintai-btn-ghost" disabled={currentIndex === book.num_chapters - 1} onClick={() => goTo(currentIndex + 1)}>→</button>
+        <div className="tintai-progress-bar" style={{ margin: 0 }}>
+          <div className="tintai-progress-fill" style={{ width: `${pct}%` }} />
+        </div>
       </div>
 
-      {/* Contenido del capítulo */}
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--adm-muted)', fontSize: 13 }}>
-          <span className="tintai-saving-dot" />Cargando capítulo…
+      {/* Zona de lectura acotada */}
+      {loading ? (
+        <div className="tintai-page-box" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ color: 'var(--adm-muted)', fontSize: 13 }}><span className="tintai-saving-dot" />Cargando…</span>
+        </div>
+      ) : (
+        <div className="tintai-page-box">
+          <MarkdownView content={pages[pageIdx] ?? ''} />
         </div>
       )}
-      {!loading && chapter && (
-        <div className="tintai-card">
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: '1.25rem', color: 'var(--primary)' }}>
-            {chapter.title}
-          </h2>
-          <MarkdownView content={chapter.content} />
-          <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--adm-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, color: 'var(--adm-muted)' }}>{chapter.word_count} palabras</span>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {currentIndex > 0 && (
-                <button className="tintai-btn-ghost" onClick={() => goTo(currentIndex - 1)}>← Anterior</button>
-              )}
-              {currentIndex < book.num_chapters - 1 && (
-                <button className="tintai-btn" onClick={() => goTo(currentIndex + 1)}>Siguiente →</button>
-              )}
-              {currentIndex === book.num_chapters - 1 && (
-                <span style={{ fontSize: 13, color: '#22c55e', fontWeight: 500 }}>✓ Completado</span>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+
+      {/* Navegación por páginas */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+        <button className="tintai-btn-ghost" disabled={isFirst || loading} onClick={prevPage}>← Anterior</button>
+        <span style={{ fontSize: 11, color: 'var(--adm-muted)' }}>
+          {isLast ? <span style={{ color: '#22c55e', fontWeight: 500 }}>✓ Fin del libro</span> : `${pct}% leído`}
+        </span>
+        {isLast
+          ? <button className="tintai-btn-ghost" disabled>Siguiente →</button>
+          : <button className="tintai-btn" disabled={loading} onClick={nextPage}>Siguiente →</button>
+        }
+      </div>
     </div>
   );
 }

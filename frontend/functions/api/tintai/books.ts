@@ -7,7 +7,7 @@ const H = { 'Content-Type': 'application/json' };
 interface BookRow {
   id: number; title: string; category: string; description: string | null;
   level: string; language: string; num_chapters: number; cover_color: string;
-  status: string; word_count: number; created_at: string;
+  toc: string | null; status: string; word_count: number; created_at: string;
   chapters_done: number;
 }
 
@@ -19,7 +19,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const { results } = await env.DB.prepare(`
     SELECT b.id, b.title, b.category, b.description, b.level, b.language,
-           b.num_chapters, b.cover_color, b.status, b.word_count, b.created_at,
+           b.num_chapters, b.cover_color, b.toc, b.status, b.word_count, b.created_at,
            COUNT(c.id) AS chapters_done
     FROM tintai_books b
     LEFT JOIN tintai_chapters c ON c.book_id = b.id
