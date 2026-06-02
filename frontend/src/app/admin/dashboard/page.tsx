@@ -64,6 +64,15 @@ function ProyectosIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+function TintAIIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3C8 3 5 6 5 10c0 2.5 1.2 4.7 3 6l1 4h6l1-4c1.8-1.3 3-3.5 3-6 0-4-3-7-7-7z" />
+      <path d="M9 17h6" strokeWidth={1} />
+      <path d="M10 20h4" strokeWidth={1} opacity=".6" />
+    </svg>
+  );
+}
 function BiOptimaIcon({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -82,6 +91,7 @@ const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
   Juegos:    JuegosIcon,
   Proyectos: ProyectosIcon,
   Bioptima:  BiOptimaIcon,
+  TintAI:    TintAIIcon,
 };
 
 /* ── App registry — add new tools here ── */
@@ -115,6 +125,11 @@ const APPS = [
     name: 'Bioptima',
     desc: 'Seguimiento dietético-deportivo',
     path: '/admin/dashboard/bioptima',
+  },
+  {
+    name: 'TintAI',
+    desc: 'Ebooks didácticos con Claude',
+    path: '/admin/dashboard/tintai',
   },
   {
     name: 'Usuarios',

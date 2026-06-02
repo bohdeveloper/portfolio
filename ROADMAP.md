@@ -289,7 +289,7 @@
 
 ---
 
-:: FASE 11 — App TintAI (⬜ PLANIFICADA)
+:: FASE 11 — App TintAI (🚧 EN PROGRESO)
 · Ebooks didácticos generados por IA con Claude. Biblioteca personal, lectura en app y progreso guardado.
 
 ### Stack y arquitectura
