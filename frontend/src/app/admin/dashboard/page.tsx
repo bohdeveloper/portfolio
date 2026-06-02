@@ -64,6 +64,15 @@ function ProyectosIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+function BiOptimaIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" />
+      <path d="M12 14v2M9 17h6" strokeWidth={1} opacity=".5" />
+    </svg>
+  );
+}
 
 const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
   Tracker:   TrackerIcon,
@@ -72,6 +81,7 @@ const APP_ICONS: Record<string, React.FC<{ size?: number }>> = {
   Usuarios:  UsersIcon,
   Juegos:    JuegosIcon,
   Proyectos: ProyectosIcon,
+  Bioptima:  BiOptimaIcon,
 };
 
 /* ── App registry — add new tools here ── */
@@ -100,6 +110,11 @@ const APPS = [
     name: 'Proyectos',
     desc: 'Gestión de proyectos del portfolio',
     path: '/admin/dashboard/proyectos',
+  },
+  {
+    name: 'Bioptima',
+    desc: 'Seguimiento dietético-deportivo',
+    path: '/admin/dashboard/bioptima',
   },
   {
     name: 'Usuarios',

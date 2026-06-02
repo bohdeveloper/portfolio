@@ -234,7 +234,7 @@
 
 ---
 
-:: FASE 10 — App Bioptima (⬜ PLANIFICADA)
+:: FASE 10 — App Bioptima (🚧 EN PROGRESO)
 · Seguimiento dietético-deportivo personal: biometría, calorías, evolución y balance energético.
 · Integrada con el Tracker de hábitos para registro y visualización temporal unificada.
 
