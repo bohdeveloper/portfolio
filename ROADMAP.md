@@ -169,6 +169,36 @@
 ---
 ---
 
+## 🔄 MEJORAS POST-LANZAMIENTO
+
+---
+
+:: Junio 2026 — Tracker, Moneta y Responsive
+
+### Tracker
+# ✅ Bug fix: ON CONFLICT en save.ts corregido — clave (date, activity_id) en vez de (user_id, date, activity_id)
+# ✅ Nuevo endpoint POST /api/tracker/bulk — upsert masivo hasta 365 registros
+# ✅ Checkbox "Repetir en semanas siguientes" en modal de tracking — propaga el registro 52 semanas
+# ✅ Todas las tareas del grid son ahora clickables (track:false incluido, opacidad reducida)
+# ✅ Panel de día (day-cfg): las tarjetas muestran el estado de tracking del día (✓/✗/○)
+# ✅ Action modal en day-cfg: completar/perder, comentario, copy-forward y botón "✎ Editar"
+
+### Moneta
+# ✅ Timestamp "Últ. mod." muestra fecha completa (día, mes, año + hora:minuto)
+# ✅ Modo suma +N eliminado; reemplazado por botón + junto al valor en Previsto y Real
+# ✅ Botón + abre input de suma inline que acumula al valor existente sin borrar el previo
+
+### Responsive
+# ✅ Juegos: tabla de récords adaptada a móvil (rank-header / rank-row)
+# ✅ Proyectos: formulario de 2 columnas colapsado a 1 en móvil
+# ✅ Blog: editor ProseMirror con min-height reducida en móvil
+# ✅ Bioptima: form-grid pasa a 1 columna en pantallas < 380px
+# ✅ TintAI: eliminado inline style que bloqueaba la media query de 2 → 1 columna
+# ✅ Usuarios: botones de acción con padding táctil correcto
+# ✅ AdminNavbar: padding horizontal reducido en móvil (px-3 sm:px-6)
+
+---
+
 ## 🛠 MANTENIMIENTO
 
 A partir del 2 junio 2026 el portfolio entra en modo mantenimiento.
