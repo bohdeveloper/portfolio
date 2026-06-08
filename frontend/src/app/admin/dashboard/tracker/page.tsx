@@ -71,13 +71,13 @@ const TRACKER_CSS = `
 .day-col{position:relative;border-right:1px solid #1e1e1e}
 .day-col:last-child{border-right:none}
 .day-col::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px));pointer-events:none;z-index:0}
-.ab{position:absolute;left:2px;right:2px;border-radius:5px;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:12px;font-weight:500;padding:4px 6px;text-align:left;line-height:1.35;color:#fff;overflow:hidden;transition:filter .15s,box-shadow .2s;border-left:3px solid rgba(255,255,255,.25);z-index:1}
+.ab{position:absolute;left:2px;right:2px;border-radius:5px;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:11px;font-weight:500;padding:3px 6px;text-align:left;line-height:1.35;overflow:hidden;transition:filter .15s,box-shadow .2s;border-left:3px solid rgba(255,255,255,.25);z-index:1}
 .ab:hover{filter:brightness(1.25);z-index:5}
 .ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:10px;color:#9ef5cb;font-weight:700}
 .ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:10px;color:#ffb3a0;font-weight:700}
 .ab.fut{opacity:.2;cursor:default;pointer-events:none}
 .ab.nt{cursor:pointer;opacity:.7}
-.ab-time{display:block;font-size:10px;font-weight:400;opacity:.75;margin-top:1px}
+.ab-time{display:block;font-size:9px;font-weight:400;opacity:.75;margin-top:1px;white-space:nowrap}
 .now-line{position:absolute;left:0;right:0;height:2px;background:#5DCAA5;z-index:8;pointer-events:none}
 .now-dot{position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:#5DCAA5}
 .ckr{background:#155e8a;border-left-color:rgba(255,255,255,.35)}
@@ -393,6 +393,15 @@ function initTracker() {
 
   const NO_CAT = { label: 'Sin categoría', color: '#3a3a3a' };
 
+  function getTextColor(hex: string): string {
+    const h = hex.replace('#', '');
+    if (h.length < 6) return '#fff';
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#111' : '#fff';
+  }
+
   function getCatInfo(key: string): { label: string; color: string } {
     if (!key) return NO_CAT;
     if (dynCats[key]) return dynCats[key];
@@ -591,13 +600,14 @@ function initTracker() {
         } else {
           el.className = 'ab';
           el.style.background = catInfo.color;
+          el.style.color = getTextColor(catInfo.color);
           el.style.borderLeftColor = 'rgba(255,255,255,.25)';
         }
         el.style.top = topPx + 'px';
         el.style.height = hPx + 'px';
         const timeStr = fmt(act.start) + '–' + fmt(act.end);
-        if (hPx >= 32)      el.innerHTML = `<span>${act.name}</span><span class="ab-time">${timeStr}</span>`;
-        else if (hPx >= 18) el.innerHTML = `<span style="font-size:11px">${act.name}</span>`;
+        if (hPx >= 28)      el.innerHTML = `<span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${act.name}</span><span class="ab-time">${timeStr}</span>`;
+        else if (hPx >= 16) el.innerHTML = `<span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${act.name}</span>`;
 
         if (isFut) {
           el.classList.add('fut');
