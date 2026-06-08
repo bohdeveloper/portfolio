@@ -179,14 +179,23 @@
 # ✅ Bug fix: ON CONFLICT en save.ts corregido — clave (date, activity_id) en vez de (user_id, date, activity_id)
 # ✅ Nuevo endpoint POST /api/tracker/bulk — upsert masivo hasta 365 registros
 # ✅ Checkbox "Repetir en semanas siguientes" en modal de tracking — propaga el registro 52 semanas
-# ✅ Todas las tareas del grid son ahora clickables (track:false incluido, opacidad reducida)
+# ✅ Todas las tareas del grid son ahora clickables (track:false incluido, cursor:pointer)
 # ✅ Panel de día (day-cfg): las tarjetas muestran el estado de tracking del día (✓/✗/○)
 # ✅ Action modal en day-cfg: completar/perder, comentario, copy-forward y botón "✎ Editar"
+# ✅ Bug fix: categorías dinámicas con cat_key coincidente con CAT_CLS ya respetan el color del usuario
+# ✅ Tooltip al hover: fondo verde/rojo según estado completada/perdida de la tarea
+# ✅ Bloques del grid: solo color de categoría, sin tinting de estado — badges ✓/✗ en esquina
+# ✅ Textos de bloques: 11px (antes 10px), white-space:nowrap, text-overflow:ellipsis
+# ✅ Contraste automático: luminancia percibida del color de categoría → texto oscuro o claro
+# ✅ "Sin categoría" editable: nombre y color configurables desde la pestaña Configurar
+# ✅ Borde sutil en bloques: 1px solid rgba(255,255,255,.1)
 
 ### Moneta
 # ✅ Timestamp "Últ. mod." muestra fecha completa (día, mes, año + hora:minuto)
+# ✅ Timestamp persiste en localStorage por perfil+mes — sobrevive recargas y cierres
 # ✅ Modo suma +N eliminado; reemplazado por botón + junto al valor en Previsto y Real
 # ✅ Botón + abre input de suma inline que acumula al valor existente sin borrar el previo
+# ✅ Confirmación antes de borrar ítem (muestra el nombre del ítem en el diálogo)
 
 ### Responsive
 # ✅ Juegos: tabla de récords adaptada a móvil (rank-header / rank-row)
