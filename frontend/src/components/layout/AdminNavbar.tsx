@@ -47,7 +47,7 @@ export default function AdminNavbar() {
   return (
     <>
       <header className="navbar fixed top-0 left-0 w-full z-50 bg-white/85 dark:bg-[#0d0d0d]/85 backdrop-blur-3xl border-b border-gray-200 dark:border-gray-800">
-        <nav className="max-w-full mx-auto flex justify-between items-center py-4 px-6">
+        <nav className="max-w-full mx-auto flex justify-between items-center py-4 px-3 sm:px-6">
 
           {/* Logo → always goes to admin dashboard */}
           <Link href="/admin/dashboard" aria-label="Panel admin">

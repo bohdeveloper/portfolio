@@ -86,6 +86,7 @@ const STYLES = `
     .proj-card-actions .abtn { flex: 1; text-align: center; }
     .proj-editor-hdr { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
     .proj-editor-hdr-right { width: 100% !important; flex-wrap: wrap !important; }
+    .proj-form-2col { grid-template-columns: 1fr !important; }
   }
 `;
 
@@ -366,7 +367,7 @@ export default function AdminProyectosPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="proj-form-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={lbl}>Título</label>
                   <input style={inp} value={form.title} onChange={e => set('title', e.target.value)} placeholder="Unyona" />
@@ -382,7 +383,7 @@ export default function AdminProyectosPage() {
                 <input style={inp} value={form.excerpt} onChange={e => set('excerpt', e.target.value)} placeholder="Plataforma social orientada a eventos y gestión de comunidades." />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="proj-form-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={lbl}>Arquitectura</label>
                   <input style={inp} value={form.architecture} onChange={e => set('architecture', e.target.value)} placeholder="Web App SQL" />
@@ -393,7 +394,7 @@ export default function AdminProyectosPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="proj-form-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={lbl}>URL GitHub</label>
                   <input style={inp} value={form.github_url} onChange={e => set('github_url', e.target.value)} placeholder="https://github.com/bohdeveloper/unyona" />

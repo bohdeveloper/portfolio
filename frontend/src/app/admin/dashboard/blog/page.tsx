@@ -95,6 +95,7 @@ const BLOG_STYLES = `
     .blog-editor-hdr-right .abtn { flex: 1; text-align: center; }
     .blog-editor-hdr-right span { width: 100%; }
     .rich-toolbar { gap: 2px; padding: 6px 8px; }
+    .ProseMirror { min-height: 200px !important; font-size: 15px !important; }
   }
 `;
 

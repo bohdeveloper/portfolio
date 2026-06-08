@@ -339,7 +339,7 @@ export default function UsuariosPage() {
                         style={{
                           background: 'none', border: 'none',
                           color: 'var(--primary)', cursor: 'pointer',
-                          fontSize: '12px', marginRight: '12px',
+                          fontSize: '12px', marginRight: '8px', padding: '6px 4px',
                         }}
                       >
                         Editar
@@ -350,7 +350,7 @@ export default function UsuariosPage() {
                           style={{
                             background: 'none', border: 'none',
                             color: user.active ? '#c47c00' : '#1D6B45',
-                            cursor: 'pointer', fontSize: '12px', marginRight: '12px',
+                            cursor: 'pointer', fontSize: '12px', marginRight: '8px', padding: '6px 4px',
                           }}
                         >
                           {user.active ? 'Desactivar' : 'Activar'}
@@ -360,7 +360,7 @@ export default function UsuariosPage() {
                         onClick={() => handleDelete(user.id)}
                         style={{
                           background: 'none', border: 'none',
-                          color: '#d9534f', cursor: 'pointer', fontSize: '12px',
+                          color: '#d9534f', cursor: 'pointer', fontSize: '12px', padding: '6px 4px',
                         }}
                       >
                         Eliminar

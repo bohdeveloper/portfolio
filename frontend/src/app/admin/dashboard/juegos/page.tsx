@@ -47,6 +47,14 @@ const STYLES = `
   .rank-tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; border: 1px solid var(--adm-border); background: none; color: var(--adm-muted); transition: all 0.15s; }
   .rank-tab.active { background: var(--primary); border-color: var(--primary); color: #000; }
   .rank-tab:not(.active):hover { border-color: var(--primary); color: var(--primary); }
+  .rank-header { display: grid; grid-template-columns: 40px 1fr 80px 100px; gap: 0; }
+  .rank-row    { display: grid; grid-template-columns: 40px 1fr 80px 100px; align-items: center; gap: 0; }
+  @media (max-width: 600px) {
+    .rank-header { grid-template-columns: 36px 1fr 70px; }
+    .rank-row    { grid-template-columns: 36px 1fr 70px; }
+    .rank-col-actions { display: none !important; }
+    .gbtn { padding: 6px 10px; }
+  }
 `;
 
 function slugify(s: string) {
@@ -427,11 +435,11 @@ export default function JuegosAdminPage() {
             {/* Tabla de ranking */}
             <div style={{ background: 'var(--adm-card)', border: '1px solid var(--adm-border)', borderRadius: '10px', overflow: 'hidden' }}>
               {/* Header */}
-              <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px', gap: '0', padding: '8px 1rem', background: 'var(--adm-border)', fontSize: '10px', fontWeight: 700, color: 'var(--adm-muted)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              <div className="rank-header" style={{ padding: '8px 1rem', background: 'var(--adm-border)', fontSize: '10px', fontWeight: 700, color: 'var(--adm-muted)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                 <span>#</span>
                 <span>Jugador</span>
                 <span style={{ textAlign: 'right' }}>Puntos</span>
-                <span style={{ textAlign: 'right' }}>Acciones</span>
+                <span className="rank-col-actions" style={{ textAlign: 'right' }}>Acciones</span>
               </div>
 
               {rankLoading && (
@@ -453,9 +461,8 @@ export default function JuegosAdminPage() {
               {rankLeaders.map((l, idx) => (
                 <div
                   key={l.visitor_id}
+                  className="rank-row"
                   style={{
-                    display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px',
-                    alignItems: 'center', gap: '0',
                     padding: '10px 1rem',
                     borderTop: idx > 0 ? '1px solid var(--adm-border)' : 'none',
                     background: rankDeleting === l.visitor_id ? 'rgba(216,90,48,0.05)' : 'none',
@@ -470,7 +477,7 @@ export default function JuegosAdminPage() {
                   <span style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 700, fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}>
                     {l.score}
                   </span>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <div className="rank-col-actions" style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <button
                       className="gbtn gbtn-d"
                       style={{ padding: '4px 10px', fontSize: '11px' }}

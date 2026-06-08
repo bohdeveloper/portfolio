@@ -262,7 +262,7 @@ function VistaGenerar({ onBookReady }: { onBookReady: () => void }) {
     <div className="tintai-body">
       <div className="tintai-section-title">Nuevo ebook</div>
       <div className="tintai-card">
-        <div className="tintai-form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <div className="tintai-form-grid">
           <div className="tintai-field" style={{ gridColumn: 'span 2' }}>
             <label className="tintai-label">Título del libro *</label>
             <input className="tintai-input" value={title} onChange={e => setTitle(e.target.value)}
