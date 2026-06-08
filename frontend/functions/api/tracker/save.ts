@@ -26,7 +26,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   await env.DB.prepare(
     `INSERT INTO tracker_records (date, activity_id, day_index, done, reason, user_id, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
-     ON CONFLICT(user_id, date, activity_id) DO UPDATE SET done=excluded.done, reason=excluded.reason, updated_at=excluded.updated_at`
+     ON CONFLICT(date, activity_id) DO UPDATE SET done=excluded.done, reason=excluded.reason, updated_at=excluded.updated_at`
   ).bind(date, activity_id, day_index, done, reason ?? '', auth.user_id).run();
 
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers });

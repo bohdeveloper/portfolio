@@ -281,6 +281,10 @@ const TRACKER_HTML = `
     <p class="modal-sub" id="m-desc"></p>
     <p class="modal-sub" id="m-day"></p>
     <textarea id="m-reason" placeholder="Motivo si no la realizas (opcional)..."></textarea>
+    <div style="margin-top:.5rem;display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="m-copy-fwd" style="width:auto;margin:0;cursor:pointer"/>
+      <label for="m-copy-fwd" style="font-size:11px;color:#888;cursor:pointer">Repetir en semanas siguientes (52 sem.)</label>
+    </div>
     <div class="modal-btns">
       <button class="btn" id="modal-cancel">Cancelar</button>
       <button class="btn btn-miss" id="modal-miss">✗ Perdida</button>
@@ -617,15 +621,31 @@ function initTracker() {
     document.getElementById('m-day')!.textContent   = dayLabel;
     const ex = state[ak(dKey, act.id)];
     (document.getElementById('m-reason') as HTMLTextAreaElement).value = ex ? (ex.reason || '') : '';
+    (document.getElementById('m-copy-fwd') as HTMLInputElement).checked = false;
     document.getElementById('modal')!.classList.remove('hidden');
   }
   function closeModal() { document.getElementById('modal')!.classList.add('hidden'); pending = null; }
   function saveAct(done: boolean) {
     if (!pending) return;
     const reason = (document.getElementById('m-reason') as HTMLTextAreaElement).value.trim();
+    const copyFwd = (document.getElementById('m-copy-fwd') as HTMLInputElement).checked;
     const key = ak(pending.dKey, pending.act.id);
     state[key] = { done, reason, ts: Date.now() };
     saveRecord(pending.dKey, pending.act.id, pending.dayIdx, done, reason);
+    if (copyFwd) {
+      const base = new Date(pending.dKey + 'T00:00:00');
+      const records: Array<{ date: string; activity_id: string; day_index: number; done: number; reason: string }> = [];
+      for (let w = 1; w <= 52; w++) {
+        const fut = new Date(base);
+        fut.setDate(base.getDate() + w * 7);
+        records.push({ date: dkLocal(fut), activity_id: pending.act.id, day_index: pending.dayIdx, done: done ? 1 : 0, reason });
+      }
+      fetch('/api/tracker/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ records }),
+      }).catch(() => {});
+    }
     closeModal();
     renderAll();
   }
