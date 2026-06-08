@@ -307,15 +307,20 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
     setEditName(false);
   }
   function confirmAmount() {
-    const n = parseFloat(amountVal);
-    if (!isNaN(n)) onAmountSave(item.id, n);
+    const raw = amountVal.trim();
+    let finalVal: number;
+    if (raw.startsWith('+')) finalVal = item.amount + (parseFloat(raw.slice(1)) || 0);
+    else { finalVal = parseFloat(raw.replace(',', '.')); if (isNaN(finalVal)) { setEditAmount(false); return; } }
+    if (finalVal >= 0) onAmountSave(item.id, finalVal);
     setEditAmount(false);
   }
-  // Vaciar el campo y confirmar equivale a borrar el importe real (null),
-  // lo que hace que el ítem deje de contabilizarse en el total real del mes
+  // Vaciar el campo y confirmar equivale a borrar el importe real (null).
+  // Prefijo "+" suma al valor actual del real (o a 0 si no tiene).
   function confirmReal() {
     const t = realVal.trim();
-    onRealSave?.(item.id, t === '' ? null : (parseFloat(t) || 0));
+    if (t === '') { onRealSave?.(item.id, null); }
+    else if (t.startsWith('+')) { onRealSave?.(item.id, (item.real_amount ?? 0) + (parseFloat(t.slice(1)) || 0)); }
+    else { onRealSave?.(item.id, parseFloat(t.replace(',', '.')) || 0); }
     setEditReal(false);
   }
 
@@ -336,12 +341,13 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
 
       {/* Previsto editable */}
       {editAmount ? (
-        <input className="mitem-cell-input" type="number" step="0.01" value={amountVal} autoFocus
+        <input className="mitem-cell-input" type="text" inputMode="decimal" value={amountVal} autoFocus
+          placeholder="+N para sumar"
           onChange={e => setAmountVal(e.target.value)}
           onBlur={confirmAmount}
           onKeyDown={e => { if (e.key === 'Enter') confirmAmount(); if (e.key === 'Escape') setEditAmount(false); }} />
       ) : (
-        <span className="mitem-cell" onClick={startAmount} title="Editar previsto">
+        <span className="mitem-cell" onClick={startAmount} title="Editar previsto · escribe +N para sumar al actual">
           {item.amount > 0 ? fmt(item.amount) : <span style={{ color: 'var(--adm-muted)' }}>—</span>}
         </span>
       )}
@@ -355,8 +361,8 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
       {/* Real editable (solo gastos) */}
       {showReal && (
         editReal ? (
-          <input className="mitem-cell-input" type="number" step="0.01" value={realVal} autoFocus
-            placeholder="Vaciar = borrar"
+          <input className="mitem-cell-input" type="text" inputMode="decimal" value={realVal} autoFocus
+            placeholder="+N · vacío = borrar"
             onChange={e => setRealVal(e.target.value)}
             onBlur={confirmReal}
             onKeyDown={e => { if (e.key === 'Enter') confirmReal(); if (e.key === 'Escape') setEditReal(false); }} />
@@ -599,6 +605,12 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
   const [saldoVal,     setSaldoVal]     = useState('');
   const [closing,      setClosing]      = useState(false);
   const [saveStatus,   setSaveStatus]   = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [lastUpdated,  setLastUpdated]  = useState<string | null>(null);
+
+  function stampUpdate() {
+    const now = new Date();
+    setLastUpdated(now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
+  }
 
   const summary = profile.summary;
   const closed  = !!(summary?.closed);
@@ -647,6 +659,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
 
   function handleAmountSave(id: number, amount: number) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, amount } : i));
+    stampUpdate();
     fetch(`/api/moneta/item?id=${id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount }),
@@ -659,6 +672,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
   // El timeout de 2s devuelve el indicador a idle sin necesidad de acción del usuario.
   async function handleRealSave(id: number, real_amount: number | null) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, real_amount } : i));
+    stampUpdate();
     setSaveStatus('saving');
     try {
       const res  = await fetch(`/api/moneta/item?id=${id}`, {
@@ -675,6 +689,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
 
   function handleNameSave(id: number, name: string) {
     onUpdate(profile.id, items => items.map(i => i.id === id ? { ...i, name } : i));
+    stampUpdate();
     fetch(`/api/moneta/item?id=${id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name }),
@@ -759,9 +774,12 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
       {/* ── GASTOS ── */}
       <div className="moneta-section-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>Gastos</span>
-        {saveStatus === 'saving' && <span style={{ fontSize: 10, color: 'var(--adm-muted)', fontWeight: 400 }}>Guardando…</span>}
-        {saveStatus === 'saved'  && <span style={{ fontSize: 10, color: '#22c55e',         fontWeight: 400 }}>✓ Guardado</span>}
-        {saveStatus === 'error'  && <span style={{ fontSize: 10, color: '#ef4444',         fontWeight: 400 }}>⚠ Error al guardar</span>}
+        <span style={{ fontSize: 10, fontWeight: 400 }}>
+          {saveStatus === 'saving' && <span style={{ color: 'var(--adm-muted)' }}>Guardando…</span>}
+          {saveStatus === 'saved'  && <span style={{ color: '#22c55e' }}>✓ Guardado</span>}
+          {saveStatus === 'error'  && <span style={{ color: '#ef4444' }}>⚠ Error al guardar</span>}
+          {saveStatus === 'idle' && lastUpdated && <span style={{ color: 'var(--adm-muted)' }}>Últ. mod. {lastUpdated}</span>}
+        </span>
       </div>
       <div className="moneta-col-headers">
         <span className="mch-name" />
