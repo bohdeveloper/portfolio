@@ -73,8 +73,8 @@ const TRACKER_CSS = `
 .day-col::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px));pointer-events:none;z-index:0}
 .ab{position:absolute;left:2px;right:2px;border-radius:5px;border:none;cursor:pointer;font-size:10px;font-weight:500;padding:4px 6px;text-align:left;line-height:1.35;color:#fff;overflow:hidden;transition:filter .15s;border-left:3px solid rgba(255,255,255,.25);z-index:1}
 .ab:hover{filter:brightness(1.25);z-index:5}
-.ab.done{opacity:.65}.ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:9px;opacity:.9}
-.ab.miss{opacity:.5;text-decoration:line-through}.ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:9px;opacity:.9}
+.ab.done{opacity:.9;box-shadow:inset 0 0 0 400px rgba(29,107,69,.55)}.ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:10px;color:#9ef5cb;font-weight:700}
+.ab.miss{opacity:.85;box-shadow:inset 0 0 0 400px rgba(160,40,20,.6)}.ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:10px;color:#ffb3a0;font-weight:700}
 .ab.fut{opacity:.2;cursor:default;pointer-events:none}
 .ab.nt{cursor:pointer;opacity:.7}
 .ab-time{display:block;font-size:8.5px;font-weight:400;opacity:.75;margin-top:1px}
@@ -280,6 +280,7 @@ const TRACKER_HTML = `
     <h3 id="m-title"></h3>
     <p class="modal-sub" id="m-desc"></p>
     <p class="modal-sub" id="m-day"></p>
+    <div id="m-status" style="margin-bottom:.5rem;font-size:12px"></div>
     <textarea id="m-reason" placeholder="Motivo si no la realizas (opcional)..."></textarea>
     <div style="margin-top:.5rem;display:flex;align-items:center;gap:8px">
       <input type="checkbox" id="m-copy-fwd" style="width:auto;margin:0;cursor:pointer"/>
@@ -647,6 +648,10 @@ function initTracker() {
     const ex = state[ak(dKey, act.id)];
     (document.getElementById('m-reason') as HTMLTextAreaElement).value = ex ? (ex.reason || '') : '';
     (document.getElementById('m-copy-fwd') as HTMLInputElement).checked = false;
+    const stEl = document.getElementById('m-status')!;
+    stEl.innerHTML = ex
+      ? (ex.done ? '<span style="color:#5DCAA5;font-weight:600">✓ Completada</span>' : '<span style="color:#ff7a5c;font-weight:600">✗ Perdida</span>')
+      : '<span style="color:#555">Sin registrar</span>';
     document.getElementById('modal')!.classList.remove('hidden');
   }
   function closeModal() { document.getElementById('modal')!.classList.add('hidden'); pending = null; }

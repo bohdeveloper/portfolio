@@ -375,7 +375,7 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
           {item.amount > 0 && (
             <button onClick={e => { e.stopPropagation(); startAddAmount(); }}
               title="Sumar al previsto"
-              style={{ background: 'none', border: 'none', color: 'var(--adm-muted)', cursor: 'pointer', fontSize: 14, padding: '0 1px', lineHeight: 1, flexShrink: 0 }}>
+              style={{ background: 'none', border: '1px solid var(--adm-border)', borderRadius: 4, color: 'var(--adm-muted)', cursor: 'pointer', fontSize: 12, padding: '2px 6px', lineHeight: 1.4, flexShrink: 0 }}>
               +
             </button>
           )}
@@ -417,7 +417,7 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
             {hasReal && (
               <button onClick={e => { e.stopPropagation(); startAddReal(); }}
                 title="Sumar al real"
-                style={{ background: 'none', border: 'none', color: 'var(--adm-muted)', cursor: 'pointer', fontSize: 14, padding: '0 1px', lineHeight: 1, flexShrink: 0 }}>
+                style={{ background: 'none', border: '1px solid var(--adm-border)', borderRadius: 4, color: 'var(--adm-muted)', cursor: 'pointer', fontSize: 12, padding: '2px 6px', lineHeight: 1.4, flexShrink: 0 }}>
                 +
               </button>
             )}
@@ -425,7 +425,7 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
         )
       )}
 
-      <button className="mitem-del" onClick={() => onDelete(item.id)} title="Eliminar">×</button>
+      <button className="mitem-del" onClick={() => { if (confirm(`¿Eliminar "${item.name}"?`)) onDelete(item.id); }} title="Eliminar">×</button>
     </div>
   );
 }
