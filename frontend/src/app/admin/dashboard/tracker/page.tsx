@@ -73,10 +73,8 @@ const TRACKER_CSS = `
 .day-col::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px));pointer-events:none;z-index:0}
 .ab{position:absolute;left:2px;right:2px;border-radius:5px;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:10px;font-weight:500;padding:4px 6px;text-align:left;line-height:1.35;color:#fff;overflow:hidden;transition:filter .15s,box-shadow .2s;border-left:3px solid rgba(255,255,255,.25);z-index:1}
 .ab:hover{filter:brightness(1.25);z-index:5}
-.ab.done{opacity:.8}.ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:10px;color:#9ef5cb;font-weight:700}
-.ab.miss{opacity:.6;text-decoration:line-through}.ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:10px;color:#ffb3a0;font-weight:700}
-.ab.done:hover{box-shadow:inset 0 0 0 400px rgba(29,107,69,.55);filter:brightness(1.1)}
-.ab.miss:hover{box-shadow:inset 0 0 0 400px rgba(160,40,20,.6);filter:brightness(1.1)}
+.ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:10px;color:#9ef5cb;font-weight:700}
+.ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:10px;color:#ffb3a0;font-weight:700}
 .ab.fut{opacity:.2;cursor:default;pointer-events:none}
 .ab.nt{cursor:pointer;opacity:.7}
 .ab-time{display:block;font-size:8.5px;font-weight:400;opacity:.75;margin-top:1px}
@@ -108,6 +106,8 @@ const TRACKER_CSS = `
 .tip.on{opacity:1}
 .tip strong{color:#e8e6e0;display:block;margin-bottom:2px;font-size:12px}
 .tip-reason{display:block;color:#888;font-style:italic;margin-top:4px;font-size:11px;border-top:1px solid #2a2a2a;padding-top:4px}
+.tip.tip-done{background:#182a20;border-color:rgba(93,202,165,.45)}.tip.tip-done strong{color:#9ef5cb}
+.tip.tip-miss{background:#2a1710;border-color:rgba(216,90,48,.45)}.tip.tip-miss strong{color:#ffb3a0}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:200}
 .modal{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1.25rem;width:340px;max-width:92vw}
 .modal h3{margin-bottom:.35rem;color:#e8e6e0;font-size:14px}
@@ -180,6 +180,8 @@ html.light .mi-r{color:#888}
 html.light .tip{background:#fff;border-color:#e0e0e0;color:#444}
 html.light .tip strong{color:#1a1a1a}
 html.light .tip-reason{border-top-color:#e0e0e0;color:#888}
+html.light .tip.tip-done{background:#f0fff8;border-color:rgba(29,107,69,.35)}.light .tip.tip-done strong{color:#1D6B45}
+html.light .tip.tip-miss{background:#fff5f2;border-color:rgba(160,40,20,.35)}.light .tip.tip-miss strong{color:#a83210}
 html.light .modal{background:#fff;border-color:#e0e0e0}
 html.light .modal h3{color:#1a1a1a}
 html.light .modal-sub{color:#777}
@@ -479,12 +481,15 @@ function initTracker() {
 
   // ── Tooltip ──────────────────────────────────────────────────────────────────
   const tipEl = document.getElementById('tip')!;
-  function showTip(e: MouseEvent, name: string, desc: string, reason = '') {
+  function showTip(e: MouseEvent, name: string, desc: string, reason = '', done?: boolean | null) {
     document.getElementById('tip-title')!.textContent = name;
     document.getElementById('tip-desc')!.textContent = desc;
     const tipReason = document.getElementById('tip-reason')!;
     if (reason) { tipReason.textContent = '"' + reason + '"'; tipReason.style.display = 'block'; }
     else { tipReason.style.display = 'none'; }
+    tipEl.classList.remove('tip-done', 'tip-miss');
+    if (done === true)  tipEl.classList.add('tip-done');
+    if (done === false) tipEl.classList.add('tip-miss');
     tipEl.classList.add('on');
     posTip(e);
   }
@@ -610,7 +615,7 @@ function initTracker() {
         ((a: Activity, dstr: string) => {
           el.addEventListener('mouseenter', e => {
             const r = state[ak(dstr, a.id)];
-            showTip(e as MouseEvent, a.name, a.desc, r?.reason || '');
+            showTip(e as MouseEvent, a.name, a.desc, r?.reason || '', r ? r.done : null);
           });
           el.addEventListener('mousemove',  e => posTip(e as MouseEvent));
           el.addEventListener('mouseleave', hideTip);
