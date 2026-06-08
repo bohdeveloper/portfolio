@@ -76,7 +76,7 @@ const TRACKER_CSS = `
 .ab.done{opacity:.65}.ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:9px;opacity:.9}
 .ab.miss{opacity:.5;text-decoration:line-through}.ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:9px;opacity:.9}
 .ab.fut{opacity:.2;cursor:default;pointer-events:none}
-.ab.nt{cursor:default;pointer-events:none}
+.ab.nt{cursor:pointer;opacity:.7}
 .ab-time{display:block;font-size:8.5px;font-weight:400;opacity:.75;margin-top:1px}
 .now-line{position:absolute;left:0;right:0;height:2px;background:#5DCAA5;z-index:8;pointer-events:none}
 .now-dot{position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:#5DCAA5}
@@ -302,6 +302,25 @@ const TRACKER_HTML = `
     </div>
   </div>
 </div>
+<div id="action-modal" class="modal-bg hidden">
+  <div class="modal" style="width:360px;max-width:94vw">
+    <h3 id="am-title" style="font-size:14px;color:#e8e6e0;margin-bottom:.25rem"></h3>
+    <p class="modal-sub" id="am-time" style="margin-bottom:.1rem"></p>
+    <p class="modal-sub" id="am-day" style="margin-bottom:.5rem"></p>
+    <div id="am-state" style="margin-bottom:.5rem;font-size:12px"></div>
+    <textarea id="am-reason" placeholder="Comentario o motivo (opcional)..."></textarea>
+    <div style="margin-top:.5rem;display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="am-copy-fwd" style="width:auto;margin:0;cursor:pointer"/>
+      <label for="am-copy-fwd" style="font-size:11px;color:#888;cursor:pointer">Repetir en semanas siguientes (52 sem.)</label>
+    </div>
+    <div class="modal-btns" style="flex-wrap:wrap;gap:6px;margin-top:.65rem">
+      <button class="btn" id="am-cancel">Cancelar</button>
+      <button class="btn" id="am-edit" style="border-color:#555;color:#aaa">✎ Editar</button>
+      <button class="btn btn-miss" id="am-miss">✗ Perdida</button>
+      <button class="btn btn-done" id="am-done">✓ Completada</button>
+    </div>
+  </div>
+</div>
 `;
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -365,6 +384,7 @@ function initTracker() {
   let editMode: 'cat' | 'task' = 'cat';
   let editCatId = 0;
   let editTaskId = 0;
+  let actionPending: { dKey: string; act: Activity; dayIdx: number; rawTask?: RawTask } | null = null;
 
   const NO_CAT = { label: 'Sin categoría', color: '#3a3a3a' };
 
@@ -570,11 +590,16 @@ function initTracker() {
         if (hPx >= 28)      el.innerHTML = `<span>${act.name}</span><span class="ab-time">${timeStr}</span>`;
         else if (hPx >= 16) el.innerHTML = `<span style="font-size:9px">${act.name}</span>`;
 
-        if (isFut || !act.track) {
-          el.classList.add(isFut ? 'fut' : 'nt');
+        if (isFut) {
+          el.classList.add('fut');
         } else {
-          totalActs++;
-          if (rec) { rec.done ? (el.classList.add('done'), doneActs++) : (el.classList.add('miss'), missActs++); }
+          if (act.track) totalActs++;
+          if (rec) {
+            rec.done
+              ? (el.classList.add('done'), act.track && doneActs++)
+              : (el.classList.add('miss'), act.track && missActs++);
+          }
+          if (!act.track) el.classList.add('nt');
           ((dk2: string, a: Activity, di2: number, d3: Date) => {
             el.onclick = () => openModal(dk2, a, di2, DIAS_F[di2] + ' ' + d3.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
           })(dKey, act, di, d2);
@@ -648,6 +673,51 @@ function initTracker() {
     }
     closeModal();
     renderAll();
+  }
+
+  // ── Action modal (tracking desde day-cfg) ────────────────────────────────────
+  function openActionModal(act: Activity, dKey: string, dayIdx: number, rawTask?: RawTask) {
+    actionPending = { dKey, act, dayIdx, rawTask };
+    document.getElementById('am-title')!.textContent = act.name;
+    document.getElementById('am-time')!.textContent = fmt(act.start) + '–' + fmt(act.end);
+    document.getElementById('am-day')!.textContent = DIAS_F[dayIdx] + ', ' + new Date(dKey + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+    const ex = state[ak(dKey, act.id)];
+    (document.getElementById('am-reason') as HTMLTextAreaElement).value = ex?.reason || '';
+    (document.getElementById('am-copy-fwd') as HTMLInputElement).checked = false;
+    const stEl = document.getElementById('am-state')!;
+    stEl.innerHTML = ex
+      ? (ex.done ? '<span style="color:#5DCAA5">✓ Completada</span>' : '<span style="color:#D85A30">✗ Perdida</span>')
+      : '<span style="color:#555">Sin registrar</span>';
+    document.getElementById('action-modal')!.classList.remove('hidden');
+  }
+  function closeActionModal() {
+    document.getElementById('action-modal')!.classList.add('hidden');
+    actionPending = null;
+  }
+  function saveActionAct(done: boolean) {
+    if (!actionPending) return;
+    const reason = (document.getElementById('am-reason') as HTMLTextAreaElement).value.trim();
+    const copyFwd = (document.getElementById('am-copy-fwd') as HTMLInputElement).checked;
+    const key = ak(actionPending.dKey, actionPending.act.id);
+    state[key] = { done, reason, ts: Date.now() };
+    saveRecord(actionPending.dKey, actionPending.act.id, actionPending.dayIdx, done, reason);
+    if (copyFwd) {
+      const base = new Date(actionPending.dKey + 'T00:00:00');
+      const records: Array<{ date: string; activity_id: string; day_index: number; done: number; reason: string }> = [];
+      for (let w = 1; w <= 52; w++) {
+        const fut = new Date(base);
+        fut.setDate(base.getDate() + w * 7);
+        records.push({ date: dkLocal(fut), activity_id: actionPending.act.id, day_index: actionPending.dayIdx, done: done ? 1 : 0, reason });
+      }
+      fetch('/api/tracker/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ records }),
+      }).catch(() => {});
+    }
+    closeActionModal();
+    renderAll();
+    if (document.getElementById('day-cfg-ov')?.classList.contains('open')) renderDayCfgTasks();
   }
 
   // ── Stats ─────────────────────────────────────────────────────────────────────
@@ -920,24 +990,28 @@ function initTracker() {
       : tasks.map((t, i) => {
           const raw = rawTaskMap[cfgDayIdx + '_' + t.id];
           const info = getCatInfo(t.cat);
+          const rec = state[ak(cfgDayKey, t.id)];
+          const stIcon = rec
+            ? (rec.done ? `<span style="font-size:11px;color:#5DCAA5">✓</span>` : `<span style="font-size:11px;color:#D85A30">✗</span>`)
+            : `<span style="font-size:11px;color:#2a2a2a">○</span>`;
           return `<div class="tcrd" style="cursor:pointer" data-idx="${i}">` +
             `<span style="font-size:11px;color:#555;width:90px;flex-shrink:0;font-variant-numeric:tabular-nums">${fmt(t.start)}–${fmt(t.end)}</span>` +
             `<span style="flex:1;font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span>` +
             `<span style="font-size:10px;padding:2px 7px;border-radius:4px;color:#fff;background:${info.color};flex-shrink:0;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${info.label}</span>` +
-            `<span style="font-size:11px;width:16px;text-align:center;flex-shrink:0;color:${t.track ? '#5DCAA5' : '#333'}">${t.track ? '✓' : '—'}</span>` +
+            `<span style="width:16px;text-align:center;flex-shrink:0">${stIcon}</span>` +
             `<button class="btn-sm btn-del dcfg-del" data-tid="${raw?.id || 0}" title="Eliminar" style="flex-shrink:0">✕</button>` +
             `</div>`;
         }).join('');
 
     el.innerHTML = html;
 
-    // Tarjeta completa clickable para editar (excepto botón eliminar)
+    // Tarjeta completa clickable — abre popup de tracking (con botón editar dentro)
     el.querySelectorAll('.tcrd').forEach((card, i) => {
       card.addEventListener('click', (e) => {
         if ((e.target as HTMLElement).classList.contains('dcfg-del') ||
             (e.target as HTMLElement).classList.contains('btn-del')) return;
         const raw = rawTaskMap[cfgDayIdx + '_' + tasks[i].id];
-        if (raw) openTaskModal(raw);
+        openActionModal(tasks[i], cfgDayKey, cfgDayIdx, raw || undefined);
       });
     });
 
@@ -1082,6 +1156,15 @@ function initTracker() {
   document.getElementById('edit-modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(); });
   document.getElementById('em-cancel')!.onclick = closeEditModal;
   document.getElementById('em-save')!.onclick    = saveEditModal;
+  document.getElementById('action-modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeActionModal(); });
+  document.getElementById('am-cancel')!.onclick = closeActionModal;
+  document.getElementById('am-miss')!.onclick    = () => saveActionAct(false);
+  document.getElementById('am-done')!.onclick    = () => saveActionAct(true);
+  document.getElementById('am-edit')!.onclick    = () => {
+    const raw = actionPending?.rawTask;
+    closeActionModal();
+    if (raw) openTaskModal(raw);
+  };
   document.querySelectorAll('.tab').forEach(el => {
     (el as HTMLElement).addEventListener('click', function(this: HTMLElement) {
       showPage(this.id.replace('tab-', ''), this.id);

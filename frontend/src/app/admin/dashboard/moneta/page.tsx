@@ -290,16 +290,22 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
   onRealSave?:  (id: number, real: number | null) => void;
   onNameSave?:  (id: number, name: string) => void;
 }) {
-  const [editName,   setEditName]   = useState(false);
-  const [editAmount, setEditAmount] = useState(false);
-  const [editReal,   setEditReal]   = useState(false);
-  const [nameVal,    setNameVal]    = useState('');
-  const [amountVal,  setAmountVal]  = useState('');
-  const [realVal,    setRealVal]    = useState('');
+  const [editName,     setEditName]     = useState(false);
+  const [editAmount,   setEditAmount]   = useState(false);
+  const [editReal,     setEditReal]     = useState(false);
+  const [addAmount,    setAddAmount]    = useState(false);
+  const [addReal,      setAddReal]      = useState(false);
+  const [nameVal,      setNameVal]      = useState('');
+  const [amountVal,    setAmountVal]    = useState('');
+  const [realVal,      setRealVal]      = useState('');
+  const [addAmountVal, setAddAmountVal] = useState('');
+  const [addRealVal,   setAddRealVal]   = useState('');
 
-  function startName()   { setNameVal(item.name);                                       setEditName(true); }
-  function startAmount() { setAmountVal(item.amount ? String(item.amount) : '');         setEditAmount(true); }
-  function startReal()   { setRealVal(item.real_amount != null ? String(item.real_amount) : ''); setEditReal(true); }
+  function startName()      { setNameVal(item.name);                                                setEditName(true); }
+  function startAmount()    { setAmountVal(item.amount ? String(item.amount) : '');                 setEditAmount(true); }
+  function startReal()      { setRealVal(item.real_amount != null ? String(item.real_amount) : ''); setEditReal(true); }
+  function startAddAmount() { setAddAmountVal(''); setAddAmount(true); }
+  function startAddReal()   { setAddRealVal('');   setAddReal(true); }
 
   function confirmName() {
     const t = nameVal.trim();
@@ -307,21 +313,27 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
     setEditName(false);
   }
   function confirmAmount() {
-    const raw = amountVal.trim();
-    let finalVal: number;
-    if (raw.startsWith('+')) finalVal = item.amount + (parseFloat(raw.slice(1)) || 0);
-    else { finalVal = parseFloat(raw.replace(',', '.')); if (isNaN(finalVal)) { setEditAmount(false); return; } }
-    if (finalVal >= 0) onAmountSave(item.id, finalVal);
+    const finalVal = parseFloat(amountVal.replace(',', '.'));
+    if (!isNaN(finalVal) && finalVal >= 0) onAmountSave(item.id, finalVal);
     setEditAmount(false);
   }
-  // Vaciar el campo y confirmar equivale a borrar el importe real (null).
-  // Prefijo "+" suma al valor actual del real (o a 0 si no tiene).
   function confirmReal() {
     const t = realVal.trim();
     if (t === '') { onRealSave?.(item.id, null); }
-    else if (t.startsWith('+')) { onRealSave?.(item.id, (item.real_amount ?? 0) + (parseFloat(t.slice(1)) || 0)); }
     else { onRealSave?.(item.id, parseFloat(t.replace(',', '.')) || 0); }
     setEditReal(false);
+  }
+  function confirmAddAmount() {
+    const val = parseFloat(addAmountVal.replace(',', '.'));
+    if (!isNaN(val) && val !== 0) onAmountSave(item.id, item.amount + val);
+    setAddAmount(false);
+    setAddAmountVal('');
+  }
+  function confirmAddReal() {
+    const val = parseFloat(addRealVal.replace(',', '.'));
+    if (!isNaN(val) && val !== 0) onRealSave?.(item.id, (item.real_amount ?? 0) + val);
+    setAddReal(false);
+    setAddRealVal('');
   }
 
   const hasReal      = item.real_amount != null;
@@ -342,13 +354,31 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
       {/* Previsto editable */}
       {editAmount ? (
         <input className="mitem-cell-input" type="text" inputMode="decimal" value={amountVal} autoFocus
-          placeholder="+N para sumar"
+          placeholder="0,00"
           onChange={e => setAmountVal(e.target.value)}
           onBlur={confirmAmount}
           onKeyDown={e => { if (e.key === 'Enter') confirmAmount(); if (e.key === 'Escape') setEditAmount(false); }} />
+      ) : addAmount ? (
+        <div style={{ display: 'flex', alignItems: 'center', width: 83 }}>
+          <span style={{ fontSize: 11, color: 'var(--adm-muted)', paddingRight: 2 }}>+</span>
+          <input className="mitem-cell-input" type="text" inputMode="decimal" value={addAmountVal} autoFocus
+            placeholder="0,00" style={{ flex: 1, width: 'auto', minWidth: 0 }}
+            onChange={e => setAddAmountVal(e.target.value)}
+            onBlur={confirmAddAmount}
+            onKeyDown={e => { if (e.key === 'Enter') confirmAddAmount(); if (e.key === 'Escape') setAddAmount(false); }} />
+        </div>
       ) : (
-        <span className="mitem-cell" onClick={startAmount} title="Editar previsto · escribe +N para sumar al actual">
-          {item.amount > 0 ? fmt(item.amount) : <span style={{ color: 'var(--adm-muted)' }}>—</span>}
+        <span className="mitem-cell" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: 3 }}>
+          <span onClick={startAmount} title="Clic para editar previsto">
+            {item.amount > 0 ? fmt(item.amount) : <span style={{ color: 'var(--adm-muted)', opacity: 0.4 }}>—</span>}
+          </span>
+          {item.amount > 0 && (
+            <button onClick={e => { e.stopPropagation(); startAddAmount(); }}
+              title="Sumar al previsto"
+              style={{ background: 'none', border: 'none', color: 'var(--adm-muted)', cursor: 'pointer', fontSize: 14, padding: '0 1px', lineHeight: 1, flexShrink: 0 }}>
+              +
+            </button>
+          )}
         </span>
       )}
 
@@ -362,19 +392,35 @@ function ItemRow({ item, showReal, onDelete, onAmountSave, onRealSave, onNameSav
       {showReal && (
         editReal ? (
           <input className="mitem-cell-input" type="text" inputMode="decimal" value={realVal} autoFocus
-            placeholder="+N · vacío = borrar"
+            placeholder="vacío = borrar"
             onChange={e => setRealVal(e.target.value)}
             onBlur={confirmReal}
             onKeyDown={e => { if (e.key === 'Enter') confirmReal(); if (e.key === 'Escape') setEditReal(false); }} />
+        ) : addReal ? (
+          <div style={{ display: 'flex', alignItems: 'center', width: 83 }}>
+            <span style={{ fontSize: 11, color: 'var(--adm-muted)', paddingRight: 2 }}>+</span>
+            <input className="mitem-cell-input" type="text" inputMode="decimal" value={addRealVal} autoFocus
+              placeholder="0,00" style={{ flex: 1, width: 'auto', minWidth: 0 }}
+              onChange={e => setAddRealVal(e.target.value)}
+              onBlur={confirmAddReal}
+              onKeyDown={e => { if (e.key === 'Enter') confirmAddReal(); if (e.key === 'Escape') setAddReal(false); }} />
+          </div>
         ) : (
-          <span className="mitem-cell" onClick={startReal}
-            title={
-              isOverBudget
-                ? `⚠ ${fmt(item.real_amount! - item.amount)} sobre el previsto`
-                : hasReal ? 'Editar importe real' : 'Añadir importe real'
-            }
-            style={{ color: isOverBudget ? '#ef4444' : hasReal ? 'var(--primary)' : 'var(--adm-muted)', opacity: hasReal ? 1 : 0.4 }}>
-            {isOverBudget ? `⚠ ${fmt(item.real_amount!)}` : hasReal ? fmt(item.real_amount!) : '—'}
+          <span className="mitem-cell"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: 3,
+                     color: isOverBudget ? '#ef4444' : hasReal ? 'var(--primary)' : 'var(--adm-muted)',
+                     opacity: hasReal ? 1 : 0.4 }}>
+            <span onClick={startReal}
+              title={isOverBudget ? `⚠ ${fmt(item.real_amount! - item.amount)} sobre el previsto` : hasReal ? 'Editar importe real' : 'Añadir importe real'}>
+              {isOverBudget ? `⚠ ${fmt(item.real_amount!)}` : hasReal ? fmt(item.real_amount!) : '—'}
+            </span>
+            {hasReal && (
+              <button onClick={e => { e.stopPropagation(); startAddReal(); }}
+                title="Sumar al real"
+                style={{ background: 'none', border: 'none', color: 'var(--adm-muted)', cursor: 'pointer', fontSize: 14, padding: '0 1px', lineHeight: 1, flexShrink: 0 }}>
+                +
+              </button>
+            )}
           </span>
         )
       )}
@@ -609,7 +655,9 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
 
   function stampUpdate() {
     const now = new Date();
-    setLastUpdated(now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
+    const fecha = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    const hora  = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    setLastUpdated(`${fecha}, ${hora}`);
   }
 
   const summary = profile.summary;
