@@ -71,13 +71,13 @@ const TRACKER_CSS = `
 .day-col{position:relative;border-right:1px solid #1e1e1e}
 .day-col:last-child{border-right:none}
 .day-col::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(to bottom,transparent,transparent calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px - 1px),#1a1a1a calc(var(--sh) * 1px));pointer-events:none;z-index:0}
-.ab{position:absolute;left:2px;right:2px;border-radius:5px;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:10px;font-weight:500;padding:4px 6px;text-align:left;line-height:1.35;color:#fff;overflow:hidden;transition:filter .15s,box-shadow .2s;border-left:3px solid rgba(255,255,255,.25);z-index:1}
+.ab{position:absolute;left:2px;right:2px;border-radius:5px;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:12px;font-weight:500;padding:4px 6px;text-align:left;line-height:1.35;color:#fff;overflow:hidden;transition:filter .15s,box-shadow .2s;border-left:3px solid rgba(255,255,255,.25);z-index:1}
 .ab:hover{filter:brightness(1.25);z-index:5}
 .ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:10px;color:#9ef5cb;font-weight:700}
 .ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:10px;color:#ffb3a0;font-weight:700}
 .ab.fut{opacity:.2;cursor:default;pointer-events:none}
 .ab.nt{cursor:pointer;opacity:.7}
-.ab-time{display:block;font-size:8.5px;font-weight:400;opacity:.75;margin-top:1px}
+.ab-time{display:block;font-size:10px;font-weight:400;opacity:.75;margin-top:1px}
 .now-line{position:absolute;left:0;right:0;height:2px;background:#5DCAA5;z-index:8;pointer-events:none}
 .now-dot{position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:#5DCAA5}
 .ckr{background:#155e8a;border-left-color:rgba(255,255,255,.35)}
@@ -394,8 +394,9 @@ function initTracker() {
   const NO_CAT = { label: 'Sin categoría', color: '#3a3a3a' };
 
   function getCatInfo(key: string): { label: string; color: string } {
-    if (!key || key === '_none') return NO_CAT;
+    if (!key) return NO_CAT;
     if (dynCats[key]) return dynCats[key];
+    if (key === '_none') return NO_CAT;
     const c = CATS[key];
     return c ? { label: c.label, color: c.color } : NO_CAT;
   }
@@ -595,8 +596,8 @@ function initTracker() {
         el.style.top = topPx + 'px';
         el.style.height = hPx + 'px';
         const timeStr = fmt(act.start) + '–' + fmt(act.end);
-        if (hPx >= 28)      el.innerHTML = `<span>${act.name}</span><span class="ab-time">${timeStr}</span>`;
-        else if (hPx >= 16) el.innerHTML = `<span style="font-size:9px">${act.name}</span>`;
+        if (hPx >= 32)      el.innerHTML = `<span>${act.name}</span><span class="ab-time">${timeStr}</span>`;
+        else if (hPx >= 18) el.innerHTML = `<span style="font-size:11px">${act.name}</span>`;
 
         if (isFut) {
           el.classList.add('fut');
@@ -863,11 +864,15 @@ function initTracker() {
   }
 
   function renderCatsList() {
-    const cats = Object.values(dynCats);
+    const noneInfo = getCatInfo('_none');
+    const cats = Object.values(dynCats).filter(c => c.cat_key !== '_none');
     let inner = `<div class="cfg-hdr"><h3>Categorías</h3><button class="btn-sm" id="btn-add-cat">+ Añadir</button></div>`;
-    if (cats.length === 0) {
-      inner += `<p class="cfg-empty">Sin categorías. Añade una para empezar.</p>`;
-    } else {
+    inner += `<div class="cat-row" id="cat-row-none" style="cursor:pointer">` +
+      `<div class="cat-sw" style="background:${noneInfo.color};pointer-events:none"></div>` +
+      `<span class="cat-label" style="flex:1">${noneInfo.label} <span style="font-size:10px;color:#555">(defecto)</span></span>` +
+      `<button class="btn-sm" id="btn-edit-none">Editar</button>` +
+      `</div>`;
+    if (cats.length > 0) {
       inner += cats.map(c =>
         `<div class="cat-row" data-cid="${c.id}">` +
         `<div class="cat-sw" style="background:${c.color};pointer-events:none"></div>` +
@@ -879,6 +884,7 @@ function initTracker() {
     document.getElementById('cfg-cats')!.innerHTML = inner;
 
     document.getElementById('btn-add-cat')?.addEventListener('click', () => openCatModal(0));
+    document.getElementById('btn-edit-none')?.addEventListener('click', () => openCatModal(-1));
     document.querySelectorAll('.cat-row[data-cid]').forEach(row => {
       row.addEventListener('click', (e) => {
         if ((e.target as HTMLElement).classList.contains('btn-del-cat') ||
@@ -1043,8 +1049,13 @@ function initTracker() {
   function openCatModal(catId: number) {
     editMode = 'cat';
     editCatId = catId;
-    const cat = catId ? Object.values(dynCats).find(c => c.id === catId) : null;
-    document.getElementById('em-title')!.textContent = catId ? 'Editar categoría' : 'Nueva categoría';
+    let cat: { label: string; color: string } | null = null;
+    if (catId === -1) {
+      cat = dynCats['_none'] || NO_CAT;
+    } else if (catId > 0) {
+      cat = Object.values(dynCats).find(c => c.id === catId) || null;
+    }
+    document.getElementById('em-title')!.textContent = catId === -1 ? 'Editar "Sin categoría"' : catId ? 'Editar categoría' : 'Nueva categoría';
     document.getElementById('em-body')!.innerHTML =
       `<div class="form-row"><label>Nombre</label><input type="text" id="ef-label" value="${cat?.label || ''}" placeholder="Nombre de la categoría" /></div>` +
       `<div class="form-row"><label>Color</label><input type="color" id="ef-color" value="${cat?.color || '#1a82b8'}" style="height:36px;cursor:pointer;padding:2px" /></div>`;
@@ -1056,9 +1067,10 @@ function initTracker() {
     editMode = 'task';
     editTaskId = raw?.id || 0;
     document.getElementById('em-title')!.textContent = raw ? 'Editar tarea' : 'Nueva tarea';
+    const noneLabel = getCatInfo('_none').label;
     const catOpts =
-      `<option value="_none"${(!raw?.cat_key || raw.cat_key === '_none') ? ' selected' : ''}>— Sin categoría</option>` +
-      Object.values(dynCats).map(c =>
+      `<option value="_none"${(!raw?.cat_key || raw.cat_key === '_none') ? ' selected' : ''}>— ${noneLabel}</option>` +
+      Object.values(dynCats).filter(c => c.cat_key !== '_none').map(c =>
         `<option value="${c.cat_key}"${raw?.cat_key === c.cat_key ? ' selected' : ''}>${c.label}</option>`
       ).join('');
     document.getElementById('em-body')!.innerHTML =
@@ -1096,7 +1108,16 @@ function initTracker() {
       const label = ((document.getElementById('ef-label') as HTMLInputElement)?.value || '').trim();
       const color = (document.getElementById('ef-color') as HTMLInputElement)?.value || '#555';
       if (!label) { alert('Introduce un nombre para la categoría.'); return; }
-      if (editCatId) {
+      if (editCatId === -1) {
+        const existing = dynCats['_none'];
+        if (existing) {
+          fetch('/api/tracker/categories', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: existing.id, label, color }) })
+            .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
+        } else {
+          fetch('/api/tracker/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cat_key: '_none', label, color }) })
+            .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
+        }
+      } else if (editCatId) {
         fetch('/api/tracker/categories', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editCatId, label, color }) })
           .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
       } else {
