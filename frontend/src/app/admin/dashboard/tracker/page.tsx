@@ -578,7 +578,7 @@ function initTracker() {
         if (act.cat !== 'prep' && act.cat !== 'libre' && act.cat !== 'dormir') catSet.add(act.cat);
 
         const el = document.createElement('button');
-        if (cls) {
+        if (cls && !dynCats[act.cat]) {
           el.className = 'ab ' + cls;
         } else {
           el.className = 'ab';

@@ -651,13 +651,18 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
   const [saldoVal,     setSaldoVal]     = useState('');
   const [closing,      setClosing]      = useState(false);
   const [saveStatus,   setSaveStatus]   = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [lastUpdated,  setLastUpdated]  = useState<string | null>(null);
+  const lsKey = `moneta_lastmod_${profile.id}_${year}_${month}`;
+  const [lastUpdated,  setLastUpdated]  = useState<string | null>(() => {
+    try { return localStorage.getItem(lsKey); } catch { return null; }
+  });
 
   function stampUpdate() {
     const now = new Date();
     const fecha = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     const hora  = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    setLastUpdated(`${fecha}, ${hora}`);
+    const val = `${fecha}, ${hora}`;
+    setLastUpdated(val);
+    try { localStorage.setItem(lsKey, val); } catch {}
   }
 
   const summary = profile.summary;
