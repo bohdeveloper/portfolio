@@ -45,7 +45,10 @@ function monthLabel(year: number, month: number) {
 
 function formatLastMod(iso: string | null | undefined): string {
   if (!iso) return '';
-  const d = new Date(iso);
+  // SQLite CURRENT_TIMESTAMP devuelve 'YYYY-MM-DD HH:MM:SS' sin zona horaria.
+  // Se normaliza a ISO 8601 UTC para que todos los navegadores lo interpreten igual.
+  const utc = iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z';
+  const d = new Date(utc);
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) +
          ', ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
