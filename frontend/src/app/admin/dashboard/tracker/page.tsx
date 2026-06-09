@@ -746,26 +746,30 @@ function initTracker() {
   // ── Stats ─────────────────────────────────────────────────────────────────────
   function renderStats() {
     const days = getDays(weekOffset);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
     const catKeys = Object.keys(dynCats).length > 0 ? Object.keys(dynCats) : Object.keys(CATS);
     const catData: Record<string, { total: number; done: number }> = {};
     catKeys.forEach(k => catData[k] = { total: 0, done: 0 });
     const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0];
+    let miss = 0;
 
     for (let di = 0; di < 7; di++) {
-      const dKey = dk(days[di]);
-      for (const act of getSchedForDay(di, days[di])) {
-        if (!act.track) continue;
+      const d2 = days[di];
+      const dKey = dk(d2);
+      const isFut = d2 > today;
+      for (const act of getSchedForDay(di, d2)) {
+        if (!act.track || isFut) continue;
         const rec = state[ak(dKey, act.id)];
         if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0 };
         catData[act.cat].total++; dt[di]++;
-        if (rec && rec.done) { catData[act.cat].done++; dd[di]++; }
+        if (rec?.done) { catData[act.cat].done++; dd[di]++; }
+        if (rec && !rec.done) miss++;
       }
     }
 
     let total = 0, done = 0;
     Object.values(catData).forEach(c => { total += c.total; done += c.done; });
     const pct  = total > 0 ? Math.round(done / total * 100) : 0;
-    const miss = Object.values(state).filter(v => !v.done).length;
     let streak = 0;
     for (let i = 0; i < 7; i++) { if (dt[i] > 0 && dd[i] === dt[i]) streak++; else break; }
 
@@ -808,20 +812,24 @@ function initTracker() {
   // ── Resumen ───────────────────────────────────────────────────────────────────
   function renderResumen() {
     const days = getDays(weekOffset);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
     const catKeys = Object.keys(dynCats).length > 0 ? Object.keys(dynCats) : Object.keys(CATS);
     const catData: Record<string, { total: number; done: number }> = {};
     catKeys.forEach(k => catData[k] = { total: 0, done: 0 });
     const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0];
-    let total = 0, done = 0;
+    let total = 0, done = 0, miss = 0;
 
     for (let di = 0; di < 7; di++) {
-      const dKey = dk(days[di]);
-      for (const act of getSchedForDay(di, days[di])) {
-        if (!act.track) continue;
+      const d2 = days[di];
+      const dKey = dk(d2);
+      const isFut = d2 > today;
+      for (const act of getSchedForDay(di, d2)) {
+        if (!act.track || isFut) continue;
         const rec = state[ak(dKey, act.id)];
         if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0 };
         total++; dt[di]++; catData[act.cat].total++;
         if (rec && rec.done) { done++; dd[di]++; catData[act.cat].done++; }
+        if (rec && !rec.done) miss++;
       }
     }
 
@@ -835,7 +843,6 @@ function initTracker() {
     for (let i = 1; i < 7; i++) { const ra = dt[i] > 0 ? dd[i]/dt[i] : 1, rb = dt[worstD] > 0 ? dd[worstD]/dt[worstD] : 1; if (ra < rb) worstD = i; }
     const sorted = catKeys.filter(k => catData[k] && catData[k].total > 0).sort((a, b) => (catData[b].done/catData[b].total) - (catData[a].done/catData[a].total));
     const bestCat = sorted[0], worstCat = sorted[sorted.length - 1];
-    const miss = Object.values(state).filter(v => !v.done).length;
 
     let html = `<h3 style="margin-bottom:.75rem;font-size:14px">Resumen de semana</h3>` +
       `<div class="sb"><p style="font-weight:500">Cumplimiento global: ${pct}%</p><p style="font-size:11px;color:#555;margin-top:2px">${done} de ${total} actividades rastreadas.</p></div>` +

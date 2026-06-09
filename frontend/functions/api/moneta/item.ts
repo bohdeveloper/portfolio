@@ -5,6 +5,18 @@ interface Env { DB: D1Database; JWT_SECRET: string }
 const H = { 'Content-Type': 'application/json' };
 const bad = (msg: string) => new Response(JSON.stringify({ ok: false, error: msg }), { status: 400, headers: H });
 
+/* Upsert last_modified en el resumen mensual del perfil/mes al que pertenece el ítem.
+   Llamar siempre después de cualquier escritura (POST, PATCH, DELETE) para que la
+   fecha de última modificación quede almacenada en la BBDD y sea consistente
+   entre dispositivos, en lugar de depender de localStorage. */
+async function touchLastModified(db: D1Database, profileId: number, year: number, month: number) {
+  await db.prepare(`
+    INSERT INTO moneta_monthly_summary (profile_id, year, month, last_modified)
+    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(profile_id, year, month) DO UPDATE SET last_modified = CURRENT_TIMESTAMP
+  `).bind(profileId, year, month).run();
+}
+
 /* ── POST /api/moneta/item — crear ítem ── */
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const auth = await verifyAuth(request, env.JWT_SECRET);
@@ -18,7 +30,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const { profile_id, year, month, name, amount, type, sort_order = 99 } = body;
   if (!profile_id || !name || year == null || month == null) return bad('Faltan parámetros');
 
-  // Verificar que el perfil pertenece al usuario autenticado
   const profileOwner = await env.DB.prepare(
     'SELECT id FROM moneta_profiles WHERE id = ? AND user_id = ?'
   ).bind(profile_id, auth.user_id).first<{ id: number }>();
@@ -31,6 +42,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       INSERT INTO moneta_items (profile_id, year, month, name, amount, type, sort_order)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).bind(profile_id, year, month, name, amount ?? 0, type, sort_order).run();
+
+    await touchLastModified(env.DB, profile_id, year, month);
 
     return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id }), { status: 200, headers: H });
   } catch (err: unknown) {
@@ -58,14 +71,17 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   if (parts.length === 0) return bad('Nada que actualizar');
 
   try {
-    // La subquery "profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)"
-    // verifica la propiedad del ítem sin necesidad de una columna user_id en moneta_items.
-    // Si el ítem pertenece a otro usuario, la condición no coincide y no se actualiza nada,
-    // sin revelar si el id existe o no (comportamiento silencioso seguro).
     await env.DB.prepare(
       `UPDATE moneta_items SET ${parts.join(', ')}
        WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)`
     ).bind(...vals, id, auth.user_id).run();
+
+    // Actualizar last_modified en el resumen mensual del ítem modificado
+    const item = await env.DB.prepare(
+      'SELECT profile_id, year, month FROM moneta_items WHERE id=?'
+    ).bind(id).first<{ profile_id: number; year: number; month: number }>();
+    if (item) await touchLastModified(env.DB, item.profile_id, item.year, item.month);
+
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Database error';
@@ -83,11 +99,17 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   if (!id) return bad('Falta id');
 
   try {
-    // Mismo patrón de subquery que en PATCH: filtra por perfil del usuario autenticado
-    // para garantizar que solo se borran ítems propios, sin columna user_id directa en la tabla.
+    // Obtener datos del ítem antes de borrar para actualizar last_modified después
+    const item = await env.DB.prepare(
+      'SELECT profile_id, year, month FROM moneta_items WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)'
+    ).bind(id, auth.user_id).first<{ profile_id: number; year: number; month: number }>();
+
     await env.DB.prepare(
       'DELETE FROM moneta_items WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)'
     ).bind(id, auth.user_id).run();
+
+    if (item) await touchLastModified(env.DB, item.profile_id, item.year, item.month);
+
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Database error';

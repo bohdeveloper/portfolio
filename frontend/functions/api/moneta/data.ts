@@ -10,7 +10,7 @@ interface ItemRow {
 }
 
 interface SummaryRow {
-  profile_id: number; saldo_inicial: number | null; closed: number; closed_at: string | null;
+  profile_id: number; saldo_inicial: number | null; closed: number; closed_at: string | null; last_modified: string | null;
 }
 
 /* ── GET /api/moneta/data?year=YYYY&month=M
@@ -42,7 +42,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     `).bind(year, month).all<ItemRow>();
 
     const { results: summaries } = await env.DB.prepare(`
-      SELECT profile_id, saldo_inicial, closed, closed_at
+      SELECT profile_id, saldo_inicial, closed, closed_at, last_modified
       FROM moneta_monthly_summary
       WHERE year = ? AND month = ?
     `).bind(year, month).all<SummaryRow>();

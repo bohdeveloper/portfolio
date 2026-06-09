@@ -15,6 +15,7 @@ interface Summary {
   saldo_inicial: number | null;
   closed: number;
   closed_at: string | null;
+  last_modified?: string | null;
 }
 
 interface Profile {
@@ -40,6 +41,13 @@ function monthLabel(year: number, month: number) {
   return new Date(year, month - 1, 1)
     .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
     .replace(/^(.)/, s => s.toUpperCase());
+}
+
+function formatLastMod(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) +
+         ', ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
 /* ── Estilos ───────────────────────────────────────────────── */
@@ -651,18 +659,14 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
   const [saldoVal,     setSaldoVal]     = useState('');
   const [closing,      setClosing]      = useState(false);
   const [saveStatus,   setSaveStatus]   = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const lsKey = `moneta_lastmod_${profile.id}_${year}_${month}`;
-  const [lastUpdated,  setLastUpdated]  = useState<string | null>(() => {
-    try { return localStorage.getItem(lsKey); } catch { return null; }
-  });
+  const [lastUpdated,  setLastUpdated]  = useState<string | null>(profile.summary?.last_modified ?? null);
+
+  useEffect(() => {
+    setLastUpdated(profile.summary?.last_modified ?? null);
+  }, [profile.summary?.last_modified]);
 
   function stampUpdate() {
-    const now = new Date();
-    const fecha = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    const hora  = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    const val = `${fecha}, ${hora}`;
-    setLastUpdated(val);
-    try { localStorage.setItem(lsKey, val); } catch {}
+    setLastUpdated(new Date().toISOString());
   }
 
   const summary = profile.summary;
@@ -707,6 +711,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
 
   function handleDelete(id: number) {
     onUpdate(profile.id, items => items.filter(i => i.id !== id));
+    stampUpdate();
     fetch(`/api/moneta/item?id=${id}`, { method: 'DELETE' });
   }
 
@@ -831,7 +836,7 @@ function ProfileColumn({ profile, year, month, isHidden, onUpdate, onSummaryUpda
           {saveStatus === 'saving' && <span style={{ color: 'var(--adm-muted)' }}>Guardando…</span>}
           {saveStatus === 'saved'  && <span style={{ color: '#22c55e' }}>✓ Guardado</span>}
           {saveStatus === 'error'  && <span style={{ color: '#ef4444' }}>⚠ Error al guardar</span>}
-          {saveStatus === 'idle' && lastUpdated && <span style={{ color: 'var(--adm-muted)' }}>Últ. mod. {lastUpdated}</span>}
+          {saveStatus === 'idle' && lastUpdated && <span style={{ color: 'var(--adm-muted)' }}>Últ. mod. {formatLastMod(lastUpdated)}</span>}
         </span>
       </div>
       <div className="moneta-col-headers">
