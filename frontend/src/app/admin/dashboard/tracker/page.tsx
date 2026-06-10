@@ -76,7 +76,7 @@ const TRACKER_CSS = `
 .ab.done::after{content:'✓';position:absolute;top:3px;right:5px;font-size:10px;color:#9ef5cb;font-weight:700}
 .ab.miss::after{content:'✗';position:absolute;top:3px;right:5px;font-size:10px;color:#ffb3a0;font-weight:700}
 .ab.fut{opacity:.2;cursor:default;pointer-events:none}
-.ab.nt{cursor:pointer;opacity:.7}
+.ab.nt{cursor:default;opacity:.7}
 .ab-time{display:block;font-size:9px;font-weight:400;opacity:.75;margin-top:1px;white-space:nowrap}
 .now-line{position:absolute;left:0;right:0;height:2px;background:#5DCAA5;z-index:8;pointer-events:none}
 .now-dot{position:absolute;left:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:#5DCAA5}
@@ -624,10 +624,13 @@ function initTracker() {
               ? (el.classList.add('done'), act.track && doneActs++)
               : (el.classList.add('miss'), act.track && missActs++);
           }
-          if (!act.track) el.classList.add('nt');
-          ((dk2: string, a: Activity, di2: number, d3: Date) => {
-            el.onclick = () => openModal(dk2, a, di2, DIAS_F[di2] + ' ' + d3.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
-          })(dKey, act, di, d2);
+          if (!act.track) {
+            el.classList.add('nt');
+          } else {
+            ((dk2: string, a: Activity, di2: number, d3: Date) => {
+              el.onclick = () => openModal(dk2, a, di2, DIAS_F[di2] + ' ' + d3.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
+            })(dKey, act, di, d2);
+          }
         }
         ((a: Activity, dstr: string) => {
           el.addEventListener('mouseenter', e => {
