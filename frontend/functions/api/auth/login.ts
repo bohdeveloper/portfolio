@@ -6,8 +6,8 @@ interface Env {
   JWT_SECRET: string;
 }
 
-const RATE_LIMIT   = 10;          // max intentos fallidos
-const RATE_WINDOW  = 15 * 60;     // ventana en segundos (15 min)
+const RATE_LIMIT   = 5;            // max intentos fallidos antes de lockout
+const RATE_WINDOW  = 15 * 60;      // ventana en segundos (15 min)
 const CLEANUP_AGE  = 24 * 60 * 60; // limpiar intentos > 24h
 // Hash ficticio válido para que bcrypt siempre se ejecute (evita timing attack de enumeración)
 const DUMMY_HASH   = '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lh6C';
@@ -42,6 +42,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!username || !password) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing credentials' }), { status: 400, headers });
   }
+  // Rechazar credenciales desproporcionadas antes de tocar la BD
+  if (username.length > 100 || password.length > 200) {
+    return new Response(JSON.stringify({ ok: false, error: 'Credenciales incorrectas' }), { status: 401, headers });
+  }
 
   // ── Autenticación ────────────────────────────────────────────────────────────
   const row = await env.DB.prepare(
@@ -70,14 +74,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const token = await new SignJWT({ user_id: row.id, username: row.id === 1 ? username : username, role: row.role })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('7d')
+    .setExpirationTime('4h')
     .sign(secret);
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Set-Cookie': `admin_token=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Path=/`,
+      'Set-Cookie': `admin_token=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=14400; Path=/`,
     },
   });
 };

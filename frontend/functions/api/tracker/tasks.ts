@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateStr, validateInt } from '../_security';
 
 interface Env {
   DB: D1Database;
@@ -20,9 +21,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (day_index === undefined || !name || !cat_key || start_min === undefined || end_min === undefined) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing fields' }), { status: 400, headers });
   }
-  if (day_index < 0 || day_index > 6) {
+  if (validateInt(day_index, 0, 6) === null)
     return new Response(JSON.stringify({ ok: false, error: 'day_index must be 0-6' }), { status: 400, headers });
-  }
+  if (!validateStr(name, 1, 120))
+    return new Response(JSON.stringify({ ok: false, error: 'name: 1-120 caracteres' }), { status: 400, headers });
+  if (!validateStr(cat_key, 1, 40))
+    return new Response(JSON.stringify({ ok: false, error: 'cat_key inválido' }), { status: 400, headers });
+  if (validateInt(start_min, 0, 1439) === null || validateInt(end_min, 1, 1440) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'Horario inválido' }), { status: 400, headers });
+  if (typeof description === 'string' && description.length > 500)
+    return new Response(JSON.stringify({ ok: false, error: 'description: máximo 500 caracteres' }), { status: 400, headers });
 
   const activity_id = 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
@@ -47,6 +55,18 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
 
   const { id, name, cat_key, start_min, end_min, description, track } = body;
   if (!id) return new Response(JSON.stringify({ ok: false, error: 'Missing id' }), { status: 400, headers });
+
+  // Validar campos opcionales si se envían
+  if (name !== undefined && !validateStr(name, 1, 120))
+    return new Response(JSON.stringify({ ok: false, error: 'name: 1-120 caracteres' }), { status: 400, headers });
+  if (cat_key !== undefined && !validateStr(cat_key, 1, 40))
+    return new Response(JSON.stringify({ ok: false, error: 'cat_key inválido' }), { status: 400, headers });
+  if (start_min !== undefined && validateInt(start_min, 0, 1439) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'Horario inválido' }), { status: 400, headers });
+  if (end_min !== undefined && validateInt(end_min, 1, 1440) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'Horario inválido' }), { status: 400, headers });
+  if (description !== undefined && description.length > 500)
+    return new Response(JSON.stringify({ ok: false, error: 'description: máximo 500 caracteres' }), { status: 400, headers });
 
   const sets: string[] = [];
   const vals: unknown[] = [];

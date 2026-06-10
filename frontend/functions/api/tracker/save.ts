@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateInt } from '../_security';
 
 interface Env {
   DB: D1Database;
@@ -22,6 +23,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!date || !activity_id || day_index === undefined || done === undefined) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing fields' }), { status: 400, headers });
   }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
+    return new Response(JSON.stringify({ ok: false, error: 'Formato de fecha inválido' }), { status: 400, headers });
+  if (typeof activity_id !== 'string' || activity_id.length > 60 || !/^[\w-]+$/.test(activity_id))
+    return new Response(JSON.stringify({ ok: false, error: 'activity_id inválido' }), { status: 400, headers });
+  if (validateInt(day_index, 0, 6) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'day_index debe ser 0-6' }), { status: 400, headers });
+  if (done !== 0 && done !== 1)
+    return new Response(JSON.stringify({ ok: false, error: 'done debe ser 0 o 1' }), { status: 400, headers });
+  if (reason !== undefined && (typeof reason !== 'string' || reason.length > 500))
+    return new Response(JSON.stringify({ ok: false, error: 'reason: máximo 500 caracteres' }), { status: 400, headers });
 
   await env.DB.prepare(
     `INSERT INTO tracker_records (date, activity_id, day_index, done, reason, user_id, updated_at)

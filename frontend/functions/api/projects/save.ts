@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateHttpsUrl } from '../_security';
 
 interface Env { DB: D1Database; JWT_SECRET: string }
 
@@ -32,6 +33,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (title.length > 500 || slug.length > 200 || tags.length > 500) {
     return new Response(JSON.stringify({ ok: false, error: 'Field too long' }), { status: 400, headers });
   }
+  if (github_url && validateHttpsUrl(github_url) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'github_url debe ser una URL https válida' }), { status: 400, headers });
+  if (demo_url && validateHttpsUrl(demo_url) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'demo_url debe ser una URL https válida' }), { status: 400, headers });
 
   try {
     if (id) {

@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateInt, validateFloat } from '../_security';
 
 interface Env { DB: D1Database; JWT_SECRET: string }
 
@@ -39,6 +40,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   if (!['male', 'female'].includes(sex))
     return new Response(JSON.stringify({ ok: false, error: 'sex debe ser male o female' }), { status: 400, headers: H });
+
+  if (validateInt(age, 10, 120) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'age: entre 10 y 120 años' }), { status: 400, headers: H });
+  if (validateFloat(height_cm, 100, 250) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'height_cm: entre 100 y 250 cm' }), { status: 400, headers: H });
+  if (validateFloat(activity_factor, 1.0, 2.5) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'activity_factor: entre 1.0 y 2.5' }), { status: 400, headers: H });
 
   await env.DB.prepare(`
     INSERT INTO bioptima_profile (user_id, sex, age, height_cm, activity_factor, updated_at)

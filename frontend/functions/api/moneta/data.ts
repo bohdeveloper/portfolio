@@ -29,23 +29,27 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       'SELECT * FROM moneta_profiles WHERE user_id = ? ORDER BY sort_order'
     ).bind(auth.user_id).all<{ id: number; name: string; sort_order: number }>();
 
-    // Los ítems NO filtran por user_id directamente porque moneta_items no tiene esa columna.
-    // El acceso se restringe de forma indirecta: solo se devuelven los perfiles del usuario
-    // (query anterior), y luego en JS se filtran los ítems por profile_id de esos perfiles.
-    // Esto significa que un ítem de otro usuario con el mismo year/month nunca llegaría
-    // al cliente, ya que su profile_id no aparecería en el array de perfiles del usuario.
+    if (profiles.length === 0) {
+      return new Response(JSON.stringify({ ok: true, data: [] }), { status: 200, headers: H });
+    }
+
+    // Filtrar items y summaries SOLO por los profile_ids que pertenecen al usuario.
+    // Defensa en profundidad: la query SQL restringe por ownership, no solo JS del cliente.
+    const profileIds = profiles.map(p => p.id);
+    const ph = profileIds.map(() => '?').join(',');
+
     const { results: items } = await env.DB.prepare(`
       SELECT id, profile_id, name, amount, real_amount, type, sort_order
       FROM moneta_items
-      WHERE year = ? AND month = ?
+      WHERE year = ? AND month = ? AND profile_id IN (${ph})
       ORDER BY profile_id, sort_order, id
-    `).bind(year, month).all<ItemRow>();
+    `).bind(year, month, ...profileIds).all<ItemRow>();
 
     const { results: summaries } = await env.DB.prepare(`
       SELECT profile_id, saldo_inicial, closed, closed_at, last_modified
       FROM moneta_monthly_summary
-      WHERE year = ? AND month = ?
-    `).bind(year, month).all<SummaryRow>();
+      WHERE year = ? AND month = ? AND profile_id IN (${ph})
+    `).bind(year, month, ...profileIds).all<SummaryRow>();
 
     const data = profiles.map(p => ({
       ...p,
@@ -54,8 +58,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     }));
 
     return new Response(JSON.stringify({ ok: true, data }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }
 };

@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateFloat } from '../_security';
 
 interface Env { DB: D1Database; JWT_SECRET: string }
 
@@ -93,6 +94,22 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
     return new Response(JSON.stringify({ ok: false, error: 'Formato de fecha inválido (YYYY-MM-DD)' }), { status: 400, headers: H });
 
+  // Rangos antropométricos realistas
+  if (validateFloat(weight_kg, 20, 400) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'weight_kg: entre 20 y 400 kg' }), { status: 400, headers: H });
+  if (body.waist_cm !== undefined && body.waist_cm !== null && validateFloat(body.waist_cm, 40, 250) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'waist_cm: entre 40 y 250 cm' }), { status: 400, headers: H });
+  if (body.hip_cm !== undefined && body.hip_cm !== null && validateFloat(body.hip_cm, 50, 250) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'hip_cm: entre 50 y 250 cm' }), { status: 400, headers: H });
+  if (body.neck_cm !== undefined && body.neck_cm !== null && validateFloat(body.neck_cm, 20, 70) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'neck_cm: entre 20 y 70 cm' }), { status: 400, headers: H });
+  if (body.chest_cm !== undefined && body.chest_cm !== null && validateFloat(body.chest_cm, 50, 200) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'chest_cm: entre 50 y 200 cm' }), { status: 400, headers: H });
+  if (body.bicep_cm !== undefined && body.bicep_cm !== null && validateFloat(body.bicep_cm, 10, 80) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'bicep_cm: entre 10 y 80 cm' }), { status: 400, headers: H });
+  if (body.thigh_cm !== undefined && body.thigh_cm !== null && validateFloat(body.thigh_cm, 20, 120) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'thigh_cm: entre 20 y 120 cm' }), { status: 400, headers: H });
+
   // Necesitamos el perfil del usuario para los cálculos
   const { results: profileRows } = await env.DB.prepare(
     'SELECT sex, age, height_cm, activity_factor FROM bioptima_profile WHERE user_id = ?'
@@ -142,9 +159,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       ok: true, id: meta.last_row_id,
       calc: { bmi, body_fat_pct, lean_mass_kg, bmr, tdee }
     }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }
 };
 

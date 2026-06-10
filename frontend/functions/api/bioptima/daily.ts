@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateFloat } from '../_security';
 
 interface Env { DB: D1Database; JWT_SECRET: string }
 
@@ -64,6 +65,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   if (!['exercise', 'intake'].includes(field))
     return new Response(JSON.stringify({ ok: false, error: 'field debe ser exercise o intake' }), { status: 400, headers: H });
+
+  // Rango de kcal realista: 0 a 30000 kcal
+  if (validateFloat(value, 0, 30000) === null)
+    return new Response(JSON.stringify({ ok: false, error: 'value: entre 0 y 30000 kcal' }), { status: 400, headers: H });
 
   const col = field === 'exercise' ? 'kcal_exercise' : 'kcal_intake';
 

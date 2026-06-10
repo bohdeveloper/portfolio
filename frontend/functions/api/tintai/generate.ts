@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateStr, validateInt } from '../_security';
 
 interface Env { DB: D1Database; JWT_SECRET: string; ANTHROPIC_API_KEY: string }
 
@@ -14,6 +15,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   'tecnología':    '#facc15', 'arte':          '#e879f9', 'espiritualidad':'#67e8f9',
   'educación':     '#fdba74',
 };
+
+const VALID_LEVELS    = ['principiante', 'intermedio', 'avanzado', 'experto'];
+const VALID_LANGUAGES = ['español', 'inglés', 'francés', 'alemán', 'italiano', 'portugués', 'catalán'];
+const MAX_CHAPTERS    = 30;
 
 // Haiku 4.5 — significativamente más rápido que Sonnet, ideal para generación en Workers
 async function callClaude(apiKey: string, userPrompt: string): Promise<string> {
@@ -74,6 +79,19 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       if (!title || !category || !level || !language || !num_chapters)
         return new Response(JSON.stringify({ ok: false, error: 'Faltan campos obligatorios' }), { status: 400, headers: H });
 
+      if (!validateStr(title, 1, 200))
+        return new Response(JSON.stringify({ ok: false, error: 'title: 1-200 caracteres' }), { status: 400, headers: H });
+      if (!Object.keys(CATEGORY_COLORS).includes(category))
+        return new Response(JSON.stringify({ ok: false, error: 'Categoría no válida' }), { status: 400, headers: H });
+      if (!VALID_LEVELS.includes(level))
+        return new Response(JSON.stringify({ ok: false, error: 'level inválido' }), { status: 400, headers: H });
+      if (!VALID_LANGUAGES.includes(language))
+        return new Response(JSON.stringify({ ok: false, error: 'language inválido' }), { status: 400, headers: H });
+      if (validateInt(num_chapters, 1, MAX_CHAPTERS) === null)
+        return new Response(JSON.stringify({ ok: false, error: `num_chapters: entre 1 y ${MAX_CHAPTERS}` }), { status: 400, headers: H });
+      if (description && !validateStr(description, 0, 2000))
+        return new Response(JSON.stringify({ ok: false, error: 'description: máximo 2000 caracteres' }), { status: 400, headers: H });
+
       // Las instrucciones del usuario pueden ser texto libre o XML estructurado.
       // Se inyectan en una sección dedicada para que Claude las aplique con precisión.
       const instrBlock = description
@@ -88,8 +106,8 @@ Devuelve ÚNICAMENTE este JSON válido, sin texto adicional ni bloques de códig
       let tocText: string;
       try {
         tocText = await callClaude(env.ANTHROPIC_API_KEY, tocPrompt);
-      } catch (err: unknown) {
-        return new Response(JSON.stringify({ ok: false, error: err instanceof Error ? err.message : 'Error generando índice' }), { status: 500, headers: H });
+      } catch {
+        return new Response(JSON.stringify({ ok: false, error: 'Error generando índice. Inténtalo de nuevo.' }), { status: 500, headers: H });
       }
 
       const jsonMatch = tocText.match(/\{[\s\S]*\}/);
@@ -150,9 +168,10 @@ Escribe ahora el capítulo: "${chapterTitle}". Entre 400-600 palabras, subtítul
       try {
         content = await callClaude(env.ANTHROPIC_API_KEY, chapterPrompt);
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Error generando capítulo';
-        await env.DB.prepare("UPDATE tintai_books SET status='error', error_msg=? WHERE id=?").bind(msg, book_id).run();
-        return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
+        // Almacenar detalle en BD (uso interno) pero no exponerlo al cliente
+        const internalMsg = err instanceof Error ? err.message : 'Error generando capítulo';
+        await env.DB.prepare("UPDATE tintai_books SET status='error', error_msg=? WHERE id=?").bind(internalMsg, book_id).run();
+        return new Response(JSON.stringify({ ok: false, error: 'Error generando capítulo. Inténtalo de nuevo.' }), { status: 500, headers: H });
       }
 
       const word_count = content.split(/\s+/).filter(Boolean).length;
@@ -185,9 +204,8 @@ Escribe ahora el capítulo: "${chapterTitle}". Entre 400-600 palabras, subtítul
 
     return new Response(JSON.stringify({ ok: false, error: 'step inválido (toc|chapter|finalize)' }), { status: 400, headers: H });
 
-  } catch (err: unknown) {
-    // Captura cualquier excepción no prevista — evita el error 1101
-    const msg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ ok: false, error: `Error interno: ${msg}` }), { status: 500, headers: H });
+  } catch {
+    // Catch-all para evitar el error 1101 de Cloudflare — sin exponer internals
+    return new Response(JSON.stringify({ ok: false, error: 'Error interno. Inténtalo de nuevo.' }), { status: 500, headers: H });
   }
 };

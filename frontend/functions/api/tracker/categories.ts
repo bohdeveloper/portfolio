@@ -1,4 +1,5 @@
 import { verifyAuth } from '../_auth-util';
+import { validateStr, validateHexColor } from '../_security';
 
 interface Env {
   DB: D1Database;
@@ -20,6 +21,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!cat_key || !label || !color) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing fields: cat_key, label, color' }), { status: 400, headers });
   }
+  if (!validateStr(cat_key, 1, 40) || !/^[a-zA-Z0-9_-]+$/.test(cat_key))
+    return new Response(JSON.stringify({ ok: false, error: 'cat_key: 1-40 chars alfanuméricos' }), { status: 400, headers });
+  if (!validateStr(label, 1, 50))
+    return new Response(JSON.stringify({ ok: false, error: 'label: 1-50 caracteres' }), { status: 400, headers });
+  if (!validateHexColor(color))
+    return new Response(JSON.stringify({ ok: false, error: 'color debe ser #rrggbb' }), { status: 400, headers });
 
   const result = await env.DB.prepare(
     `INSERT INTO tracker_categories (user_id, cat_key, label, color, track, sort_order)
@@ -42,6 +49,11 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
 
   const { id, label, color, track } = body;
   if (!id) return new Response(JSON.stringify({ ok: false, error: 'Missing id' }), { status: 400, headers });
+
+  if (label !== undefined && !validateStr(label, 1, 50))
+    return new Response(JSON.stringify({ ok: false, error: 'label: 1-50 caracteres' }), { status: 400, headers });
+  if (color !== undefined && !validateHexColor(color))
+    return new Response(JSON.stringify({ ok: false, error: 'color debe ser #rrggbb' }), { status: 400, headers });
 
   const sets: string[] = [];
   const vals: unknown[] = [];

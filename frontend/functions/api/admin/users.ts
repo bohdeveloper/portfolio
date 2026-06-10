@@ -16,9 +16,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     const { results } = await env.DB.prepare('SELECT id, username, role, active FROM admin_users ORDER BY username')
       .all<{ id: number; username: string; role: string; active: number }>();
     return new Response(JSON.stringify({ ok: true, data: results }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }
 };
 
@@ -86,8 +85,10 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
       .bind(...vals, id).run();
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
+    if (err instanceof Error && err.message.includes('UNIQUE')) {
+      return new Response(JSON.stringify({ ok: false, error: 'Username already exists' }), { status: 409, headers: H });
+    }
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }
 };
 
@@ -103,8 +104,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
     if (id === String(auth.user_id)) return bad('Cannot delete your own account');
     await env.DB.prepare('DELETE FROM admin_users WHERE id=?').bind(id).run();
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
-    return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }
 };
