@@ -30,10 +30,10 @@ const TRACKER_CSS = `
 .btn:hover{background:#2a2a2a}
 .btn-done{background:#1D6B45;border-color:#1D6B45;color:#fff}
 .btn-miss{background:#7a2a1a;border-color:#7a2a1a;color:#fff}
-.legend-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:.75rem}
-.li{display:flex;align-items:center;gap:5px;font-size:11px;color:#aaa}
-.ld{width:9px;height:9px;border-radius:2px;flex-shrink:0}
-@media(min-width:640px){.li{font-size:13px}.ld{width:12px;height:12px;border-radius:3px}}
+.legend-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.75rem}
+.li{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#bbb;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:3px 9px 3px 6px;white-space:nowrap}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+@media(min-width:640px){.li{font-size:12px}.ld{width:8px;height:8px}}
 .sched-wrap{overflow-x:auto;overflow-y:auto;max-height:78vh;border:1px solid #2a2a2a;border-radius:10px}
 .sched-inner{display:grid;min-width:640px}
 .sched-head{display:grid;position:sticky;top:0;z-index:10;background:#111;border-bottom:1px solid #2a2a2a}
@@ -162,7 +162,7 @@ html.light .mc{background:#f0f0f0;border-color:#e0e0e0}
 html.light .mc-l{color:#888}
 html.light .btn{background:#eeeeee;border-color:#d0d0d0;color:#333}
 html.light .btn:hover{background:#dddddd}
-html.light .li{color:#888}
+html.light .li{color:#555;background:#f0f0f0;border-color:#e0e0e0}
 html.light .sched-wrap{border-color:#e0e0e0}
 html.light .sched-head{background:#f5f5f5;border-bottom-color:#e0e0e0}
 html.light .sh-corner{background:#f5f5f5;border-right-color:#e0e0e0}

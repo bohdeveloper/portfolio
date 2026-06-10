@@ -143,6 +143,90 @@ export default function ClaudeIA() {
         </div>
 
       </div>
+
+      {/* HERRAMIENTAS */}
+      <div className="mt-16">
+        <h3 className="text-lg font-semibold text-black dark:text-white mb-1">
+          Herramientas en producción
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-2xl">
+          Más allá del chat: utilidades que integro directamente en el flujo de cada proyecto.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          {/* graphify */}
+          <div className="p-5 rounded-lg border border-cyan-400/20 bg-white dark:bg-[#0d0d0d] hover:border-primary/40 transition-colors">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-primary font-mono text-base leading-none">⬡</span>
+              <h4 className="font-semibold text-black dark:text-white text-sm">graphify</h4>
+              <span className="ml-auto text-xs font-mono px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 text-gray-400">CLI</span>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+              Transforma cualquier repositorio en un{" "}
+              <strong className="text-gray-800 dark:text-gray-200">grafo de conocimiento</strong>:{" "}
+              nodos, comunidades y relaciones entre funciones, componentes y módulos.
+              Claude navega el código sin leer archivo por archivo — con contexto siempre actualizado.
+            </p>
+            <div className="grid grid-cols-3 gap-2 mb-4 text-center">
+              {[
+                { v: "650+", l: "nodos" },
+                { v: "800+", l: "conexiones" },
+                { v: "69",   l: "comunidades" },
+              ].map(({ v, l }) => (
+                <div key={l} className="py-2 rounded bg-cyan-400/5 border border-cyan-400/10">
+                  <div className="text-sm font-bold text-primary">{v}</div>
+                  <div className="text-xs text-gray-500">{l}</div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-600 italic mb-3">
+              Un hook <code className="font-mono not-italic text-primary/70">Stop</code> regenera
+              el grafo automáticamente tras cada sesión de desarrollo.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {["query", "path", "explain", "update", "watch"].map(cmd => (
+                <span
+                  key={cmd}
+                  className="px-2 py-0.5 text-xs font-mono text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-800 rounded"
+                >
+                  graphify {cmd}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Claude Code */}
+          <div className="p-5 rounded-lg border border-cyan-400/20 bg-white dark:bg-[#0d0d0d] hover:border-primary/40 transition-colors">
+            <div className="flex items-center gap-2 mb-3">
+              <svg viewBox="0 0 100 100" className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" aria-hidden="true">
+                <rect x="44" y="8"  width="12" height="84" rx="6" />
+                <rect x="44" y="8"  width="12" height="84" rx="6" transform="rotate(60,50,50)" />
+                <rect x="44" y="8"  width="12" height="84" rx="6" transform="rotate(120,50,50)" />
+              </svg>
+              <h4 className="font-semibold text-black dark:text-white text-sm">Claude Code</h4>
+              <span className="ml-auto text-xs font-mono px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 text-gray-400">CLI</span>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+              Agente que opera directamente sobre el repositorio: lee, edita y ejecuta código.
+              Hooks personalizados que automatizan tareas al inicio y al final de cada sesión,
+              manteniendo el contexto del proyecto siempre vigente.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {["hooks", "subagentes", "MCP servers", "memory", "skills"].map(tag => (
+                <span
+                  key={tag}
+                  className="px-2 py-0.5 text-xs font-mono text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-800 rounded"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </section>
   );
 }
