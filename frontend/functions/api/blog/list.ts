@@ -1,12 +1,20 @@
 interface Env { DB: D1Database; JWT_SECRET: string }
 
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+const CACHE_TTL = 300; // 5 min
+
+export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   // CORS wildcard solo para el endpoint público; en modo admin no se envía (misma origen)
   const isAdmin = new URL(request.url).searchParams.get('admin') === 'true';
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (!isAdmin) headers['Access-Control-Allow-Origin'] = '*';
   const url = new URL(request.url);
   const adminMode = isAdmin;
+
+  if (!adminMode) {
+    const cache = caches.default;
+    const cached = await cache.match(request);
+    if (cached) return cached;
+  }
 
   if (adminMode) {
     const cookie = request.headers.get('Cookie') ?? '';
@@ -28,7 +36,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     const { results } = await env.DB.prepare(
       `SELECT ${fields} FROM blog_posts ${where} ORDER BY created_at DESC`
     ).all();
-    return new Response(JSON.stringify({ ok: true, data: results }), { status: 200, headers });
+    const response = new Response(JSON.stringify({ ok: true, data: results }), {
+      status: 200,
+      headers: adminMode ? headers : { ...headers, 'Cache-Control': `public, max-age=${CACHE_TTL}, stale-while-revalidate=60` },
+    });
+    if (!adminMode) waitUntil(caches.default.put(request, response.clone()));
+    return response;
   } catch (err: unknown) {
     return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers });
   }

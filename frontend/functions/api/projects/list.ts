@@ -1,9 +1,18 @@
 interface Env { DB: D1Database; JWT_SECRET: string }
 
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+const CACHE_TTL = 300; // 5 min
+
+export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   const isAdmin = new URL(request.url).searchParams.get('admin') === 'true';
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (!isAdmin) headers['Access-Control-Allow-Origin'] = '*';
+
+  // Caché de edge para peticiones públicas (los bots no agotan D1)
+  if (!isAdmin) {
+    const cache = caches.default;
+    const cached = await cache.match(request);
+    if (cached) return cached;
+  }
 
   if (isAdmin) {
     const cookie = request.headers.get('Cookie') ?? '';
@@ -26,7 +35,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     const { results } = await env.DB.prepare(
       `SELECT ${fields} FROM projects ${where} ORDER BY featured DESC, created_at DESC`
     ).all();
-    return new Response(JSON.stringify({ ok: true, data: results }), { status: 200, headers });
+    const response = new Response(JSON.stringify({ ok: true, data: results }), {
+      status: 200,
+      headers: isAdmin ? headers : { ...headers, 'Cache-Control': `public, max-age=${CACHE_TTL}, stale-while-revalidate=60` },
+    });
+    if (!isAdmin) waitUntil(caches.default.put(request, response.clone()));
+    return response;
   } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers });
   }

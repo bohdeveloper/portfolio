@@ -4,8 +4,10 @@ interface Env { DB: D1Database; JWT_SECRET: string }
 
 const H = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
 
+const LEADERBOARD_CACHE_TTL = 60; // 1 min
+
 /* ── GET /api/games/score?game_id=N&limit=3 — leaderboard top N ── */
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   const url     = new URL(request.url);
   const game_id = parseInt(url.searchParams.get('game_id') ?? '');
   const isAdmin = url.searchParams.get('admin') === 'true';
@@ -19,6 +21,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     limit = 100;
   } else {
     limit = Math.min(10, parseInt(url.searchParams.get('limit') ?? '3'));
+    const cache = caches.default;
+    const cached = await cache.match(request);
+    if (cached) return cached;
   }
 
   if (!game_id || isNaN(game_id)) {
@@ -37,7 +42,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     `).bind(game_id, limit).all<{ alias: string; best_score: number; visitor_id: number }>();
 
     const data = results.map((r, i) => ({ rank: i + 1, alias: r.alias, score: r.best_score, visitor_id: r.visitor_id }));
-    return new Response(JSON.stringify({ ok: true, data }), { status: 200, headers: H });
+    const response = new Response(JSON.stringify({ ok: true, data }), {
+      status: 200,
+      headers: isAdmin ? H : { ...H, 'Cache-Control': `public, max-age=${LEADERBOARD_CACHE_TTL}, stale-while-revalidate=15` },
+    });
+    if (!isAdmin) waitUntil(caches.default.put(request, response.clone()));
+    return response;
   } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }

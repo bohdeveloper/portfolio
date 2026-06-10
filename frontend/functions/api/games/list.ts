@@ -1,8 +1,12 @@
 interface Env { DB: D1Database }
 
 const H = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+const CACHE_TTL = 120; // 2 min (reacciones cambian más seguido)
 
-export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
+export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
+  const cache = caches.default;
+  const cached = await cache.match(request);
+  if (cached) return cached;
   try {
     const { results: games } = await env.DB.prepare(
       'SELECT id, name, slug, description, url, screenshot, is_top, vote_count, ai_generated, sort_order, created_at FROM games ORDER BY sort_order ASC, id ASC'
@@ -40,7 +44,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
 
     const top = data.find(g => g.is_community_top) ?? data.find(g => g.is_top) ?? null;
 
-    return new Response(JSON.stringify({ ok: true, games: data, top }), { status: 200, headers: H });
+    const response = new Response(JSON.stringify({ ok: true, games: data, top }), {
+      status: 200,
+      headers: { ...H, 'Cache-Control': `public, max-age=${CACHE_TTL}, stale-while-revalidate=30` },
+    });
+    waitUntil(cache.put(request, response.clone()));
+    return response;
   } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
   }
