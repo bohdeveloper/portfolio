@@ -143,6 +143,11 @@ const TRACKER_CSS = `
 .form-row textarea{resize:vertical;min-height:48px}
 .form-row select option{background:#1a1a1a;color:#e8e6e0}
 .form-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tcrd.tcrd-fut{opacity:.35;cursor:default!important}
+.trk-btn{font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid;cursor:pointer;flex-shrink:0;background:transparent;line-height:1.4;transition:filter .15s}
+.trk-btn.on{border-color:rgba(93,202,165,.45);color:#5DCAA5}
+.trk-btn.off{border-color:#2a2a2a;color:#444}
+.trk-btn:hover{filter:brightness(1.4)}
 `;
 
 const LIGHT_CSS = `
@@ -285,10 +290,9 @@ const TRACKER_HTML = `
     <p class="modal-sub" id="m-desc"></p>
     <p class="modal-sub" id="m-day"></p>
     <div id="m-status" style="margin-bottom:.5rem;font-size:12px"></div>
-    <textarea id="m-reason" placeholder="Motivo si no la realizas (opcional)..."></textarea>
-    <div style="margin-top:.5rem;display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="m-copy-fwd" style="width:auto;margin:0;cursor:pointer"/>
-      <label for="m-copy-fwd" style="font-size:11px;color:#888;cursor:pointer">Repetir en semanas siguientes (52 sem.)</label>
+    <div id="m-reason-wrap" style="display:none;margin-bottom:.5rem">
+      <label style="font-size:11px;color:#D85A30;display:block;margin-bottom:3px">Motivo <span style="opacity:.7">(obligatorio)</span></label>
+      <textarea id="m-reason" placeholder="¿Por qué no se realizó?..."></textarea>
     </div>
     <div class="modal-btns">
       <button class="btn" id="modal-cancel">Cancelar</button>
@@ -313,10 +317,9 @@ const TRACKER_HTML = `
     <p class="modal-sub" id="am-time" style="margin-bottom:.1rem"></p>
     <p class="modal-sub" id="am-day" style="margin-bottom:.5rem"></p>
     <div id="am-state" style="margin-bottom:.5rem;font-size:12px"></div>
-    <textarea id="am-reason" placeholder="Comentario o motivo (opcional)..."></textarea>
-    <div style="margin-top:.5rem;display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="am-copy-fwd" style="width:auto;margin:0;cursor:pointer"/>
-      <label for="am-copy-fwd" style="font-size:11px;color:#888;cursor:pointer">Repetir en semanas siguientes (52 sem.)</label>
+    <div id="am-reason-wrap" style="display:none;margin-bottom:.5rem">
+      <label style="font-size:11px;color:#D85A30;display:block;margin-bottom:3px">Motivo <span style="opacity:.7">(obligatorio)</span></label>
+      <textarea id="am-reason" placeholder="¿Por qué no se realizó?..."></textarea>
     </div>
     <div class="modal-btns" style="flex-wrap:wrap;gap:6px;margin-top:.65rem">
       <button class="btn" id="am-cancel">Cancelar</button>
@@ -577,6 +580,8 @@ function initTracker() {
 
     let totalActs = 0, doneActs = 0, missActs = 0;
     const catSet = new Set<string>();
+    const now = new Date();
+    const currentMin = now.getHours() * 60 + now.getMinutes();
 
     for (let di = 0; di < 7; di++) {
       const d2 = days[di], dKey = dk(d2), isFut = d2 > today;
@@ -609,7 +614,8 @@ function initTracker() {
         if (hPx >= 28)      el.innerHTML = `<span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${act.name}</span><span class="ab-time">${timeStr}</span>`;
         else if (hPx >= 16) el.innerHTML = `<span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${act.name}</span>`;
 
-        if (isFut) {
+        const isTaskFuture = isFut || (isToday && act.start > currentMin);
+        if (isTaskFuture) {
           el.classList.add('fut');
         } else {
           if (act.track) totalActs++;
@@ -664,36 +670,32 @@ function initTracker() {
     document.getElementById('m-desc')!.textContent  = act.desc;
     document.getElementById('m-day')!.textContent   = dayLabel;
     const ex = state[ak(dKey, act.id)];
-    (document.getElementById('m-reason') as HTMLTextAreaElement).value = ex ? (ex.reason || '') : '';
-    (document.getElementById('m-copy-fwd') as HTMLInputElement).checked = false;
+    const alreadyMiss = ex && !ex.done;
+    (document.getElementById('m-reason') as HTMLTextAreaElement).value = ex?.reason || '';
+    (document.getElementById('m-reason-wrap') as HTMLElement).style.display = alreadyMiss ? 'block' : 'none';
     const stEl = document.getElementById('m-status')!;
     stEl.innerHTML = ex
       ? (ex.done ? '<span style="color:#5DCAA5;font-weight:600">✓ Completada</span>' : '<span style="color:#ff7a5c;font-weight:600">✗ Perdida</span>')
       : '<span style="color:#555">Sin registrar</span>';
     document.getElementById('modal')!.classList.remove('hidden');
   }
-  function closeModal() { document.getElementById('modal')!.classList.add('hidden'); pending = null; }
+  function closeModal() {
+    document.getElementById('modal')!.classList.add('hidden');
+    (document.getElementById('m-reason-wrap') as HTMLElement).style.display = 'none';
+    pending = null;
+  }
   function saveAct(done: boolean) {
     if (!pending) return;
-    const reason = (document.getElementById('m-reason') as HTMLTextAreaElement).value.trim();
-    const copyFwd = (document.getElementById('m-copy-fwd') as HTMLInputElement).checked;
+    const reason = done ? '' : (document.getElementById('m-reason') as HTMLTextAreaElement).value.trim();
+    if (!done && !reason) {
+      const wrap = document.getElementById('m-reason-wrap') as HTMLElement;
+      wrap.style.display = 'block';
+      (document.getElementById('m-reason') as HTMLTextAreaElement).focus();
+      return;
+    }
     const key = ak(pending.dKey, pending.act.id);
     state[key] = { done, reason, ts: Date.now() };
     saveRecord(pending.dKey, pending.act.id, pending.dayIdx, done, reason);
-    if (copyFwd) {
-      const base = new Date(pending.dKey + 'T00:00:00');
-      const records: Array<{ date: string; activity_id: string; day_index: number; done: number; reason: string }> = [];
-      for (let w = 1; w <= 52; w++) {
-        const fut = new Date(base);
-        fut.setDate(base.getDate() + w * 7);
-        records.push({ date: dkLocal(fut), activity_id: pending.act.id, day_index: pending.dayIdx, done: done ? 1 : 0, reason });
-      }
-      fetch('/api/tracker/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ records }),
-      }).catch(() => {});
-    }
     closeModal();
     renderAll();
   }
@@ -705,8 +707,9 @@ function initTracker() {
     document.getElementById('am-time')!.textContent = fmt(act.start) + '–' + fmt(act.end);
     document.getElementById('am-day')!.textContent = DIAS_F[dayIdx] + ', ' + new Date(dKey + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
     const ex = state[ak(dKey, act.id)];
+    const alreadyMiss = ex && !ex.done;
     (document.getElementById('am-reason') as HTMLTextAreaElement).value = ex?.reason || '';
-    (document.getElementById('am-copy-fwd') as HTMLInputElement).checked = false;
+    (document.getElementById('am-reason-wrap') as HTMLElement).style.display = alreadyMiss ? 'block' : 'none';
     const stEl = document.getElementById('am-state')!;
     stEl.innerHTML = ex
       ? (ex.done ? '<span style="color:#5DCAA5">✓ Completada</span>' : '<span style="color:#D85A30">✗ Perdida</span>')
@@ -715,29 +718,21 @@ function initTracker() {
   }
   function closeActionModal() {
     document.getElementById('action-modal')!.classList.add('hidden');
+    (document.getElementById('am-reason-wrap') as HTMLElement).style.display = 'none';
     actionPending = null;
   }
   function saveActionAct(done: boolean) {
     if (!actionPending) return;
-    const reason = (document.getElementById('am-reason') as HTMLTextAreaElement).value.trim();
-    const copyFwd = (document.getElementById('am-copy-fwd') as HTMLInputElement).checked;
+    const reason = done ? '' : (document.getElementById('am-reason') as HTMLTextAreaElement).value.trim();
+    if (!done && !reason) {
+      const wrap = document.getElementById('am-reason-wrap') as HTMLElement;
+      wrap.style.display = 'block';
+      (document.getElementById('am-reason') as HTMLTextAreaElement).focus();
+      return;
+    }
     const key = ak(actionPending.dKey, actionPending.act.id);
     state[key] = { done, reason, ts: Date.now() };
     saveRecord(actionPending.dKey, actionPending.act.id, actionPending.dayIdx, done, reason);
-    if (copyFwd) {
-      const base = new Date(actionPending.dKey + 'T00:00:00');
-      const records: Array<{ date: string; activity_id: string; day_index: number; done: number; reason: string }> = [];
-      for (let w = 1; w <= 52; w++) {
-        const fut = new Date(base);
-        fut.setDate(base.getDate() + w * 7);
-        records.push({ date: dkLocal(fut), activity_id: actionPending.act.id, day_index: actionPending.dayIdx, done: done ? 1 : 0, reason });
-      }
-      fetch('/api/tracker/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ records }),
-      }).catch(() => {});
-    }
     closeActionModal();
     renderAll();
     if (document.getElementById('day-cfg-ov')?.classList.contains('open')) renderDayCfgTasks();
@@ -750,7 +745,7 @@ function initTracker() {
     const catKeys = Object.keys(dynCats).length > 0 ? Object.keys(dynCats) : Object.keys(CATS);
     const catData: Record<string, { total: number; done: number }> = {};
     catKeys.forEach(k => catData[k] = { total: 0, done: 0 });
-    const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0];
+    const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0], dm = [0,0,0,0,0,0,0];
     let miss = 0;
 
     for (let di = 0; di < 7; di++) {
@@ -763,7 +758,7 @@ function initTracker() {
         if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0 };
         catData[act.cat].total++; dt[di]++;
         if (rec?.done) { catData[act.cat].done++; dd[di]++; }
-        if (rec && !rec.done) miss++;
+        if (rec && !rec.done) { miss++; dm[di]++; }
       }
     }
 
@@ -795,9 +790,11 @@ function initTracker() {
         type: 'bar',
         data: { labels: DIAS, datasets: [
           { label: 'Completadas', data: dd, backgroundColor: '#1D6B45', borderRadius: 3 },
+          { label: 'Perdidas',    data: dm, backgroundColor: '#7a2a1a', borderRadius: 3 },
           { label: 'Total',       data: dt, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 3 },
         ]},
         options: {
+          animation: false,
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { labels: { color: '#666', font: { size: 11 } } } },
           scales: {
@@ -1011,6 +1008,7 @@ function initTracker() {
   function navigateDayCfg(dir: number) {
     cfgDayIdx = (cfgDayIdx + 7 + dir) % 7;
     const days = getDays(weekOffset);
+    cfgDayKey = dk(days[cfgDayIdx]);
     const label = DIAS_F[cfgDayIdx] + ', ' + days[cfgDayIdx].toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
     setDayCfgTitle(label, days[cfgDayIdx]);
     renderDayCfgTasks();
@@ -1020,33 +1018,59 @@ function initTracker() {
     const tasks = (dynTasksByDay[cfgDayIdx] || []).slice().sort((a, b) => a.start - b.start);
     const el = document.getElementById('day-cfg-tasks')!;
 
+    const todayNow = new Date(); todayNow.setHours(0,0,0,0);
+    const dayDate = new Date(cfgDayKey + 'T00:00:00');
+    const isFutureDay = dayDate > todayNow;
+    const isTodayDay = dkLocal(dayDate) === dkLocal(new Date());
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+
     let html = tasks.length === 0
       ? `<p class="cfg-empty" style="padding:.5rem 0">Sin tareas para este día. Usa "+ Tarea" para añadir.</p>`
       : tasks.map((t, i) => {
           const raw = rawTaskMap[cfgDayIdx + '_' + t.id];
           const info = getCatInfo(t.cat);
           const rec = state[ak(cfgDayKey, t.id)];
+          const isTaskFuture = isFutureDay || (isTodayDay && t.start > nowMin);
           const stIcon = rec
             ? (rec.done ? `<span style="font-size:11px;color:#5DCAA5">✓</span>` : `<span style="font-size:11px;color:#D85A30">✗</span>`)
             : `<span style="font-size:11px;color:#2a2a2a">○</span>`;
-          return `<div class="tcrd" style="cursor:pointer" data-idx="${i}">` +
+          const trkCls = t.track ? 'on' : 'off';
+          const trkLbl = t.track ? '✓ Rastr.' : '○ Rastr.';
+          return `<div class="tcrd${isTaskFuture ? ' tcrd-fut' : ''}" style="cursor:${isTaskFuture ? 'default' : 'pointer'}" data-idx="${i}">` +
             `<span style="font-size:11px;color:#555;width:90px;flex-shrink:0;font-variant-numeric:tabular-nums">${fmt(t.start)}–${fmt(t.end)}</span>` +
             `<span style="flex:1;font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span>` +
             `<span style="font-size:10px;padding:2px 7px;border-radius:4px;color:#fff;background:${info.color};flex-shrink:0;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${info.label}</span>` +
             `<span style="width:16px;text-align:center;flex-shrink:0">${stIcon}</span>` +
+            `<button class="trk-btn ${trkCls}" data-tid="${raw?.id || 0}" data-track="${t.track ? 1 : 0}" title="${t.track ? 'Rastreable — desactivar' : 'No rastreable — activar'}">${trkLbl}</button>` +
             `<button class="btn-sm btn-del dcfg-del" data-tid="${raw?.id || 0}" title="Eliminar" style="flex-shrink:0">✕</button>` +
             `</div>`;
         }).join('');
 
     el.innerHTML = html;
 
-    // Tarjeta completa clickable — abre popup de tracking (con botón editar dentro)
-    el.querySelectorAll('.tcrd').forEach((card, i) => {
+    // Tarjeta clickable solo para tareas NO futuras
+    el.querySelectorAll('.tcrd:not(.tcrd-fut)').forEach((card) => {
       card.addEventListener('click', (e) => {
-        if ((e.target as HTMLElement).classList.contains('dcfg-del') ||
-            (e.target as HTMLElement).classList.contains('btn-del')) return;
-        const raw = rawTaskMap[cfgDayIdx + '_' + tasks[i].id];
-        openActionModal(tasks[i], cfgDayKey, cfgDayIdx, raw || undefined);
+        const tgt = e.target as HTMLElement;
+        if (tgt.classList.contains('dcfg-del') || tgt.classList.contains('btn-del') || tgt.classList.contains('trk-btn')) return;
+        const idx = parseInt((card as HTMLElement).dataset.idx || '0');
+        const raw = rawTaskMap[cfgDayIdx + '_' + tasks[idx].id];
+        openActionModal(tasks[idx], cfgDayKey, cfgDayIdx, raw || undefined);
+      });
+    });
+
+    // Toggle rastreable — usa PATCH parcial (solo id + track)
+    el.querySelectorAll('.trk-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tid = parseInt((btn as HTMLElement).dataset.tid || '0');
+        const newTrack = parseInt((btn as HTMLElement).dataset.track || '0') ? 0 : 1;
+        if (!tid) return;
+        fetch('/api/tracker/tasks', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: tid, track: newTrack }),
+        }).then(() => reloadSchedule()).catch(() => {});
       });
     });
 
@@ -1201,15 +1225,23 @@ function initTracker() {
   });
   document.getElementById('modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
   document.getElementById('modal-cancel')!.onclick = closeModal;
-  document.getElementById('modal-miss')!.onclick   = () => saveAct(false);
-  document.getElementById('modal-done')!.onclick   = () => saveAct(true);
+  document.getElementById('modal-miss')!.onclick = () => {
+    const wrap = document.getElementById('m-reason-wrap') as HTMLElement;
+    if (wrap.style.display === 'none') { wrap.style.display = 'block'; (document.getElementById('m-reason') as HTMLTextAreaElement).focus(); return; }
+    saveAct(false);
+  };
+  document.getElementById('modal-done')!.onclick = () => saveAct(true);
   document.getElementById('edit-modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(); });
   document.getElementById('em-cancel')!.onclick = closeEditModal;
   document.getElementById('em-save')!.onclick    = saveEditModal;
   document.getElementById('action-modal')!.addEventListener('click', e => { if (e.target === e.currentTarget) closeActionModal(); });
   document.getElementById('am-cancel')!.onclick = closeActionModal;
-  document.getElementById('am-miss')!.onclick    = () => saveActionAct(false);
-  document.getElementById('am-done')!.onclick    = () => saveActionAct(true);
+  document.getElementById('am-miss')!.onclick = () => {
+    const wrap = document.getElementById('am-reason-wrap') as HTMLElement;
+    if (wrap.style.display === 'none') { wrap.style.display = 'block'; (document.getElementById('am-reason') as HTMLTextAreaElement).focus(); return; }
+    saveActionAct(false);
+  };
+  document.getElementById('am-done')!.onclick = () => saveActionAct(true);
   document.getElementById('am-edit')!.onclick    = () => {
     const raw = actionPending?.rawTask;
     closeActionModal();
