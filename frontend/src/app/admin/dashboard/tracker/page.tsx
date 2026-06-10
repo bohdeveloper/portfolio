@@ -763,12 +763,15 @@ function initTracker() {
       const dKey = dk(d2);
       const isFut = d2 > today;
       for (const act of getSchedForDay(di, d2)) {
-        if (!act.track || isFut) continue;
-        const rec = state[ak(dKey, act.id)];
+        if (!act.track) continue;
         if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0 };
-        catData[act.cat].total++; dt[di]++;
-        if (rec?.done) { catData[act.cat].done++; dd[di]++; }
-        if (rec && !rec.done) { miss++; dm[di]++; }
+        catData[act.cat].total++;
+        dt[di]++;
+        if (!isFut) {
+          const rec = state[ak(dKey, act.id)];
+          if (rec?.done) { catData[act.cat].done++; dd[di]++; }
+          if (rec && !rec.done) { miss++; dm[di]++; }
+        }
       }
     }
 
@@ -776,7 +779,11 @@ function initTracker() {
     Object.values(catData).forEach(c => { total += c.total; done += c.done; });
     const pct  = total > 0 ? Math.round(done / total * 100) : 0;
     let streak = 0;
-    for (let i = 0; i < 7; i++) { if (dt[i] > 0 && dd[i] === dt[i]) streak++; else break; }
+    for (let i = 0; i < 7; i++) {
+      if (days[i] > today) break;
+      if (dt[i] > 0 && dd[i] === dt[i]) streak++;
+      else break;
+    }
 
     document.getElementById('stat-metrics')!.innerHTML =
       `<div class="mc"><div class="mc-v">${pct}%</div><div class="mc-l">Cumplimiento</div></div>` +
@@ -790,26 +797,52 @@ function initTracker() {
         const { total: t, done: d } = catData[k];
         const p = Math.round(d / t * 100);
         const info = getCatInfo(k);
-        return `<div class="cr"><span class="cn">${info.label}</span><div style="flex:1"><div class="pb"><div class="pf" style="width:${p}%;background:${info.color}"></div></div></div><span class="cpct" style="color:${info.color}">${p}%</span></div>`;
+        return `<div class="cr">` +
+          `<span class="cn">${info.label}</span>` +
+          `<div style="flex:1"><div class="pb"><div class="pf" style="width:${p}%;background:${info.color}"></div></div></div>` +
+          `<span style="font-size:11px;color:#444;width:32px;text-align:right;flex-shrink:0;margin-right:4px">${d}/${t}</span>` +
+          `<span class="cpct" style="color:${info.color}">${p}%</span>` +
+          `</div>`;
       }).join('');
 
     if (chart) { (chart as { destroy(): void }).destroy(); chart = null; }
     const canvas = document.getElementById('dayChart') as HTMLCanvasElement | null;
     if (canvas) {
+      const dp = dt.map((t, i) => Math.max(0, t - dd[i] - dm[i]));
       chart = new (window as unknown as { Chart: new (ctx: unknown, cfg: unknown) => unknown }).Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: { labels: DIAS, datasets: [
-          { label: 'Completadas', data: dd, backgroundColor: '#1D6B45', borderRadius: 3 },
-          { label: 'Perdidas',    data: dm, backgroundColor: '#7a2a1a', borderRadius: 3 },
-          { label: 'Total',       data: dt, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 3 },
+          { label: 'Completadas', data: dd, backgroundColor: '#1D6B45', stack: 'a' },
+          { label: 'Perdidas',    data: dm, backgroundColor: '#7a2a1a', stack: 'a' },
+          { label: 'Pendientes',  data: dp, backgroundColor: 'rgba(255,255,255,0.05)', stack: 'a', borderRadius: 3 },
         ]},
         options: {
           animation: false,
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#666', font: { size: 11 } } } },
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#555', font: { size: 10 }, boxWidth: 9, padding: 14 } },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: '#1c1c1c',
+              borderColor: '#333',
+              borderWidth: 1,
+              titleColor: '#e8e6e0',
+              bodyColor: '#888',
+              callbacks: {
+                footer: (items: unknown[]) => {
+                  const arr = items as Array<{ raw: number }>;
+                  const total = arr.reduce((s, i) => s + (i.raw || 0), 0);
+                  const done2 = arr[0]?.raw || 0;
+                  return total > 0 ? 'Cumplimiento: ' + Math.round(done2 / total * 100) + '%' : '';
+                },
+              },
+            },
+          },
           scales: {
-            x: { ticks: { color: '#555', font: { size: 11 } }, grid: { color: '#1e1e1e' } },
-            y: { ticks: { color: '#555', font: { size: 11 }, stepSize: 1 }, grid: { color: '#1e1e1e' }, beginAtZero: true },
+            x: { stacked: true, ticks: { color: '#555', font: { size: 11 } }, grid: { color: '#1a1a1a' } },
+            y: { stacked: true, beginAtZero: true, ticks: { color: '#555', font: { size: 11 }, stepSize: 1 }, grid: { color: '#1e1e1e' } },
           },
         },
       });
