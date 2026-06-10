@@ -615,10 +615,10 @@ function initTracker() {
         else if (hPx >= 16) el.innerHTML = `<span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${act.name}</span>`;
 
         const isTaskFuture = isFut || (isToday && act.start > currentMin);
+        if (act.track) totalActs++; // cuenta toda la semana para las estadísticas
         if (isTaskFuture) {
           el.classList.add('fut');
         } else {
-          if (act.track) totalActs++;
           if (rec) {
             rec.done
               ? (el.classList.add('done'), act.track && doneActs++)
