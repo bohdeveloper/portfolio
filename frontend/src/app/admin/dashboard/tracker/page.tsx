@@ -321,11 +321,15 @@ const TRACKER_HTML = `
       <label style="font-size:11px;color:#D85A30;display:block;margin-bottom:3px">Motivo <span style="opacity:.7">(obligatorio)</span></label>
       <textarea id="am-reason" placeholder="¿Por qué no se realizó?..."></textarea>
     </div>
-    <div class="modal-btns" style="flex-wrap:wrap;gap:6px;margin-top:.65rem">
-      <button class="btn" id="am-cancel">Cancelar</button>
-      <button class="btn" id="am-edit" style="border-color:#555;color:#aaa">✎ Editar</button>
-      <button class="btn btn-miss" id="am-miss">✗ Perdida</button>
-      <button class="btn btn-done" id="am-done">✓ Completada</button>
+    <div style="margin-top:.65rem;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;gap:6px">
+        <button class="btn" id="am-cancel">Cancelar</button>
+        <button class="btn" id="am-edit" style="border-color:#555;color:#aaa;flex:1">✎ Editar</button>
+      </div>
+      <div id="am-track-btns" style="display:none;flex:1;gap:6px">
+        <button class="btn btn-miss" id="am-miss" style="flex:1;width:50%">✗ Perdida</button>
+        <button class="btn btn-done" id="am-done" style="flex:1;width:50%">✓ Completada</button>
+      </div>
     </div>
   </div>
 </div>
@@ -713,7 +717,10 @@ function initTracker() {
     const alreadyMiss = ex && !ex.done;
     (document.getElementById('am-reason') as HTMLTextAreaElement).value = ex?.reason || '';
     (document.getElementById('am-reason-wrap') as HTMLElement).style.display = alreadyMiss ? 'block' : 'none';
+    const trackBtns = document.getElementById('am-track-btns') as HTMLElement;
+    trackBtns.style.display = act.track ? 'flex' : 'none';
     const stEl = document.getElementById('am-state')!;
+    stEl.style.display = act.track ? '' : 'none';
     stEl.innerHTML = ex
       ? (ex.done ? '<span style="color:#5DCAA5">✓ Completada</span>' : '<span style="color:#D85A30">✗ Perdida</span>')
       : '<span style="color:#555">Sin registrar</span>';
