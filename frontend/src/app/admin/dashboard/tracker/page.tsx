@@ -854,66 +854,292 @@ function initTracker() {
   function renderResumen() {
     const days = getDays(weekOffset);
     const today = new Date(); today.setHours(0, 0, 0, 0);
+    const todayIdx = days.findIndex(d => d.getTime() === today.getTime());
     const catKeys = Object.keys(dynCats).length > 0 ? Object.keys(dynCats) : Object.keys(CATS);
-    const catData: Record<string, { total: number; done: number }> = {};
-    catKeys.forEach(k => catData[k] = { total: 0, done: 0 });
-    const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0];
-    let total = 0, done = 0, miss = 0;
+    const catData: Record<string, { total: number; done: number; miss: number }> = {};
+    catKeys.forEach(k => catData[k] = { total: 0, done: 0, miss: 0 });
+    const dd = [0,0,0,0,0,0,0], dt = [0,0,0,0,0,0,0], dm = [0,0,0,0,0,0,0];
+    let totalPast = 0, donePast = 0, totalFut = 0;
 
     for (let di = 0; di < 7; di++) {
       const d2 = days[di];
       const dKey = dk(d2);
       const isFut = d2 > today;
       for (const act of getSchedForDay(di, d2)) {
-        if (!act.track || isFut) continue;
-        const rec = state[ak(dKey, act.id)];
-        if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0 };
-        total++; dt[di]++; catData[act.cat].total++;
-        if (rec && rec.done) { done++; dd[di]++; catData[act.cat].done++; }
-        if (rec && !rec.done) miss++;
+        if (!act.track) continue;
+        if (!catData[act.cat]) catData[act.cat] = { total: 0, done: 0, miss: 0 };
+        dt[di]++;
+        if (isFut) {
+          totalFut++;
+        } else {
+          totalPast++;
+          catData[act.cat].total++;
+          const rec = state[ak(dKey, act.id)];
+          if (rec?.done) { donePast++; dd[di]++; catData[act.cat].done++; }
+          if (rec && !rec.done) { dm[di]++; catData[act.cat].miss++; }
+        }
       }
     }
 
     const el = document.getElementById('resumen-content')!;
-    if (done === 0) { el.innerHTML = '<p style="color:#555;font-size:13px">Registra actividades para ver tu evolución.</p>'; return; }
+    if (totalPast === 0) {
+      el.innerHTML = '<p style="color:#555;font-size:13px">Registra actividades para ver tu evolución.</p>';
+      return;
+    }
 
-    const pct = Math.round(done / total * 100);
-    let bestD = 0;
-    for (let i = 1; i < 7; i++) if (dd[i] > dd[bestD]) bestD = i;
-    let worstD = 0;
-    for (let i = 1; i < 7; i++) { const ra = dt[i] > 0 ? dd[i]/dt[i] : 1, rb = dt[worstD] > 0 ? dd[worstD]/dt[worstD] : 1; if (ra < rb) worstD = i; }
-    const sorted = catKeys.filter(k => catData[k] && catData[k].total > 0).sort((a, b) => (catData[b].done/catData[b].total) - (catData[a].done/catData[a].total));
-    const bestCat = sorted[0], worstCat = sorted[sorted.length - 1];
+    const pct = Math.round(donePast / totalPast * 100);
+    const pctColor = pct >= 80 ? '#5DCAA5' : pct >= 50 ? '#e6a817' : '#D85A30';
+    const msg = pct === 100 ? '¡Semana perfecta! Imparable.'
+      : pct >= 90 ? '¡Semana excelente! Sigue así.'
+      : pct >= 70 ? 'Buena semana. Mantén el ritmo.'
+      : pct >= 50 ? 'Semana regular. Tienes margen.'
+      : '¡Semana dura! El momento de remontar.';
 
-    let html = `<h3 style="margin-bottom:.75rem;font-size:14px">Resumen de semana</h3>` +
-      `<div class="sb"><p style="font-weight:500">Cumplimiento global: ${pct}%</p><p style="font-size:11px;color:#555;margin-top:2px">${done} de ${total} actividades rastreadas.</p></div>` +
-      `<div class="sb"><p style="font-weight:500">Mejor día: ${DIAS_F[bestD]}</p><p style="font-size:11px;color:#555;margin-top:2px">${dd[bestD]}/${dt[bestD]} actividades.</p></div>` +
-      `<div class="sb sw"><p style="font-weight:500">Día a mejorar: ${DIAS_F[worstD]}</p><p style="font-size:11px;color:#555;margin-top:2px">${dd[worstD]}/${dt[worstD]} actividades.</p></div>`;
-    if (bestCat) { const bc = catData[bestCat]; html += `<div class="sb"><p style="font-weight:500">Mejor categoría: ${getCatInfo(bestCat).label}</p><p style="font-size:11px;color:#555;margin-top:2px">${bc.done}/${bc.total} (${Math.round(bc.done/bc.total*100)}%)</p></div>`; }
-    if (worstCat && worstCat !== bestCat) { const wc = catData[worstCat]; html += `<div class="sb sw"><p style="font-weight:500">Reforzar: ${getCatInfo(worstCat).label}</p><p style="font-size:11px;color:#555;margin-top:2px">${wc.done}/${wc.total} (${Math.round(wc.done/wc.total*100)}%)</p></div>`; }
-    html += `<div class="sb sw"><p style="font-weight:500">Perdidas: ${miss}</p>${miss === 0 ? '<p style="font-size:11px;color:#5DCAA5;margin-top:2px">¡Semana perfecta!</p>' : ''}</div>`;
-    html += `<p style="font-size:10px;color:#333;margin-top:1rem;font-style:italic">"Pierde la batalla, nunca la guerra." — Estoicismo</p>`;
-    el.innerHTML = html;
+    // Day indicators — círculos con estado de cada día
+    const dayDots = days.map((d, di) => {
+      const isFut = d > today;
+      const isToday = d.getTime() === today.getTime();
+      const total = dt[di], done = dd[di], miss = dm[di];
+      let dotBg = '#1a1a1a', symColor = '#333', sym = '–';
+      if (total === 0) {
+        dotBg = '#1a1a1a'; symColor = '#2a2a2a'; sym = '–';
+      } else if (isFut) {
+        dotBg = '#1e1e1e'; symColor = '#444'; sym = String(total);
+      } else if (done === total) {
+        dotBg = '#1D6B45'; symColor = '#9ef5cb'; sym = '✓';
+      } else if (done === 0 && miss === 0) {
+        dotBg = '#1e1e1e'; symColor = '#555'; sym = '?';
+      } else if (done === 0) {
+        dotBg = '#7a2a1a'; symColor = '#ffb3a0'; sym = '✗';
+      } else {
+        const ratio = done / total;
+        dotBg = ratio >= 0.5 ? '#1a3020' : '#2a1e10';
+        symColor = ratio >= 0.5 ? '#5DCAA5' : '#e6a817';
+        sym = done + '/' + total;
+      }
+      const ring = isToday ? '2px solid #5DCAA5' : '2px solid transparent';
+      const dayColor = isToday ? '#5DCAA5' : '#555';
+      const symSize = sym.length > 2 ? '9' : '11';
+      return `<div style="text-align:center;flex:1;min-width:0">
+        <div style="width:32px;height:32px;border-radius:50%;background:${dotBg};border:${ring};display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:${symSize}px;color:${symColor};font-weight:600">${sym}</div>
+        <div style="font-size:9px;color:${dayColor};font-weight:${isToday ? '600' : '400'}">${DIAS[di].slice(0,3)}</div>
+        <div style="font-size:9px;color:#3a3a3a">${d.getDate()}</div>
+      </div>`;
+    }).join('');
+
+    // Category bars — peor a mejor para que lo que falla sea lo primero
+    const activeCats = catKeys.filter(k => catData[k] && catData[k].total > 0);
+    const sortedByCat = [...activeCats].sort((a, b) => (catData[a].done / catData[a].total) - (catData[b].done / catData[b].total));
+    const catHtml = sortedByCat.map(k => {
+      const cd = catData[k]; const info = getCatInfo(k);
+      const p = Math.round(cd.done / cd.total * 100);
+      const barC = p >= 80 ? '#1D6B45' : p >= 50 ? '#7a6010' : '#7a2a1a';
+      const pctC = p >= 80 ? '#5DCAA5' : p >= 50 ? '#e6a817' : '#D85A30';
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <div style="display:flex;align-items:center;gap:5px;width:110px;flex-shrink:0">
+          <span style="width:8px;height:8px;border-radius:2px;background:${info.color};flex-shrink:0;display:inline-block"></span>
+          <span style="font-size:12px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${info.label}</span>
+        </div>
+        <div style="flex:1;height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${p}%;background:${barC};border-radius:3px"></div>
+        </div>
+        <span style="font-size:11px;color:${pctC};width:32px;text-align:right;font-weight:500">${p}%</span>
+        <span style="font-size:10px;color:#444;width:28px;text-align:right">${cd.done}/${cd.total}</span>
+      </div>`;
+    }).join('');
+
+    // Hoy pendiente
+    let todayHtml = '';
+    if (todayIdx >= 0) {
+      const tp = dt[todayIdx] - dd[todayIdx] - dm[todayIdx];
+      if (tp > 0) {
+        todayHtml = `<div style="background:rgba(29,107,69,0.08);border:1px solid rgba(93,202,165,0.15);border-radius:8px;padding:9px 13px;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:#5DCAA5">Hoy pendiente</span>
+          <span style="font-size:14px;font-weight:600;color:#e8e6e0">${tp} tarea${tp !== 1 ? 's' : ''}</span>
+        </div>`;
+      }
+    }
+
+    // Insights — mejor/peor día + categoría
+    const pastIdxs = Array.from({ length: 7 }, (_, i) => i).filter(i => !(days[i] > today) && dt[i] > 0);
+    let insightsHtml = '';
+    if (pastIdxs.length > 0) {
+      const bestD = pastIdxs.reduce((b, i) => dd[i] / dt[i] >= dd[b] / dt[b] ? i : b);
+      const worstD = pastIdxs.reduce((w, i) => dd[i] / dt[i] <= dd[w] / dt[w] ? i : w, bestD);
+      insightsHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:.75rem">`;
+      const isPerfect = dd[bestD] === dt[bestD] && dm[bestD] === 0;
+      insightsHtml += `<div class="sb">
+        <p style="font-size:10px;color:#555;margin-bottom:2px">${isPerfect ? '⭐ Día perfecto' : 'Mejor día'}</p>
+        <p style="font-weight:500;font-size:13px">${DIAS_F[bestD]}</p>
+        <p style="font-size:11px;color:#555">${dd[bestD]}/${dt[bestD]}</p>
+      </div>`;
+      if (worstD !== bestD) {
+        insightsHtml += `<div class="sb sw">
+          <p style="font-size:10px;color:#555;margin-bottom:2px">Reforzar</p>
+          <p style="font-weight:500;font-size:13px">${DIAS_F[worstD]}</p>
+          <p style="font-size:11px;color:#555">${dd[worstD]}/${dt[worstD]}</p>
+        </div>`;
+      }
+      const sortedC = [...activeCats].sort((a, b) => (catData[b].done / catData[b].total) - (catData[a].done / catData[a].total));
+      if (sortedC.length > 0) {
+        const bc = sortedC[0], wc = sortedC[sortedC.length - 1];
+        insightsHtml += `<div class="sb">
+          <p style="font-size:10px;color:#555;margin-bottom:2px">Más fuerte</p>
+          <p style="font-weight:500;font-size:13px">${getCatInfo(bc).label}</p>
+          <p style="font-size:11px;color:#5DCAA5">${Math.round(catData[bc].done / catData[bc].total * 100)}%</p>
+        </div>`;
+        if (wc !== bc) {
+          insightsHtml += `<div class="sb sw">
+            <p style="font-size:10px;color:#555;margin-bottom:2px">Mejorar</p>
+            <p style="font-weight:500;font-size:13px">${getCatInfo(wc).label}</p>
+            <p style="font-size:11px;color:#D85A30">${Math.round(catData[wc].done / catData[wc].total * 100)}%</p>
+          </div>`;
+        }
+      }
+      insightsHtml += `</div>`;
+    }
+
+    el.innerHTML = `
+      <div style="margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-size:12px;color:#666">Completadas esta semana</span>
+          <span style="font-size:24px;font-weight:700;color:${pctColor}">${pct}%</span>
+        </div>
+        <div style="height:8px;background:#1e1e1e;border-radius:4px;overflow:hidden;margin-bottom:6px">
+          <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:4px"></div>
+        </div>
+        <p style="font-size:11px;color:#555">${donePast} de ${totalPast} registradas · ${msg}</p>
+      </div>
+      <div style="display:flex;gap:2px;margin-bottom:1rem;padding:10px 8px;background:#161616;border-radius:8px;border:1px solid #222">${dayDots}</div>
+      ${todayHtml}
+      ${activeCats.length > 0 ? `<div style="background:#161616;border:1px solid #222;border-radius:8px;padding:12px 14px;margin-bottom:.75rem">
+        <p style="font-size:10px;color:#444;font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">Por categoría</p>
+        ${catHtml}
+      </div>` : ''}
+      ${insightsHtml}
+      ${totalFut > 0 ? `<p style="font-size:10px;color:#3a3a3a;margin-top:.75rem;text-align:right">${totalFut} tarea${totalFut !== 1 ? 's' : ''} programada${totalFut !== 1 ? 's' : ''} esta semana</p>` : ''}
+    `;
   }
 
   // ── Perdidas ──────────────────────────────────────────────────────────────────
   function renderPerdidas() {
     const days = getDays(weekOffset);
-    const missed: { day: string; act: Activity; reason: string }[] = [];
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    type MissItem = { dayLabel: string; timeLabel: string; act: Activity; reason: string; dKey: string; dayIdx: number };
+    const catMissed: Record<string, MissItem[]> = {};
+    let totalMiss = 0;
+
     for (let di = 0; di < 7; di++) {
-      const dKey = dk(days[di]);
-      for (const act of getSchedForDay(di, days[di])) {
+      const d2 = days[di];
+      if (d2 > today) continue;
+      const dKey2 = dk(d2);
+      const dayLabel = DIAS_F[di] + ', ' + d2.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+      for (const act of getSchedForDay(di, d2)) {
         if (!act.track) continue;
-        const rec = state[ak(dKey, act.id)];
-        if (rec && !rec.done) missed.push({ day: DIAS_F[di] + ' ' + days[di].toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }), act, reason: rec.reason });
+        const rec = state[ak(dKey2, act.id)];
+        if (!rec || rec.done) continue;
+        totalMiss++;
+        if (!catMissed[act.cat]) catMissed[act.cat] = [];
+        catMissed[act.cat].push({ dayLabel, timeLabel: fmt(act.start) + '–' + fmt(act.end), act, reason: rec.reason, dKey: dKey2, dayIdx: di });
       }
     }
-    const el = document.getElementById('perdidas-list')!;
-    if (missed.length === 0) { el.innerHTML = '<p style="color:#555;font-size:13px">Sin actividades perdidas. ¡Camino de guerrero! ⚡</p>'; return; }
-    el.innerHTML = missed.map(m => {
-      const info = getCatInfo(m.act.cat);
-      return `<div class="mi"><div class="mi-d">${m.day} · <span style="color:${info.color}">${info.label}</span></div><div class="mi-n">${m.act.name}</div><div class="mi-r">${m.reason ? '"' + m.reason + '"' : 'Sin motivo registrado'}</div></div>`;
-    }).join('');
+
+    const elP = document.getElementById('perdidas-list')!;
+    if (totalMiss === 0) {
+      elP.innerHTML = '<p style="color:#555;font-size:13px">Sin actividades perdidas. ¡Camino de guerrero! ⚡</p>';
+      return;
+    }
+
+    const sortedCats = Object.keys(catMissed).sort((a, b) => catMissed[b].length - catMissed[a].length);
+    const noReasonCnt = Object.values(catMissed).flat().filter(m => !m.reason).length;
+
+    let html = `<div style="background:#2a1010;border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:12px 14px;margin-bottom:.75rem">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;color:#D85A30">Actividades perdidas</span>
+        <span style="font-size:22px;font-weight:700;color:#D85A30">${totalMiss}</span>
+      </div>
+      ${noReasonCnt > 0 ? `<p style="font-size:11px;color:#7a3a28;margin-top:4px">${noReasonCnt} sin motivo registrado · añádelo abajo</p>` : '<p style="font-size:11px;color:#3a5a30;margin-top:4px">Todos los motivos registrados ✓</p>'}
+    </div>`;
+
+    // Barras de pérdida por categoría (solo si hay más de una)
+    if (sortedCats.length > 1) {
+      html += `<div style="background:#161616;border:1px solid #222;border-radius:8px;padding:10px 14px;margin-bottom:.75rem">
+        <p style="font-size:10px;color:#444;font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem">Por categoría</p>`;
+      for (const k of sortedCats) {
+        const info = getCatInfo(k);
+        const cnt = catMissed[k].length;
+        const barW = Math.round(cnt / totalMiss * 100);
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+          <div style="display:flex;align-items:center;gap:5px;width:110px;flex-shrink:0">
+            <span style="width:7px;height:7px;border-radius:2px;background:${info.color};flex-shrink:0;display:inline-block"></span>
+            <span style="font-size:11px;color:#777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${info.label}</span>
+          </div>
+          <div style="flex:1;height:5px;background:#1e1e1e;border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${barW}%;background:#7a2a1a;border-radius:3px"></div>
+          </div>
+          <span style="font-size:11px;color:#D85A30;width:20px;text-align:right;font-weight:500">${cnt}</span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    // Lista agrupada por categoría
+    for (const k of sortedCats) {
+      const info = getCatInfo(k);
+      const items = catMissed[k];
+      html += `<div style="margin-bottom:.75rem">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;padding:0 2px">
+          <span style="width:10px;height:10px;border-radius:3px;background:${info.color};flex-shrink:0"></span>
+          <span style="font-size:12px;font-weight:500;color:#bbb">${info.label}</span>
+          <span style="font-size:11px;color:#555">${items.length} pérdida${items.length !== 1 ? 's' : ''}</span>
+        </div>`;
+      for (const m of items) {
+        const safeId = 'ra-' + m.dKey + '-' + m.act.id;
+        html += `<div class="mi" style="margin-bottom:5px">
+          <div class="mi-d">${m.dayLabel} · ${m.timeLabel}</div>
+          <div class="mi-n">${m.act.name}</div>
+          ${m.reason
+            ? `<div class="mi-r">"${m.reason}"</div>`
+            : `<div style="margin-top:4px">
+                <div id="${safeId}" style="display:none">
+                  <textarea class="p-reason-ta" data-dkey="${m.dKey}" data-actid="${m.act.id}" data-dayidx="${m.dayIdx}" placeholder="¿Por qué se perdió?" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:5px 8px;font-size:12px;color:#e8e6e0;resize:none;min-height:50px;font-family:inherit;margin-top:4px;box-sizing:border-box"></textarea>
+                  <button class="p-reason-save btn" data-dkey="${m.dKey}" data-actid="${m.act.id}" data-dayidx="${m.dayIdx}" style="margin-top:4px;font-size:11px;padding:3px 10px">Guardar motivo</button>
+                </div>
+                <button class="p-add-btn btn" data-target="${safeId}" style="font-size:10px;color:#555;border-color:#2a2a2a;padding:2px 8px;margin-top:2px">+ Añadir motivo</button>
+              </div>`
+          }
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    elP.innerHTML = html;
+
+    // Toggle inline textarea
+    elP.querySelectorAll<HTMLElement>('.p-add-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const wrap = document.getElementById(btn.dataset.target!);
+        if (!wrap) return;
+        const isOpen = wrap.style.display !== 'none';
+        wrap.style.display = isOpen ? 'none' : 'block';
+        if (!isOpen) wrap.querySelector<HTMLTextAreaElement>('textarea')?.focus();
+      });
+    });
+
+    // Guardar motivo inline
+    elP.querySelectorAll<HTMLElement>('.p-reason-save').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dKeyR = btn.dataset.dkey!;
+        const actIdR = btn.dataset.actid!;
+        const dayIdxR = parseInt(btn.dataset.dayidx!);
+        const ta = elP.querySelector<HTMLTextAreaElement>(`.p-reason-ta[data-dkey="${dKeyR}"][data-actid="${actIdR}"]`);
+        const reason = ta?.value.trim() || '';
+        if (!reason) { ta?.focus(); return; }
+        state[ak(dKeyR, actIdR)] = { done: false, reason, ts: Date.now() };
+        saveRecord(dKeyR, actIdR, dayIdxR, false, reason);
+        renderPerdidas();
+      });
+    });
   }
 
   // ── Configurar tab (solo categorías) ─────────────────────────────────────────
