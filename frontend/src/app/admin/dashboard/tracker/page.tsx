@@ -373,7 +373,7 @@ function slugCat(label: string): string {
 }
 
 type StateRecord = { done: boolean; reason: string; ts: number | string };
-interface DynCat { id: number; cat_key: string; label: string; color: string; }
+interface DynCat { id: number; cat_key: string; label: string; color: string; track: number; }
 interface RawTask { id: number; day_index: number; activity_id: string; name: string; cat_key: string; start_min: number; end_min: number; description: string; track: number; }
 
 function initTracker() {
@@ -425,7 +425,8 @@ function initTracker() {
     rawTaskMap = {};
     dynTasksByDay = Array.from({ length: 7 }, () => []);
     for (const t of (res.tasks ?? [])) {
-      dynTasksByDay[t.day_index].push({ id: t.activity_id, name: t.name, cat: t.cat_key, start: t.start_min, end: t.end_min, desc: t.description, track: !!t.track });
+      const catTrack = dynCats[t.cat_key]?.track ?? 1; // track heredado de la categoría
+      dynTasksByDay[t.day_index].push({ id: t.activity_id, name: t.name, cat: t.cat_key, start: t.start_min, end: t.end_min, desc: t.description, track: !!catTrack });
       rawTaskMap[t.day_index + '_' + t.activity_id] = t;
     }
     if (userId === 1) {
@@ -924,9 +925,11 @@ function initTracker() {
     const noneInfo = getCatInfo('_none');
     const cats = Object.values(dynCats).filter(c => c.cat_key !== '_none');
     let inner = `<div class="cfg-hdr"><h3>Categorías</h3><button class="btn-sm" id="btn-add-cat">+ Añadir</button></div>`;
+    const noneTrack = dynCats['_none']?.track ?? 1;
     inner += `<div class="cat-row" id="cat-row-none" style="cursor:pointer">` +
       `<div class="cat-sw" style="background:${noneInfo.color};pointer-events:none"></div>` +
       `<span class="cat-label" style="flex:1">${noneInfo.label} <span style="font-size:10px;color:#555">(defecto)</span></span>` +
+      `<button class="trk-btn ${noneTrack ? 'on' : 'off'} btn-trk-cat" data-cid="${dynCats['_none']?.id || 0}" data-track="${noneTrack}" title="${noneTrack ? 'Rastreable' : 'No rastreable'}">${noneTrack ? '✓ Rastr.' : '○ Rastr.'}</button>` +
       `<button class="btn-sm" id="btn-edit-none">Editar</button>` +
       `</div>`;
     if (cats.length > 0) {
@@ -934,6 +937,7 @@ function initTracker() {
         `<div class="cat-row" data-cid="${c.id}">` +
         `<div class="cat-sw" style="background:${c.color};pointer-events:none"></div>` +
         `<span class="cat-label">${c.label}</span>` +
+        `<button class="trk-btn ${c.track ? 'on' : 'off'} btn-trk-cat" data-cid="${c.id}" data-track="${c.track ?? 1}" title="${c.track ? 'Rastreable' : 'No rastreable'}">${c.track ? '✓ Rastr.' : '○ Rastr.'}</button>` +
         `<button class="btn-sm btn-del btn-del-cat" data-cid="${c.id}" title="Eliminar">✕</button>` +
         `</div>`
       ).join('');
@@ -944,9 +948,22 @@ function initTracker() {
     document.getElementById('btn-edit-none')?.addEventListener('click', () => openCatModal(-1));
     document.querySelectorAll('.cat-row[data-cid]').forEach(row => {
       row.addEventListener('click', (e) => {
-        if ((e.target as HTMLElement).classList.contains('btn-del-cat') ||
-            (e.target as HTMLElement).classList.contains('btn-del')) return;
+        const tgt = e.target as HTMLElement;
+        if (tgt.classList.contains('btn-del-cat') || tgt.classList.contains('btn-del') || tgt.classList.contains('trk-btn')) return;
         openCatModal(parseInt((row as HTMLElement).dataset.cid || '0'));
+      });
+    });
+    document.querySelectorAll('.btn-trk-cat').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cid = parseInt((btn as HTMLElement).dataset.cid || '0');
+        const newTrack = parseInt((btn as HTMLElement).dataset.track || '1') ? 0 : 1;
+        if (!cid) return;
+        fetch('/api/tracker/categories', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: cid, track: newTrack }),
+        }).then(() => reloadSchedule()).catch(() => {});
       });
     });
     document.querySelectorAll('.btn-del-cat').forEach(btn =>
@@ -1077,14 +1094,11 @@ function initTracker() {
           const stIcon = rec
             ? (rec.done ? `<span style="font-size:11px;color:#5DCAA5">✓</span>` : `<span style="font-size:11px;color:#D85A30">✗</span>`)
             : `<span style="font-size:11px;color:#2a2a2a">○</span>`;
-          const trkCls = t.track ? 'on' : 'off';
-          const trkLbl = t.track ? '✓ Rastr.' : '○ Rastr.';
           return `<div class="tcrd${isTaskFuture ? ' tcrd-fut' : ''}" style="cursor:${isTaskFuture ? 'default' : 'pointer'}" data-idx="${i}">` +
             `<span style="font-size:11px;color:#555;width:90px;flex-shrink:0;font-variant-numeric:tabular-nums">${fmt(t.start)}–${fmt(t.end)}</span>` +
             `<span style="flex:1;font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span>` +
             `<span style="font-size:10px;padding:2px 7px;border-radius:4px;color:#fff;background:${info.color};flex-shrink:0;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${info.label}</span>` +
             `<span style="width:16px;text-align:center;flex-shrink:0">${stIcon}</span>` +
-            `<button class="trk-btn ${trkCls}" data-tid="${raw?.id || 0}" data-track="${t.track ? 1 : 0}" title="${t.track ? 'Rastreable — desactivar' : 'No rastreable — activar'}">${trkLbl}</button>` +
             `<button class="btn-sm btn-del dcfg-del" data-tid="${raw?.id || 0}" title="Eliminar" style="flex-shrink:0">✕</button>` +
             `</div>`;
         }).join('');
@@ -1099,21 +1113,6 @@ function initTracker() {
         const idx = parseInt((card as HTMLElement).dataset.idx || '0');
         const raw = rawTaskMap[cfgDayIdx + '_' + tasks[idx].id];
         openActionModal(tasks[idx], cfgDayKey, cfgDayIdx, raw || undefined);
-      });
-    });
-
-    // Toggle rastreable — usa PATCH parcial (solo id + track)
-    el.querySelectorAll('.trk-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const tid = parseInt((btn as HTMLElement).dataset.tid || '0');
-        const newTrack = parseInt((btn as HTMLElement).dataset.track || '0') ? 0 : 1;
-        if (!tid) return;
-        fetch('/api/tracker/tasks', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: tid, track: newTrack }),
-        }).then(() => reloadSchedule()).catch(() => {});
       });
     });
 
@@ -1163,10 +1162,7 @@ function initTracker() {
       `<div class="form-2col"><div class="form-row"><label>Inicio</label><input type="time" id="ef-start" value="${minToTime(raw?.start_min ?? 8 * 60)}" /></div>` +
       `<div class="form-row"><label>Fin</label><input type="time" id="ef-end" value="${minToTime(raw?.end_min ?? 9 * 60)}" /></div></div>` +
       `<div id="ef-overlap-warn" class="ef-warn"></div>` +
-      `<div class="form-row"><label>Descripción</label><textarea id="ef-desc" rows="2" placeholder="Descripción opcional...">${raw?.description || ''}</textarea></div>` +
-      `<div class="form-row" style="display:flex;align-items:center;gap:8px;padding-top:.1rem">` +
-      `<input type="checkbox" id="ef-track" style="width:auto;margin:0"${raw === null || raw.track ? ' checked' : ''} />` +
-      `<label for="ef-track" style="margin:0;font-size:12px;color:#ccc">Rastrear cumplimiento</label></div>`;
+      `<div class="form-row"><label>Descripción</label><textarea id="ef-desc" rows="2" placeholder="Descripción opcional...">${raw?.description || ''}</textarea></div>`;
     document.getElementById('edit-modal')!.classList.remove('hidden');
     setTimeout(() => {
       (document.getElementById('ef-name') as HTMLInputElement)?.focus();
@@ -1215,14 +1211,13 @@ function initTracker() {
       const start_min = timeToMin((document.getElementById('ef-start') as HTMLInputElement)?.value || '08:00');
       const end_min   = timeToMin((document.getElementById('ef-end') as HTMLInputElement)?.value || '09:00');
       const description = ((document.getElementById('ef-desc') as HTMLTextAreaElement)?.value || '').trim();
-      const track = (document.getElementById('ef-track') as HTMLInputElement)?.checked ? 1 : 0;
       if (!name) { alert('Introduce un nombre para la tarea.'); return; }
       if (end_min <= start_min) { alert('La hora de fin debe ser posterior al inicio.'); return; }
       if (editTaskId) {
-        fetch('/api/tracker/tasks', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editTaskId, name, cat_key, start_min, end_min, description, track }) })
+        fetch('/api/tracker/tasks', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editTaskId, name, cat_key, start_min, end_min, description }) })
           .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
       } else {
-        fetch('/api/tracker/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day_index: cfgDayIdx, name, cat_key, start_min, end_min, description, track }) })
+        fetch('/api/tracker/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day_index: cfgDayIdx, name, cat_key, start_min, end_min, description }) })
           .then(() => { closeEditModal(); reloadSchedule(); }).catch(() => {});
       }
     }

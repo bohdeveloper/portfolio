@@ -11,20 +11,20 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const auth = await verifyAuth(request, env.JWT_SECRET);
   if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
-  let body: { cat_key?: string; label?: string; color?: string };
+  let body: { cat_key?: string; label?: string; color?: string; track?: number };
   try { body = await request.json(); } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid JSON' }), { status: 400, headers });
   }
 
-  const { cat_key, label, color } = body;
+  const { cat_key, label, color, track = 1 } = body;
   if (!cat_key || !label || !color) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing fields: cat_key, label, color' }), { status: 400, headers });
   }
 
   const result = await env.DB.prepare(
-    `INSERT INTO tracker_categories (user_id, cat_key, label, color, sort_order)
-     VALUES (?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM tracker_categories WHERE user_id = ?))`
-  ).bind(auth.user_id, cat_key, label, color, auth.user_id).run();
+    `INSERT INTO tracker_categories (user_id, cat_key, label, color, track, sort_order)
+     VALUES (?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM tracker_categories WHERE user_id = ?))`
+  ).bind(auth.user_id, cat_key, label, color, track, auth.user_id).run();
 
   return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id }), { status: 200, headers });
 };
@@ -35,18 +35,19 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   const auth = await verifyAuth(request, env.JWT_SECRET);
   if (!auth) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
 
-  let body: { id?: number; label?: string; color?: string };
+  let body: { id?: number; label?: string; color?: string; track?: number };
   try { body = await request.json(); } catch {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid JSON' }), { status: 400, headers });
   }
 
-  const { id, label, color } = body;
+  const { id, label, color, track } = body;
   if (!id) return new Response(JSON.stringify({ ok: false, error: 'Missing id' }), { status: 400, headers });
 
   const sets: string[] = [];
   const vals: unknown[] = [];
   if (label !== undefined) { sets.push('label = ?'); vals.push(label); }
   if (color !== undefined) { sets.push('color = ?'); vals.push(color); }
+  if (track !== undefined) { sets.push('track = ?'); vals.push(track); }
   if (sets.length === 0) return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 
   vals.push(id, auth.user_id);
