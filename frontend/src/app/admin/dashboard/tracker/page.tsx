@@ -10,7 +10,7 @@ const CAT_CLS: Record<string, string> = {
 };
 
 const TRACKER_CSS = `
-#tracker-root{font-family:system-ui,sans-serif;font-size:14px;background:#0f0f0f;color:#e8e6e0;padding-bottom:2rem}
+#tracker-root{font-family:system-ui,sans-serif;font-size:14px;background:#0f0f0f;color:#e8e6e0;padding-bottom:2rem;--tr-c:#1c1c1c;--tr-m:#252525;--tr-b:#2a2a2a;--tr-tf:#4a4a4a;--tr-tm:#666;--tr-bg-loss:#2a1010;--tr-bd-loss:rgba(216,90,48,.3);--tr-loss-sub:#8a4535;--tr-ok-sub:#3a6040;--tr-field:#111;--tr-field-bd:#333}
 .header-bar{padding:.75rem 1rem;background:#111;border-bottom:1px solid #1e1e1e;margin-bottom:.5rem}
 .header-bar h2{font-size:16px;font-weight:500;margin-bottom:1px}
 .header-bar p{font-size:11px;color:#555}
@@ -216,6 +216,18 @@ html.light .dcfg-hdr{background:#fff;border-bottom-color:#e0e0e0}
 html.light .dcfg-hdr h2{color:#1a1a1a}
 html.light .tcrd{background:#fff;border-color:#e0e0e0}
 html.light .tcrd:hover{border-color:#ccc}
+html.light #tracker-root{--tr-c:#f5f5f5;--tr-m:#e8e8e8;--tr-b:#ddd;--tr-tf:#bbb;--tr-tm:#888;--tr-bg-loss:#fff5f5;--tr-bd-loss:rgba(200,50,30,.2);--tr-loss-sub:#c03030;--tr-ok-sub:#2d7a50;--tr-field:#fff;--tr-field-bd:#e0e0e0}
+html.light .btn-del{color:#c0392b!important;border-color:#fcc!important;background:#fff5f5!important}
+html.light .btn-del:hover{background:#ffe5e5!important}
+html.light .btn-danger{color:#c0392b!important;border-color:#fcc!important;background:#fff5f5!important}
+html.light .btn-danger:hover{background:#ffe5e5!important}
+html.light .trk-btn.off{border-color:#ddd;color:#ccc}
+html.light .trk-btn.off:hover{border-color:#bbb;color:#aaa}
+html.light .cfg-empty{color:#bbb}
+html.light .sh-edit-hint{color:#ddd}
+html.light .sb{border-left-color:#2a9e6e}
+html.light .sw{border-left-color:#c0392b}
+html.light .mi{border-left-color:#c0392b}
 `;
 
 const TRACKER_HTML = `
@@ -801,7 +813,7 @@ function initTracker() {
         return `<div class="cr">` +
           `<span class="cn">${info.label}</span>` +
           `<div style="flex:1"><div class="pb"><div class="pf" style="width:${p}%;background:${info.color}"></div></div></div>` +
-          `<span style="font-size:11px;color:#444;width:32px;text-align:right;flex-shrink:0;margin-right:4px">${d}/${t}</span>` +
+          `<span style="font-size:11px;color:var(--tr-tm);width:32px;text-align:right;flex-shrink:0;margin-right:4px">${d}/${t}</span>` +
           `<span class="cpct" style="color:${info.color}">${p}%</span>` +
           `</div>`;
       }).join('');
@@ -809,28 +821,37 @@ function initTracker() {
     if (chart) { (chart as { destroy(): void }).destroy(); chart = null; }
     const canvas = document.getElementById('dayChart') as HTMLCanvasElement | null;
     if (canvas) {
+      const isLight = document.documentElement.classList.contains('light');
       const dp = dt.map((t, i) => Math.max(0, t - dd[i] - dm[i]));
+      const pendingC = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.18)';
+      const legendC  = isLight ? '#888' : '#777';
+      const tickC    = isLight ? '#999' : '#666';
+      const gridC    = isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.05)';
+      const tooltipBg    = isLight ? '#fff'     : '#1c1c1c';
+      const tooltipBd    = isLight ? '#e0e0e0'  : '#333';
+      const tooltipTitle = isLight ? '#1a1a1a'  : '#e8e6e0';
+      const tooltipBody  = isLight ? '#666'     : '#999';
       chart = new (window as unknown as { Chart: new (ctx: unknown, cfg: unknown) => unknown }).Chart(canvas.getContext('2d'), {
         type: 'bar',
         data: { labels: DIAS, datasets: [
-          { label: 'Completadas', data: dd, backgroundColor: '#1D6B45', stack: 'a' },
-          { label: 'Perdidas',    data: dm, backgroundColor: '#7a2a1a', stack: 'a' },
-          { label: 'Pendientes',  data: dp, backgroundColor: 'rgba(255,255,255,0.05)', stack: 'a', borderRadius: 3 },
+          { label: 'Completadas', data: dd, backgroundColor: '#3aaa78', stack: 'a', borderRadius: 3 },
+          { label: 'Perdidas',    data: dm, backgroundColor: '#e05040', stack: 'a', borderRadius: 3 },
+          { label: 'Pendientes',  data: dp, backgroundColor: pendingC,  stack: 'a', borderRadius: 3 },
         ]},
         options: {
           animation: false,
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: '#555', font: { size: 10 }, boxWidth: 9, padding: 14 } },
+            legend: { labels: { color: legendC, font: { size: 10 }, boxWidth: 9, padding: 14 } },
             tooltip: {
               mode: 'index',
               intersect: false,
-              backgroundColor: '#1c1c1c',
-              borderColor: '#333',
+              backgroundColor: tooltipBg,
+              borderColor: tooltipBd,
               borderWidth: 1,
-              titleColor: '#e8e6e0',
-              bodyColor: '#888',
+              titleColor: tooltipTitle,
+              bodyColor: tooltipBody,
               callbacks: {
                 footer: (items: unknown[]) => {
                   const arr = items as Array<{ raw: number }>;
@@ -842,8 +863,8 @@ function initTracker() {
             },
           },
           scales: {
-            x: { stacked: true, ticks: { color: '#555', font: { size: 11 } }, grid: { color: '#1a1a1a' } },
-            y: { stacked: true, beginAtZero: true, ticks: { color: '#555', font: { size: 11 }, stepSize: 1 }, grid: { color: '#1e1e1e' } },
+            x: { stacked: true, ticks: { color: tickC, font: { size: 11 } }, grid: { color: gridC } },
+            y: { stacked: true, beginAtZero: true, ticks: { color: tickC, font: { size: 11 }, stepSize: 1 }, grid: { color: gridC } },
           },
         },
       });
@@ -896,19 +917,26 @@ function initTracker() {
       : '¡Semana dura! El momento de remontar.';
 
     // Day indicators — círculos con estado de cada día
+    const isLightMode = document.documentElement.classList.contains('light');
+    const emptyBg  = isLightMode ? '#e4e4e4' : '#1a1a1a';
+    const emptySym = isLightMode ? '#c8c8c8' : '#2a2a2a';
+    const futBg    = isLightMode ? '#ececec' : '#1e1e1e';
+    const futSym   = isLightMode ? '#bbb'    : '#444';
+    const unknSym  = isLightMode ? '#bbb'    : '#555';
+    const dateCol  = isLightMode ? '#b0b0b0' : '#3a3a3a';
     const dayDots = days.map((d, di) => {
       const isFut = d > today;
       const isToday = d.getTime() === today.getTime();
       const total = dt[di], done = dd[di], miss = dm[di];
-      let dotBg = '#1a1a1a', symColor = '#333', sym = '–';
+      let dotBg = emptyBg, symColor = emptySym, sym = '–';
       if (total === 0) {
-        dotBg = '#1a1a1a'; symColor = '#2a2a2a'; sym = '–';
+        dotBg = emptyBg; symColor = emptySym; sym = '–';
       } else if (isFut) {
-        dotBg = '#1e1e1e'; symColor = '#444'; sym = String(total);
+        dotBg = futBg; symColor = futSym; sym = String(total);
       } else if (done === total) {
         dotBg = '#1D6B45'; symColor = '#9ef5cb'; sym = '✓';
       } else if (done === 0 && miss === 0) {
-        dotBg = '#1e1e1e'; symColor = '#555'; sym = '?';
+        dotBg = futBg; symColor = unknSym; sym = '?';
       } else if (done === 0) {
         dotBg = '#7a2a1a'; symColor = '#ffb3a0'; sym = '✗';
       } else {
@@ -918,12 +946,12 @@ function initTracker() {
         sym = done + '/' + total;
       }
       const ring = isToday ? '2px solid #5DCAA5' : '2px solid transparent';
-      const dayColor = isToday ? '#5DCAA5' : '#555';
+      const dayColor = isToday ? '#5DCAA5' : (isLightMode ? '#999' : '#555');
       const symSize = sym.length > 2 ? '9' : '11';
       return `<div style="text-align:center;flex:1;min-width:0">
         <div style="width:32px;height:32px;border-radius:50%;background:${dotBg};border:${ring};display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:${symSize}px;color:${symColor};font-weight:600">${sym}</div>
         <div style="font-size:9px;color:${dayColor};font-weight:${isToday ? '600' : '400'}">${DIAS[di].slice(0,3)}</div>
-        <div style="font-size:9px;color:#3a3a3a">${d.getDate()}</div>
+        <div style="font-size:9px;color:${dateCol}">${d.getDate()}</div>
       </div>`;
     }).join('');
 
@@ -940,11 +968,11 @@ function initTracker() {
           <span style="width:8px;height:8px;border-radius:2px;background:${info.color};flex-shrink:0;display:inline-block"></span>
           <span style="font-size:12px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${info.label}</span>
         </div>
-        <div style="flex:1;height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden">
+        <div style="flex:1;height:6px;background:var(--tr-m);border-radius:3px;overflow:hidden">
           <div style="height:100%;width:${p}%;background:${barC};border-radius:3px"></div>
         </div>
         <span style="font-size:11px;color:${pctC};width:32px;text-align:right;font-weight:500">${p}%</span>
-        <span style="font-size:10px;color:#444;width:28px;text-align:right">${cd.done}/${cd.total}</span>
+        <span style="font-size:10px;color:var(--tr-tf);width:28px;text-align:right">${cd.done}/${cd.total}</span>
       </div>`;
     }).join('');
 
@@ -955,7 +983,7 @@ function initTracker() {
       if (tp > 0) {
         todayHtml = `<div style="background:rgba(29,107,69,0.08);border:1px solid rgba(93,202,165,0.15);border-radius:8px;padding:9px 13px;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:12px;color:#5DCAA5">Hoy pendiente</span>
-          <span style="font-size:14px;font-weight:600;color:#e8e6e0">${tp} tarea${tp !== 1 ? 's' : ''}</span>
+          <span style="font-size:14px;font-weight:600">${tp} tarea${tp !== 1 ? 's' : ''}</span>
         </div>`;
       }
     }
@@ -1002,22 +1030,22 @@ function initTracker() {
     el.innerHTML = `
       <div style="margin-bottom:1rem">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-          <span style="font-size:12px;color:#666">Completadas esta semana</span>
+          <span style="font-size:12px;color:var(--tr-tm)">Completadas esta semana</span>
           <span style="font-size:24px;font-weight:700;color:${pctColor}">${pct}%</span>
         </div>
-        <div style="height:8px;background:#1e1e1e;border-radius:4px;overflow:hidden;margin-bottom:6px">
+        <div style="height:8px;background:var(--tr-m);border-radius:4px;overflow:hidden;margin-bottom:6px">
           <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:4px"></div>
         </div>
-        <p style="font-size:11px;color:#555">${donePast} de ${totalPast} registradas · ${msg}</p>
+        <p style="font-size:11px;color:var(--tr-tm)">${donePast} de ${totalPast} registradas · ${msg}</p>
       </div>
-      <div style="display:flex;gap:2px;margin-bottom:1rem;padding:10px 8px;background:#161616;border-radius:8px;border:1px solid #222">${dayDots}</div>
+      <div style="display:flex;gap:2px;margin-bottom:1rem;padding:10px 8px;background:var(--tr-c);border-radius:8px;border:1px solid var(--tr-b)">${dayDots}</div>
       ${todayHtml}
-      ${activeCats.length > 0 ? `<div style="background:#161616;border:1px solid #222;border-radius:8px;padding:12px 14px;margin-bottom:.75rem">
-        <p style="font-size:10px;color:#444;font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">Por categoría</p>
+      ${activeCats.length > 0 ? `<div style="background:var(--tr-c);border:1px solid var(--tr-b);border-radius:8px;padding:12px 14px;margin-bottom:.75rem">
+        <p style="font-size:10px;color:var(--tr-tf);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">Por categoría</p>
         ${catHtml}
       </div>` : ''}
       ${insightsHtml}
-      ${totalFut > 0 ? `<p style="font-size:10px;color:#3a3a3a;margin-top:.75rem;text-align:right">${totalFut} tarea${totalFut !== 1 ? 's' : ''} programada${totalFut !== 1 ? 's' : ''} esta semana</p>` : ''}
+      ${totalFut > 0 ? `<p style="font-size:10px;color:var(--tr-tf);margin-top:.75rem;text-align:right">${totalFut} tarea${totalFut !== 1 ? 's' : ''} programada${totalFut !== 1 ? 's' : ''} esta semana</p>` : ''}
     `;
   }
 
@@ -1053,18 +1081,18 @@ function initTracker() {
     const sortedCats = Object.keys(catMissed).sort((a, b) => catMissed[b].length - catMissed[a].length);
     const noReasonCnt = Object.values(catMissed).flat().filter(m => !m.reason).length;
 
-    let html = `<div style="background:#2a1010;border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:12px 14px;margin-bottom:.75rem">
+    let html = `<div style="background:var(--tr-bg-loss);border:1px solid var(--tr-bd-loss);border-radius:8px;padding:12px 14px;margin-bottom:.75rem">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:12px;color:#D85A30">Actividades perdidas</span>
         <span style="font-size:22px;font-weight:700;color:#D85A30">${totalMiss}</span>
       </div>
-      ${noReasonCnt > 0 ? `<p style="font-size:11px;color:#7a3a28;margin-top:4px">${noReasonCnt} sin motivo registrado · añádelo abajo</p>` : '<p style="font-size:11px;color:#3a5a30;margin-top:4px">Todos los motivos registrados ✓</p>'}
+      ${noReasonCnt > 0 ? `<p style="font-size:11px;color:var(--tr-loss-sub);margin-top:4px">${noReasonCnt} sin motivo registrado · añádelo abajo</p>` : `<p style="font-size:11px;color:var(--tr-ok-sub);margin-top:4px">Todos los motivos registrados ✓</p>`}
     </div>`;
 
     // Barras de pérdida por categoría (solo si hay más de una)
     if (sortedCats.length > 1) {
-      html += `<div style="background:#161616;border:1px solid #222;border-radius:8px;padding:10px 14px;margin-bottom:.75rem">
-        <p style="font-size:10px;color:#444;font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem">Por categoría</p>`;
+      html += `<div style="background:var(--tr-c);border:1px solid var(--tr-b);border-radius:8px;padding:10px 14px;margin-bottom:.75rem">
+        <p style="font-size:10px;color:var(--tr-tf);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem">Por categoría</p>`;
       for (const k of sortedCats) {
         const info = getCatInfo(k);
         const cnt = catMissed[k].length;
@@ -1072,10 +1100,10 @@ function initTracker() {
         html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
           <div style="display:flex;align-items:center;gap:5px;width:110px;flex-shrink:0">
             <span style="width:7px;height:7px;border-radius:2px;background:${info.color};flex-shrink:0;display:inline-block"></span>
-            <span style="font-size:11px;color:#777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${info.label}</span>
+            <span style="font-size:11px;color:var(--tr-tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${info.label}</span>
           </div>
-          <div style="flex:1;height:5px;background:#1e1e1e;border-radius:3px;overflow:hidden">
-            <div style="height:100%;width:${barW}%;background:#7a2a1a;border-radius:3px"></div>
+          <div style="flex:1;height:5px;background:var(--tr-m);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${barW}%;background:#e05040;border-radius:3px"></div>
           </div>
           <span style="font-size:11px;color:#D85A30;width:20px;text-align:right;font-weight:500">${cnt}</span>
         </div>`;
@@ -1090,8 +1118,8 @@ function initTracker() {
       html += `<div style="margin-bottom:.75rem">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;padding:0 2px">
           <span style="width:10px;height:10px;border-radius:3px;background:${info.color};flex-shrink:0"></span>
-          <span style="font-size:12px;font-weight:500;color:#bbb">${info.label}</span>
-          <span style="font-size:11px;color:#555">${items.length} pérdida${items.length !== 1 ? 's' : ''}</span>
+          <span style="font-size:12px;font-weight:500">${info.label}</span>
+          <span style="font-size:11px;color:var(--tr-tm)">${items.length} pérdida${items.length !== 1 ? 's' : ''}</span>
         </div>`;
       for (const m of items) {
         const safeId = 'ra-' + m.dKey + '-' + m.act.id;
@@ -1102,10 +1130,10 @@ function initTracker() {
             ? `<div class="mi-r">"${m.reason}"</div>`
             : `<div style="margin-top:4px">
                 <div id="${safeId}" style="display:none">
-                  <textarea class="p-reason-ta" data-dkey="${m.dKey}" data-actid="${m.act.id}" data-dayidx="${m.dayIdx}" placeholder="¿Por qué se perdió?" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;padding:5px 8px;font-size:12px;color:#e8e6e0;resize:none;min-height:50px;font-family:inherit;margin-top:4px;box-sizing:border-box"></textarea>
+                  <textarea class="p-reason-ta" data-dkey="${m.dKey}" data-actid="${m.act.id}" data-dayidx="${m.dayIdx}" placeholder="¿Por qué se perdió?" style="width:100%;background:var(--tr-field);border:1px solid var(--tr-field-bd);border-radius:6px;padding:5px 8px;font-size:12px;color:inherit;resize:none;min-height:50px;font-family:inherit;margin-top:4px;box-sizing:border-box"></textarea>
                   <button class="p-reason-save btn" data-dkey="${m.dKey}" data-actid="${m.act.id}" data-dayidx="${m.dayIdx}" style="margin-top:4px;font-size:11px;padding:3px 10px">Guardar motivo</button>
                 </div>
-                <button class="p-add-btn btn" data-target="${safeId}" style="font-size:10px;color:#555;border-color:#2a2a2a;padding:2px 8px;margin-top:2px">+ Añadir motivo</button>
+                <button class="p-add-btn btn" data-target="${safeId}" style="font-size:10px;color:var(--tr-tm);border-color:var(--tr-b);padding:2px 8px;margin-top:2px">+ Añadir motivo</button>
               </div>`
           }
         </div>`;
