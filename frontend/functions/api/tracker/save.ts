@@ -25,6 +25,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
     return new Response(JSON.stringify({ ok: false, error: 'Formato de fecha inválido' }), { status: 400, headers });
+  // Rechazar fechas más de 5 días en el futuro (cubre la semana actual con offset UTC+2)
+  const maxAllowed = new Date();
+  maxAllowed.setDate(maxAllowed.getDate() + 5);
+  if (date > maxAllowed.toISOString().slice(0, 10))
+    return new Response(JSON.stringify({ ok: false, error: 'No se permiten registros futuros' }), { status: 400, headers });
   if (typeof activity_id !== 'string' || activity_id.length > 60 || !/^[\w-]+$/.test(activity_id))
     return new Response(JSON.stringify({ ok: false, error: 'activity_id inválido' }), { status: 400, headers });
   if (validateInt(day_index, 0, 6) === null)
