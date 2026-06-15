@@ -247,6 +247,7 @@ const TRACKER_HTML = `
     <button class="btn" id="btn-prev">‹</button>
     <span id="week-label"></span>
     <button class="btn" id="btn-next">›</button>
+    <button class="btn" id="btn-hoy" style="display:none;font-size:11px;padding:4px 10px;border-color:#5DCAA5;color:#5DCAA5">Hoy</button>
   </div>
   <div class="g4" id="quick-stats"></div>
   <div class="legend-row" id="legend"></div>
@@ -396,6 +397,7 @@ function initTracker() {
 
   let state: Record<string, StateRecord> = {};
   let weekOffset = 0;
+  let stateGen = 0; // generation counter — evita que un fetch obsoleto sobrescriba state
   let pending: { dKey: string; act: Activity; dayIdx: number } | null = null;
   let chart: unknown = null;
   let userId = 0;
@@ -473,9 +475,11 @@ function initTracker() {
 
   // ── API ──────────────────────────────────────────────────────────────────────
   function loadState() {
+    const gen = ++stateGen;
     fetch('/api/tracker/week?start=' + dk(getWS(weekOffset)))
       .then(r => r.json())
       .then((res: { ok: boolean; data?: Array<{ date: string; activity_id: string; done: number; reason: string; updated_at: string }> }) => {
+        if (gen !== stateGen) return; // fetch obsoleto — semana ya cambió
         if (res.ok && res.data) {
           state = {};
           for (const r of res.data) {
@@ -484,7 +488,7 @@ function initTracker() {
         }
         renderAll();
       })
-      .catch(renderAll);
+      .catch(() => { if (gen === stateGen) renderAll(); });
   }
 
   function saveRecord(dKey: string, actId: string, dayIdx: number, done: boolean, reason: string) {
@@ -1487,8 +1491,20 @@ function initTracker() {
   }
 
   // ── Event listeners ────────────────────────────────────────────────────────────
-  document.getElementById('btn-prev')!.onclick = () => { closeDayCfg(); weekOffset--; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
-  document.getElementById('btn-next')!.onclick = () => { closeDayCfg(); weekOffset++; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } loadState(); };
+  function changeWeek(delta: number) {
+    closeDayCfg();
+    weekOffset += delta;
+    state = {}; // limpiar state inmediatamente — evita ver datos de la semana anterior
+    if (chart) { (chart as { destroy(): void }).destroy(); chart = null; }
+    renderWeek(); // render inmediato con estado limpio mientras carga
+    loadState();
+    // Mostrar/ocultar botón "Hoy"
+    const btnHoy = document.getElementById('btn-hoy');
+    if (btnHoy) btnHoy.style.display = weekOffset !== 0 ? 'inline-block' : 'none';
+  }
+  document.getElementById('btn-prev')!.onclick = () => changeWeek(-1);
+  document.getElementById('btn-next')!.onclick = () => changeWeek(1);
+  document.getElementById('btn-hoy')!.onclick = () => { weekOffset = 0; state = {}; if (chart) { (chart as { destroy(): void }).destroy(); chart = null; } const bh = document.getElementById('btn-hoy'); if (bh) bh.style.display = 'none'; renderWeek(); loadState(); };
   document.getElementById('day-cfg-back')!.onclick = closeDayCfg;
   document.getElementById('day-cfg-prev')!.onclick = () => navigateDayCfg(-1);
   document.getElementById('day-cfg-next')!.onclick = () => navigateDayCfg(1);
