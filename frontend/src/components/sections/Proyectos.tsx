@@ -28,13 +28,24 @@ interface Project {
 /* Orden editorial de la home: refleja la importancia real del proyecto, no la
    fecha de creación ni el flag featured de la BD. Los slugs que no estén aquí
    se colocan al final respetando el orden que devuelve la API. */
-const ORDEN_SLUGS = ["bako", "diamadmin", "unyona", "ayudas-gv", "devhelper", "nitflex"];
+const ORDEN_SLUGS = ["rexia", "bako", "ayudas-gv", "unyona", "diamadmin", "devhelper", "nitflex"];
 
 /* Estado del proyecto. Por defecto se deduce de si hay landing publicada;
    BAKO no tiene landing pero está desplegado y operativo 24/7. */
 const ESTADO_OVERRIDE: Record<string, string> = { bako: "En producción" };
 
 const FALLBACK: Project[] = [
+  {
+    nombre: "REXIA — Rexistro de Identificación Animal",
+    slug: "rexia",
+    descripcion1:
+      "Registro autonómico de identificación de animales de compañía construido con el stack del sector público: trazabilidad del microchip al titular con histórico completo, series de chips asignadas a veterinarios habilitados y máquina de estados del animal.",
+    descripcion2:
+      "Reimplementación original inspirada en el REGIAC de la Xunta, con datos ficticios. Sincronización con un registro nacional simulado y consulta pública por microchip diseñada para no exponer datos personales del titular.",
+    architecture: "JEE en capas · UDA (EJIE) + Spring + Oracle",
+    tags: "UDA (EJIE),Java,Spring,Spring Data JPA,Hibernate,Oracle XE,PL/SQL,JSP,JSTL,Tiles,Bootstrap,jQuery,Spring Security,JUnit 5,Docker,Maven",
+    tecnologias: ["UDA (EJIE)", "Java", "Spring", "Spring Data JPA", "Hibernate", "Oracle XE", "PL/SQL", "JSP", "JSTL", "Tiles", "Bootstrap", "jQuery", "Spring Security", "JUnit 5", "Docker", "Maven"],
+  },
   {
     nombre: "BAKO — Autonomous Knowledge Operator",
     slug: "bako",
@@ -50,24 +61,22 @@ const FALLBACK: Project[] = [
   {
     nombre: "Unyona",
     slug: "unyona",
-    descripcion1: "Plataforma social orientada a eventos y gestión de comunidades.",
-    descripcion2: "Se ha desarrollado una landing como demostración de la arquitectura y funcionalidades del proyecto, análisis del producto y captación de leads.",
+    descripcion1: "Plataforma social de conexión local por geolocalización e intereses, con autenticación de doble factor y gestión de perfiles múltiples.",
     landing: "https://unyona.com",
-    architecture: "Web App SQL",
-    tags: "React,TypeScript,Tailwind,Express,Prisma,SQLite,PostgreSQL",
-    tecnologias: ["React", "TypeScript", "Tailwind", "Express", "Prisma", "SQLite", "PostgreSQL"],
-    github: "https://github.com/bohdeveloper/unyona",
+    architecture: "Monorepo · SPA React + API REST Node.js + PostgreSQL",
+    tags: "React,TypeScript,Tailwind CSS,Vite,Node.js,Express,Prisma,PostgreSQL,JWT",
+    tecnologias: ["React", "TypeScript", "Tailwind CSS", "Vite", "Node.js", "Express", "Prisma", "PostgreSQL", "JWT"],
+    github: "https://github.com/bohdeveloper/unyona-landing",
   },
   {
     nombre: "Diamadmin",
     slug: "diamadmin",
-    descripcion1: "Aplicación de gestión administrativa modular y altamente configurable.",
-    descripcion2: "Se ha desarrollado una landing como demostración de la arquitectura y funcionalidades del proyecto, análisis del producto y captación de leads.",
+    descripcion1: "ERP modular para pymes con landing de captación, backend Spring Boot y arquitectura extensible por dominios.",
     landing: "https://diamadmin.com",
-    architecture: "Arquitectura modular",
-    tags: "Angular,Spring Boot,PostgreSQL",
-    tecnologias: ["Angular", "Spring Boot", "PostgreSQL"],
-    github: "https://github.com/bohdeveloper/diamadmin",
+    architecture: "Next.js SSG (landing) + Java Spring Boot (API REST) + PostgreSQL",
+    tags: "Next.js,TypeScript,Tailwind CSS,Framer Motion,Java 21,Spring Boot,Hibernate,JPA,PostgreSQL",
+    tecnologias: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Java 21", "Spring Boot", "Hibernate", "JPA", "PostgreSQL"],
+    github: "https://github.com/bohdeveloper/diamadmin-landing",
   },
   {
     nombre: "ayudas_gv",
@@ -252,6 +261,13 @@ export default function Proyectos() {
                   >
                     Case study →
                   </a>
+                )}
+                {/* Sin repositorio ni case study todavía: mejor decirlo que
+                    dejar un enlace roto o un hueco sin explicar. */}
+                {!n.github && !n.hasContent && (
+                  <span className="inline-block px-4 py-2 rounded border border-dashed border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 text-sm">
+                    Repositorio próximamente
+                  </span>
                 )}
               </div>
             </article>

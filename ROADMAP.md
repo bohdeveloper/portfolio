@@ -236,9 +236,12 @@
 # ✅ Añadidas las dos FP de grado medio (Irungo La Salle)
 
 ### Proyectos
-# ✅ BAKO y ayudas_gv añadidos (fallback + migración D1)
-# ✅ Orden editorial por ORDEN_SLUGS, independiente de featured/created_at
+# ✅ REXIA, BAKO y ayudas_gv añadidos (fallback + migración D1)
+# ✅ Orden editorial por ORDEN_SLUGS: REXIA, BAKO, ayudas_gv, Unyona, Diamadmin
+#    (REXIA primero: es el único que demuestra el stack UDA/Java/Oracle)
 # ✅ Badge real por proyecto: Online / En producción / En desarrollo
+# ✅ Nota «Repositorio próximamente» cuando no hay repo ni case study
+# ✅ Fallback de Unyona y Diamadmin sincronizado con el contenido real de D1
 
 ### IA
 # ✅ Sección reducida: fuera cita destacada, imagen grande y pills de eslogan
@@ -249,7 +252,8 @@
 # ✅ Dos versiones en /cv/: backend-sector-publico y fullstack-producto
 # ✅ Componente CVDownload: dropdown accesible (aria-expanded/haspopup,
 #    flechas, Escape, clic fuera) y modal a pantalla completa en móvil
-# ✅ Enlace directo al CV de backend en la barra fija
+# ✅ Selector también en la barra fija (sm, alineado a la derecha) y en el
+#    menú móvil, en lugar de un enlace único al CV de backend
 # ✅ 301 de /borja-olazabal-programador-web-cv.pdf al nuevo CV de backend
 
 ### SEO

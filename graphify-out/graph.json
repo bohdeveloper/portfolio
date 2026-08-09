@@ -2097,7 +2097,7 @@
       "label": "onRequestDelete()",
       "file_type": "code",
       "source_file": "frontend/functions/api/tracker/save.ts",
-      "source_location": "L47",
+      "source_location": "L52",
       "_origin": "ast",
       "id": "tracker_save_onrequestdelete",
       "community": 1,
@@ -3657,7 +3657,7 @@
       "label": "fmt()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L351",
+      "source_location": "L352",
       "_origin": "ast",
       "id": "tracker_page_fmt",
       "community": 5,
@@ -3667,7 +3667,7 @@
       "label": "dk()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L356",
+      "source_location": "L357",
       "_origin": "ast",
       "id": "tracker_page_dk",
       "community": 5,
@@ -3677,7 +3677,7 @@
       "label": "dkLocal()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L357",
+      "source_location": "L358",
       "_origin": "ast",
       "id": "tracker_page_dklocal",
       "community": 5,
@@ -3687,7 +3687,7 @@
       "label": "ak()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L360",
+      "source_location": "L361",
       "_origin": "ast",
       "id": "tracker_page_ak",
       "community": 5,
@@ -3697,7 +3697,7 @@
       "label": "getWS()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L361",
+      "source_location": "L362",
       "_origin": "ast",
       "id": "tracker_page_getws",
       "community": 5,
@@ -3707,7 +3707,7 @@
       "label": "getDays()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L367",
+      "source_location": "L368",
       "_origin": "ast",
       "id": "tracker_page_getdays",
       "community": 5,
@@ -3717,7 +3717,7 @@
       "label": "minToTime()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L372",
+      "source_location": "L373",
       "_origin": "ast",
       "id": "tracker_page_mintotime",
       "community": 5,
@@ -3727,7 +3727,7 @@
       "label": "timeToMin()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L376",
+      "source_location": "L377",
       "_origin": "ast",
       "id": "tracker_page_timetomin",
       "community": 5,
@@ -3737,7 +3737,7 @@
       "label": "slugCat()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L380",
+      "source_location": "L381",
       "_origin": "ast",
       "id": "tracker_page_slugcat",
       "community": 5,
@@ -3747,7 +3747,7 @@
       "label": "StateRecord",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L387",
+      "source_location": "L388",
       "_origin": "ast",
       "id": "tracker_page_staterecord",
       "community": 5,
@@ -3757,7 +3757,7 @@
       "label": "DynCat",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L388",
+      "source_location": "L389",
       "_origin": "ast",
       "id": "tracker_page_dyncat",
       "community": 5,
@@ -3767,7 +3767,7 @@
       "label": "RawTask",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L389",
+      "source_location": "L390",
       "_origin": "ast",
       "id": "tracker_page_rawtask",
       "community": 5,
@@ -3777,7 +3777,7 @@
       "label": "initTracker()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L391",
+      "source_location": "L392",
       "_origin": "ast",
       "id": "tracker_page_inittracker",
       "community": 5,
@@ -3787,7 +3787,7 @@
       "label": "TrackerPage()",
       "file_type": "code",
       "source_file": "frontend/src/app/admin/dashboard/tracker/page.tsx",
-      "source_location": "L1552",
+      "source_location": "L1568",
       "_origin": "ast",
       "id": "tracker_page_trackerpage",
       "community": 5,
@@ -4237,7 +4237,7 @@
       "label": "RootLayout()",
       "file_type": "code",
       "source_file": "frontend/src/app/layout.tsx",
-      "source_location": "L81",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "app_layout_rootlayout",
       "community": 3,
@@ -4447,7 +4447,7 @@
       "label": "Navbar()",
       "file_type": "code",
       "source_file": "frontend/src/components/layout/Navbar.tsx",
-      "source_location": "L10",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "layout_navbar_navbar",
       "community": 3,
@@ -4817,7 +4817,7 @@
       "label": "normalize()",
       "file_type": "code",
       "source_file": "frontend/src/components/sections/Proyectos.tsx",
-      "source_location": "L102",
+      "source_location": "L111",
       "_origin": "ast",
       "id": "sections_proyectos_normalize",
       "community": 2,
@@ -4827,7 +4827,7 @@
       "label": "ordenar()",
       "file_type": "code",
       "source_file": "frontend/src/components/sections/Proyectos.tsx",
-      "source_location": "L125",
+      "source_location": "L134",
       "_origin": "ast",
       "id": "sections_proyectos_ordenar",
       "community": 2,
@@ -4837,7 +4837,7 @@
       "label": "Proyectos()",
       "file_type": "code",
       "source_file": "frontend/src/components/sections/Proyectos.tsx",
-      "source_location": "L133",
+      "source_location": "L142",
       "_origin": "ast",
       "id": "sections_proyectos_proyectos",
       "community": 2,
@@ -5037,7 +5037,7 @@
       "label": "CVDownload()",
       "file_type": "code",
       "source_file": "frontend/src/components/ui/CVDownload.tsx",
-      "source_location": "L41",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "ui_cvdownload_cvdownload",
       "community": 2,
@@ -6804,40 +6804,70 @@
       "norm_label": "proyectos"
     },
     {
-      "label": "\u2705 BAKO y ayudas_gv a\u00f1adidos (fallback + migraci\u00f3n D1)",
+      "label": "\u2705 REXIA, BAKO y ayudas_gv a\u00f1adidos (fallback + migraci\u00f3n D1)",
       "file_type": "document",
       "source_file": "ROADMAP.md",
       "source_location": "L239",
       "_origin": "ast",
-      "id": "roadmap_bako_y_ayudas_gv_a\u00f1adidos_fallback_migraci\u00f3n_d1",
+      "id": "roadmap_rexia_bako_y_ayudas_gv_a\u00f1adidos_fallback_migraci\u00f3n_d1",
       "community": 0,
-      "norm_label": "\u2705 bako y ayudas_gv anadidos (fallback + migracion d1)"
+      "norm_label": "\u2705 rexia, bako y ayudas_gv anadidos (fallback + migracion d1)"
     },
     {
-      "label": "\u2705 Orden editorial por ORDEN_SLUGS, independiente de featured/created_at",
+      "label": "\u2705 Orden editorial por ORDEN_SLUGS: REXIA, BAKO, ayudas_gv, Unyona, Diamadmin",
       "file_type": "document",
       "source_file": "ROADMAP.md",
       "source_location": "L240",
       "_origin": "ast",
-      "id": "roadmap_orden_editorial_por_orden_slugs_independiente_de_featured_created_at",
+      "id": "roadmap_orden_editorial_por_orden_slugs_rexia_bako_ayudas_gv_unyona_diamadmin",
       "community": 0,
-      "norm_label": "\u2705 orden editorial por orden_slugs, independiente de featured/created_at"
+      "norm_label": "\u2705 orden editorial por orden_slugs: rexia, bako, ayudas_gv, unyona, diamadmin"
+    },
+    {
+      "label": "(REXIA primero: es el \u00fanico que demuestra el stack UDA/Java/Oracle)",
+      "file_type": "document",
+      "source_file": "ROADMAP.md",
+      "source_location": "L241",
+      "_origin": "ast",
+      "id": "roadmap_rexia_primero_es_el_\u00fanico_que_demuestra_el_stack_uda_java_oracle",
+      "community": 0,
+      "norm_label": "(rexia primero: es el unico que demuestra el stack uda/java/oracle)"
     },
     {
       "label": "\u2705 Badge real por proyecto: Online / En producci\u00f3n / En desarrollo",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L241",
+      "source_location": "L242",
       "_origin": "ast",
       "id": "roadmap_badge_real_por_proyecto_online_en_producci\u00f3n_en_desarrollo",
       "community": 72,
       "norm_label": "\u2705 badge real por proyecto: online / en produccion / en desarrollo"
     },
     {
-      "label": "IA",
+      "label": "\u2705 Nota \u00abRepositorio pr\u00f3ximamente\u00bb cuando no hay repo ni case study",
       "file_type": "document",
       "source_file": "ROADMAP.md",
       "source_location": "L243",
+      "_origin": "ast",
+      "id": "roadmap_nota_repositorio_pr\u00f3ximamente_cuando_no_hay_repo_ni_case_study",
+      "community": 0,
+      "norm_label": "\u2705 nota \u00abrepositorio proximamente\u00bb cuando no hay repo ni case study"
+    },
+    {
+      "label": "\u2705 Fallback de Unyona y Diamadmin sincronizado con el contenido real de D1",
+      "file_type": "document",
+      "source_file": "ROADMAP.md",
+      "source_location": "L244",
+      "_origin": "ast",
+      "id": "roadmap_fallback_de_unyona_y_diamadmin_sincronizado_con_el_contenido_real_de_d1",
+      "community": 72,
+      "norm_label": "\u2705 fallback de unyona y diamadmin sincronizado con el contenido real de d1"
+    },
+    {
+      "label": "IA",
+      "file_type": "document",
+      "source_file": "ROADMAP.md",
+      "source_location": "L246",
       "_origin": "ast",
       "id": "roadmap_ia",
       "community": 72,
@@ -6847,7 +6877,7 @@
       "label": "\u2705 Secci\u00f3n reducida: fuera cita destacada, imagen grande y pills de eslogan",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L244",
+      "source_location": "L247",
       "_origin": "ast",
       "id": "roadmap_secci\u00f3n_reducida_fuera_cita_destacada_imagen_grande_y_pills_de_eslogan",
       "community": 0,
@@ -6857,7 +6887,7 @@
       "label": "\u2705 Conservado graphify con m\u00e9tricas + Claude Code; frase de criterio",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L245",
+      "source_location": "L248",
       "_origin": "ast",
       "id": "roadmap_conservado_graphify_con_m\u00e9tricas_claude_code_frase_de_criterio",
       "community": 0,
@@ -6867,7 +6897,7 @@
       "label": "\u2705 Movida por debajo de Proyectos y Formaci\u00f3n",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L246",
+      "source_location": "L249",
       "_origin": "ast",
       "id": "roadmap_movida_por_debajo_de_proyectos_y_formaci\u00f3n",
       "community": 73,
@@ -6877,7 +6907,7 @@
       "label": "CV",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L248",
+      "source_location": "L251",
       "_origin": "ast",
       "id": "roadmap_cv",
       "community": 73,
@@ -6887,7 +6917,7 @@
       "label": "\u2705 Dos versiones en /cv/: backend-sector-publico y fullstack-producto",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L249",
+      "source_location": "L252",
       "_origin": "ast",
       "id": "roadmap_dos_versiones_en_cv_backend_sector_publico_y_fullstack_producto",
       "community": 0,
@@ -6897,7 +6927,7 @@
       "label": "\u2705 Componente CVDownload: dropdown accesible (aria-expanded/haspopup,",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L250",
+      "source_location": "L253",
       "_origin": "ast",
       "id": "roadmap_componente_cvdownload_dropdown_accesible_aria_expanded_haspopup",
       "community": 0,
@@ -6907,27 +6937,37 @@
       "label": "flechas, Escape, clic fuera) y modal a pantalla completa en m\u00f3vil",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L251",
+      "source_location": "L254",
       "_origin": "ast",
       "id": "roadmap_flechas_escape_clic_fuera_y_modal_a_pantalla_completa_en_m\u00f3vil",
       "community": 0,
       "norm_label": "flechas, escape, clic fuera) y modal a pantalla completa en movil"
     },
     {
-      "label": "\u2705 Enlace directo al CV de backend en la barra fija",
+      "label": "\u2705 Selector tambi\u00e9n en la barra fija (sm, alineado a la derecha) y en el",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L252",
+      "source_location": "L255",
       "_origin": "ast",
-      "id": "roadmap_enlace_directo_al_cv_de_backend_en_la_barra_fija",
+      "id": "roadmap_selector_tambi\u00e9n_en_la_barra_fija_sm_alineado_a_la_derecha_y_en_el",
       "community": 0,
-      "norm_label": "\u2705 enlace directo al cv de backend en la barra fija"
+      "norm_label": "\u2705 selector tambien en la barra fija (sm, alineado a la derecha) y en el"
+    },
+    {
+      "label": "men\u00fa m\u00f3vil, en lugar de un enlace \u00fanico al CV de backend",
+      "file_type": "document",
+      "source_file": "ROADMAP.md",
+      "source_location": "L256",
+      "_origin": "ast",
+      "id": "roadmap_men\u00fa_m\u00f3vil_en_lugar_de_un_enlace_\u00fanico_al_cv_de_backend",
+      "community": 0,
+      "norm_label": "menu movil, en lugar de un enlace unico al cv de backend"
     },
     {
       "label": "\u2705 301 de /borja-olazabal-programador-web-cv.pdf al nuevo CV de backend",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L253",
+      "source_location": "L257",
       "_origin": "ast",
       "id": "roadmap_301_de_borja_olazabal_programador_web_cv_pdf_al_nuevo_cv_de_backend",
       "community": 69,
@@ -6937,7 +6977,7 @@
       "label": "SEO",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L255",
+      "source_location": "L259",
       "_origin": "ast",
       "id": "roadmap_seo",
       "community": 69,
@@ -6947,7 +6987,7 @@
       "label": "\u2705 Title, description y keywords hacia Java/Spring/AAPP/Galicia",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L256",
+      "source_location": "L260",
       "_origin": "ast",
       "id": "roadmap_title_description_y_keywords_hacia_java_spring_aapp_galicia",
       "community": 0,
@@ -6957,7 +6997,7 @@
       "label": "\u2705 JSON-LD Person: address Vigo, homeLocation, seeks, alumniOf, knowsAbout",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L257",
+      "source_location": "L261",
       "_origin": "ast",
       "id": "roadmap_json_ld_person_address_vigo_homelocation_seeks_alumniof_knowsabout",
       "community": 0,
@@ -6967,7 +7007,7 @@
       "label": "\u2705 Sitemap con /projects y los dos PDF; alt text con palabras clave reales",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L258",
+      "source_location": "L262",
       "_origin": "ast",
       "id": "roadmap_sitemap_con_projects_y_los_dos_pdf_alt_text_con_palabras_clave_reales",
       "community": 0,
@@ -6977,7 +7017,7 @@
       "label": "\u2705 Un solo h1 en la home (Proyectos pasa a h2)",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L259",
+      "source_location": "L263",
       "_origin": "ast",
       "id": "roadmap_un_solo_h1_en_la_home_proyectos_pasa_a_h2",
       "community": 57,
@@ -6987,7 +7027,7 @@
       "label": "\ud83d\udee0 MANTENIMIENTO",
       "file_type": "document",
       "source_file": "ROADMAP.md",
-      "source_location": "L263",
+      "source_location": "L267",
       "_origin": "ast",
       "id": "roadmap_mantenimiento",
       "community": 57,
@@ -13240,9 +13280,9 @@
       "source_file": "frontend/src/components/layout/Navbar.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "layout_navbar",
-      "target": "ui_cvdownload",
-      "confidence_score": 1.0
+      "target": "ui_cvdownload"
     },
     {
       "relation": "contains",
@@ -13292,9 +13332,9 @@
       "source_file": "frontend/src/components/sections/Aprendizaje.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_aprendizaje",
-      "target": "sections_aprendizaje_certificado",
-      "confidence_score": 1.0
+      "target": "sections_aprendizaje_certificado"
     },
     {
       "relation": "contains",
@@ -13302,9 +13342,9 @@
       "source_file": "frontend/src/components/sections/Aprendizaje.tsx",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_aprendizaje",
-      "target": "sections_aprendizaje_fp_medio",
-      "confidence_score": 1.0
+      "target": "sections_aprendizaje_fp_medio"
     },
     {
       "relation": "calls",
@@ -13377,9 +13417,9 @@
       "source_file": "frontend/src/components/sections/Contacto.tsx",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_contacto",
-      "target": "ui_cvdownload",
-      "confidence_score": 1.0
+      "target": "ui_cvdownload"
     },
     {
       "relation": "contains",
@@ -13387,9 +13427,9 @@
       "source_file": "frontend/src/components/sections/Experiencia.tsx",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_experiencia",
-      "target": "sections_experiencia_empleo",
-      "confidence_score": 1.0
+      "target": "sections_experiencia_empleo"
     },
     {
       "relation": "contains",
@@ -13418,9 +13458,9 @@
       "source_file": "frontend/src/components/sections/Experiencia.tsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_experiencia",
-      "target": "ui_cvdownload",
-      "confidence_score": 1.0
+      "target": "ui_cvdownload"
     },
     {
       "relation": "contains",
@@ -13439,9 +13479,9 @@
       "source_file": "frontend/src/components/sections/Hero.tsx",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_hero",
-      "target": "ui_cvdownload",
-      "confidence_score": 1.0
+      "target": "ui_cvdownload"
     },
     {
       "relation": "contains",
@@ -13601,9 +13641,9 @@
       "source_file": "frontend/src/components/sections/Proyectos.tsx",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_proyectos",
-      "target": "sections_proyectos_estado_override",
-      "confidence_score": 1.0
+      "target": "sections_proyectos_estado_override"
     },
     {
       "relation": "contains",
@@ -13631,9 +13671,9 @@
       "source_file": "frontend/src/components/sections/Proyectos.tsx",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_proyectos",
-      "target": "sections_proyectos_orden_slugs",
-      "confidence_score": 1.0
+      "target": "sections_proyectos_orden_slugs"
     },
     {
       "relation": "contains",
@@ -13641,9 +13681,9 @@
       "source_file": "frontend/src/components/sections/Proyectos.tsx",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_proyectos",
-      "target": "sections_proyectos_ordenar",
-      "confidence_score": 1.0
+      "target": "sections_proyectos_ordenar"
     },
     {
       "relation": "contains",
@@ -13672,9 +13712,9 @@
       "source_file": "frontend/src/components/sections/Proyectos.tsx",
       "source_location": "L147",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_proyectos_proyectos",
-      "target": "sections_proyectos_ordenar",
-      "confidence_score": 1.0
+      "target": "sections_proyectos_ordenar"
     },
     {
       "relation": "calls",
@@ -13725,9 +13765,9 @@
       "source_file": "frontend/src/components/sections/QuienSoy.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_quiensoy",
-      "target": "sections_quiensoy_stack_profesional",
-      "confidence_score": 1.0
+      "target": "sections_quiensoy_stack_profesional"
     },
     {
       "relation": "contains",
@@ -13735,9 +13775,9 @@
       "source_file": "frontend/src/components/sections/QuienSoy.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "sections_quiensoy",
-      "target": "sections_quiensoy_stack_propio",
-      "confidence_score": 1.0
+      "target": "sections_quiensoy_stack_propio"
     },
     {
       "relation": "calls",
@@ -13866,9 +13906,9 @@
       "source_file": "frontend/src/components/ui/CVDownload.tsx",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ui_cvdownload",
-      "target": "ui_cvdownload_cvdownload",
-      "confidence_score": 1.0
+      "target": "ui_cvdownload_cvdownload"
     },
     {
       "relation": "contains",
@@ -13876,9 +13916,9 @@
       "source_file": "frontend/src/components/ui/CVDownload.tsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ui_cvdownload",
-      "target": "ui_cvdownload_opciones",
-      "confidence_score": 1.0
+      "target": "ui_cvdownload_opciones"
     },
     {
       "relation": "contains",
@@ -13886,9 +13926,9 @@
       "source_file": "frontend/src/components/ui/CVDownload.tsx",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ui_cvdownload",
-      "target": "ui_cvdownload_props",
-      "confidence_score": 1.0
+      "target": "ui_cvdownload_props"
     },
     {
       "relation": "contains",
@@ -14296,9 +14336,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L253",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_301_de_borja_olazabal_programador_web_cv_pdf_al_nuevo_cv_de_backend",
-      "confidence_score": 1.0
+      "target": "roadmap_301_de_borja_olazabal_programador_web_cv_pdf_al_nuevo_cv_de_backend"
     },
     {
       "relation": "contains",
@@ -14426,9 +14466,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L236",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_a\u00f1adidas_las_dos_fp_de_grado_medio_irungo_la_salle",
-      "confidence_score": 1.0
+      "target": "roadmap_a\u00f1adidas_las_dos_fp_de_grado_medio_irungo_la_salle"
     },
     {
       "relation": "contains",
@@ -14436,19 +14476,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L241",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_badge_real_por_proyecto_online_en_producci\u00f3n_en_desarrollo",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "ROADMAP.md",
-      "source_location": "L239",
-      "weight": 1.0,
-      "source": "roadmap",
-      "target": "roadmap_bako_y_ayudas_gv_a\u00f1adidos_fallback_migraci\u00f3n_d1",
-      "confidence_score": 1.0
+      "target": "roadmap_badge_real_por_proyecto_online_en_producci\u00f3n_en_desarrollo"
     },
     {
       "relation": "contains",
@@ -14476,9 +14506,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L227",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_bilbom\u00e1tica_con_contenido_propio_a\u00f1adido_skootik_pr\u00e1cticas_2020",
-      "confidence_score": 1.0
+      "target": "roadmap_bilbom\u00e1tica_con_contenido_propio_a\u00f1adido_skootik_pr\u00e1cticas_2020"
     },
     {
       "relation": "contains",
@@ -14606,9 +14636,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L229",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_campos_cliente_ubicaci\u00f3n_por_empleo_tabs_indexadas_por_posici\u00f3n",
-      "confidence_score": 1.0
+      "target": "roadmap_campos_cliente_ubicaci\u00f3n_por_empleo_tabs_indexadas_por_posici\u00f3n"
     },
     {
       "relation": "contains",
@@ -14626,9 +14656,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L234",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_certificado_ifcd0112_nivel_3_destacado_como_titulaci\u00f3n_oficial",
-      "confidence_score": 1.0
+      "target": "roadmap_certificado_ifcd0112_nivel_3_destacado_como_titulaci\u00f3n_oficial"
     },
     {
       "relation": "contains",
@@ -14696,9 +14726,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L250",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_componente_cvdownload_dropdown_accesible_aria_expanded_haspopup",
-      "confidence_score": 1.0
+      "target": "roadmap_componente_cvdownload_dropdown_accesible_aria_expanded_haspopup"
     },
     {
       "relation": "contains",
@@ -14726,9 +14756,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L245",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_conservado_graphify_con_m\u00e9tricas_claude_code_frase_de_criterio",
-      "confidence_score": 1.0
+      "target": "roadmap_conservado_graphify_con_m\u00e9tricas_claude_code_frase_de_criterio"
     },
     {
       "relation": "contains",
@@ -14856,9 +14886,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L226",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_detalle_real_de_inetum_ab10b_berdindu_tramitaci\u00f3n_telem\u00e1tica",
-      "confidence_score": 1.0
+      "target": "roadmap_detalle_real_de_inetum_ab10b_berdindu_tramitaci\u00f3n_telem\u00e1tica"
     },
     {
       "relation": "contains",
@@ -14866,9 +14896,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L249",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_dos_versiones_en_cv_backend_sector_publico_y_fullstack_producto",
-      "confidence_score": 1.0
+      "target": "roadmap_dos_versiones_en_cv_backend_sector_publico_y_fullstack_producto"
     },
     {
       "relation": "contains",
@@ -14886,19 +14916,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_eliminado_el_bloque_pr\u00f3ximamente_fp_superior_en_daw",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "ROADMAP.md",
-      "source_location": "L252",
-      "weight": 1.0,
-      "source": "roadmap",
-      "target": "roadmap_enlace_directo_al_cv_de_backend_en_la_barra_fija",
-      "confidence_score": 1.0
+      "target": "roadmap_eliminado_el_bloque_pr\u00f3ximamente_fp_superior_en_daw"
     },
     {
       "relation": "contains",
@@ -14924,6 +14944,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ROADMAP.md",
+      "source_location": "L244",
+      "weight": 1.0,
+      "source": "roadmap",
+      "target": "roadmap_fallback_de_unyona_y_diamadmin_sincronizado_con_el_contenido_real_de_d1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ROADMAP.md",
       "source_location": "L52",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14936,9 +14966,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L251",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_flechas_escape_clic_fuera_y_modal_a_pantalla_completa_en_m\u00f3vil",
-      "confidence_score": 1.0
+      "target": "roadmap_flechas_escape_clic_fuera_y_modal_a_pantalla_completa_en_m\u00f3vil"
     },
     {
       "relation": "contains",
@@ -14976,9 +15006,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_inetum_actualidad_julio_2026",
-      "confidence_score": 1.0
+      "target": "roadmap_inetum_actualidad_julio_2026"
     },
     {
       "relation": "contains",
@@ -14996,9 +15026,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L257",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_json_ld_person_address_vigo_homelocation_seeks_alumniof_knowsabout",
-      "confidence_score": 1.0
+      "target": "roadmap_json_ld_person_address_vigo_homelocation_seeks_alumniof_knowsabout"
     },
     {
       "relation": "contains",
@@ -15056,9 +15086,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L225",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_marco_ejie_5_a\u00f1os_continuados_3_departamentos_2_consultoras",
-      "confidence_score": 1.0
+      "target": "roadmap_marco_ejie_5_a\u00f1os_continuados_3_departamentos_2_consultoras"
     },
     {
       "relation": "contains",
@@ -15069,6 +15099,16 @@
       "confidence_score": 1.0,
       "source": "roadmap",
       "target": "roadmap_marked_js_cdn_renderizado_markdown_en_lector_tintai"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ROADMAP.md",
+      "source_location": "L256",
+      "weight": 1.0,
+      "source": "roadmap",
+      "target": "roadmap_men\u00fa_m\u00f3vil_en_lugar_de_un_enlace_\u00fanico_al_cv_de_backend",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -15096,9 +15136,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L246",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_movida_por_debajo_de_proyectos_y_formaci\u00f3n",
-      "confidence_score": 1.0
+      "target": "roadmap_movida_por_debajo_de_proyectos_y_formaci\u00f3n"
     },
     {
       "relation": "contains",
@@ -15134,6 +15174,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ROADMAP.md",
+      "source_location": "L243",
+      "weight": 1.0,
+      "source": "roadmap",
+      "target": "roadmap_nota_repositorio_pr\u00f3ximamente_cuando_no_hay_repo_ni_case_study",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ROADMAP.md",
       "source_location": "L120",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15157,7 +15207,7 @@
       "source_location": "L240",
       "weight": 1.0,
       "source": "roadmap",
-      "target": "roadmap_orden_editorial_por_orden_slugs_independiente_de_featured_created_at",
+      "target": "roadmap_orden_editorial_por_orden_slugs_rexia_bako_ayudas_gv_unyona_diamadmin",
       "confidence_score": 1.0
     },
     {
@@ -15226,9 +15276,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L220",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_p\u00edldora_de_disponibilidad_vigo_pontevedra_remoto_punto_pulsante",
-      "confidence_score": 1.0
+      "target": "roadmap_p\u00edldora_de_disponibilidad_vigo_pontevedra_remoto_punto_pulsante"
     },
     {
       "relation": "contains",
@@ -15276,9 +15326,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L228",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_retiradas_las_vi\u00f1etas_de_ia_y_de_contin\u00fao_form\u00e1ndome_de_dentro_del_puesto",
-      "confidence_score": 1.0
+      "target": "roadmap_retiradas_las_vi\u00f1etas_de_ia_y_de_contin\u00fao_form\u00e1ndome_de_dentro_del_puesto"
     },
     {
       "relation": "contains",
@@ -15286,8 +15336,28 @@
       "source_file": "ROADMAP.md",
       "source_location": "L218",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_retirado_el_badge_potenciado_por_claude_ai_del_punto_de_mayor_jerarqu\u00eda",
+      "target": "roadmap_retirado_el_badge_potenciado_por_claude_ai_del_punto_de_mayor_jerarqu\u00eda"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ROADMAP.md",
+      "source_location": "L239",
+      "weight": 1.0,
+      "source": "roadmap",
+      "target": "roadmap_rexia_bako_y_ayudas_gv_a\u00f1adidos_fallback_migraci\u00f3n_d1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ROADMAP.md",
+      "source_location": "L241",
+      "weight": 1.0,
+      "source": "roadmap",
+      "target": "roadmap_rexia_primero_es_el_\u00fanico_que_demuestra_el_stack_uda_java_oracle",
       "confidence_score": 1.0
     },
     {
@@ -15326,8 +15396,18 @@
       "source_file": "ROADMAP.md",
       "source_location": "L244",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_secci\u00f3n_reducida_fuera_cita_destacada_imagen_grande_y_pills_de_eslogan",
+      "target": "roadmap_secci\u00f3n_reducida_fuera_cita_destacada_imagen_grande_y_pills_de_eslogan"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ROADMAP.md",
+      "source_location": "L255",
+      "weight": 1.0,
+      "source": "roadmap",
+      "target": "roadmap_selector_tambi\u00e9n_en_la_barra_fija_sm_alineado_a_la_derecha_y_en_el",
       "confidence_score": 1.0
     },
     {
@@ -15336,9 +15416,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L221",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_servicios_reorientados_a_aplicaciones_empresariales_y_apis_rest",
-      "confidence_score": 1.0
+      "target": "roadmap_servicios_reorientados_a_aplicaciones_empresariales_y_apis_rest"
     },
     {
       "relation": "contains",
@@ -15356,9 +15436,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L258",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_sitemap_con_projects_y_los_dos_pdf_alt_text_con_palabras_clave_reales",
-      "confidence_score": 1.0
+      "target": "roadmap_sitemap_con_projects_y_los_dos_pdf_alt_text_con_palabras_clave_reales"
     },
     {
       "relation": "contains",
@@ -15376,9 +15456,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L219",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_subt\u00edtulo_java_spring_boot_oracle_cinco_a\u00f1os_en_aapp_auton\u00f3mica",
-      "confidence_score": 1.0
+      "target": "roadmap_subt\u00edtulo_java_spring_boot_oracle_cinco_a\u00f1os_en_aapp_auton\u00f3mica"
     },
     {
       "relation": "contains",
@@ -15396,9 +15476,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L233",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_tecnolog\u00edas_separadas_en_experiencia_profesional_y_proyectos_propios",
-      "confidence_score": 1.0
+      "target": "roadmap_tecnolog\u00edas_separadas_en_experiencia_profesional_y_proyectos_propios"
     },
     {
       "relation": "contains",
@@ -15406,9 +15486,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L232",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_texto_reescrito_ejie_stack_profesional_transici\u00f3n_planificada_traslado",
-      "confidence_score": 1.0
+      "target": "roadmap_texto_reescrito_ejie_stack_profesional_transici\u00f3n_planificada_traslado"
     },
     {
       "relation": "contains",
@@ -15476,9 +15556,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L256",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_title_description_y_keywords_hacia_java_spring_aapp_galicia",
-      "confidence_score": 1.0
+      "target": "roadmap_title_description_y_keywords_hacia_java_spring_aapp_galicia"
     },
     {
       "relation": "contains",
@@ -15536,9 +15616,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L259",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap",
-      "target": "roadmap_un_solo_h1_en_la_home_proyectos_pasa_a_h2",
-      "confidence_score": 1.0
+      "target": "roadmap_un_solo_h1_en_la_home_proyectos_pasa_a_h2"
     },
     {
       "relation": "contains",
@@ -15656,9 +15736,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L217",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_adminnavbar_padding_horizontal_reducido_en_m\u00f3vil_px_3_sm_px_6",
-      "target": "roadmap_hero_y_posicionamiento",
-      "confidence_score": 1.0
+      "target": "roadmap_hero_y_posicionamiento"
     },
     {
       "relation": "contains",
@@ -15676,9 +15756,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L223",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_servicios_reorientados_a_aplicaciones_empresariales_y_apis_rest",
-      "target": "roadmap_experiencia",
-      "confidence_score": 1.0
+      "target": "roadmap_experiencia"
     },
     {
       "relation": "contains",
@@ -15686,9 +15766,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L231",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_campos_cliente_ubicaci\u00f3n_por_empleo_tabs_indexadas_por_posici\u00f3n",
-      "target": "roadmap_acerca_de_m\u00ed_y_formaci\u00f3n",
-      "confidence_score": 1.0
+      "target": "roadmap_acerca_de_m\u00ed_y_formaci\u00f3n"
     },
     {
       "relation": "contains",
@@ -15696,9 +15776,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L238",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_a\u00f1adidas_las_dos_fp_de_grado_medio_irungo_la_salle",
-      "target": "roadmap_proyectos",
-      "confidence_score": 1.0
+      "target": "roadmap_proyectos"
     },
     {
       "relation": "contains",
@@ -15706,7 +15786,17 @@
       "source_file": "ROADMAP.md",
       "source_location": "L243",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_badge_real_por_proyecto_online_en_producci\u00f3n_en_desarrollo",
+      "target": "roadmap_ia"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ROADMAP.md",
+      "source_location": "L246",
+      "weight": 1.0,
+      "source": "roadmap_fallback_de_unyona_y_diamadmin_sincronizado_con_el_contenido_real_de_d1",
       "target": "roadmap_ia",
       "confidence_score": 1.0
     },
@@ -15716,9 +15806,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L248",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_movida_por_debajo_de_proyectos_y_formaci\u00f3n",
-      "target": "roadmap_cv",
-      "confidence_score": 1.0
+      "target": "roadmap_cv"
     },
     {
       "relation": "contains",
@@ -15726,9 +15816,9 @@
       "source_file": "ROADMAP.md",
       "source_location": "L255",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_301_de_borja_olazabal_programador_web_cv_pdf_al_nuevo_cv_de_backend",
-      "target": "roadmap_seo",
-      "confidence_score": 1.0
+      "target": "roadmap_seo"
     },
     {
       "relation": "contains",
@@ -15736,11 +15826,11 @@
       "source_file": "ROADMAP.md",
       "source_location": "L263",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "roadmap_un_solo_h1_en_la_home_proyectos_pasa_a_h2",
-      "target": "roadmap_mantenimiento",
-      "confidence_score": 1.0
+      "target": "roadmap_mantenimiento"
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9c69360f621b4020fcf0c31d85647c0b67dd22b4"
+  "built_at_commit": "13b760b4744c6cf5ab5b74aea046c6186d31db89"
 }

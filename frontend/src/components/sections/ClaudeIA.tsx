@@ -54,8 +54,8 @@ export default function ClaudeIA() {
           <div className="grid grid-cols-3 gap-2 mb-4 text-center">
             {[
               /* Cifras reales del grafo de este propio portfolio. */
-              { v: "699", l: "nodos" },
-              { v: "850", l: "conexiones" },
+              { v: "703", l: "nodos" },
+              { v: "855", l: "conexiones" },
               { v: "75",  l: "comunidades" },
             ].map(({ v, l }) => (
               <div key={l} className="py-2 rounded bg-cyan-400/5 border border-cyan-400/10">

@@ -3,9 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { usePathname } from "next/navigation";
-// En la barra fija basta un enlace directo al CV de backend, que es el perfil
-// prioritario: un selector aquí añadiría ruido en un espacio ya denso.
-import { CV_BACKEND } from "@/components/ui/CVDownload";
+import CVDownload from "@/components/ui/CVDownload";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -36,14 +34,9 @@ export default function Navbar() {
 
           {/* DERECHA: CV + ThemeToggle + Hamburguesa (solo móvil) */}
           <div className="flex items-center gap-3 md:hidden">
-            <a
-              href={CV_BACKEND}
-              target="_blank"
-              aria-label="Currículum de Borja Olazabal, desarrollador Java y Spring Boot"
-              className="px-3 py-1 text-sm border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
-            >
-              CV
-            </a>
+            {/* En la barra móvil solo cabe la etiqueta «CV»; el panel se abre
+                como modal a pantalla completa. */}
+            <CVDownload size="sm" align="right" label="CV" />
 
             <ThemeToggle />
 
@@ -99,14 +92,9 @@ export default function Navbar() {
             </ul>
 
             <div className="flex items-center gap-4">
-              <a
-                href={CV_BACKEND}
-                target="_blank"
-                aria-label="Currículum de Borja Olazabal, desarrollador Java y Spring Boot"
-                className="px-4 py-2 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
-              >
-                Accede a mi CV
-              </a>
+              {/* El panel se despliega hacia la izquierda: el botón vive
+                  pegado al borde derecho de la ventana. */}
+              <CVDownload size="sm" align="right" label="Accede a mi CV" />
 
               <ThemeToggle />
             </div>
@@ -152,14 +140,7 @@ export default function Navbar() {
             <li><a onClick={() => setOpen(false)} href={onHome ? '#juegos' : '/#juegos'} className="block hover:text-primary transition">Juega</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#contacto' : '/#contacto'} className="block hover:text-primary transition">Contacto</a></li>
             <li className="pt-4">
-              <a
-                href={CV_BACKEND}
-                target="_blank"
-                onClick={() => setOpen(false)}
-                className="block text-center px-6 py-4 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition font-bold text-base"
-              >
-                Accede a mi CV
-              </a>
+              <CVDownload fullWidth label="Accede a mi CV" className="font-bold text-base" />
             </li>
           </ul>
         </div>

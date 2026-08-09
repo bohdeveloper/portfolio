@@ -210,8 +210,8 @@
     "semantic_hash": ""
   },
   "frontend/functions/api/tracker/save.ts": {
-    "mtime": 1781118563.1792195,
-    "ast_hash": "9728ab911b170649257fe394f9471c77",
+    "mtime": 1786270946.0645788,
+    "ast_hash": "458a6c204f55d7813d94d6d3784ddc6d",
     "semantic_hash": ""
   },
   "frontend/functions/api/tracker/schedule.ts": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "frontend/src/app/admin/dashboard/tracker/page.tsx": {
-    "mtime": 1781119943.9533086,
-    "ast_hash": "8fe3b51dbd91d9e87e30ec1a08e62047",
+    "mtime": 1786270946.0706937,
+    "ast_hash": "37307d0d9d0b8e59771583f373023dcb",
     "semantic_hash": ""
   },
   "frontend/src/app/admin/dashboard/tracker/tracker-data.ts": {
@@ -330,12 +330,12 @@
     "semantic_hash": ""
   },
   "frontend/src/app/layout.tsx": {
-    "mtime": 1786270609.0873113,
-    "ast_hash": "f145812f55013398b237648a3626c92b",
+    "mtime": 1786270960.2599158,
+    "ast_hash": "f52bb99f1debfd1e1244a0170650f84e",
     "semantic_hash": ""
   },
   "frontend/src/app/page.tsx": {
-    "mtime": 1786270448.1625555,
+    "mtime": 1786270946.140175,
     "ast_hash": "e3709884342a3bd53b6aeab30714c8c1",
     "semantic_hash": ""
   },
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "frontend/src/app/sitemap.ts": {
-    "mtime": 1786270616.8812487,
-    "ast_hash": "9f62a42a93dd00ce9a2b8544641adec3",
+    "mtime": 1786270971.1677065,
+    "ast_hash": "fb1707d9eefce2a10218722c4a54ef48",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/AdminNavbar.tsx": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/layout/Navbar.tsx": {
-    "mtime": 1786270628.6302493,
-    "ast_hash": "312ed3c6f6604122071070d0aac41dac",
+    "mtime": 1786272244.8852775,
+    "ast_hash": "a3df14eee3c2a40a4f7004acaa9086da",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/ThemeToggle.tsx": {
@@ -370,28 +370,28 @@
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Aprendizaje.tsx": {
-    "mtime": 1786270498.1576145,
-    "ast_hash": "4e720a7264847fb0a3f68ed970dd8548",
+    "mtime": 1786270946.1423717,
+    "ast_hash": "f9413b941ab4d2b80b5cb541405ab3a5",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/ClaudeIA.tsx": {
-    "mtime": 1786270442.1705494,
-    "ast_hash": "fe73689b303eed84839009fca7906ddb",
+    "mtime": 1786270946.1433723,
+    "ast_hash": "76472f0965cd43ac58717683efd63988",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Contacto.tsx": {
-    "mtime": 1786270511.739655,
-    "ast_hash": "9470e956788144550d57f256375e78ab",
+    "mtime": 1786270946.1433723,
+    "ast_hash": "71dbfb8356a267ee5c501b54f94842f9",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Experiencia.tsx": {
-    "mtime": 1786270312.0133767,
-    "ast_hash": "ec1edd060946a0b4d973efb700e17dcb",
+    "mtime": 1786270946.1443715,
+    "ast_hash": "a16edde827cce6808f833bd59973f7e8",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Hero.tsx": {
-    "mtime": 1786270171.9774432,
-    "ast_hash": "b5f187aec69a83452104e23b6d9bfc73",
+    "mtime": 1786270946.145373,
+    "ast_hash": "a3713986d736698b6b441048e1639a0c",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Juegos.tsx": {
@@ -405,13 +405,13 @@
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Proyectos.tsx": {
-    "mtime": 1786270403.231177,
-    "ast_hash": "ca67e36e4a735004bb4a17947a714e27",
+    "mtime": 1786272295.8025084,
+    "ast_hash": "a3d597efd68cb30bac524832f2772080",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/QuienSoy.tsx": {
-    "mtime": 1786270261.7225692,
-    "ast_hash": "f698215bd6162d9257c22965ed86be5b",
+    "mtime": 1786270946.1463714,
+    "ast_hash": "09ad78030ac743d54b4bbb41407e32fc",
     "semantic_hash": ""
   },
   "frontend/src/components/ui/BlogPanel.tsx": {
@@ -505,8 +505,8 @@
     "semantic_hash": ""
   },
   "ROADMAP.md": {
-    "mtime": 1786270790.3770497,
-    "ast_hash": "414175d15e0e7e630646cfba3b24bc16",
+    "mtime": 1786272392.5301578,
+    "ast_hash": "1b52e77d08a2c7287840989aa8cf290f",
     "semantic_hash": ""
   },
   "frontend/public/games/2048.html": {
@@ -535,8 +535,8 @@
     "semantic_hash": ""
   },
   "frontend/public/robots.txt": {
-    "mtime": 1780416146.8480923,
-    "ast_hash": "9ad54048451db0a2db50989de6d92006",
+    "mtime": 1786270946.0691133,
+    "ast_hash": "f3cef10b9c4d364ffbab87d20af43cd5",
     "semantic_hash": ""
   },
   "frontend/public/images/Borja-Olazabal.png": {
@@ -575,23 +575,23 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ui/CVDownload.tsx": {
-    "mtime": 1786270207.3117204,
-    "ast_hash": "ff9e05e1987862af1aff5368d23c2b64",
-    "semantic_hash": ""
-  },
-  "migrations/projects-bako-ayudas.sql": {
-    "mtime": 1786270418.840161,
-    "ast_hash": "731846938311404c7bd90f5b7aebf414",
+    "mtime": 1786272212.602337,
+    "ast_hash": "a676585e2dbced2c86033703cb4b25be",
     "semantic_hash": ""
   },
   "frontend/public/cv/borja-olazabal-backend-sector-publico.pdf": {
-    "mtime": 1786270219.7665422,
+    "mtime": 1786270946.1348112,
     "ast_hash": "8ed4bfebd6efe1e49fc58568cad62af3",
     "semantic_hash": ""
   },
   "frontend/public/cv/borja-olazabal-fullstack-producto.pdf": {
-    "mtime": 1786270219.7985127,
+    "mtime": 1786270946.1388118,
     "ast_hash": "206f4128a35bf1429e3aa6e0fd9e5cb3",
+    "semantic_hash": ""
+  },
+  "migrations/projects-rexia-bako-ayudas.sql": {
+    "mtime": 1786272335.526512,
+    "ast_hash": "54f818d7acc801feba1b78a628379056",
     "semantic_hash": ""
   }
 }

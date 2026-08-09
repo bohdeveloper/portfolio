@@ -1,16 +1,16 @@
 # Graph Report - portfolio  (2026-08-09)
 
 ## Corpus Check
-- 104 files · ~174,513 words
+- 104 files · ~175,124 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 699 nodes · 850 edges · 75 communities (46 shown, 29 thin omitted)
+- 703 nodes · 855 edges · 75 communities (47 shown, 28 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9c69360f`
+- Built from commit: `13b760b4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -110,11 +110,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (75 total, 29 thin omitted)
+## Communities (75 total, 28 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.02
-Nodes (113): ✅ 16 categorías: programación, literatura, novela, ciencia, filosofía..., ✅ 2 inputs + 2 botones independientes: calorías quemadas / ingeridas, ✅ Action modal en day-cfg: completar/perder, comentario, copy-forward y botón "✎ Editar", ✅ Admin /dashboard/blog: editor WYSIWYG TipTap, lista, publicar/borrador, ✅ Admin /dashboard/juegos: CRUD + set TOP, ✅ Admin /dashboard/usuarios: CRUD de usuarios + activar/desactivar, ✅ AdminNavbar: sin enlaces en login, dinámico según ruta, ✅ Alertas visuales al superar el presupuesto (+105 more)
+Nodes (116): ✅ 16 categorías: programación, literatura, novela, ciencia, filosofía..., ✅ 2 inputs + 2 botones independientes: calorías quemadas / ingeridas, ✅ Action modal en day-cfg: completar/perder, comentario, copy-forward y botón "✎ Editar", ✅ Admin /dashboard/blog: editor WYSIWYG TipTap, lista, publicar/borrador, ✅ Admin /dashboard/juegos: CRUD + set TOP, ✅ Admin /dashboard/usuarios: CRUD de usuarios + activar/desactivar, ✅ AdminNavbar: sin enlaces en login, dinámico según ruta, ✅ Alertas visuales al superar el presupuesto (+108 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.07
@@ -264,10 +264,14 @@ Nodes (3): HTML standalone — minijuegos sin dependencias externas, 🔄 MEJORA
 Cohesion: 0.50
 Nodes (4): ✅ AdminNavbar: padding horizontal reducido en móvil (px-3 sm:px-6), Hero y posicionamiento, 🛠 MANTENIMIENTO, ✅ Un solo h1 en la home (Proyectos pasa a h2)
 
+### Community 72 - "Community 72"
+Cohesion: 0.67
+Nodes (3): ✅ Badge real por proyecto: Online / En producción / En desarrollo, ✅ Fallback de Unyona y Diamadmin sincronizado con el contenido real de D1, IA
+
 ## Knowledge Gaps
-- **351 isolated node(s):** `eslintConfig`, `Env`, `JWTPayload`, `Env`, `H` (+346 more)
+- **353 isolated node(s):** `eslintConfig`, `Env`, `JWTPayload`, `Env`, `H` (+348 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -277,9 +281,9 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `HTML standalone — minijuegos sin dependencias externas` connect `Community 48` to `Community 0`?**
   _High betweenness centrality (0.001) - this node is a cross-community bridge._
 - **What connects `eslintConfig`, `Env`, `JWTPayload` to the rest of the system?**
-  _351 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _353 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.017543859649122806 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.017094017094017096 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.07171717171717172 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**

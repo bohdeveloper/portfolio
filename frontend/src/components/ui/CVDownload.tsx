@@ -35,10 +35,25 @@ const OPCIONES = [
 interface Props {
   /** primary: relleno cian de CTA. outline: borde cian sobre fondo neutro. */
   variant?: "primary" | "outline";
+  /** sm para la barra de navegación, donde el espacio vertical es escaso. */
+  size?: "sm" | "md";
+  /** Lado por el que se despliega el panel en escritorio. */
+  align?: "left" | "right";
+  /** Texto del disparador. En la barra móvil basta con «CV». */
+  label?: string;
+  /** Ocupa todo el ancho disponible (menú móvil desplegado). */
+  fullWidth?: boolean;
   className?: string;
 }
 
-export default function CVDownload({ variant = "outline", className = "" }: Props) {
+export default function CVDownload({
+  variant = "outline",
+  size = "md",
+  align = "left",
+  label = "Descargar CV",
+  fullWidth = false,
+  className = "",
+}: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -91,8 +106,10 @@ export default function CVDownload({ variant = "outline", className = "" }: Prop
       ? "border border-cyan-400 bg-cyan-400/10 text-primary hover:bg-cyan-400 hover:text-black"
       : "border border-cyan-400 text-primary hover:bg-cyan-400 hover:text-black";
 
+  const sizeCls = size === "sm" ? "px-3 sm:px-4 py-1.5 sm:py-2 text-sm" : "px-6 py-3";
+
   return (
-    <div ref={rootRef} className={`relative inline-block ${className}`}>
+    <div ref={rootRef} className={`relative ${fullWidth ? "block" : "inline-block"} ${className}`}>
       <button
         ref={btnRef}
         type="button"
@@ -100,9 +117,9 @@ export default function CVDownload({ variant = "outline", className = "" }: Prop
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Descargar currículum de Borja Olazabal"
-        className={`inline-flex items-center gap-2 px-6 py-3 rounded transition ${triggerCls}`}
+        className={`inline-flex items-center justify-center gap-2 rounded transition ${sizeCls} ${triggerCls} ${fullWidth ? "w-full" : ""}`}
       >
-        Descargar CV
+        {label}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -128,13 +145,14 @@ export default function CVDownload({ variant = "outline", className = "" }: Prop
           <div
             role="menu"
             aria-label="Versiones del currículum"
-            className="
+            className={`
               z-[71]
               fixed inset-x-4 bottom-4 top-auto
-              sm:absolute sm:inset-auto sm:top-full sm:left-0 sm:mt-2 sm:w-[22rem]
+              sm:absolute sm:inset-auto sm:top-full sm:mt-2 sm:w-[22rem]
+              ${align === "right" ? "sm:right-0" : "sm:left-0"}
               rounded-lg border border-cyan-400/60 bg-white dark:bg-[#0d0d0d]
               shadow-xl shadow-black/20 overflow-hidden
-            "
+            `}
           >
             <p className="px-4 pt-4 pb-2 text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">
               Elige la versión
