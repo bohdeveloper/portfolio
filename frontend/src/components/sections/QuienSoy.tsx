@@ -1,6 +1,20 @@
 "use client";
 import { useFadeInOnScroll } from "@/hooks/useFadeInOnScroll";
 
+/* Dos grupos deliberadamente separados: lo usado en cliente real y lo usado
+   en proyectos propios. Mezclarlos daría a entender experiencia profesional
+   con stack que solo he aplicado en mis propios proyectos. */
+const STACK_PROFESIONAL = [
+  "Java", "Spring Boot", "Oracle SQL", "PL/SQL", "JSP", "JSTL", "Tiles",
+  "Bootstrap", "jQuery", "JavaScript", "UDA (EJIE)", "Jenkins", "SonarQube",
+  "SVN", "Eclipse", "Maven", "JUnit",
+];
+
+const STACK_PROPIO = [
+  "Angular", "React", "Next.js", "TypeScript", "Tailwind", "Node.js",
+  "Express", "PostgreSQL", "MongoDB", "Docker", "Kubernetes", "Cloudflare", "Git",
+];
+
 export default function QuienSoy() {
   const { ref, visible } = useFadeInOnScroll();
   return (
@@ -13,7 +27,7 @@ export default function QuienSoy() {
       <div className="flex-1 flex justify-center md:justify-end">
         <img
           src="../../../images/Borja-Olazabal.png"
-          alt="Borja Olazabal"
+          alt="Borja Olazabal, desarrollador Java y Spring Boot en Vigo"
           ref={ref}
           className={`w-5/2 sm:w-3/4 md:w-full max-w-sm sm:max-w-md md:max-w-none opacity-0 ${visible ? "fade-in-up" : "opacity-0"}`}
         />
@@ -27,81 +41,112 @@ export default function QuienSoy() {
         </h2>
 
         <p>
-          Me llamo <strong>Borja Olazabal</strong> y me encanta dar vida útil a
-          espacios en la red. También me fascina el poder manejar datos o
-          información mediante una interfaz sencilla y versátil.
+          Me llamo <strong>Borja Olazabal</strong> y llevo cinco años
+          desarrollando aplicaciones para la <strong>Administración Pública
+          autonómica</strong>.
         </p>
 
         <p>
-          En el 2019 fue cuando me interesé por el{" "}
-          <strong>desarrollo web</strong>, empezando un curso básico de
-          publicación web. Desde entonces{" "}
-          <u>estoy convencido de que vivo por y para mi vocación</u>.
-        </p>
-
-        <p>
-          He tenido la suerte de tener grandes mentores, grandes compañeros y
-          grandes experiencias que han ido afianzando mis conocimientos en esta
-          extensa área. Mi verdadero reto se presentó cuando tuve el privilegio
-          de{" "}
+          Entre 2021 y 2026 he trabajado para{" "}
+          <a
+            href="https://www.ejie.euskadi.eus/quienes-somos/-/somos-ejie/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            EJIE
+          </a>
+          , la sociedad informática del Gobierno Vasco, a través de Bilbomática e{" "}
           <a
             href="https://www.inetum.com/es/servicios/ingenieria-de-software/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"
           >
-            formar parte de un equipo profesional dentro de una consultoría e
-            ingeniería de software.
+            Inetum
           </a>
+          , en los departamentos de Turismo, Educación y Bienestar Social. Mi
+          trabajo ha sido la tramitación electrónica de expedientes, la
+          interoperabilidad entre sistemas y el mantenimiento evolutivo de
+          aplicaciones de ámbito autonómico.
         </p>
 
         <p>
-          Actualmente, estoy enfocado en aprender nuevas tecnologías en respuesta
-          a la demanda de empleo actual. Además, me gusta crear y probar{" "}
-          <a href="#proyectos" className="text-primary hover:underline">
-            mis propios proyectos
-          </a>
-          .
-        </p>
-
-        <p>
-          En los últimos meses he integrado{" "}
-          <a href="#ia" className="text-primary hover:underline">
-            herramientas de IA como Claude
+          Mi stack profesional es <strong>Java y Spring Boot sobre Oracle</strong>,
+          con frontend en JSP, JSTL, Tiles, Bootstrap y jQuery, sobre el framework
+          propietario{" "}
+          <a
+            href="https://github.com/UDA-EJIE"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            UDA
           </a>{" "}
-          en mi flujo de trabajo diario, lo que ha cambiado completamente mi forma
-          de desarrollar: más claridad, más velocidad y mejor criterio técnico.
+          y su ciclo completo de integración continua.
         </p>
 
         <p>
-          En <strong>bohdeveloper.com</strong> comparto mi <strong>portfolio profesional</strong>,
-          mis <strong>proyectos de desarrollo web</strong> y mi evolución como
-          programador.
+          Llegué al desarrollo desde la industria. En 2019 empecé un curso de
+          publicación web, hice las prácticas en 2020 y obtuve el certificado de
+          profesionalidad de nivel 3 en 2021.{" "}
+          <u>No fue un impulso: fueron dos años de transición planificada</u>.
         </p>
 
-        <p className="font-semibold">Estas son las tecnologías que más he utilizado:</p>
+        <p>
+          En paralelo mantengo{" "}
+          <a href="#proyectos" className="text-primary hover:underline">
+            proyectos propios
+          </a>{" "}
+          donde trabajo con stack moderno — Angular, React, Next.js, TypeScript,
+          Docker y Kubernetes — e integro{" "}
+          <a href="#ia" className="text-primary hover:underline">
+            herramientas de IA
+          </a>{" "}
+          en mi flujo de desarrollo diario.
+        </p>
 
-        {/* LISTA DE TECNOLOGÍAS */}
-        <ul className="grid grid-cols-2 gap-2 text-primary text-xs sm:text-sm md:text-base font-medium">
-          <li>Claude AI — Anthropic</li>
-          <li>Copilot — Microsoft</li>
-          <li>HTML / JSP / JSTL</li>
-          <li>CSS / Bootstrap</li>
-          <li>JavaScript / jQuery</li>
-          <li>React</li>
-          <li>Angular</li>
-          <li>Java / Spring Boot</li>
-          <li>UDA (Ejie)</li>
-          <li>Oracle SQL</li>
-          <li>PLSQL</li>
-          <li>PostgreSQL</li>
-          <li>MongoDB</li>
-          <li>Git</li>
-          <li>Eclipse</li>
-          <li>VSC</li>
-        </ul>        
+        <p className="font-medium text-black dark:text-white">
+          Me traslado a la zona de Vigo. Disponible de inmediato en remoto, con
+          incorporación presencial a partir de enero.
+        </p>
+
+        {/* TECNOLOGÍAS — dos grupos etiquetados */}
+        <div className="space-y-5 pt-2">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-3">
+              Experiencia profesional
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {STACK_PROFESIONAL.map((t) => (
+                <li
+                  key={t}
+                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
+                >
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-3">
+              Proyectos propios
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {STACK_PROPIO.map((t) => (
+                <li
+                  key={t}
+                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                >
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
-      
+
     </section>
   );
 }

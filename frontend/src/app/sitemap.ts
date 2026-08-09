@@ -28,5 +28,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.7,
     },
+    /* Los CV entran en el sitemap: son PDF indexables y contienen las mismas
+       palabras clave por las que se busca el perfil. */
+    {
+      url: `${baseUrl}/cv/borja-olazabal-backend-sector-publico.pdf`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/cv/borja-olazabal-fullstack-producto.pdf`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
   ];
 }

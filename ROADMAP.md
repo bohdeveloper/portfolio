@@ -208,6 +208,58 @@
 
 ---
 
+:: Agosto 2026 — Reposicionamiento del portfolio (alineación con CV y LinkedIn)
+
+· Objetivo: que en 15 segundos se responda qué hago, cuánta experiencia tengo,
+  si estoy disponible y dónde. Público: consultoras del sector público gallego,
+  producto/tecnológicas gallegas y remoto nacional.
+
+### Hero y posicionamiento
+# ✅ Retirado el badge «Potenciado por Claude AI» del punto de mayor jerarquía
+# ✅ Subtítulo: Java · Spring Boot · Oracle + cinco años en AAPP autonómica
+# ✅ Píldora de disponibilidad: Vigo / Pontevedra · Remoto (punto pulsante)
+# ✅ Servicios reorientados a aplicaciones empresariales y APIs REST
+
+### Experiencia
+# ✅ Inetum: «Actualidad» → «Julio 2026»
+# ✅ Marco EJIE: 5 años continuados, 3 departamentos, 2 consultoras
+# ✅ Detalle real de Inetum (AB10B, Berdindu, tramitación telemática)
+# ✅ Bilbomática con contenido propio; añadido SKOOTIK (prácticas 2020)
+# ✅ Retiradas las viñetas de IA y de «continúo formándome» de dentro del puesto
+# ✅ Campos cliente/ubicación por empleo; tabs indexadas por posición
+
+### Acerca de mí y Formación
+# ✅ Texto reescrito: EJIE, stack profesional, transición planificada, traslado
+# ✅ Tecnologías separadas en «Experiencia profesional» y «Proyectos propios»
+# ✅ Certificado IFCD0112 Nivel 3 destacado como titulación oficial
+# ✅ Eliminado el bloque «Próximamente: FP Superior en DAW»
+# ✅ Añadidas las dos FP de grado medio (Irungo La Salle)
+
+### Proyectos
+# ✅ BAKO y ayudas_gv añadidos (fallback + migración D1)
+# ✅ Orden editorial por ORDEN_SLUGS, independiente de featured/created_at
+# ✅ Badge real por proyecto: Online / En producción / En desarrollo
+
+### IA
+# ✅ Sección reducida: fuera cita destacada, imagen grande y pills de eslogan
+# ✅ Conservado graphify con métricas + Claude Code; frase de criterio
+# ✅ Movida por debajo de Proyectos y Formación
+
+### CV
+# ✅ Dos versiones en /cv/: backend-sector-publico y fullstack-producto
+# ✅ Componente CVDownload: dropdown accesible (aria-expanded/haspopup,
+#    flechas, Escape, clic fuera) y modal a pantalla completa en móvil
+# ✅ Enlace directo al CV de backend en la barra fija
+# ✅ 301 de /borja-olazabal-programador-web-cv.pdf al nuevo CV de backend
+
+### SEO
+# ✅ Title, description y keywords hacia Java/Spring/AAPP/Galicia
+# ✅ JSON-LD Person: address Vigo, homeLocation, seeks, alumniOf, knowsAbout
+# ✅ Sitemap con /projects y los dos PDF; alt text con palabras clave reales
+# ✅ Un solo h1 en la home (Proyectos pasa a h2)
+
+---
+
 ## 🛠 MANTENIMIENTO
 
 A partir del 2 junio 2026 el portfolio entra en modo mantenimiento.

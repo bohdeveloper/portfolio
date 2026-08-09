@@ -21,27 +21,22 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL("https://bohdeveloper.com"),
 
-  title: "Borja Olazabal | Programador Web Full Stack & Desarrollo con IA",
+  title: "Borja Olazabal | Desarrollador Java · Spring Boot · Vigo",
   description:
-    "Borja Olazabal, programador web full stack especializado en desarrollo frontend, backend e integración de inteligencia artificial con Claude. Portfolio, proyectos y experiencia profesional.",
+    "Desarrollador web con cinco años en proyectos de Administración Pública autonómica. Java, Spring Boot, Oracle, Angular y React. Portfolio, proyectos y experiencia. Disponible en Vigo y remoto.",
 
   keywords: [
+    "desarrollador Java",
+    "programador Java Vigo",
+    "Spring Boot",
+    "desarrollador backend Galicia",
+    "programador web Pontevedra",
+    "Java Oracle",
+    "desarrollador fullstack remoto",
+    "administración pública",
+    "EJIE",
+    "UDA",
     "Borja Olazabal",
-    "programador web",
-    "desarrollador web",
-    "full stack",
-    "portfolio",
-    "Next.js",
-    "TypeScript",
-    "Cloudflare",
-    "Cloudflare Workers",
-    "inteligencia artificial",
-    "Claude AI",
-    "desarrollo web con IA",
-    "agentes IA",
-    "automatización desarrollo",
-    "IA developer",
-    "Claude Anthropic"
   ],
 
   authors: [{ name: "Borja Olazabal" }],
@@ -57,9 +52,9 @@ export const metadata = {
 
   /* ---------- OPEN GRAPH ---------- */
   openGraph: {
-    title: "Borja Olazabal | Programador Web Full Stack & IA",
+    title: "Borja Olazabal | Desarrollador Java · Spring Boot · Vigo",
     description:
-      "Portfolio profesional de Borja Olazabal, programador web full stack con integración de IA (Claude). Proyectos, código y experiencia real.",
+      "Cinco años desarrollando aplicaciones para la Administración Pública autonómica con Java, Spring Boot y Oracle. Portfolio, proyectos y experiencia. Disponible en Vigo y remoto.",
     url: "https://bohdeveloper.com",
     siteName: "bohdeveloper",
     locale: "es_ES",
@@ -69,7 +64,7 @@ export const metadata = {
         url: "/images/Borja-Olazabal.png",
         width: 1200,
         height: 630,
-        alt: "Borja Olazabal - Programador web",
+        alt: "Borja Olazabal, desarrollador Java y Spring Boot en Vigo",
       },
     ],
   },
@@ -77,9 +72,9 @@ export const metadata = {
   /* ---------- TWITTER ---------- */
   twitter: {
     card: "summary_large_image",
-    title: "Borja Olazabal | Programador Web Full Stack & IA",
+    title: "Borja Olazabal | Desarrollador Java · Spring Boot · Vigo",
     description:
-      "Portfolio profesional de Borja Olazabal, programador web full stack con integración de IA (Claude).",
+      "Cinco años desarrollando aplicaciones para la Administración Pública autonómica con Java, Spring Boot y Oracle. Disponible en Vigo y remoto.",
     images: ["/images/Borja-Olazabal.png"],
   },
 };
@@ -104,10 +99,44 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "name": "Borja Olazabal",
               "url": "https://bohdeveloper.com",
               "image": "https://bohdeveloper.com/images/Borja-Olazabal.png",
-              "jobTitle": "Programador web Full Stack & IA Developer",
+              "jobTitle": "Desarrollador web · Java y Spring Boot",
+              "email": "mailto:ohb_1@outlook.com",
               "description":
-                "Borja Olazabal es programador web full stack especializado en desarrollo frontend, backend e integración de inteligencia artificial con Claude de Anthropic.",
-              "knowsAbout": ["desarrollo web", "React", "Angular", "Spring Boot", "inteligencia artificial", "Claude AI", "automatización", "agentes IA"],
+                "Borja Olazabal es desarrollador web con cinco años de experiencia en proyectos de Administración Pública autonómica, especializado en Java, Spring Boot y Oracle.",
+              "knowsAbout": [
+                "Java", "Spring Boot", "Oracle SQL", "PL/SQL", "JSP", "JSTL",
+                "framework UDA", "Jenkins", "SonarQube", "APIs REST",
+                "Angular", "React", "Next.js", "TypeScript", "Docker", "Kubernetes",
+                "tramitación electrónica", "Administración Pública"
+              ],
+              /* Ubicación declarada: es el criterio por el que se filtra en
+                 búsquedas de empleo local (Vigo / Pontevedra). */
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Vigo",
+                "addressRegion": "Pontevedra",
+                "addressCountry": "ES"
+              },
+              "homeLocation": {
+                "@type": "Place",
+                "name": "Vigo, Pontevedra, Galicia, España"
+              },
+              "seeks": {
+                "@type": "Demand",
+                "name": "Posiciones de desarrollo backend o fullstack con Java y Spring Boot en Galicia o en remoto"
+              },
+              "alumniOf": [
+                {
+                  "@type": "EducationalOrganization",
+                  "name": "Ipartek",
+                  "description": "Certificado de Profesionalidad IFCD0112 (Nivel 3) — Programación con lenguajes orientados a objetos y bases de datos relacionales"
+                },
+                {
+                  "@type": "EducationalOrganization",
+                  "name": "CEINPRO Centro Informático Profesional",
+                  "description": "Confección y Publicación de Páginas Web"
+                }
+              ],
               "sameAs": [
                 "https://github.com/bohdeveloper",
                 "https://www.linkedin.com/in/bolazabal"
@@ -128,7 +157,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "name": "bohdeveloper",
               "url": "https://bohdeveloper.com",
               "description":
-                "Portfolio profesional de Borja Olazabal, programador web y desarrollador full stack.",
+                "Portfolio profesional de Borja Olazabal, desarrollador web especializado en Java, Spring Boot y Oracle.",
+              "inLanguage": "es-ES",
               "publisher": {
                 "@type": "Person",
                 "name": "Borja Olazabal",

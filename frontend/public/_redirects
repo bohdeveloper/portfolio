@@ -3,3 +3,7 @@ https://www.bohdeveloper.com/* https://bohdeveloper.com/:splat 301
 
 # Evita que Google indexe /index.html como URL duplicada
 /index.html / 301
+
+# CV antiguo → nuevo CV de backend (perfil prioritario).
+# La ruta anterior puede estar enlazada desde LinkedIn, correos o portales de empleo.
+/borja-olazabal-programador-web-cv.pdf /cv/borja-olazabal-backend-sector-publico.pdf 301

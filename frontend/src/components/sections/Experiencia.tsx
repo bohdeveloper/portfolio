@@ -1,42 +1,48 @@
 "use client";
 import { useState } from "react";
+import CVDownload from "@/components/ui/CVDownload";
 
-const tabs = [
+interface Empleo {
+  empresa: string;
+  puesto: string;
+  fecha: string;
+  ubicacion: string;
+  cliente?: string;
+  link: string;
+  tareas: React.ReactNode[];
+}
+
+const tabs: Empleo[] = [
   {
-    id: 1,
     empresa: "Inetum",
     puesto: "Programador web",
-    fecha: "Abril 2023 ┉ Actualidad",
+    fecha: "Abril 2023 ┉ Julio 2026",
+    ubicacion: "Donostia (remoto)",
+    cliente: "EJIE — Gobierno Vasco",
     link: "https://www.inetum.com/es/servicios/ingenieria-de-software/",
     tareas: [
       <>
-        He formado parte de un equipo profesional dentro de{" "}
-        <a
-          href="https://www.ejie.euskadi.eus/quienes-somos/-/somos-ejie/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          EJIE
-        </a>{" "}
-        en el departamento de educación, bienestar social, juventud y reto
-        demográfico.
+        Integrado en un equipo de 10-15 personas, desarrollo y mantenimiento
+        evolutivo y correctivo de tres aplicaciones de ámbito autonómico para los
+        departamentos de Educación y de Bienestar Social, Juventud y Reto
+        Demográfico.
       </>,
       <>
-        He trabajado en el desarrollo de aplicaciones web utilizando metodologías
-        ágiles como Scrum (Jira), así como enfoques en Cascada y Kanban.
+        <strong>AB10B — Ayudas de Familia</strong>: gestión de ayudas económicas a
+        familias de toda Euskadi, con consumo de APIs de otras aplicaciones de la
+        administración.
       </>,
       <>
-        He utilizado tecnologías y frameworks como{" "}
-        <a
-          href="https://github.com/UDA-EJIE"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          UDA
-        </a>
-        ,{" "}
+        <strong>Berdindu</strong>: aplicación del servicio de atención a personas
+        LGTBI.
+      </>,
+      <>Aplicación de tramitación telemática de expedientes.</>,
+      <>
+        Interoperabilidad con 2-3 sistemas externos para pagos, reintegros y
+        liquidaciones.
+      </>,
+      <>
+        Stack: Java,{" "}
         <a
           href="https://spring.io/projects/spring-boot"
           target="_blank"
@@ -52,98 +58,44 @@ const tabs = [
           rel="noopener noreferrer"
           className="text-primary hover:underline"
         >
-          Oracle
+          Oracle SQL
         </a>
-        , entre otras.
+        , JSP, JSTL, Tiles, Bootstrap, jQuery, framework{" "}
+        <a
+          href="https://github.com/UDA-EJIE"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          UDA
+        </a>
+        , Jenkins, SonarQube, SVN.
       </>,
-      <>
-        Actualmente continúo formándome en tecnologías modernas como{" "}
-        <a
-          href="https://es.react.dev/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          React
-        </a>
-        ,{" "}
-        <a
-          href="https://angular.dev/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          Angular
-        </a>
-        ,{" "}
-        <a
-          href="https://www.postgresql.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          PostgreSQL
-        </a>{" "}
-        y{" "}
-        <a
-          href="https://www.mongodb.com/es"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          MongoDB
-        </a>
-        .
-      </>,
-      <>
-        Impulso mi trabajo diario con la ayuda de inteligencias artificiales como{" "}
-        <a
-          href="https://code.claude.com/docs/es/overview"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          Claude
-        </a>
-        {" "}y{" "}
-        <a
-          href="https://learn.microsoft.com/es-es/microsoft-365/copilot/microsoft-365-copilot-overview"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          Copilot
-        </a>
-        .
-      </>,
+      <>Metodologías: Scrum con Jira, Kanban y Cascada.</>,
     ],
   },
   {
-    id: 2,
     empresa: "Bilbomática",
     puesto: "Programador web",
     fecha: "Noviembre 2021 ┉ Marzo 2023",
+    ubicacion: "Bilbao (remoto)",
+    cliente: "EJIE — Gobierno Vasco",
     link: "https://www.bilbomatica.es/",
     tareas: [
       <>
-        Formé parte de un equipo profesional dentro de{" "}
-        <a
-          href="https://www.ejie.euskadi.eus/quienes-somos/-/somos-ejie/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          EJIE
-        </a>{" "}
-        en el departamento de turismo.
+        Desarrollo de aplicaciones para el Departamento de Turismo, desde el
+        prototipado inicial hasta la implementación de la lógica de negocio.
       </>,
       <>
-        Colaboré en el desarrollo de aplicaciones web utilizando tecnologías como
-        UDA, HDIV, IberDok, JasperReports, así como Java, JSP, JSTL, Spring,
+        Participación en el ciclo completo: análisis de requisitos, prototipado,
+        desarrollo y adaptación iterativa a las exigencias del cliente.
+      </>,
+      <>
+        Tecnologías: UDA, HDIV, IberDok, JasperReports, Java, JSP, JSTL, Spring,
         JavaScript, jQuery, CSS, Bootstrap y Oracle SQL Developer.
       </>,
       <>
-        Gestioné control de versiones con{" "}
+        Control de versiones con{" "}
         <a
           href="https://subversion.apache.org/"
           target="_blank"
@@ -166,10 +118,10 @@ const tabs = [
     ],
   },
   {
-    id: 3,
     empresa: "MegatronHQ",
     puesto: "Servicio técnico y desarrollo web",
     fecha: "Diciembre 2020 ┉ Febrero 2021",
+    ubicacion: "Donostia",
     link: "https://www.linkedin.com/company/megatron-hq/",
     tareas: [
       <>
@@ -187,20 +139,34 @@ const tabs = [
     ],
   },
   {
-    id: 4,
+    empresa: "SKOOTIK",
+    puesto: "Desarrollador web",
+    fecha: "Febrero ┉ Mayo 2020",
+    ubicacion: "Donostia · Contrato de prácticas",
+    link: "https://www.linkedin.com/company/skootik/",
+    tareas: [
+      <>
+        Desarrollo y maquetación de una plataforma de formación online sobre
+        inteligencia artificial.
+      </>,
+      <>Prácticas del curso de confección y publicación web.</>,
+    ],
+  },
+  {
     empresa: "Likale",
     puesto: "Tornero de revestimientos elastoméricos",
     fecha: "Junio 2018 ┉ Diciembre 2019",
+    ubicacion: "Irun",
     link: "https://likale.com/",
     tareas: [
       <>Manejo de torno y maquinaria ligera, además de tareas de almacén.</>,
     ],
   },
   {
-    id: 5,
     empresa: "W. Diamant / Winterstone",
     puesto: "Producción de herramientas de diamante",
     fecha: "Mayo 2016 ┉ Octubre 2018",
+    ubicacion: "Irun",
     link: "https://winterstone.net/",
     tareas: [
       <>
@@ -211,34 +177,57 @@ const tabs = [
   },
 ];
 
-
 export default function Experiencia() {
-  const [active, setActive] = useState(1);
+  // Índice del array, no un id correlativo: añadir o reordenar empleos
+  // no obliga a renumerar nada.
+  const [active, setActive] = useState(0);
+  const empleo = tabs[active];
 
   return (
-    <section id="experiencia" className="max-w-6xl mx-auto px-6 py-32 mb-60">
+    <section id="experiencia" className="max-w-6xl mx-auto px-6 py-32 mb-40">
       <h2 className="text-3xl font-bold text-black dark:text-white mb-4 flex items-center gap-3">
         <span className="text-primary text-4xl">⌁</span>
         Experiencia profesional
       </h2>
 
-      {/* TEXTO SEO DISCRETO (VISIBLE PERO LOW‑KEY) */}
-      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mb-10 mr-12">
-        A lo largo de mi trayectoria he trabajado como{" "}
-        <strong>programador web</strong> en distintas empresas y proyectos,
-        participando en el desarrollo de aplicaciones web y sistemas de gestión
-        de datos para el sector público y privado.
-      </p>
+      {/* MARCO EJIE — el argumento más fuerte del perfil, antes de las pestañas */}
+      <div className="max-w-3xl mb-10 pl-5 border-l-2 border-primary">
+        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+          Entre <strong>noviembre de 2021 y julio de 2026</strong> he trabajado de
+          forma continuada para{" "}
+          <a
+            href="https://www.ejie.euskadi.eus/quienes-somos/-/somos-ejie/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            EJIE
+          </a>
+          , la sociedad informática del Gobierno Vasco, a través de dos consultoras
+          y en tres departamentos distintos.
+        </p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          {["5 años continuados", "3 departamentos", "2 consultoras", "Java · Spring Boot · Oracle"].map((d) => (
+            <span
+              key={d}
+              className="px-2.5 py-1 text-xs font-medium rounded-full border border-cyan-400/50 bg-cyan-400/5 text-primary"
+            >
+              {d}
+            </span>
+          ))}
+        </div>
+      </div>
 
       <div className="flex flex-col md:flex-row gap-12">
         {/* TABS */}
         <div className="flex flex-col gap-4 md:w-1/4 w-full">
-          {tabs.map((tab) => (
+          {tabs.map((tab, i) => (
             <button
-              key={tab.id}
-              onClick={() => setActive(tab.id)}
+              key={tab.empresa}
+              onClick={() => setActive(i)}
+              aria-pressed={active === i}
               className={`text-left px-4 py-2 border-l-4 transition-all ${
-                active === tab.id
+                active === i
                   ? "border-cyan-400 text-primary"
                   : "border-gray-400 dark:border-gray-700 hover:border-cyan-400"
               }`}
@@ -250,27 +239,34 @@ export default function Experiencia() {
 
         {/* CONTENIDO */}
         <div className="md:w-3/4 space-y-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-xl font-semibold">
-              {tabs[active - 1].puesto}
+              {empleo.puesto} · {empleo.empresa}
             </h3>
             <a
-              href={tabs[active - 1].link}
+              href={empleo.link}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
-              aria-label={`Web de ${tabs[active - 1].empresa}`}
+              aria-label={`Web de ${empleo.empresa}`}
             >
               ↗
             </a>
           </div>
 
           <p className="text-gray-600 dark:text-gray-400">
-            {tabs[active - 1].fecha}
+            {empleo.fecha} · {empleo.ubicacion}
           </p>
 
+          {empleo.cliente && (
+            <p className="text-sm">
+              <span className="text-gray-500 dark:text-gray-500">Cliente: </span>
+              <span className="text-primary font-medium">{empleo.cliente}</span>
+            </p>
+          )}
+
           <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300">
-            {tabs[active - 1].tareas.map((t, i) => (
+            {empleo.tareas.map((t, i) => (
               <li key={i}>{t}</li>
             ))}
           </ul>
@@ -282,23 +278,19 @@ export default function Experiencia() {
         <summary className="cursor-pointer text-sm text-primary hover:underline">
           Ver contexto profesional
         </summary>
-        <p className="mt-4 mr-20 text-gray-700 dark:text-gray-300">
-          Esta experiencia forma parte de mi trayectoria como{" "}
-          <strong>programador web</strong>, y se complementa con
-          proyectos personales, formación continua y especialización en
-          tecnologías modernas de desarrollo web.
+        <p className="mt-4 text-gray-700 dark:text-gray-300">
+          Esta trayectoria como <strong>programador web</strong> en proyectos de{" "}
+          <strong>Administración Pública</strong> se complementa con proyectos
+          propios, formación continua y especialización en tecnologías modernas de
+          desarrollo web. Busco posiciones de <strong>backend o fullstack con Java
+          y Spring Boot</strong> en Galicia o en remoto.
         </p>
       </details>
 
-      {/* BOTÓN CV */}
-      <a
-        href="../../../borja-olazabal-programador-web-cv.pdf"
-        target="_blank"
-        aria-label="Currículum de Borja Olazabal, programador web"
-        className="inline-block mt-10 px-6 py-3 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
-      >
-        Accede a mi CV
-      </a>
+      {/* CV — selector de versión */}
+      <div className="mt-10">
+        <CVDownload variant="primary" />
+      </div>
     </section>
   );
 }

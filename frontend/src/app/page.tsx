@@ -14,8 +14,10 @@ export default function Home() {
       <QuienSoy />
       <Experiencia />
       <Proyectos />
-      <ClaudeIA />
       <Aprendizaje />
+      {/* La IA va después de proyectos y formación: es un complemento del
+          perfil, no el titular. */}
+      <ClaudeIA />
       <Juegos />
       <Contacto />
     </>

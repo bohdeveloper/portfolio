@@ -3,6 +3,9 @@ import { useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { usePathname } from "next/navigation";
+// En la barra fija basta un enlace directo al CV de backend, que es el perfil
+// prioritario: un selector aquí añadiría ruido en un espacio ya denso.
+import { CV_BACKEND } from "@/components/ui/CVDownload";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -25,7 +28,7 @@ export default function Navbar() {
             >
               <img
                 src="../../../images/bohdeveloper-desarrollador-web.png"
-                alt="Borja Olazabal, programador web"
+                alt="bohdeveloper — Borja Olazabal, desarrollador Java y Spring Boot"
                 className="h-14 w-auto logo-filter"
               />
             </Link>
@@ -34,9 +37,9 @@ export default function Navbar() {
           {/* DERECHA: CV + ThemeToggle + Hamburguesa (solo móvil) */}
           <div className="flex items-center gap-3 md:hidden">
             <a
-              href="../../../borja-olazabal-programador-web-cv.pdf"
+              href={CV_BACKEND}
               target="_blank"
-              aria-label="Currículum de Borja Olazabal, programador web"
+              aria-label="Currículum de Borja Olazabal, desarrollador Java y Spring Boot"
               className="px-3 py-1 text-sm border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
             >
               CV
@@ -89,17 +92,17 @@ export default function Navbar() {
               <li><a href={onHome ? '#quien-soy' : '/#quien-soy'} className="hover:text-primary transition">Quién soy</a></li>
               <li><a href={onHome ? '#experiencia' : '/#experiencia'} className="hover:text-primary transition">Experiencia</a></li>
               <li><a href={onHome ? '#proyectos' : '/#proyectos'} className="hover:text-primary transition">Proyectos</a></li>
+              <li><a href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="hover:text-primary transition">Formación</a></li>
               <li><a href={onHome ? '#ia' : '/#ia'} className="hover:text-primary transition">IA</a></li>
-              <li><a href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="hover:text-primary transition">Aprendizaje</a></li>
               <li><a href={onHome ? '#juegos' : '/#juegos'} className="hover:text-primary transition">Juega</a></li>
               <li><a href={onHome ? '#contacto' : '/#contacto'} className="hover:text-primary transition">Contacto</a></li>
             </ul>
 
             <div className="flex items-center gap-4">
               <a
-                href="../../../borja-olazabal-programador-web-cv.pdf"
+                href={CV_BACKEND}
                 target="_blank"
-                aria-label="Currículum de Borja Olazabal, programador web"
+                aria-label="Currículum de Borja Olazabal, desarrollador Java y Spring Boot"
                 className="px-4 py-2 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition"
               >
                 Accede a mi CV
@@ -120,7 +123,7 @@ export default function Navbar() {
             <Link href="/" aria-label="Inicio - Portfolio profesional de Borja Olazabal" onClick={() => setOpen(false)}>
               <img
                 src="../../../images/bohdeveloper-desarrollador-web.png"
-                alt="Borja Olazabal, programador web"
+                alt="bohdeveloper — Borja Olazabal, desarrollador Java y Spring Boot"
                 className="h-14 w-auto logo-filter"
               />
             </Link>
@@ -144,13 +147,13 @@ export default function Navbar() {
             <li><a onClick={() => setOpen(false)} href={onHome ? '#quien-soy' : '/#quien-soy'} className="block hover:text-primary transition">Quién soy</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#experiencia' : '/#experiencia'} className="block hover:text-primary transition">Experiencia</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#proyectos' : '/#proyectos'} className="block hover:text-primary transition">Proyectos</a></li>
-            <li><a onClick={() => setOpen(false)} href={onHome ? '#ia' : '/#ia'} className="block hover:text-primary transition font-semibold">IA</a></li>
-            <li><a onClick={() => setOpen(false)} href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="block hover:text-primary transition">Aprendizaje</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="block hover:text-primary transition">Formación</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#ia' : '/#ia'} className="block hover:text-primary transition">IA</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#juegos' : '/#juegos'} className="block hover:text-primary transition">Juega</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#contacto' : '/#contacto'} className="block hover:text-primary transition">Contacto</a></li>
             <li className="pt-4">
               <a
-                href="../../../borja-olazabal-programador-web-cv.pdf"
+                href={CV_BACKEND}
                 target="_blank"
                 onClick={() => setOpen(false)}
                 className="block text-center px-6 py-4 border border-cyan-400 text-primary rounded hover:bg-cyan-400 hover:text-black transition font-bold text-base"

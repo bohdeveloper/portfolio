@@ -2,6 +2,32 @@
 
 import { useCardHolo } from "@/hooks/useCardHolo";
 
+/* Titulación oficial: va destacada y aparte del resto de cursos, porque es
+   lo único con validez académica del bloque y antes se presentaba como
+   «Curso Java POO & BD relacionales», que la infravaloraba. */
+const CERTIFICADO = {
+  codigo: "IFCD0112 — Nivel 3",
+  titulo:
+    "Programación con lenguajes orientados a objetos y bases de datos relacionales",
+  centro: "Ipartek",
+  anio: "2021",
+  tecnologias: [
+    "Java",
+    "Spring",
+    "JSP / JDBC / Thymeleaf",
+    "Lombok / Maven",
+    "JavaScript / jQuery",
+    "MySQL Workbench",
+  ],
+  link: "/images/diploma_ipartek.jpg",
+};
+
+/* Formación reglada previa a la reconversión al desarrollo. */
+const FP_MEDIO = [
+  { titulo: "F.P. Grado Medio — Electricidad", centro: "Irungo La Salle", anio: "2012-2014" },
+  { titulo: "F.P. Grado Medio — Mecanizado",   centro: "Irungo La Salle", anio: "2008-2010" },
+];
+
 export default function Aprendizaje() {
   const holo = useCardHolo();
   const cursos = [
@@ -19,20 +45,6 @@ export default function Aprendizaje() {
         "Git",
       ],
       link: "/images/diploma_ceinpro.png",
-    },
-    {
-      titulo: "Curso Java POO & BD relacionales - Ipartek",
-      descripcion:
-        "Curso intensivo de Java orientado a objetos y bases de datos relacionales.",
-      tecnologias: [
-        "Java",
-        "Spring",
-        "JSP / JDBC / Thymeleaf",
-        "Lombok / Maven",
-        "JavaScript / jQuery",
-        "MySQL Workbench",
-      ],
-      link: "/images/diploma_ipartek.jpg",
     },
     {
       titulo: "Curso de Oracle PL/SQL desde Cero - Udemy",
@@ -68,7 +80,7 @@ export default function Aprendizaje() {
   const aprendiendo1 = {
     titulo: "React y stack NoSQL",
     descripcion:
-      "Tecnologías aplicadas en proyectos personales como Unyona y Nitflex:",
+      "Tecnologías aplicadas en proyectos personales como Unyona y BAKO:",
     tecnologias: ["React", "TypeScript", "MongoDB", "Express", "Tailwind"],
     estado: "en-curso",
   };
@@ -90,17 +102,56 @@ export default function Aprendizaje() {
     <section id="aprendizaje" className="max-w-6xl mx-auto px-6 py-32">
       <h2 className="text-3xl font-bold text-black dark:text-white mb-4 flex items-center gap-3">
         <span className="text-primary text-4xl">⌁</span>
-        Formación y aprendizaje continuo
+        Formación
       </h2>
 
       {/* TEXTO SEO DISCRETO */}
       <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mb-12">
-        Complemento mi experiencia como <strong>programador web</strong> mediante
-        formación especializada, cursos técnicos y aprendizaje autodidacta,
-        aplicando estos conocimientos directamente en proyectos reales de
-        desarrollo web. Actualmente también exploro la integración de{" "}
-        <strong>inteligencia artificial</strong> como parte activa del desarrollo.
+        Mi formación en <strong>desarrollo web</strong> combina una titulación
+        oficial de nivel 3, formación técnica especializada en{" "}
+        <strong>Java y bases de datos relacionales</strong> y aprendizaje
+        autodidacta continuo, aplicado directamente en proyectos reales.
       </p>
+
+      {/* CERTIFICADO DE PROFESIONALIDAD — titulación oficial */}
+      <a
+        href={CERTIFICADO.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        {...holo}
+        className="card-holo block rounded-lg p-6 sm:p-8 mb-10 border-2 border-cyan-400 bg-cyan-400/[0.04] dark:bg-cyan-400/[0.06]"
+      >
+        <span className="card-holo-shine" aria-hidden />
+        <span className="card-holo-noise" aria-hidden />
+
+        <span className="inline-block text-xs font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
+          Titulación oficial
+        </span>
+
+        <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mt-4">
+          Certificado de Profesionalidad{" "}
+          <span className="text-primary">{CERTIFICADO.codigo}</span>
+        </h3>
+
+        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mt-2 max-w-2xl">
+          {CERTIFICADO.titulo}
+        </p>
+
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          {CERTIFICADO.centro} · {CERTIFICADO.anio}
+        </p>
+
+        <ul className="flex flex-wrap gap-2 mt-5">
+          {CERTIFICADO.tecnologias.map((t) => (
+            <li
+              key={t}
+              className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/50 text-primary"
+            >
+              {t}
+            </li>
+          ))}
+        </ul>
+      </a>
 
       <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
         {/* CURSOS */}
@@ -210,64 +261,26 @@ export default function Aprendizaje() {
             </span>
           </div>
         ))}
+      </div>
 
-        {/* CLAUDE IA */}
-        <div {...holo} className="card-holo border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d]">
-          <span className="card-holo-shine" aria-hidden />
-          <span className="card-holo-noise"  aria-hidden />
-          <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
-            En curso
-          </span>
-
-          <div className="flex gap-3 items-start mt-6">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              className="w-6 h-6 text-primary"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"
-              />
-            </svg>
-            <h3 className="text-lg font-semibold text-black dark:text-white">
-              Desarrollo con IA — Claude
-            </h3>
-          </div>
-
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Integración de inteligencia artificial en el flujo de trabajo diario de desarrollo web.
-          </p>
-
-          <ul className="list-disc pl-5 mt-4 space-y-1 text-gray-700 dark:text-gray-300">
-            <li>Claude (Anthropic)</li>
-            <li>Agentes y automatización</li>
-            <li>Claude Code — desarrollo asistido</li>
-            <li>Integración IA en productos reales</li>
-          </ul>
-          <span className="mt-1 ml-2 inline-block text-lg text-primary font-medium">
-            ...
-          </span>
-        </div>
-
-        {/* FP FUTURA */}
-        <div className="border border-gray-400 dark:border-gray-700 rounded-lg p-6 bg-gray-200/60 dark:bg-gray-800/40 opacity-70">
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-            Próximamente: FP Superior en DAW
-          </h3>
-
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Formación Profesional Superior en Desarrollo de Aplicaciones Web.
-          </p>
-
-          <p className="text-xs text-gray-500 mt-4 italic">
-            *Actualmente pendiente de inicio.
-          </p>
-        </div>
+      {/* FORMACIÓN REGLADA PREVIA — discreta, en una línea por título */}
+      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">
+          Formación reglada previa
+        </h3>
+        <ul className="flex flex-col sm:flex-row gap-4 sm:gap-10">
+          {FP_MEDIO.map((f) => (
+            <li key={f.titulo} className="flex items-baseline gap-3">
+              <span className="text-primary" aria-hidden>▸</span>
+              <span>
+                <span className="block text-gray-700 dark:text-gray-300">{f.titulo}</span>
+                <span className="block text-xs text-gray-500 dark:text-gray-500">
+                  {f.centro} · {f.anio}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

@@ -25,7 +25,28 @@ interface Project {
   tecnologias?: string[];
 }
 
+/* Orden editorial de la home: refleja la importancia real del proyecto, no la
+   fecha de creación ni el flag featured de la BD. Los slugs que no estén aquí
+   se colocan al final respetando el orden que devuelve la API. */
+const ORDEN_SLUGS = ["bako", "diamadmin", "unyona", "ayudas-gv", "devhelper", "nitflex"];
+
+/* Estado del proyecto. Por defecto se deduce de si hay landing publicada;
+   BAKO no tiene landing pero está desplegado y operativo 24/7. */
+const ESTADO_OVERRIDE: Record<string, string> = { bako: "En producción" };
+
 const FALLBACK: Project[] = [
+  {
+    nombre: "BAKO — Autonomous Knowledge Operator",
+    slug: "bako",
+    descripcion1:
+      "Asistente personal voice-first vía Telegram, desplegado 24/7. Orquestador dual de modelos de lenguaje con failover automático entre Ollama local (expuesto mediante Cloudflare Tunnel) y Groq cloud.",
+    descripcion2:
+      "Transcripción con Whisper, síntesis de voz neural y capa de privacidad que detecta contenido sensible y fuerza su procesamiento en local. Ocho integraciones de API — GitHub, Notion, Google Calendar (OAuth2), Open-Meteo, RSS y Cloudflare D1. Coste de operación: 0 €/mes.",
+    architecture: "Orquestador dual LLM · local + cloud",
+    tags: "Express,TypeScript,MongoDB Atlas,Cloudflare D1,Render,Telegram Bot API,Groq,Ollama,Whisper",
+    tecnologias: ["Express", "TypeScript", "MongoDB Atlas", "Cloudflare D1", "Render", "Telegram Bot API", "Groq", "Ollama", "Whisper"],
+    github: "https://github.com/bohdeveloper/bako",
+  },
   {
     nombre: "Unyona",
     slug: "unyona",
@@ -47,6 +68,16 @@ const FALLBACK: Project[] = [
     tags: "Angular,Spring Boot,PostgreSQL",
     tecnologias: ["Angular", "Spring Boot", "PostgreSQL"],
     github: "https://github.com/bohdeveloper/diamadmin",
+  },
+  {
+    nombre: "ayudas_gv",
+    slug: "ayudas-gv",
+    descripcion:
+      "Proyecto de práctica sobre contenerización y orquestación: manifiestos, servicios, ingress y gestión de configuración en Minikube.",
+    architecture: "Contenerización y orquestación",
+    tags: "Spring Boot,Docker,Kubernetes",
+    tecnologias: ["Spring Boot", "Docker", "Kubernetes"],
+    github: "https://github.com/bohdeveloper/ayudas-gv",
   },
   {
     nombre: "Nitflex",
@@ -71,19 +102,32 @@ const FALLBACK: Project[] = [
 function normalize(p: Project): {
   slug: string; title: string; description: string; description2: string;
   landing: string; architecture: string; tecnologias: string[];
-  github: string; hasContent: boolean;
+  github: string; hasContent: boolean; estado: string; activo: boolean;
 } {
+  const landing = p.demo_url || p.landing || "";
+  const estado = ESTADO_OVERRIDE[p.slug] ?? (landing ? "Online" : "En desarrollo");
   return {
     slug: p.slug,
     title: p.title || p.nombre || "",
     description: p.excerpt || p.descripcion1 || p.descripcion || "",
     description2: p.descripcion2 || "",
-    landing: p.demo_url || p.landing || "",
+    landing,
     architecture: p.architecture || "",
     tecnologias: p.tecnologias || (p.tags ? p.tags.split(",").map(t => t.trim()).filter(Boolean) : []),
     github: p.github_url || p.github || "",
     hasContent: !!(p.has_content === 1 || (p.content && p.content.trim() && p.content !== "<p></p>")),
+    estado,
+    activo: estado !== "En desarrollo",
   };
+}
+
+/** Ordena por ORDEN_SLUGS; lo no listado queda detrás en su orden original. */
+function ordenar(list: Project[]): Project[] {
+  const peso = (slug: string) => {
+    const i = ORDEN_SLUGS.indexOf(slug);
+    return i === -1 ? ORDEN_SLUGS.length : i;
+  };
+  return [...list].sort((a, b) => peso(a.slug) - peso(b.slug));
 }
 
 export default function Proyectos() {
@@ -100,21 +144,21 @@ export default function Proyectos() {
       .catch(() => setProjects(FALLBACK));
   }, []);
 
-  const list = projects.length > 0 ? projects : FALLBACK;
+  const list = ordenar(projects.length > 0 ? projects : FALLBACK);
 
   return (
     <section id="proyectos" className="max-w-6xl mx-auto px-6 py-32">
-      <h1 className="text-4xl font-bold text-black dark:text-white mb-6 gap-3 flex items-center">
+      {/* h2, no h1: el único h1 de la página es el nombre en el Hero */}
+      <h2 className="text-3xl font-bold text-black dark:text-white mb-6 gap-3 flex items-center">
         <span className="text-primary text-4xl">⌁</span>
         Proyectos de desarrollo web
-      </h1>
+      </h2>
 
       <p className="text-gray-700 dark:text-gray-300 max-w-3xl mb-14 text-lg leading-relaxed">
-        En esta sección presento algunos de los{" "}
-        <strong>proyectos de desarrollo web</strong> que he creado como{" "}
-        <strong>programador web</strong>. Cada proyecto refleja mi experiencia
-        trabajando con distintas arquitecturas, tecnologías frontend y backend,
-        así como mi enfoque en crear aplicaciones funcionales y escalables.
+        Proyectos propios donde trabajo con stack moderno, fuera del entorno
+        corporativo: <strong>Angular, React, Next.js, TypeScript, Docker y
+        Kubernetes</strong>. Cada uno refleja una arquitectura distinta y un
+        enfoque en construir aplicaciones funcionales y mantenibles.
       </p>
 
       <div className="grid gap-10 md:grid-cols-2">
@@ -131,11 +175,22 @@ export default function Proyectos() {
               <span className="card-holo-shine" aria-hidden />
               <span className="card-holo-noise"  aria-hidden />
               <div className="flex-1">
-                <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10 dark:bg-cyan-400/20">
-                  En desarrollo
+                {/* Estado real del proyecto: verde cuando está desplegado y
+                    accesible, cian cuando sigue en construcción. */}
+                <span
+                  className={`absolute top-4 right-4 inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border ${
+                    n.activo
+                      ? "border-emerald-500/70 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
+                      : "border-cyan-400 text-primary bg-cyan-400/10 dark:bg-cyan-400/20"
+                  }`}
+                >
+                  {n.activo && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" aria-hidden />
+                  )}
+                  {n.estado}
                 </span>
 
-                <h2 className="text-2xl font-semibold text-black dark:text-white">
+                <h3 className="text-2xl font-semibold text-black dark:text-white pr-28">
                   {n.landing ? (
                     <a
                       href={n.landing}
@@ -149,7 +204,7 @@ export default function Proyectos() {
                   ) : (
                     n.title
                   )}
-                </h2>
+                </h3>
 
                 {n.description && (
                   <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">{n.description}</p>
@@ -168,9 +223,9 @@ export default function Proyectos() {
                 <div className={`my-6 border-t ${n.landing ? "border-primary" : "border-gray-200 dark:border-gray-700"}`} />
 
                 <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-black dark:text-white mb-2">
+                  <h4 className="text-sm font-semibold text-black dark:text-white mb-2">
                     Tecnologías utilizadas
-                  </h3>
+                  </h4>
                   <ul className="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300">
                     {n.tecnologias.map((t, idx) => (
                       <li key={idx}>{t}</li>
