@@ -43,6 +43,28 @@ export default function Hero() {
         </span>
       </div>
 
+      {/* Mismo distintivo que la cabecera de los CV, para que el criterio sea
+          el mismo en los dos documentos. Va después del stack y de la
+          disponibilidad, no por delante: es un complemento, no el titular. */}
+      <div className="flex items-center gap-2.5 mt-6">
+        <svg
+          viewBox="0 0 100 100"
+          className="w-5 h-5 text-primary flex-shrink-0"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <rect x="44" y="8" width="12" height="84" rx="6" />
+          <rect x="44" y="8" width="12" height="84" rx="6" transform="rotate(60, 50, 50)" />
+          <rect x="44" y="8" width="12" height="84" rx="6" transform="rotate(120, 50, 50)" />
+        </svg>
+        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none">
+          Potenciado por{" "}
+          <span className="font-semibold text-gray-700 dark:text-gray-300 normal-case tracking-normal">
+            Claude — Anthropic
+          </span>
+        </p>
+      </div>
+
       <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-8 text-base sm:text-lg md:text-xl leading-relaxed">
         Especializado en <strong>aplicaciones web empresariales</strong>, diseñando, desarrollando y manteniendo:
       </p>

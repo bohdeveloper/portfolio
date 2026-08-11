@@ -32,12 +32,10 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* DERECHA: CV + ThemeToggle + Hamburguesa (solo móvil) */}
+          {/* DERECHA: ThemeToggle + Hamburguesa (solo móvil).
+              Sin botón de CV: el menú desplegado ya lo incluye, y en una barra
+              tan estrecha competía con la hamburguesa. */}
           <div className="flex items-center gap-3 md:hidden">
-            {/* En la barra móvil solo cabe la etiqueta «CV»; el panel se abre
-                como modal a pantalla completa. */}
-            <CVDownload size="sm" align="right" label="CV" />
-
             <ThemeToggle />
 
             <button

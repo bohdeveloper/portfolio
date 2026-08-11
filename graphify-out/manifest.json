@@ -330,8 +330,8 @@
     "semantic_hash": ""
   },
   "frontend/src/app/layout.tsx": {
-    "mtime": 1786439712.6679385,
-    "ast_hash": "689f3651a7097b4a34c8c9703456d16e",
+    "mtime": 1786460713.7001357,
+    "ast_hash": "cf0ecca59b14bbbf2833cf0ec03f4d82",
     "semantic_hash": ""
   },
   "frontend/src/app/page.tsx": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/layout/Navbar.tsx": {
-    "mtime": 1786272244.8852775,
-    "ast_hash": "a3df14eee3c2a40a4f7004acaa9086da",
+    "mtime": 1786460721.1713314,
+    "ast_hash": "2c4d996f1a3351a5a8d5693434a83cd3",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/ThemeToggle.tsx": {
@@ -375,13 +375,13 @@
     "semantic_hash": ""
   },
   "frontend/src/components/sections/ClaudeIA.tsx": {
-    "mtime": 1786272416.5870326,
-    "ast_hash": "4d2af6528dcb86b0c79cbbace3b1581c",
+    "mtime": 1786439859.9486806,
+    "ast_hash": "ee51f96b5366550f78429c67744cc667",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Contacto.tsx": {
-    "mtime": 1786439712.6927109,
-    "ast_hash": "311aa89bcb9e8d21b683bf42a8e2dbf8",
+    "mtime": 1786460708.5752513,
+    "ast_hash": "e173076652a798bb8b1ffd2ae77e94c3",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Experiencia.tsx": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Hero.tsx": {
-    "mtime": 1786270946.145373,
-    "ast_hash": "a3713986d736698b6b441048e1639a0c",
+    "mtime": 1786460688.2239072,
+    "ast_hash": "c7b9af310ccc42d039496a288bc9b4d5",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Juegos.tsx": {
@@ -505,8 +505,8 @@
     "semantic_hash": ""
   },
   "ROADMAP.md": {
-    "mtime": 1786439832.4236417,
-    "ast_hash": "6607480465cabd3fbda5e2136b65c3cc",
+    "mtime": 1786460807.990594,
+    "ast_hash": "65f6ee6c5c4689c2f239a99ffddfa76a",
     "semantic_hash": ""
   },
   "frontend/public/games/2048.html": {
@@ -575,8 +575,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ui/CVDownload.tsx": {
-    "mtime": 1786272212.602337,
-    "ast_hash": "a676585e2dbced2c86033703cb4b25be",
+    "mtime": 1786460744.7871144,
+    "ast_hash": "f2c5f0731769cc8f2e646280069b05d4",
     "semantic_hash": ""
   },
   "frontend/public/cv/borja-olazabal-backend-sector-publico.pdf": {
@@ -592,6 +592,11 @@
   "migrations/projects-rexia-bako-ayudas.sql": {
     "mtime": 1786272335.526512,
     "ast_hash": "54f818d7acc801feba1b78a628379056",
+    "semantic_hash": ""
+  },
+  "migrations/projects-unyona-excerpt.sql": {
+    "mtime": 1786460638.6734965,
+    "ast_hash": "f0b92232e80880c415e7d77ceb88a17b",
     "semantic_hash": ""
   }
 }

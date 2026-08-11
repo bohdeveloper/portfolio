@@ -278,6 +278,19 @@
 
 ---
 
+:: Agosto 2026 — Ajustes de contacto, IA y responsive del selector de CV
+
+# ✅ Unyona: excerpt alineado con el CV — producto en validación con landing,
+#    no plataforma operativa. architecture y tags se mantienen (stack en curso)
+# ✅ Hero: recuperado el distintivo «Potenciado por Claude — Anthropic», pero
+#    por debajo del stack y la disponibilidad, no bajo el nombre como antes
+# ✅ Contacto: teléfono 672 987 992 con enlace tel: + telephone en el JSON-LD
+# ✅ Navbar móvil: retirado el botón CV — competía con la hamburguesa y el
+#    menú desplegado ya ofrece el selector
+# ✅ CVDownload: en móvil el modal pasa de anclado abajo a centrado vertical
+
+---
+
 ## 🛠 MANTENIMIENTO
 
 A partir del 2 junio 2026 el portfolio entra en modo mantenimiento.

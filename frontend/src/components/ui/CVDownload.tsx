@@ -147,8 +147,8 @@ export default function CVDownload({
             aria-label="Versiones del currículum"
             className={`
               z-[71]
-              fixed inset-x-4 bottom-4 top-auto
-              sm:absolute sm:inset-auto sm:top-full sm:mt-2 sm:w-[22rem]
+              fixed inset-x-4 top-1/2 -translate-y-1/2 max-w-sm mx-auto
+              sm:absolute sm:inset-auto sm:top-full sm:translate-y-0 sm:mt-2 sm:mx-0 sm:w-[22rem] sm:max-w-none
               ${align === "right" ? "sm:right-0" : "sm:left-0"}
               rounded-lg border border-cyan-400/60 bg-white dark:bg-[#0d0d0d]
               shadow-xl shadow-black/20 overflow-hidden
