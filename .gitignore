@@ -26,7 +26,10 @@ frontend/out/
 # misc
 .DS_Store
 *.pem
-.claude/
+# .claude/ no se ignora en bloque: los agentes y los hooks del proyecto viajan
+# con el repo. Fuera queda settings.local.json, que contiene credenciales.
+.claude/settings.local.json
+.claude/skills/
 
 # debug
 npm-debug.log*
@@ -45,5 +48,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# graphify knowledge graph — tracked in git for cross-device context
-# to rebuild locally: graphify update .
+# grafo de conocimiento — codebase-memory-mcp
+# El índice vive fuera del repo (~/.cache/codebase-memory-mcp), no se versiona.
+# Para reconstruirlo en otro equipo:
+#   pip install codebase-memory-mcp
+#   codebase-memory-mcp cli index_repository '{"repo_path": "<ruta absoluta>"}'
+graphify-out/

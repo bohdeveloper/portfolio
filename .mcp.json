@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "codebase-memory-mcp": {
+      "command": "python",
+      "args": ["-m", "codebase_memory_mcp"],
+      "env": {}
+    }
+  }
+}
