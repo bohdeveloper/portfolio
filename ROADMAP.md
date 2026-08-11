@@ -264,6 +264,20 @@
 
 ---
 
+:: Agosto 2026 — CV nuevos y alineación de datos con el CV
+
+# ✅ Sustituidos los dos PDF por la versión de agosto, manteniendo los mismos
+#    nombres de fichero: no cambian URLs, sitemap ni el 301 de la ruta antigua
+# ✅ Email unificado a ohb.seven@gmail.com (contacto, panel lateral, SocialPanel
+#    y JSON-LD) — antes ohb_1@outlook.com, que ya no es el de los CV
+# ✅ Experiencia previa alineada con el CV: Likale dic 2018-may 2019,
+#    W. Diamant nov 2016-nov 2018, MegatronHQ hasta mar 2021
+# ✅ Añadidos Puertas Jokin y Muebles Amets, agrupados fuera de las pestañas
+#    en un bloque «Experiencia previa · industria y carpintería»
+# ✅ Inetum: añadido NewGipe / AD77 en entorno J2EE-UDA (2023-2024)
+
+---
+
 ## 🛠 MANTENIMIENTO
 
 A partir del 2 junio 2026 el portfolio entra en modo mantenimiento.

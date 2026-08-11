@@ -1,16 +1,16 @@
-# Graph Report - portfolio  (2026-08-09)
+# Graph Report - portfolio  (2026-08-11)
 
 ## Corpus Check
-- 104 files · ~175,124 words
+- 104 files · ~175,406 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 703 nodes · 855 edges · 75 communities (47 shown, 28 thin omitted)
+- 713 nodes · 866 edges · 74 communities (46 shown, 28 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `13b760b4`
+- Built from commit: `de8cd879`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -53,7 +53,6 @@
 - [[_COMMUNITY_Community 35|Community 35]]
 - [[_COMMUNITY_Community 36|Community 36]]
 - [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
 - [[_COMMUNITY_Community 39|Community 39]]
 - [[_COMMUNITY_Community 40|Community 40]]
 - [[_COMMUNITY_Community 41|Community 41]]
@@ -110,19 +109,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (75 total, 28 thin omitted)
+## Communities (74 total, 28 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.02
-Nodes (116): ✅ 16 categorías: programación, literatura, novela, ciencia, filosofía..., ✅ 2 inputs + 2 botones independientes: calorías quemadas / ingeridas, ✅ Action modal en day-cfg: completar/perder, comentario, copy-forward y botón "✎ Editar", ✅ Admin /dashboard/blog: editor WYSIWYG TipTap, lista, publicar/borrador, ✅ Admin /dashboard/juegos: CRUD + set TOP, ✅ Admin /dashboard/usuarios: CRUD de usuarios + activar/desactivar, ✅ AdminNavbar: sin enlaces en login, dinámico según ruta, ✅ Alertas visuales al superar el presupuesto (+108 more)
+Nodes (124): ✅ 16 categorías: programación, literatura, novela, ciencia, filosofía..., ✅ 2 inputs + 2 botones independientes: calorías quemadas / ingeridas, ✅ Action modal en day-cfg: completar/perder, comentario, copy-forward y botón "✎ Editar", ✅ Admin /dashboard/blog: editor WYSIWYG TipTap, lista, publicar/borrador, ✅ Admin /dashboard/juegos: CRUD + set TOP, ✅ Admin /dashboard/usuarios: CRUD de usuarios + activar/desactivar, ✅ AdminNavbar: sin enlaces en login, dinámico según ruta, ✅ Alertas visuales al superar el presupuesto (+116 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.07
-Nodes (36): validateFloat(), validateHexColor(), validateHttpsUrl(), validateInt(), validateStr(), BiometricLatest, DailyRow, Env (+28 more)
+Cohesion: 0.15
+Nodes (18): validateHexColor(), validateInt(), validateStr(), callClaude(), CATEGORY_COLORS, Env, H, onRequestPost() (+10 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.05
-Nodes (24): useCardHolo(), useFadeInOnScroll(), Aprendizaje(), CERTIFICADO, FP_MEDIO, ClaudeIA(), Empleo, tabs (+16 more)
+Nodes (25): useCardHolo(), useFadeInOnScroll(), Aprendizaje(), CERTIFICADO, FP_MEDIO, ClaudeIA(), Empleo, PREVIA (+17 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.06
@@ -137,8 +136,8 @@ Cohesion: 0.10
 Nodes (15): CAT_CLS, DynCat, getDays(), getWS(), RawTask, StateRecord, Activity, Cat (+7 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.13
-Nodes (15): verifyAuth(), Env, H, onRequestDelete(), onRequestGet(), Env, H, onRequestGet() (+7 more)
+Cohesion: 0.09
+Nodes (23): verifyAuth(), Env, H, hashIp(), onRequestDelete(), onRequestGet(), onRequestPatch(), onRequestPost() (+15 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.10
@@ -157,8 +156,8 @@ Cohesion: 0.11
 Nodes (9): Book, CAT_COLORS, CATEGORIES, Chapter, LANGUAGES, LEVELS, ReaderState, Tab (+1 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.13
-Nodes (10): JWTPayload, Env, onRequestPost(), Env, onRequestPost(), Env, onRequestPost(), Env (+2 more)
+Cohesion: 0.10
+Nodes (15): JWTPayload, Env, H, onRequestGet(), Env, onRequestPost(), Env, H (+7 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.14
@@ -193,8 +192,8 @@ Cohesion: 0.40
 Nodes (9): bad(), Env, forbidden(), H, onRequestDelete(), onRequestPatch(), onRequestPost(), onRequestPut() (+1 more)
 
 ### Community 20 - "Community 20"
-Cohesion: 0.25
-Nodes (8): Env, H, hashIp(), onRequestDelete(), onRequestGet(), onRequestPatch(), onRequestPost(), PH
+Cohesion: 0.13
+Nodes (15): validateFloat(), validateHttpsUrl(), BiometricLatest, DailyRow, Env, H, onRequestGet(), onRequestPost() (+7 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.22
@@ -237,8 +236,8 @@ Cohesion: 0.40
 Nodes (4): Env, H, HistoryRow, onRequestGet()
 
 ### Community 33 - "Community 33"
-Cohesion: 0.50
-Nodes (3): Env, H, onRequestGet()
+Cohesion: 0.33
+Nodes (4): Env, H, onRequestDelete(), onRequestGet()
 
 ### Community 36 - "Community 36"
 Cohesion: 0.50
@@ -246,11 +245,7 @@ Nodes (3): Env, H, onRequestPost()
 
 ### Community 37 - "Community 37"
 Cohesion: 0.50
-Nodes (3): Env, H, onRequestPost()
-
-### Community 38 - "Community 38"
-Cohesion: 0.50
-Nodes (3): Env, H, onRequestPost()
+Nodes (3): Env, onRequestDelete(), onRequestPost()
 
 ### Community 40 - "Community 40"
 Cohesion: 0.50
@@ -261,32 +256,32 @@ Cohesion: 0.67
 Nodes (3): HTML standalone — minijuegos sin dependencias externas, 🔄 MEJORAS POST-LANZAMIENTO, Tracker
 
 ### Community 57 - "Community 57"
-Cohesion: 0.50
-Nodes (4): ✅ AdminNavbar: padding horizontal reducido en móvil (px-3 sm:px-6), Hero y posicionamiento, 🛠 MANTENIMIENTO, ✅ Un solo h1 en la home (Proyectos pasa a h2)
+Cohesion: 0.40
+Nodes (5): ✅ AdminNavbar: padding horizontal reducido en móvil (px-3 sm:px-6), Hero y posicionamiento, ✅ Inetum: añadido NewGipe / AD77 en entorno J2EE-UDA (2023-2024), 🛠 MANTENIMIENTO, ✅ Un solo h1 en la home (Proyectos pasa a h2)
 
 ### Community 72 - "Community 72"
 Cohesion: 0.67
 Nodes (3): ✅ Badge real por proyecto: Online / En producción / En desarrollo, ✅ Fallback de Unyona y Diamadmin sincronizado con el contenido real de D1, IA
 
 ## Knowledge Gaps
-- **353 isolated node(s):** `eslintConfig`, `Env`, `JWTPayload`, `Env`, `H` (+348 more)
+- **362 isolated node(s):** `eslintConfig`, `Env`, `JWTPayload`, `Env`, `H` (+357 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `verifyAuth()` connect `Community 6` to `Community 32`, `Community 1`, `Community 33`, `Community 36`, `Community 37`, `Community 38`, `Community 40`, `Community 11`, `Community 16`, `Community 18`, `Community 19`, `Community 20`, `Community 22`, `Community 26`, `Community 27`, `Community 28`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+- **Why does `verifyAuth()` connect `Community 6` to `Community 32`, `Community 33`, `Community 1`, `Community 36`, `Community 37`, `Community 40`, `Community 11`, `Community 16`, `Community 18`, `Community 19`, `Community 20`, `Community 22`, `Community 26`, `Community 27`, `Community 28`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
 - **Why does `HTML standalone — minijuegos sin dependencias externas` connect `Community 48` to `Community 0`?**
   _High betweenness centrality (0.001) - this node is a cross-community bridge._
 - **What connects `eslintConfig`, `Env`, `JWTPayload` to the rest of the system?**
-  _353 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _362 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.017094017094017096 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.07171717171717172 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.016 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.0545790934320074 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05319148936170213 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
   _Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected._
+- **Should `Community 4` be split into smaller, more focused modules?**
+  _Cohesion score 0.0625 - nodes in this community are weakly interconnected._

@@ -34,9 +34,13 @@ const tabs: Empleo[] = [
       </>,
       <>
         <strong>Berdindu</strong>: aplicación del servicio de atención a personas
-        LGTBI.
+        LGTBI, para casos de inclusión y acoso.
       </>,
       <>Aplicación de tramitación telemática de expedientes.</>,
+      <>
+        <strong>NewGipe / AD77</strong> (Departamento de Educación) en entorno
+        J2EE-UDA, entre 2023 y 2024.
+      </>,
       <>
         Interoperabilidad con 2-3 sistemas externos para pagos, reintegros y
         liquidaciones.
@@ -119,8 +123,8 @@ const tabs: Empleo[] = [
   },
   {
     empresa: "MegatronHQ",
-    puesto: "Servicio técnico y desarrollo web",
-    fecha: "Diciembre 2020 ┉ Febrero 2021",
+    puesto: "Asistente técnico · Web developer",
+    fecha: "Diciembre 2020 ┉ Marzo 2021",
     ubicacion: "Donostia",
     link: "https://www.linkedin.com/company/megatron-hq/",
     tareas: [
@@ -152,29 +156,16 @@ const tabs: Empleo[] = [
       <>Prácticas del curso de confección y publicación web.</>,
     ],
   },
-  {
-    empresa: "Likale",
-    puesto: "Tornero de revestimientos elastoméricos",
-    fecha: "Junio 2018 ┉ Diciembre 2019",
-    ubicacion: "Irun",
-    link: "https://likale.com/",
-    tareas: [
-      <>Manejo de torno y maquinaria ligera, además de tareas de almacén.</>,
-    ],
-  },
-  {
-    empresa: "W. Diamant / Winterstone",
-    puesto: "Producción de herramientas de diamante",
-    fecha: "Mayo 2016 ┉ Octubre 2018",
-    ubicacion: "Irun",
-    link: "https://winterstone.net/",
-    tareas: [
-      <>
-        Manejo de maquinaria ligera y pesada para la producción de herramientas
-        industriales de diamante.
-      </>,
-    ],
-  },
+];
+
+/* Etapa anterior al cambio de carrera. Va agrupada y no como pestañas: son
+   seis puestos que no aportan nada técnico y, en una lista de pestañas,
+   diluirían los cuatro que sí cuentan. Es la misma separación que hace el CV. */
+const PREVIA = [
+  { empresa: "Puertas Jokin",  puesto: "Carpintero de puertas",                        fecha: "sep 2020 ┉ nov 2020" },
+  { empresa: "Muebles Amets",  puesto: "Carpintero y montador de muebles y cocina",    fecha: "may 2019 ┉ ago 2019" },
+  { empresa: "Likale",         puesto: "Especialista en torno convencional",           fecha: "dic 2018 ┉ may 2019" },
+  { empresa: "W. Diamant",     puesto: "Operario fabricante · herramientas de diamante", fecha: "nov 2016 ┉ nov 2018" },
 ];
 
 export default function Experiencia() {
@@ -271,6 +262,37 @@ export default function Experiencia() {
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* EXPERIENCIA PREVIA — antes del cambio de carrera */}
+      <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-5">
+          Experiencia previa · industria y carpintería
+        </h3>
+
+        <ul className="space-y-2.5 max-w-3xl">
+          {PREVIA.map((p) => (
+            <li
+              key={p.empresa}
+              className="flex flex-col sm:flex-row sm:items-baseline sm:gap-4 text-sm"
+            >
+              <span className="font-medium text-gray-700 dark:text-gray-300 sm:w-40 flex-shrink-0">
+                {p.empresa}
+              </span>
+              <span className="text-gray-600 dark:text-gray-400 flex-1">
+                {p.puesto}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-500 sm:text-right flex-shrink-0">
+                {p.fecha}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-5 text-sm text-gray-600 dark:text-gray-400 max-w-3xl">
+          Cambio de carrera al desarrollo de software en 2020, con formación por
+          cuenta propia y certificación oficial de nivel 3.
+        </p>
       </div>
 
       {/* TEXTO SEO SECUNDARIO COLAPSABLE */}

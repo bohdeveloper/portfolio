@@ -51,7 +51,7 @@ export default function Contacto() {
       {/* CTA */}
       <div className="flex flex-wrap justify-center gap-4 mt-10">
         <a
-          href="mailto:ohb_1@outlook.com"
+          href="mailto:ohb.seven@gmail.com"
           className="inline-block px-8 py-3 rounded-lg border border-cyan-400 bg-cyan-400/10 text-primary hover:bg-cyan-400 hover:text-black transition-all hover:scale-[1.03]"
           aria-label="Enviar correo electrónico a Borja Olazabal"
         >

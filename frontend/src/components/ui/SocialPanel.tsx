@@ -223,7 +223,7 @@ export default function SocialPanel() {
 
         {/* Email */}
         <a
-          href="mailto:ohb_1@outlook.com"
+          href="mailto:ohb.seven@gmail.com"
           aria-label="Enviar correo electrónico"
           className="text-gray-700 dark:text-white hover:text-primary transition"
         >

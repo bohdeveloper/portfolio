@@ -330,8 +330,8 @@
     "semantic_hash": ""
   },
   "frontend/src/app/layout.tsx": {
-    "mtime": 1786270960.2599158,
-    "ast_hash": "f52bb99f1debfd1e1244a0170650f84e",
+    "mtime": 1786439712.6679385,
+    "ast_hash": "689f3651a7097b4a34c8c9703456d16e",
     "semantic_hash": ""
   },
   "frontend/src/app/page.tsx": {
@@ -375,18 +375,18 @@
     "semantic_hash": ""
   },
   "frontend/src/components/sections/ClaudeIA.tsx": {
-    "mtime": 1786270946.1433723,
-    "ast_hash": "76472f0965cd43ac58717683efd63988",
+    "mtime": 1786272416.5870326,
+    "ast_hash": "4d2af6528dcb86b0c79cbbace3b1581c",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Contacto.tsx": {
-    "mtime": 1786270946.1433723,
-    "ast_hash": "71dbfb8356a267ee5c501b54f94842f9",
+    "mtime": 1786439712.6927109,
+    "ast_hash": "311aa89bcb9e8d21b683bf42a8e2dbf8",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Experiencia.tsx": {
-    "mtime": 1786270946.1443715,
-    "ast_hash": "a16edde827cce6808f833bd59973f7e8",
+    "mtime": 1786439772.144627,
+    "ast_hash": "c4a0d10ce166c2f75cfbc24b9284cd86",
     "semantic_hash": ""
   },
   "frontend/src/components/sections/Hero.tsx": {
@@ -420,13 +420,13 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ui/EmailPanel.tsx": {
-    "mtime": 1780416146.8672066,
-    "ast_hash": "f61429a6057d1b029b288f7d0950252f",
+    "mtime": 1786439712.701762,
+    "ast_hash": "8bb78b32439c76c980751c905a4b8b0f",
     "semantic_hash": ""
   },
   "frontend/src/components/ui/SocialPanel.tsx": {
-    "mtime": 1780416146.8682094,
-    "ast_hash": "e786b3f4e2b5cc96ba0480812bc2919f",
+    "mtime": 1786439712.7087457,
+    "ast_hash": "4d6ccbe3ac069e0f8d9935e1a42b6611",
     "semantic_hash": ""
   },
   "frontend/src/hooks/useCardHolo.ts": {
@@ -505,8 +505,8 @@
     "semantic_hash": ""
   },
   "ROADMAP.md": {
-    "mtime": 1786272392.5301578,
-    "ast_hash": "1b52e77d08a2c7287840989aa8cf290f",
+    "mtime": 1786439832.4236417,
+    "ast_hash": "6607480465cabd3fbda5e2136b65c3cc",
     "semantic_hash": ""
   },
   "frontend/public/games/2048.html": {
@@ -580,13 +580,13 @@
     "semantic_hash": ""
   },
   "frontend/public/cv/borja-olazabal-backend-sector-publico.pdf": {
-    "mtime": 1786270946.1348112,
-    "ast_hash": "8ed4bfebd6efe1e49fc58568cad62af3",
+    "mtime": 1786437457.2805002,
+    "ast_hash": "0157912a9781d44c489f5e12ecb7c323",
     "semantic_hash": ""
   },
   "frontend/public/cv/borja-olazabal-fullstack-producto.pdf": {
-    "mtime": 1786270946.1388118,
-    "ast_hash": "206f4128a35bf1429e3aa6e0fd9e5cb3",
+    "mtime": 1786437457.297976,
+    "ast_hash": "b9f5f4d91f57470efb46ea0f83eb82ec",
     "semantic_hash": ""
   },
   "migrations/projects-rexia-bako-ayudas.sql": {
