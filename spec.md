@@ -20,6 +20,12 @@ prioridad:
 2. Producto y tecnológicas gallegas — Denodo, Imatia, Gradiant, Ozona
 3. Posiciones remotas a nivel nacional
 
+**Ubicación de destino aún abierta.** El traslado es al norte de España, sin
+ciudad decidida entre Galicia, Asturias o Cantabria. La web y los dos CV usan
+siempre «norte de España» en vez de una ciudad concreta; no fijar una localidad
+hasta que el destino esté decidido de verdad (actualizado 16 sep 2026, antes
+decía Vigo).
+
 **Suite de aplicaciones personales (privada).** Tras `/admin`, un conjunto de apps
 de uso cotidiano del propietario: tracker de rutinas, control presupuestal,
 seguimiento dietético-deportivo, generador de ebooks y gestión de contenidos del
@@ -151,6 +157,16 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
     SVG escrito a mano.
 12. **Los minijuegos son HTML standalone**, sin dependencias, comunicándose con el
     panel lateral por `postMessage`.
+13. **«Spring» en lo visible, «Spring Boot» en lo indexable.** Los CV de sep 2026
+    describen la experiencia profesional como Java y Spring (no Spring Boot),
+    con WebLogic como servidor de despliegue. La web sigue ese matiz en la prosa
+    visible (hero, «Acerca de mí», stack de cada puesto), pero conserva «Spring
+    Boot» en title, meta description, keywords, Open Graph, Twitter card y
+    JSON-LD, porque es el término que de verdad se busca en ofertas de empleo.
+    No es una contradicción entre documentos: es una decisión explícita de
+    invariante 5 (la web no afirma más que el CV) aplicada de forma distinta
+    según la superficie sea prosa leída por personas o metadato leído por
+    buscadores.
 
 ---
 

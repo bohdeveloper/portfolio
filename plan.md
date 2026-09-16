@@ -7,7 +7,7 @@
 
 ---
 
-## Estado actual — 11 de agosto de 2026
+## Estado actual — 16 de septiembre de 2026
 
 | Hito | Estado |
 |---|---|
@@ -16,7 +16,8 @@
 | Fase 9 — SSR y SEO avanzado | 🚫 Descartada |
 | Reposicionamiento hacia Java / sector público | ✅ Completado (ago 2026) |
 | Migración del grafo a codebase-memory-mcp | ✅ Completada (11 ago 2026) |
-| Adopción de Spec-Driven Development | ⏳ En curso — este documento |
+| Adopción de Spec-Driven Development | ✅ Completada (11 ago 2026) |
+| CV de septiembre + ubicación norte de España | ✅ Completado (16 sep 2026) |
 
 El proyecto está **en mantenimiento**: no hay fases nuevas de desarrollo. El
 trabajo que entra es ajuste de contenido, corrección de bugs y apoyo a la
@@ -180,5 +181,41 @@ ubicación en Vigo, sitemap con los dos PDF y un solo `h1` en la home.
   repo sin arrastrar `settings.local.json`, que contiene credenciales.
 - Adoptado Spec-Driven Development: `spec.md` y `plan.md` creados, `ROADMAP.md`
   fusionado aquí y eliminado.
+
+</details>
+
+<details>
+<summary><strong>16 de septiembre de 2026 · CV de septiembre y ubicación abierta</strong></summary>
+
+Los dos CV se actualizan (mismos nombres de fichero, invariante 7). Traen dos
+cambios de fondo que obligan a tocar la web:
+
+- **Ubicación.** El destino deja de ser Vigo/Pontevedra para pasar a «norte de
+  España», sin ciudad decidida entre Galicia, Asturias o Cantabria. Cambiado en
+  Hero, QuienSoy, Experiencia, Contacto, metadatos de `layout.tsx` (title,
+  description, keywords, OG, Twitter) y JSON-LD (`address` simplificado a solo
+  `addressCountry`, `homeLocation` y `seeks` con el texto nuevo).
+- **Spring Boot → Spring en lo visible.** El CV describe la experiencia
+  profesional como Java y Spring (no Spring Boot), con WebLogic. La prosa visible
+  de la web (hero, «Acerca de mí», stack de Inetum) sigue ese matiz; title, meta
+  description, keywords, OG, Twitter y JSON-LD mantienen «Spring Boot» por ser el
+  término que se busca en ofertas de empleo. Registrado como invariante 13 en
+  spec.md.
+
+**Contenido de Inetum y Bilbomática alineado con los CV (mismo día, a petición
+expresa de «tiene que prevalecer los CV nuevos»):**
+
+- Inetum: `AB10B — Ayudas de Familia` → `AB10A — Ayudas a familias` con las
+  cuatro líneas de negocio del decreto (conciliación, contratación, nacimientos,
+  paternidad). Añadido el bullet de reintegro de pagos y la mención a Dokusi.
+  Retirado «Aplicación de tramitación telemática de expedientes», que no aparece
+  en ningún CV. Stack del puesto actualizado a Java, Spring, Oracle SQL,
+  WebLogic, JSP, JSTL, Tiles, Bootstrap, jQuery — sin Jenkins/SonarQube/SVN, que
+  el CV ya no lista para este puesto.
+- Bilbomática: retirados los dos bullets que ningún CV corrobora (stack
+  HDIV/IberDok/JasperReports y control de versiones SVN/Trello). Quedan los dos
+  bullets que sí están en ambos CV.
+- QuienSoy: WebLogic añadido a la frase de stack profesional y a
+  `STACK_PROFESIONAL`.
 
 </details>

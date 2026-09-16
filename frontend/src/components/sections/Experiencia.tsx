@@ -28,32 +28,37 @@ const tabs: Empleo[] = [
         Demográfico.
       </>,
       <>
-        <strong>AB10B — Ayudas de Familia</strong>: gestión de ayudas económicas a
-        familias de toda Euskadi, con consumo de APIs de otras aplicaciones de la
-        administración.
+        <strong>AB10A — Ayudas a familias</strong>: aplicación con cuatro líneas
+        de negocio diferenciadas (conciliación, contratación, nacimientos y
+        paternidad), cada una con su propia lógica de cálculo según el decreto
+        aplicable.
+      </>,
+      <>
+        Desarrollo del proceso de reintegro de pagos: flujo multipantalla con
+        cálculo de diferencias e integración con API externa para la obtención
+        de liquidaciones.
       </>,
       <>
         <strong>Berdindu</strong>: aplicación del servicio de atención a personas
         LGTBI, para casos de inclusión y acoso.
       </>,
-      <>Aplicación de tramitación telemática de expedientes.</>,
+      <>
+        Interoperabilidad con sistemas externos de cobros, reintegros y pagos, y
+        con el gestor documental Dokusi.
+      </>,
       <>
         <strong>NewGipe / AD77</strong> (Departamento de Educación) en entorno
         J2EE-UDA, entre 2023 y 2024.
       </>,
       <>
-        Interoperabilidad con 2-3 sistemas externos para pagos, reintegros y
-        liquidaciones.
-      </>,
-      <>
         Stack: Java,{" "}
         <a
-          href="https://spring.io/projects/spring-boot"
+          href="https://spring.io"
           target="_blank"
           rel="noopener noreferrer"
           className="text-primary hover:underline"
         >
-          Spring Boot
+          Spring
         </a>
         ,{" "}
         <a
@@ -64,16 +69,16 @@ const tabs: Empleo[] = [
         >
           Oracle SQL
         </a>
-        , JSP, JSTL, Tiles, Bootstrap, jQuery, framework{" "}
+        ,{" "}
         <a
-          href="https://github.com/UDA-EJIE"
+          href="https://www.oracle.com/middleware/technologies/weblogic.html"
           target="_blank"
           rel="noopener noreferrer"
           className="text-primary hover:underline"
         >
-          UDA
+          WebLogic
         </a>
-        , Jenkins, SonarQube, SVN.
+        , JSP, JSTL, Tiles, Bootstrap, jQuery.
       </>,
       <>Metodologías: Scrum con Jira, Kanban y Cascada.</>,
     ],
@@ -93,31 +98,6 @@ const tabs: Empleo[] = [
       <>
         Participación en el ciclo completo: análisis de requisitos, prototipado,
         desarrollo y adaptación iterativa a las exigencias del cliente.
-      </>,
-      <>
-        Tecnologías: UDA, HDIV, IberDok, JasperReports, Java, JSP, JSTL, Spring,
-        JavaScript, jQuery, CSS, Bootstrap y Oracle SQL Developer.
-      </>,
-      <>
-        Control de versiones con{" "}
-        <a
-          href="https://subversion.apache.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          SVN
-        </a>{" "}
-        y seguimiento de tareas mediante{" "}
-        <a
-          href="https://trello.com/es"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          Trello
-        </a>
-        .
       </>,
     ],
   },
@@ -198,7 +178,7 @@ export default function Experiencia() {
           y en tres departamentos distintos.
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
-          {["5 años continuados", "3 departamentos", "2 consultoras", "Java · Spring Boot · Oracle"].map((d) => (
+          {["5 años continuados", "3 departamentos", "2 consultoras", "Java · Spring · Oracle"].map((d) => (
             <span
               key={d}
               className="px-2.5 py-1 text-xs font-medium rounded-full border border-cyan-400/50 bg-cyan-400/5 text-primary"
@@ -305,7 +285,7 @@ export default function Experiencia() {
           <strong>Administración Pública</strong> se complementa con proyectos
           propios, formación continua y especialización en tecnologías modernas de
           desarrollo web. Busco posiciones de <strong>backend o fullstack con Java
-          y Spring Boot</strong> en Galicia o en remoto.
+          y Spring</strong> en el norte de España o en remoto.
         </p>
       </details>
 

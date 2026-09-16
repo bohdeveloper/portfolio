@@ -21,16 +21,17 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL("https://bohdeveloper.com"),
 
-  title: "Borja Olazabal | Desarrollador Java · Spring Boot · Vigo",
+  title: "Borja Olazabal | Desarrollador Java · Spring Boot · Norte de España",
   description:
-    "Desarrollador web con cinco años en proyectos de Administración Pública autonómica. Java, Spring Boot, Oracle, Angular y React. Portfolio, proyectos y experiencia. Disponible en Vigo y remoto.",
+    "Desarrollador web con cinco años en proyectos de Administración Pública autonómica. Java, Spring Boot, Oracle, Angular y React. Portfolio, proyectos y experiencia. Disponible en el norte de España y remoto.",
 
   keywords: [
     "desarrollador Java",
-    "programador Java Vigo",
+    "programador Java norte de España",
     "Spring Boot",
     "desarrollador backend Galicia",
-    "programador web Pontevedra",
+    "desarrollador backend Asturias",
+    "desarrollador backend Cantabria",
     "Java Oracle",
     "desarrollador fullstack remoto",
     "administración pública",
@@ -52,9 +53,9 @@ export const metadata = {
 
   /* ---------- OPEN GRAPH ---------- */
   openGraph: {
-    title: "Borja Olazabal | Desarrollador Java · Spring Boot · Vigo",
+    title: "Borja Olazabal | Desarrollador Java · Spring Boot · Norte de España",
     description:
-      "Cinco años desarrollando aplicaciones para la Administración Pública autonómica con Java, Spring Boot y Oracle. Portfolio, proyectos y experiencia. Disponible en Vigo y remoto.",
+      "Cinco años desarrollando aplicaciones para la Administración Pública autonómica con Java, Spring Boot y Oracle. Portfolio, proyectos y experiencia. Disponible en el norte de España y remoto.",
     url: "https://bohdeveloper.com",
     siteName: "bohdeveloper",
     locale: "es_ES",
@@ -64,7 +65,7 @@ export const metadata = {
         url: "/images/Borja-Olazabal.png",
         width: 1200,
         height: 630,
-        alt: "Borja Olazabal, desarrollador Java y Spring Boot en Vigo",
+        alt: "Borja Olazabal, desarrollador Java y Spring Boot en el norte de España",
       },
     ],
   },
@@ -72,9 +73,9 @@ export const metadata = {
   /* ---------- TWITTER ---------- */
   twitter: {
     card: "summary_large_image",
-    title: "Borja Olazabal | Desarrollador Java · Spring Boot · Vigo",
+    title: "Borja Olazabal | Desarrollador Java · Spring Boot · Norte de España",
     description:
-      "Cinco años desarrollando aplicaciones para la Administración Pública autonómica con Java, Spring Boot y Oracle. Disponible en Vigo y remoto.",
+      "Cinco años desarrollando aplicaciones para la Administración Pública autonómica con Java, Spring Boot y Oracle. Disponible en el norte de España y remoto.",
     images: ["/images/Borja-Olazabal.png"],
   },
 };
@@ -110,21 +111,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 "Angular", "React", "Next.js", "TypeScript", "Docker", "Kubernetes",
                 "tramitación electrónica", "Administración Pública"
               ],
-              /* Ubicación declarada: es el criterio por el que se filtra en
-                 búsquedas de empleo local (Vigo / Pontevedra). */
+              /* Ubicación declarada: aún no hay ciudad concreta, solo la región de
+                 destino (Galicia, Asturias o Cantabria). Se omite addressLocality/
+                 addressRegion en vez de fijar uno solo de los tres. */
               "address": {
                 "@type": "PostalAddress",
-                "addressLocality": "Vigo",
-                "addressRegion": "Pontevedra",
                 "addressCountry": "ES"
               },
               "homeLocation": {
                 "@type": "Place",
-                "name": "Vigo, Pontevedra, Galicia, España"
+                "name": "Norte de España (Galicia, Asturias o Cantabria)"
               },
               "seeks": {
                 "@type": "Demand",
-                "name": "Posiciones de desarrollo backend o fullstack con Java y Spring Boot en Galicia o en remoto"
+                "name": "Posiciones de desarrollo backend o fullstack con Java y Spring Boot en el norte de España o en remoto"
               },
               "alumniOf": [
                 {

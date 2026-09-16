@@ -18,14 +18,14 @@ export default function Contacto() {
         </p>
 
         <p className="text-gray-700 dark:text-gray-300 mt-4 leading-relaxed">
-          Me traslado a la zona de <strong>Vigo / Pontevedra</strong>. Disponible
+          Me traslado al <strong>norte de España</strong> (Galicia, Asturias o Cantabria). Disponible
           de inmediato en <strong>remoto</strong>, con incorporación presencial a
           partir de <strong>enero de 2027</strong>.
         </p>
 
         <p className="text-gray-700 dark:text-gray-300 mt-3 leading-relaxed">
           Busco posiciones de <strong>desarrollo backend o fullstack con Java y
-          Spring Boot</strong>, preferentemente en Galicia o en remoto.
+          Spring</strong>, preferentemente en el norte de España o en remoto.
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export default function Contacto() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
           </svg>
-          Vigo / Pontevedra · Remoto
+          Norte de España · Remoto
         </span>
       </div>
     </section>
