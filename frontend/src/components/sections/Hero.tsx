@@ -24,7 +24,7 @@ export default function Hero() {
         <div className="w-px self-stretch bg-primary/60 flex-shrink-0" />
         <div>
           <p className="text-base sm:text-xl font-semibold text-black dark:text-white leading-snug">
-            Java · Spring · Oracle
+            Java · Spring · Spring Boot · Oracle
           </p>
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
             Cinco años en proyectos de Administración Pública autonómica
@@ -73,7 +73,7 @@ export default function Hero() {
         list-disc list-inside mt-4 font-medium text-primary
         text-xs sm:text-sm md:text-base
       ">
-        <li>Aplicaciones web empresariales con Java y Spring.</li>
+        <li>Aplicaciones web empresariales con Java, Spring y Spring Boot.</li>
         <li>Sistemas de gestión y tramitación de datos.</li>
         <li>Integración entre sistemas mediante APIs REST.</li>
         <li>Frontend moderno con Angular, React y Next.js.</li>

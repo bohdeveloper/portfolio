@@ -35,6 +35,13 @@ búsqueda de empleo.
       contenido indexable en términos que sí busca el público objetivo y prueba
       pública de competencia. Título orientado a búsqueda:
       «Desplegar una aplicación Spring Boot en Kubernetes con Minikube».
+- [ ] **Sustituir los dos CV en `/cv/` por la versión con AB10 corregido**
+      (17 sep 2026). Borja compartió los PDF nuevos en la conversación, pero
+      Claude no tiene forma de extraer el binario de un documento pegado en el
+      chat — hay que guardarlos en disco (p. ej. `Downloads/CV/`, como las
+      veces anteriores) para poder copiarlos a
+      `frontend/public/cv/borja-olazabal-backend-sector-publico.pdf` y
+      `.../borja-olazabal-fullstack-producto.pdf`.
 
 ---
 
@@ -217,5 +224,28 @@ expresa de «tiene que prevalecer los CV nuevos»):**
   bullets que sí están en ambos CV.
 - QuienSoy: WebLogic añadido a la frase de stack profesional y a
   `STACK_PROFESIONAL`.
+
+</details>
+
+<details>
+<summary><strong>17 de septiembre de 2026 · AB10 sin letra y Spring Boot de vuelta</strong></summary>
+
+Dos correcciones directas de Borja sobre lo publicado el día anterior:
+
+- **AB10A → AB10.** El nombre real del proyecto no lleva letra. Corregido en el
+  único sitio donde aparecía (`Experiencia.tsx`, bullet de Inetum).
+- **Java, Spring y Spring Boot — los tres profesionales.** Corrige el invariante
+  13 de spec.md, que asumía (a partir del CV) que solo «Spring» era profesional
+  y reservaba «Spring Boot» para metadatos indexables. Borja confirmó que
+  también usó Spring Boot en el puesto. Añadido junto a Spring en todo lo
+  visible: Hero (headline y lista de servicios), QuienSoy (`STACK_PROFESIONAL`,
+  alt de la foto, frase de stack), marco EJIE y stack de Inetum en Experiencia,
+  Contacto, y JSON-LD (`jobTitle`, `knowsAbout`). Ya no hay distinción entre
+  prosa visible y metadato — invariante 13 reescrito para reflejarlo.
+- Pendiente: los dos CV en `/cv/` siguen siendo la versión que solo dice
+  «Spring» (sin Spring Boot) en el puesto de Inetum, y todavía tienen «AB10A».
+  Borja ha compartido dos PDF nuevos en la conversación que ya corrigen AB10,
+  pero no llegaron a disco: hay que guardarlos y sustituir los ficheros en
+  `frontend/public/cv/` (ver plan pendiente abajo).
 
 </details>

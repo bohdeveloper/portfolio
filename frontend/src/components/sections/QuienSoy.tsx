@@ -5,7 +5,7 @@ import { useFadeInOnScroll } from "@/hooks/useFadeInOnScroll";
    en proyectos propios. Mezclarlos daría a entender experiencia profesional
    con stack que solo he aplicado en mis propios proyectos. */
 const STACK_PROFESIONAL = [
-  "Java", "Spring", "Oracle SQL", "PL/SQL", "WebLogic", "JSP", "JSTL", "Tiles",
+  "Java", "Spring", "Spring Boot", "Oracle SQL", "PL/SQL", "WebLogic", "JSP", "JSTL", "Tiles",
   "Bootstrap", "jQuery", "JavaScript", "UDA (EJIE)", "Jenkins", "SonarQube",
   "SVN", "Eclipse", "Maven", "JUnit",
 ];
@@ -27,7 +27,7 @@ export default function QuienSoy() {
       <div className="flex-1 flex justify-center md:justify-end">
         <img
           src="../../../images/Borja-Olazabal.png"
-          alt="Borja Olazabal, desarrollador Java y Spring en el norte de España"
+          alt="Borja Olazabal, desarrollador Java, Spring y Spring Boot en el norte de España"
           ref={ref}
           className={`w-5/2 sm:w-3/4 md:w-full max-w-sm sm:max-w-md md:max-w-none opacity-0 ${visible ? "fade-in-up" : "opacity-0"}`}
         />
@@ -72,7 +72,7 @@ export default function QuienSoy() {
         </p>
 
         <p>
-          Mi stack profesional es <strong>Java y Spring sobre Oracle</strong>,
+          Mi stack profesional es <strong>Java, Spring y Spring Boot sobre Oracle</strong>,
           con despliegue en WebLogic y frontend en JSP, JSTL, Tiles, Bootstrap y
           jQuery, sobre el framework propietario{" "}
           <a

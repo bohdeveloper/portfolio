@@ -24,8 +24,9 @@ export default function Contacto() {
         </p>
 
         <p className="text-gray-700 dark:text-gray-300 mt-3 leading-relaxed">
-          Busco posiciones de <strong>desarrollo backend o fullstack con Java y
-          Spring</strong>, preferentemente en el norte de España o en remoto.
+          Busco posiciones de <strong>desarrollo backend o fullstack con Java,
+          Spring y Spring Boot</strong>, preferentemente en el norte de España o
+          en remoto.
         </p>
       </div>
 

@@ -157,16 +157,15 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
     SVG escrito a mano.
 12. **Los minijuegos son HTML standalone**, sin dependencias, comunicándose con el
     panel lateral por `postMessage`.
-13. **«Spring» en lo visible, «Spring Boot» en lo indexable.** Los CV de sep 2026
-    describen la experiencia profesional como Java y Spring (no Spring Boot),
-    con WebLogic como servidor de despliegue. La web sigue ese matiz en la prosa
-    visible (hero, «Acerca de mí», stack de cada puesto), pero conserva «Spring
-    Boot» en title, meta description, keywords, Open Graph, Twitter card y
-    JSON-LD, porque es el término que de verdad se busca en ofertas de empleo.
-    No es una contradicción entre documentos: es una decisión explícita de
-    invariante 5 (la web no afirma más que el CV) aplicada de forma distinta
-    según la superficie sea prosa leída por personas o metadato leído por
-    buscadores.
+13. **Java, Spring y Spring Boot son los tres profesionales.** Los CV de sep 2026
+    solo mencionan «Spring» en la experiencia profesional, pero Borja confirmó
+    (16 sep 2026) que también ha usado Spring Boot en el puesto, junto con
+    WebLogic como servidor de despliegue. La web menciona los tres siempre
+    juntos: hero, «Acerca de mí», stack de Inetum, marco EJIE y JSON-LD. Ya no
+    hay distinción entre prosa visible y metadato indexable — el desajuste con
+    el CV queda documentado aquí porque el CV es más corto por espacio, no
+    porque Spring Boot no se haya usado; si se actualizan los CV en el futuro,
+    conviene añadir Spring Boot ahí también.
 
 ---
 

@@ -28,7 +28,7 @@ const tabs: Empleo[] = [
         Demográfico.
       </>,
       <>
-        <strong>AB10A — Ayudas a familias</strong>: aplicación con cuatro líneas
+        <strong>AB10 — Ayudas a familias</strong>: aplicación con cuatro líneas
         de negocio diferenciadas (conciliación, contratación, nacimientos y
         paternidad), cada una con su propia lógica de cálculo según el decreto
         aplicable.
@@ -59,6 +59,15 @@ const tabs: Empleo[] = [
           className="text-primary hover:underline"
         >
           Spring
+        </a>
+        ,{" "}
+        <a
+          href="https://spring.io/projects/spring-boot"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          Spring Boot
         </a>
         ,{" "}
         <a
@@ -178,7 +187,7 @@ export default function Experiencia() {
           y en tres departamentos distintos.
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
-          {["5 años continuados", "3 departamentos", "2 consultoras", "Java · Spring · Oracle"].map((d) => (
+          {["5 años continuados", "3 departamentos", "2 consultoras", "Java · Spring · Spring Boot · Oracle"].map((d) => (
             <span
               key={d}
               className="px-2.5 py-1 text-xs font-medium rounded-full border border-cyan-400/50 bg-cyan-400/5 text-primary"
@@ -284,8 +293,8 @@ export default function Experiencia() {
           Esta trayectoria como <strong>programador web</strong> en proyectos de{" "}
           <strong>Administración Pública</strong> se complementa con proyectos
           propios, formación continua y especialización en tecnologías modernas de
-          desarrollo web. Busco posiciones de <strong>backend o fullstack con Java
-          y Spring</strong> en el norte de España o en remoto.
+          desarrollo web. Busco posiciones de <strong>backend o fullstack con Java,
+          Spring y Spring Boot</strong> en el norte de España o en remoto.
         </p>
       </details>
 

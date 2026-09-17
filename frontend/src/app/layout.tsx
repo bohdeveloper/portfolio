@@ -100,13 +100,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "name": "Borja Olazabal",
               "url": "https://bohdeveloper.com",
               "image": "https://bohdeveloper.com/images/Borja-Olazabal.png",
-              "jobTitle": "Desarrollador web · Java y Spring Boot",
+              "jobTitle": "Desarrollador web · Java, Spring y Spring Boot",
               "email": "mailto:ohb.seven@gmail.com",
               "telephone": "+34672987992",
               "description":
                 "Borja Olazabal es desarrollador web con cinco años de experiencia en proyectos de Administración Pública autonómica, especializado en Java, Spring Boot y Oracle.",
               "knowsAbout": [
-                "Java", "Spring Boot", "Oracle SQL", "PL/SQL", "JSP", "JSTL",
+                "Java", "Spring", "Spring Boot", "Oracle SQL", "PL/SQL", "JSP", "JSTL",
                 "framework UDA", "Jenkins", "SonarQube", "APIs REST",
                 "Angular", "React", "Next.js", "TypeScript", "Docker", "Kubernetes",
                 "tramitación electrónica", "Administración Pública"
