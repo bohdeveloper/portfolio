@@ -35,13 +35,6 @@ búsqueda de empleo.
       contenido indexable en términos que sí busca el público objetivo y prueba
       pública de competencia. Título orientado a búsqueda:
       «Desplegar una aplicación Spring Boot en Kubernetes con Minikube».
-- [ ] **Sustituir los dos CV en `/cv/` por la versión con AB10 corregido**
-      (17 sep 2026). Borja compartió los PDF nuevos en la conversación, pero
-      Claude no tiene forma de extraer el binario de un documento pegado en el
-      chat — hay que guardarlos en disco (p. ej. `Downloads/CV/`, como las
-      veces anteriores) para poder copiarlos a
-      `frontend/public/cv/borja-olazabal-backend-sector-publico.pdf` y
-      `.../borja-olazabal-fullstack-producto.pdf`.
 
 ---
 
@@ -242,10 +235,8 @@ Dos correcciones directas de Borja sobre lo publicado el día anterior:
   alt de la foto, frase de stack), marco EJIE y stack de Inetum en Experiencia,
   Contacto, y JSON-LD (`jobTitle`, `knowsAbout`). Ya no hay distinción entre
   prosa visible y metadato — invariante 13 reescrito para reflejarlo.
-- Pendiente: los dos CV en `/cv/` siguen siendo la versión que solo dice
-  «Spring» (sin Spring Boot) en el puesto de Inetum, y todavía tienen «AB10A».
-  Borja ha compartido dos PDF nuevos en la conversación que ya corrigen AB10,
-  pero no llegaron a disco: hay que guardarlos y sustituir los ficheros en
-  `frontend/public/cv/` (ver plan pendiente abajo).
+- Los dos CV en `/cv/` sustituidos (17 sep 2026, `Downloads/CV/`) por la
+  versión con AB10 corregido y verificados con `pdftotext` antes de copiarlos:
+  ambos dicen ya «AB10 – Ayudas a familias».
 
 </details>
