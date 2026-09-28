@@ -44,6 +44,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# caché local de wrangler (login, cuenta) — no es config del proyecto
+.wrangler/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

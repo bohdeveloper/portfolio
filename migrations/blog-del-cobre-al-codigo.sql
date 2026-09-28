@@ -1,0 +1,46 @@
+-- Nuevo artículo de blog: reflexión sobre delegar trabajo en la máquina
+-- (del hardware al software y de ahí a la IA), a petición expresa de Borja
+-- (28 sep 2026). Contenido y portada generados por Claude, de ahí
+-- ai_generated=1: el aviso visible «✦ IA» en la tarjeta cumple el invariante 9
+-- (EU AI Act) de spec.md sin necesidad de tocar código.
+--
+-- Ejecutar:
+--   wrangler d1 execute bohdeveloper-admin --remote --file=./migrations/blog-del-cobre-al-codigo.sql
+
+INSERT INTO blog_posts (slug, title, excerpt, cover_image, content, tags, published, reading_time, ai_generated)
+VALUES (
+  'del-cobre-al-codigo',
+  'Del cobre al código: veinte años delegando trabajo en máquinas',
+  'Antes de escribir una línea aprendí a leer un esquema eléctrico. Esto es lo que ese camino enseña sobre delegar, evolucionar y programar con IA sin dejar de pensar por uno mismo.',
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDYzMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwZDBkMGQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGExNDE4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJjb3JlIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMDBlN2ViIiBzdG9wLW9wYWNpdHk9IjAuOTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI0NSUiIHN0b3AtY29sb3I9IiMwMGE4YmYiIHN0b3Atb3BhY2l0eT0iMC41NSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMGE4YmYiIHN0b3Atb3BhY2l0eT0iMCIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ibGluZSIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMDBhOGJmIiBzdG9wLW9wYWNpdHk9IjAuMTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMDBlN2ViIiBzdG9wLW9wYWNpdHk9IjAuOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjYzMCIgZmlsbD0idXJsKCNiZykiLz4KCiAgPCEtLSBDaXJjdWl0byAoaGFyZHdhcmUpIGEgbGEgaXpxdWllcmRhLCBjb252ZXJnaWVuZG8gaGFjaWEgZWwgY2VudHJvIC0tPgogIDxnIHN0cm9rZT0iIzAwYThiZiIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjU1Ij4KICAgIDxwYXRoIGQ9Ik00MCAxMjAgSDIyMCBWMjAwIEgzNjAiLz4KICAgIDxwYXRoIGQ9Ik00MCAyNDAgSDE2MCBWMzIwIEgzNDAiLz4KICAgIDxwYXRoIGQ9Ik00MCAzNjAgSDI2MCBWNDQwIEgzODAiLz4KICAgIDxwYXRoIGQ9Ik00MCA0ODAgSDIwMCBWNDAwIEgzODAiLz4KICAgIDxwYXRoIGQ9Ik00MCA2MCBIMzAwIFYxNTAgSDQwMCIvPgogIDwvZz4KICA8ZyBmaWxsPSIjMDBlN2ViIiBvcGFjaXR5PSIwLjg1Ij4KICAgIDxjaXJjbGUgY3g9IjQwIiBjeT0iMTIwIiByPSI1Ii8+CiAgICA8Y2lyY2xlIGN4PSI0MCIgY3k9IjI0MCIgcj0iNSIvPgogICAgPGNpcmNsZSBjeD0iNDAiIGN5PSIzNjAiIHI9IjUiLz4KICAgIDxjaXJjbGUgY3g9IjQwIiBjeT0iNDgwIiByPSI1Ii8+CiAgICA8Y2lyY2xlIGN4PSI0MCIgY3k9IjYwIiByPSI1Ii8+CiAgICA8Y2lyY2xlIGN4PSIyMjAiIGN5PSIxMjAiIHI9IjQiLz4KICAgIDxjaXJjbGUgY3g9IjE2MCIgY3k9IjI0MCIgcj0iNCIvPgogICAgPGNpcmNsZSBjeD0iMjYwIiBjeT0iMzYwIiByPSI0Ii8+CiAgICA8Y2lyY2xlIGN4PSIyMDAiIGN5PSI0ODAiIHI9IjQiLz4KICAgIDxjaXJjbGUgY3g9IjMwMCIgY3k9IjYwIiByPSI0Ii8+CiAgPC9nPgoKICA8IS0tIEzDrW5lYXMgcXVlIGZsdXllbiBkZXNkZSBlbCBjaXJjdWl0byBoYXN0YSBlbCBuw7pjbGVvIGNlbnRyYWwgLS0+CiAgPGcgc3Ryb2tlPSJ1cmwoI2xpbmUpIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuOCI+CiAgICA8cGF0aCBkPSJNNDAwIDE1MCBDIDQ4MCAxODAsIDUyMCAyNjAsIDU5MCAzMDAiLz4KICAgIDxwYXRoIGQ9Ik0zODAgMjQwIEMgNDYwIDI2MCwgNTIwIDI4MCwgNTkwIDMxMCIvPgogICAgPHBhdGggZD0iTTM4MCA0NDAgQyA0NjAgNDAwLCA1MjAgMzYwLCA1OTAgMzIwIi8+CiAgICA8cGF0aCBkPSJNMzQwIDMyMCBDIDQ1MCAzMjAsIDUyMCAzMjAsIDU5MCAzMjAiLz4KICA8L2c+CgogIDwhLS0gTsO6Y2xlbzogZWwgcHVudG8gZG9uZGUgc2UgZGVsZWdhIGVsIHRyYWJham8gLS0+CiAgPGNpcmNsZSBjeD0iNjAwIiBjeT0iMzE1IiByPSIxMjAiIGZpbGw9InVybCgjY29yZSkiLz4KICA8Y2lyY2xlIGN4PSI2MDAiIGN5PSIzMTUiIHI9IjM0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMGU3ZWIiIHN0cm9rZS13aWR0aD0iMi41IiBvcGFjaXR5PSIwLjkiLz4KICA8Y2lyY2xlIGN4PSI2MDAiIGN5PSIzMTUiIHI9IjYiIGZpbGw9IiMwMGU3ZWIiLz4KCiAgPCEtLSBMw61uZWFzIHF1ZSBzYWxlbiBkZWwgbsO6Y2xlbyBoYWNpYSBlbCBjw7NkaWdvLCBhIGxhIGRlcmVjaGEgLS0+CiAgPGcgc3Ryb2tlPSJ1cmwoI2xpbmUpIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuOCI+CiAgICA8cGF0aCBkPSJNNjEwIDMwMCBDIDY4MCAyNjAsIDc0MCAyMjAsIDgyMCAxOTAiLz4KICAgIDxwYXRoIGQ9Ik02MTAgMzIwIEMgNzAwIDMyMCwgNzYwIDMyMCwgODMwIDMyMCIvPgogICAgPHBhdGggZD0iTTYxMCAzNDAgQyA2ODAgMzgwLCA3NDAgNDIwLCA4MjAgNDUwIi8+CiAgPC9nPgoKICA8IS0tIFNvZnR3YXJlOiBzw61tYm9sb3MgZGUgY8OzZGlnbyBhIGxhIGRlcmVjaGEgLS0+CiAgPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBlN2ViIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgb3BhY2l0eT0iMC45Ij4KICAgIDxwYXRoIGQ9Ik04NjAgMTcwIEw5MDAgMTkwIEw4NjAgMjEwIi8+CiAgICA8cGF0aCBkPSJNMTAwMCAxNzAgTDk2MCAxOTAgTDEwMDAgMjEwIi8+CiAgICA8cGF0aCBkPSJNOTQwIDE1NSBMOTIwIDIyNSIvPgogIDwvZz4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMGE4YmYiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIwLjc1Ij4KICAgIDxwYXRoIGQ9Ik04NzAgNDIwIEMgODUwIDQyMCwgODUwIDQ0MCwgODUwIDQ1MCBDIDg1MCA0NjAsIDg1MCA0ODAsIDgzMCA0ODAgQyA4NTAgNDgwLCA4NTAgNTAwLCA4NTAgNTEwIEMgODUwIDUyMCwgODUwIDU0MCwgODcwIDU0MCIvPgogICAgPHBhdGggZD0iTTk5MCA0MjAgQyAxMDEwIDQyMCwgMTAxMCA0NDAsIDEwMTAgNDUwIEMgMTAxMCA0NjAsIDEwMTAgNDgwLCAxMDMwIDQ4MCBDIDEwMTAgNDgwLCAxMDEwIDUwMCwgMTAxMCA1MTAgQyAxMDEwIDUyMCwgMTAxMCA1NDAsIDk5MCA1NDAiLz4KICA8L2c+CgogIDwhLS0gUnVpZG8gc3V0aWwgZGUgZm9uZG8gLS0+CiAgPGcgZmlsbD0iIzAwZTdlYiIgb3BhY2l0eT0iMC4xMiI+CiAgICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSI1NTAiIHI9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjEwODAiIGN5PSI5MCIgcj0iMiIvPgogICAgPGNpcmNsZSBjeD0iMTAwMCIgY3k9IjU2MCIgcj0iMiIvPgogICAgPGNpcmNsZSBjeD0iOTAiIGN5PSI0MjAiIHI9IjIiLz4KICAgIDxjaXJjbGUgY3g9IjExMjAiIGN5PSIzMDAiIHI9IjIiLz4KICA8L2c+Cjwvc3ZnPgo=',
+  '## El primer sistema que aprendí a delegar
+
+Antes de escribir un `for`, aprendí a leer un esquema eléctrico. En un taller de FP no se habla de arquitectura de software: se habla de amperios, de qué cable va a masa y de no tocar dos terminales a la vez si quieres seguir teniendo diez dedos al final del día. Ese fue mi primer sistema. No tenía sintaxis, tenía voltios — pero ya planteaba la misma pregunta que me hago hoy delante de un IDE: ¿qué parte de este trabajo puedo delegar, y qué parte tengo que entender yo sí o sí, porque si falla, falla de verdad?
+
+Pasé por electricidad, por mecanizado, y en algún punto entendí que lo que de verdad me enganchaba no era el cobre ni la fresadora: era diseñar sistemas que hacen algo por sí solos una vez los enciendes. El software resultó ser la versión más pura de esa idea. Un servidor en producción es, en el fondo, un circuito que no se puede tocar con las manos.
+
+## Delegar es la habilidad, no la excusa
+
+Llevo cinco años escribiendo código para administraciones públicas, donde un expediente mal tramitado no es un bug con gracia, es una ayuda que no llega a quien la necesita. Ese contexto te enseña algo que ningún curso enseña: a delegar en la máquina todo lo mecánico —validaciones, persistencia, integración entre sistemas— para poder dedicar la cabeza a lo que sí importa, que es que la lógica de negocio sea correcta.
+
+Hoy esa misma disciplina se ha desplazado un peldaño más arriba. Lo que antes delegaba en un framework, ahora en parte lo delego en un modelo que escribe conmigo. No es magia ni es sustitución: es la misma negociación de siempre entre lo que automatizas y lo que sigues teniendo que entender. Uso un asistente de IA en mi flujo diario igual que uso un ORM o un contenedor: para no repetir trabajo ya resuelto, no para dejar de pensar en el problema.
+
+La diferencia es que un ORM no toma decisiones de diseño. Un asistente, si lo dejas, sí — y ahí está el riesgo real de esta generación de herramientas: no que la máquina se equivoque, sino que uno deje de hacerse la pregunta del taller. La responsabilidad de saber por qué una arquitectura es correcta no se delega. Nunca se ha podido.
+
+## El alma del software no vive en el framework de turno
+
+He visto el mismo problema resuelto con JSP y Struts, con un framework moderno sobre un contenedor ligero, y con funciones desplegadas en el borde de una red global sin servidor que administrar. Las tres soluciones envejecen. Lo que no envejece es lo de siempre: entender el dominio antes que la herramienta, separar lo que cambia de lo que no, y no confundir "funciona" con "está bien diseñado".
+
+Eso es lo que persigo ahora que empiezo a mirar en serio arquitectura hexagonal y microservicios: no es una moda de currículum, es la misma obsesión de siempre por poner una frontera clara entre el corazón de un sistema y los cables que lo conectan al mundo. El hardware me enseñó a respetar esa frontera antes de saber que tenía nombre.
+
+## Evolucionar es seguir eligiendo qué sueltas
+
+Si algo me ha demostrado este camino —de una fresadora a un servidor en la nube, pasando por un certificado de profesionalidad que llegó después de dos años de transición pensada, no improvisada— es que la curiosidad técnica no envejece, muda de piel. Cada salto ha consistido en soltar una tarea manual para poder pensar en algo un nivel más arriba.
+
+Delegar en una máquina, sea un compilador, un framework o un modelo de lenguaje, nunca ha sido el final del oficio. Es la condición para seguir teniendo tiempo de aprender el siguiente nivel. La pregunta nunca ha cambiado desde el taller: no es si la máquina puede hacerlo por ti, es si tú entiendes lo bastante bien el problema como para saber si lo ha hecho bien.
+',
+  'reflexion,ia,carrera',
+  1,
+  4,
+  1
+);

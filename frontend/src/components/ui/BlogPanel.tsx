@@ -183,7 +183,8 @@ export default function BlogPanel() {
       }
     } catch {}
 
-    setOpen(true);
+    // El panel arranca colapsado: al cargar solo se ven los dos iconos
+    // laterales (blog/juegos); se abre solo cuando el usuario pulsa uno.
   }, [hide]);
 
   // Cargar leaderboard al abrir juego
