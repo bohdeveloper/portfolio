@@ -98,6 +98,22 @@ export default function Aprendizaje() {
     estado: "en-curso",
   };
 
+  /* Hueco detectado frente a ofertas reales del sector (sept. 2026): cloud,
+     arquitectura hexagonal/microservicios y disciplina formal de TDD/DDD. */
+  const aprendiendo3 = {
+    titulo: "Arquitectura de microservicios y cloud",
+    descripcion:
+      "Ampliación en curso a partir de requisitos habituales en ofertas del sector:",
+    tecnologias: [
+      "AWS",
+      "Arquitectura hexagonal",
+      "Microservicios",
+      "Apache Kafka",
+      "TDD / DDD",
+    ],
+    estado: "en-curso",
+  };
+
   return (
     <section id="aprendizaje" className="max-w-6xl mx-auto px-6 py-32">
       <h2 className="text-3xl font-bold text-black dark:text-white mb-4 flex items-center gap-3">
@@ -213,7 +229,7 @@ export default function Aprendizaje() {
         ))}
 
         {/* CONOCIMIENTOS ACTUALES */}
-        {[aprendiendo1, aprendiendo2].map((a, i) => (
+        {[aprendiendo1, aprendiendo2, aprendiendo3].map((a, i) => (
           <div
             key={i}
             {...holo}

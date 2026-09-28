@@ -25,6 +25,12 @@ búsqueda de empleo.
 
 ### Pendiente inmediato
 
+- [x] **Tarjeta de aprendizaje: arquitectura de microservicios y cloud.**
+      A partir de una oferta real (5+ años Java 21+/Spring Boot, microservicios,
+      arquitectura hexagonal, SOLID/TDD/DDD/Clean Code, AWS valorado), se detectó
+      hueco real en arquitectura hexagonal, AWS, Kafka y buenas prácticas
+      formales (TDD/DDD). Añadida tarjeta "en-curso" en `Aprendizaje.tsx`
+      (28 sep 2026).
 - [ ] **REXIA en el portfolio.** Ocupa el primer puesto de la sección de proyectos
       y todavía no tiene repositorio público ni código. En cuanto exista:
       - [ ] `UPDATE projects SET github_url='https://github.com/bohdeveloper/rexia' WHERE slug='rexia';`
