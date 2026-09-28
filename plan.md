@@ -42,6 +42,20 @@ búsqueda de empleo.
       más entrar. Ahora arranca cerrado y solo se ven los dos iconos
       laterales; se abre al pulsarlos, igual que ya funcionaba en móvil
       (28 sep 2026).
+- [x] **Juegos solo accesibles desde el panel lateral.** Quitado el enlace
+      «Juega» del navbar (desktop y móvil) y la sección `<Juegos />` completa
+      de la home — quedaba duplicada con el panel lateral y competía con el
+      contenido profesional en la primera pantalla. Borrado
+      `Juegos.tsx` por quedar sin uso; limpiado el evento
+      `boh_leaderboard_refresh` en `BlogPanel.tsx`, que ya no tenía listener
+      (28 sep 2026).
+- [x] **Sección IA sin graphify.** La tarjeta de graphify en `ClaudeIA.tsx`
+      afirmaba una herramienta ya retirada del flujo real (migrado a
+      codebase-memory-mcp el 11 ago 2026) — desajuste con invariante 5.
+      Sustituida por una mención breve, sin profundizar, de las skills
+      propias de Claude Code (`frontend-designer`, `grafo-designer`,
+      `kickstack`, `marketing-team-skills`, `security-master`,
+      `spec-driven`) (28 sep 2026).
 - [ ] **REXIA en el portfolio.** Ocupa el primer puesto de la sección de proyectos
       y todavía no tiene repositorio público ni código. En cuanto exista:
       - [ ] `UPDATE projects SET github_url='https://github.com/bohdeveloper/rexia' WHERE slug='rexia';`

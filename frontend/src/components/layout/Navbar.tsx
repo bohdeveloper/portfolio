@@ -85,7 +85,6 @@ export default function Navbar() {
               <li><a href={onHome ? '#proyectos' : '/#proyectos'} className="hover:text-primary transition">Proyectos</a></li>
               <li><a href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="hover:text-primary transition">Formación</a></li>
               <li><a href={onHome ? '#ia' : '/#ia'} className="hover:text-primary transition">IA</a></li>
-              <li><a href={onHome ? '#juegos' : '/#juegos'} className="hover:text-primary transition">Juega</a></li>
               <li><a href={onHome ? '#contacto' : '/#contacto'} className="hover:text-primary transition">Contacto</a></li>
             </ul>
 
@@ -135,7 +134,6 @@ export default function Navbar() {
             <li><a onClick={() => setOpen(false)} href={onHome ? '#proyectos' : '/#proyectos'} className="block hover:text-primary transition">Proyectos</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="block hover:text-primary transition">Formación</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#ia' : '/#ia'} className="block hover:text-primary transition">IA</a></li>
-            <li><a onClick={() => setOpen(false)} href={onHome ? '#juegos' : '/#juegos'} className="block hover:text-primary transition">Juega</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#contacto' : '/#contacto'} className="block hover:text-primary transition">Contacto</a></li>
             <li className="pt-4">
               <CVDownload fullWidth label="Accede a mi CV" className="font-bold text-base" />

@@ -4,7 +4,6 @@ import Experiencia from "@/components/sections/Experiencia";
 import Proyectos from "@/components/sections/Proyectos";
 import ClaudeIA from "@/components/sections/ClaudeIA";
 import Aprendizaje from "@/components/sections/Aprendizaje";
-import Juegos from "@/components/sections/Juegos";
 import Contacto from "@/components/sections/Contacto";
 
 export default function Home() {
@@ -18,7 +17,9 @@ export default function Home() {
       {/* La IA va después de proyectos y formación: es un complemento del
           perfil, no el titular. */}
       <ClaudeIA />
-      <Juegos />
+      {/* Los juegos ya no tienen sección propia en la home: solo son
+          accesibles desde el panel lateral (BlogPanel), para no competir
+          con el contenido profesional en la primera pantalla. */}
       <Contacto />
     </>
   );

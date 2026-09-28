@@ -5,9 +5,20 @@
 
    Sigue siendo un diferencial, pero ocupa el lugar que le corresponde:
    después de proyectos y formación, sin ocupar pantalla completa.
-   Lo que se conserva es lo que demuestra criterio: graphify, una
-   herramienta propia con métricas concretas.
+   graphify quedó retirado del flujo real (migrado a codebase-memory-mcp,
+   11 ago 2026): mantenerlo aquí habría afirmado algo que ya no es cierto.
+   En su lugar, solo se citan las skills propias sin profundizar en cada
+   una — es una mención, no una segunda sección de fondo.
 ============================ */
+
+const SKILLS_PROPIAS = [
+  "frontend-designer",
+  "grafo-designer",
+  "kickstack",
+  "marketing-team-skills",
+  "security-master",
+  "spec-driven",
+];
 
 export default function ClaudeIA() {
   return (
@@ -33,44 +44,26 @@ export default function ClaudeIA() {
       {/* HERRAMIENTA PROPIA */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        {/* graphify */}
-        <div className="p-5 rounded-lg border border-cyan-400/30 bg-white dark:bg-[#0d0d0d] hover:border-primary/60 transition-colors">
+        {/* Skills propias — mención breve, sin profundizar en cada una */}
+        <div className="p-5 rounded-lg border border-cyan-400/20 bg-white dark:bg-[#0d0d0d] hover:border-primary/40 transition-colors">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-primary font-mono text-base leading-none">⬡</span>
-            <h3 className="font-semibold text-black dark:text-white text-sm">graphify</h3>
+            <span className="text-primary font-mono text-base leading-none">✳</span>
+            <h3 className="font-semibold text-black dark:text-white text-sm">Skills propias</h3>
             <span className="ml-auto text-xs font-mono px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 text-gray-400">
-              herramienta propia · CLI
+              Claude Code
             </span>
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-            Transforma cualquier repositorio en un{" "}
-            <strong className="text-gray-800 dark:text-gray-200">grafo de conocimiento</strong>:{" "}
-            nodos, comunidades y relaciones entre funciones, componentes y módulos.
-            El agente navega el código sin leer archivo por archivo — con contexto
-            siempre actualizado. Un hook{" "}
-            <code className="font-mono text-primary/80">Stop</code> regenera el grafo
-            tras cada sesión.
+            Skills a medida para tareas recurrentes de mi flujo de trabajo, desde
+            arquitectura hasta contenido:
           </p>
-          <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-            {[
-              /* Cifras reales del grafo de este propio portfolio. */
-              { v: "713", l: "nodos" },
-              { v: "866", l: "conexiones" },
-              { v: "74",  l: "comunidades" },
-            ].map(({ v, l }) => (
-              <div key={l} className="py-2 rounded bg-cyan-400/5 border border-cyan-400/10">
-                <div className="text-sm font-bold text-primary">{v}</div>
-                <div className="text-xs text-gray-500">{l}</div>
-              </div>
-            ))}
-          </div>
           <div className="flex flex-wrap gap-1.5">
-            {["query", "path", "explain", "update", "watch"].map(cmd => (
+            {SKILLS_PROPIAS.map(skill => (
               <span
-                key={cmd}
+                key={skill}
                 className="px-2 py-0.5 text-xs font-mono text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-800 rounded"
               >
-                graphify {cmd}
+                {skill}
               </span>
             ))}
           </div>
