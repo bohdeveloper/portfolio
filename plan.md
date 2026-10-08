@@ -45,6 +45,9 @@ búsqueda de empleo.
       (8 oct 2026). Ajuste posterior el mismo día: la foto de la web usa
       toda la altura del original para que no corte cabeza ni hombros, y el
       favicon pasa a blanco y negro.
+- [x] **CV de octubre.** Sustituidos los dos PDF (sector público y producto)
+      por la versión nueva, manteniendo los nombres de fichero para no romper
+      enlaces ni el sitemap (8 oct 2026).
 - [x] **Panel lateral de blog/juegos colapsado al cargar.** Antes se abría solo
       al montar (`setOpen(true)` en `BlogPanel.tsx`), tapando contenido nada
       más entrar. Ahora arranca cerrado y solo se ven los dos iconos
