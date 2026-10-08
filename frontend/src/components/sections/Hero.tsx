@@ -2,9 +2,12 @@ import CVDownload from "@/components/ui/CVDownload";
 
 export default function Hero() {
   return (
+    /* Altura con tope: Googlebot renderiza con un viewport tan alto como la
+       página, y con min-h-screen el texto centrado quedaba fuera de la
+       captura de la Inspección de URL. */
     <section
       id="inicio"
-      className="min-h-screen flex flex-col justify-center max-w-6xl mx-auto px-6 pt-32"
+      className="min-h-[min(100vh,56rem)] flex flex-col justify-center max-w-6xl mx-auto px-6 pt-32"
     >
       <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-lg">
         Hola, mi nombre es

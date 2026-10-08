@@ -56,6 +56,10 @@ búsqueda de empleo.
       `/_next/static/media/`: bloqueaban el JS y las fuentes que Googlebot
       necesita para renderizar (el contenido con fade-in arranca en
       `opacity-0`) (8 oct 2026).
+- [x] **Captura en blanco en la Inspección de URL.** Googlebot renderiza con
+      un viewport tan alto como la página, y el hero (`min-h-screen` +
+      `justify-center`) dejaba el texto fuera de la captura. Altura limitada
+      a `min(100vh, 56rem)` en `Hero.tsx` (8 oct 2026).
 - [x] **Panel lateral de blog/juegos colapsado al cargar.** Antes se abría solo
       al montar (`setOpen(true)` en `BlogPanel.tsx`), tapando contenido nada
       más entrar. Ahora arranca cerrado y solo se ven los dos iconos
