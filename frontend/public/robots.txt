@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
+# Panel privado: no debe rastrearse. Los enlaces internos a /admin/login llevan rel="nofollow".
 Disallow: /admin/
-Disallow: /_next/static/media/
-Disallow: /_next/static/chunks/
+# /_next/static/ (JS y fuentes) NO se bloquea: Googlebot lo necesita para renderizar la página.
 
 Sitemap: https://bohdeveloper.com/sitemap.xml

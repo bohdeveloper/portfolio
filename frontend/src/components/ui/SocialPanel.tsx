@@ -110,6 +110,7 @@ export default function SocialPanel() {
           <li>
             <a
               href="/admin/login"
+              rel="nofollow"
               aria-label="admin"
               className="group transition"
               style={{ opacity: 0.18 }}
@@ -246,6 +247,7 @@ export default function SocialPanel() {
         {/* Admin — candado discreto */}
         <a
           href="/admin/login"
+          rel="nofollow"
           aria-label="admin"
           className="transition"
           style={{ opacity: 0.18 }}

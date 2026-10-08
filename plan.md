@@ -48,6 +48,14 @@ búsqueda de empleo.
 - [x] **CV de octubre.** Sustituidos los dos PDF (sector público y producto)
       por la versión nueva, manteniendo los nombres de fichero para no romper
       enlaces ni el sitemap (8 oct 2026).
+- [x] **Aviso de Search Console "Bloqueada por robots.txt".** El bloqueo de
+      `/admin/` es intencionado; las URLs afectadas son casi seguro
+      `/admin/login` y `/admin/dashboard`, descubiertas por los dos enlaces
+      del candado en `SocialPanel.tsx`, que ahora llevan `rel="nofollow"`.
+      Quitados de `robots.txt` los `Disallow` de `/_next/static/chunks/` y
+      `/_next/static/media/`: bloqueaban el JS y las fuentes que Googlebot
+      necesita para renderizar (el contenido con fade-in arranca en
+      `opacity-0`) (8 oct 2026).
 - [x] **Panel lateral de blog/juegos colapsado al cargar.** Antes se abría solo
       al montar (`setOpen(true)` en `BlogPanel.tsx`), tapando contenido nada
       más entrar. Ahora arranca cerrado y solo se ven los dos iconos
