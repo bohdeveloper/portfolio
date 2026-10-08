@@ -42,7 +42,9 @@ búsqueda de empleo.
       PNG original; foto en blanco y negro con contraste ligero) y regenerado
       `favicon.ico` con la misma foto en color, recorte circular y tamaños de
       16 a 256 px. El PNG también es la imagen Open Graph y la de Schema.org
-      (8 oct 2026).
+      (8 oct 2026). Ajuste posterior el mismo día: la foto de la web usa
+      toda la altura del original para que no corte cabeza ni hombros, y el
+      favicon pasa a blanco y negro.
 - [x] **Panel lateral de blog/juegos colapsado al cargar.** Antes se abría solo
       al montar (`setOpen(true)` en `BlogPanel.tsx`), tapando contenido nada
       más entrar. Ahora arranca cerrado y solo se ven los dos iconos
