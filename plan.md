@@ -37,6 +37,12 @@ búsqueda de empleo.
       `migrations/blog-del-cobre-al-codigo.sql` (portada SVG propia en base64,
       `ai_generated=1` por invariante 9). Ejecutada en remoto tras reautenticar
       `wrangler` (28 sep 2026).
+- [x] **Foto de perfil y favicon nuevos.** Sustituida la foto dentro del
+      círculo de `images/Borja-Olazabal.png` (se conservan anillo y puntos del
+      PNG original; foto en blanco y negro con contraste ligero) y regenerado
+      `favicon.ico` con la misma foto en color, recorte circular y tamaños de
+      16 a 256 px. El PNG también es la imagen Open Graph y la de Schema.org
+      (8 oct 2026).
 - [x] **Panel lateral de blog/juegos colapsado al cargar.** Antes se abría solo
       al montar (`setOpen(true)` en `BlogPanel.tsx`), tapando contenido nada
       más entrar. Ahora arranca cerrado y solo se ven los dos iconos
