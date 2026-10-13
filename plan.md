@@ -79,6 +79,15 @@ búsqueda de empleo.
       propias de Claude Code (`frontend-designer`, `grafo-designer`,
       `kickstack`, `marketing-team-skills`, `security-master`,
       `spec-driven`) (28 sep 2026).
+- [x] **Certificaciones de IA planificadas + Spring AI en ayudas_gv.** Bloque
+      «Formación en IA» en `Aprendizaje.tsx` (5 cursos, estado nuevo
+      «Planificado», filas compactas bajo el grid por el invariante 3). Spring
+      AI añadido a ayudas_gv como «en desarrollo» (asistente RAG sobre
+      normativa), no como integrado, por el invariante 5. Migración
+      `migrations/projects-ayudas-gv-spring-ai.sql` (13 oct 2026).
+      - [x] Ejecutar la migración en remoto (13 oct 2026).
+      - [ ] Cuando exista el código de Spring AI en el repo, pasar el texto de
+            «en desarrollo» a descripción de lo implementado.
 - [ ] **REXIA en el portfolio.** Ocupa el primer puesto de la sección de proyectos
       y todavía no tiene repositorio público ni código. En cuanto exista:
       - [ ] `UPDATE projects SET github_url='https://github.com/bohdeveloper/rexia' WHERE slug='rexia';`

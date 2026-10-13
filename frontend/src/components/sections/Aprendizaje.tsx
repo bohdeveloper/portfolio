@@ -28,6 +28,47 @@ const FP_MEDIO = [
   { titulo: "F.P. Grado Medio — Mecanizado",   centro: "Irungo La Salle", anio: "2008-2010" },
 ];
 
+/* Cursos de IA aplicada al stack Java, en el orden en que se van a hacer.
+   Estado «Planificado»: aún no empezados, no se presentan como en curso
+   (invariante 5). Enlaces comprobados; ninguno es un 404 (invariante 4). */
+const FORMACION_IA = [
+  {
+    curso: "Claude Code in Action",
+    plataforma: "Anthropic Academy",
+    coste: "Gratis · certificado de finalización",
+    link: "https://anthropic.skilljar.com/claude-code-in-action",
+    estado: "Planificado",
+  },
+  {
+    curso: "Introduction to Model Context Protocol",
+    plataforma: "Anthropic Academy",
+    coste: "Gratis",
+    link: "https://anthropic.skilljar.com/introduction-to-model-context-protocol",
+    estado: "Planificado",
+  },
+  {
+    curso: "Spring AI",
+    plataforma: "Documentación oficial de Spring",
+    coste: "Gratis",
+    link: "https://docs.spring.io/spring-ai/reference/",
+    estado: "Planificado",
+  },
+  {
+    curso: "Spec-Driven Development with Coding Agents",
+    plataforma: "DeepLearning.AI · JetBrains",
+    coste: "Gratis",
+    link: "https://www.deeplearning.ai/short-courses/spec-driven-development-with-coding-agents/",
+    estado: "Planificado",
+  },
+  {
+    curso: "AI Agents Course",
+    plataforma: "Hugging Face",
+    coste: "Gratis · certificado gratuito",
+    link: "https://huggingface.co/learn/agents-course",
+    estado: "Planificado",
+  },
+];
+
 export default function Aprendizaje() {
   const holo = useCardHolo();
   const cursos = [
@@ -277,6 +318,43 @@ export default function Aprendizaje() {
             </span>
           </div>
         ))}
+      </div>
+
+      {/* FORMACIÓN EN IA — filas compactas, sin tarjetas holo: la IA es
+          complemento del stack, no titular (invariante 3) */}
+      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+          Formación en IA
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mb-4">
+          IA aplicada al stack Java: trabajar con agentes de código, MCP y
+          Spring AI. Ruta planificada, en este orden; no todos los cursos emiten certificado.
+        </p>
+        <ol className="space-y-3">
+          {FORMACION_IA.map((c, i) => (
+            <li key={c.curso} className="flex items-baseline gap-3">
+              <span className="text-primary font-mono text-sm" aria-hidden>
+                {i + 1}
+              </span>
+              <span className="flex-1">
+                <a
+                  href={c.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary underline-offset-4 hover:underline"
+                >
+                  {c.curso}
+                </a>
+                <span className="block text-xs text-gray-500">
+                  {c.plataforma} · {c.coste}
+                </span>
+              </span>
+              <span className="shrink-0 text-xs px-2.5 py-0.5 rounded-full border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400">
+                {c.estado}
+              </span>
+            </li>
+          ))}
+        </ol>
       </div>
 
       {/* FORMACIÓN REGLADA PREVIA — discreta, en una línea por título */}

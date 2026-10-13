@@ -82,10 +82,10 @@ const FALLBACK: Project[] = [
     nombre: "ayudas_gv",
     slug: "ayudas-gv",
     descripcion:
-      "Proyecto de práctica sobre contenerización y orquestación: manifiestos, servicios, ingress y gestión de configuración en Minikube.",
-    architecture: "Contenerización y orquestación",
-    tags: "Spring Boot,Docker,Kubernetes",
-    tecnologias: ["Spring Boot", "Docker", "Kubernetes"],
+      "Proyecto de práctica sobre contenerización y orquestación: manifiestos, servicios, ingress y gestión de configuración en Minikube. En desarrollo: integración de Spring AI para un asistente RAG que responda dudas sobre una ayuda usando la normativa como fuente.",
+    architecture: "Contenerización, orquestación y RAG",
+    tags: "Spring Boot,Spring AI,Docker,Kubernetes",
+    tecnologias: ["Spring Boot", "Spring AI", "Docker", "Kubernetes"],
     github: "https://github.com/bohdeveloper/ayudas-gv",
   },
   {
