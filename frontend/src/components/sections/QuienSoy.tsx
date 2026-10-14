@@ -27,21 +27,23 @@ export default function QuienSoy() {
   return (
     <section
       id="quien-soy"
-      className="max-w-6xl mx-auto px-6 py-28 flex flex-col md:flex-row items-center gap-2 md:gap-12"
+      className="max-w-6xl mx-auto px-6 py-20 flex flex-col md:flex-row md:items-start gap-8 md:gap-12"
     >
 
       {/* IMAGEN */}
-      <div className="flex-1 flex justify-center md:justify-end">
+      {/* En escritorio la imagen queda fija arriba a la izquierda mientras se
+          lee el texto, en vez de flotar centrada en una columna más alta. */}
+      <div className="flex justify-center md:justify-start md:w-5/12 md:flex-shrink-0 md:sticky md:top-28">
         <img
           src="../../../images/Borja-Olazabal.png"
           alt="Borja Olazabal, desarrollador Java, Spring y Spring Boot en el norte de España"
           ref={ref}
-          className={`w-5/2 sm:w-3/4 md:w-full max-w-sm sm:max-w-md md:max-w-none opacity-0 ${visible ? "fade-in-up" : "opacity-0"}`}
+          className={`w-3/4 md:w-full max-w-sm md:max-w-none opacity-0 ${visible ? "fade-in-up" : "opacity-0"}`}
         />
       </div>
 
       {/* TEXTO */}
-      <div className="flex-1 space-y-6 text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+      <div className="md:w-7/12 space-y-4 text-base md:text-[1.05rem] leading-relaxed text-gray-700 dark:text-gray-300">
         <h2 className="text-3xl font-bold text-black dark:text-white flex items-center gap-3">
           <span className="text-primary text-4xl">⌁</span>
           Acerca de mí
@@ -50,11 +52,7 @@ export default function QuienSoy() {
         <p>
           Me llamo <strong>Borja Olazabal</strong> y llevo cinco años
           desarrollando aplicaciones para la <strong>Administración Pública
-          autonómica</strong>.
-        </p>
-
-        <p>
-          Entre 2021 y 2026 he trabajado para{" "}
+          autonómica</strong>. Entre 2021 y 2026 he trabajado para{" "}
           <a
             href="https://www.ejie.euskadi.eus/quienes-somos/-/somos-ejie/"
             target="_blank"
@@ -100,9 +98,6 @@ export default function QuienSoy() {
           un curso de publicación web, hice las prácticas en 2020 y obtuve el
           certificado de profesionalidad de nivel 3 en 2021.{" "}
           <u>No fue un impulso: fueron dos años de transición planificada</u>.
-        </p>
-
-        <p>
           Ese perfil técnico sigue vigente: también busco puestos de
           instalaciones eléctricas, mantenimiento o automatización, y tengo un{" "}
           <a href="#experiencia" className="text-primary hover:underline">
@@ -130,9 +125,9 @@ export default function QuienSoy() {
         </p>
 
         {/* TECNOLOGÍAS — dos grupos etiquetados */}
-        <div className="space-y-5 pt-2">
+        <div className="space-y-4 pt-1">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
               Experiencia profesional
             </p>
             <ul className="flex flex-wrap gap-2">
@@ -148,7 +143,7 @@ export default function QuienSoy() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
               Perfil técnico · oficio
             </p>
             <ul className="flex flex-wrap gap-2">
@@ -164,7 +159,7 @@ export default function QuienSoy() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
               Proyectos propios
             </p>
             <ul className="flex flex-wrap gap-2">
