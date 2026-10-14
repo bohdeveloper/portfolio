@@ -31,13 +31,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     /* Los CV entran en el sitemap: son PDF indexables y contienen las mismas
        palabras clave por las que se busca el perfil. */
     {
-      url: `${baseUrl}/cv/borja-olazabal-backend-sector-publico.pdf`,
+      url: `${baseUrl}/cv/borja-olazabal-programador.pdf`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/cv/borja-olazabal-fullstack-producto.pdf`,
+      url: `${baseUrl}/cv/borja-olazabal-tecnico.pdf`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5,

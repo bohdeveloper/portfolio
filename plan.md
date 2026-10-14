@@ -48,6 +48,17 @@ búsqueda de empleo.
 - [x] **CV de octubre.** Sustituidos los dos PDF (sector público y producto)
       por la versión nueva, manteniendo los nombres de fichero para no romper
       enlaces ni el sitemap (8 oct 2026).
+- [x] **Perfil técnico: CV, experiencia y formación (14 oct 2026).** Los dos
+      CV (sector público y producto) se unen en un único CV de programador y
+      se añade un CV técnico. PDF nuevos en `public/cv/` como
+      `borja-olazabal-programador.pdf` y `borja-olazabal-tecnico.pdf`; los
+      tres nombres antiguos redirigen con 301 al de programador y el sitemap
+      se actualiza. `CVDownload.tsx` con las dos opciones nuevas.
+      `Experiencia.tsx` gana un conmutador Programación / Técnica (la técnica
+      sustituye a la lista «Experiencia previa»). `Aprendizaje.tsx`: la
+      «Formación reglada previa» pasa a «Formación técnica» con Electricidad
+      (REBT), Mecanizado y Carpintería y Mueble (cursado, pendiente del
+      módulo de prácticas). Invariante 7 reescrito en spec.md.
 - [x] **Aviso de Search Console "Bloqueada por robots.txt".** El bloqueo de
       `/admin/` es intencionado; las URLs afectadas son casi seguro
       `/admin/login` y `/admin/dashboard`, descubiertas por los dos enlaces

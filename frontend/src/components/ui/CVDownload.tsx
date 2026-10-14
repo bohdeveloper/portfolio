@@ -5,30 +5,30 @@ import { useEffect, useRef, useState } from "react";
 /* ============================
    CV — SELECTOR DE VERSIÓN
 
-   Dos CV con el mismo contenido base pero distinto enfoque. Se etiquetan
-   por el stack que busca quien descarga, no por la taxonomía interna
-   («sector público» / «producto»), que fuera de contexto no dice nada.
+   Dos CV según el tipo de puesto que busca quien descarga: el de programador
+   (perfil de desarrollo) y el técnico (oficio: electricidad, mecanizado,
+   carpintería). Los nombres de fichero son estables; ver invariante 7.
 
    El desplegable es la variante de escritorio; en móvil el mismo panel se
    presenta como modal a pantalla completa, donde un dropdown flotante
    resulta incómodo de acertar con el dedo.
 ============================ */
 
-export const CV_BACKEND = "/cv/borja-olazabal-backend-sector-publico.pdf";
-export const CV_FULLSTACK = "/cv/borja-olazabal-fullstack-producto.pdf";
+export const CV_PROGRAMADOR = "/cv/borja-olazabal-programador.pdf";
+export const CV_TECNICO = "/cv/borja-olazabal-tecnico.pdf";
 
 const OPCIONES = [
   {
-    href: CV_BACKEND,
-    titulo: "Backend & Sector público",
-    stack: "Java · Spring Boot · Oracle · JSP",
-    descarga: "borja-olazabal-backend-sector-publico.pdf",
+    href: CV_PROGRAMADOR,
+    titulo: "Programador web",
+    stack: "Java · Spring Boot · Oracle · Next.js",
+    descarga: "borja-olazabal-programador.pdf",
   },
   {
-    href: CV_FULLSTACK,
-    titulo: "Fullstack & Producto",
-    stack: "React · Next.js · Node · Docker",
-    descarga: "borja-olazabal-fullstack-producto.pdf",
+    href: CV_TECNICO,
+    titulo: "Técnico industrial",
+    stack: "Electricidad · Mecanizado · Carpintería",
+    descarga: "borja-olazabal-tecnico.pdf",
   },
 ];
 

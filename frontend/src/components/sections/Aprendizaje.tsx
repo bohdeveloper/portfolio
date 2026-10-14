@@ -22,10 +22,30 @@ const CERTIFICADO = {
   link: "/images/diploma_ipartek.jpg",
 };
 
-/* Formación reglada previa a la reconversión al desarrollo. */
-const FP_MEDIO = [
-  { titulo: "F.P. Grado Medio — Electricidad", centro: "Irungo La Salle", anio: "2012-2014" },
-  { titulo: "F.P. Grado Medio — Mecanizado",   centro: "Irungo La Salle", anio: "2008-2010" },
+/* Formación técnica reglada, previa a la reconversión al desarrollo. Misma
+   información que el CV técnico (invariante 5): Carpintería está cursada pero
+   sin el módulo de prácticas, y así se dice. */
+const FORMACION_TECNICA = [
+  {
+    titulo: "Técnico en Instalaciones Eléctricas y Automáticas",
+    nivel: "F.P. Grado Medio",
+    centro: "Irungo La Salle",
+    anio: "2012-2014",
+    nota: "Título válido para trabajar como instalador en baja tensión (REBT)",
+  },
+  {
+    titulo: "Técnico en Mecanizado",
+    nivel: "F.P. Grado Medio",
+    centro: "Irungo La Salle",
+    anio: "2010",
+  },
+  {
+    titulo: "Carpintería y Mueble",
+    nivel: "F.P. Grado Medio · cursado",
+    centro: "Centro Bidasoa (Irun)",
+    anio: "2016-2018",
+    nota: "Pendiente del módulo de prácticas",
+  },
 ];
 
 /* Cursos de IA aplicada al stack Java, en el orden en que se van a hacer.
@@ -357,21 +377,34 @@ export default function Aprendizaje() {
         </ol>
       </div>
 
-      {/* FORMACIÓN REGLADA PREVIA — discreta, en una línea por título */}
+      {/* FORMACIÓN TÉCNICA — oficio, previa a la reconversión. Va completa y
+          no en una línea: es la base del perfil técnico del CV. */}
       <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">
-          Formación reglada previa
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+          Formación técnica
         </h3>
-        <ul className="flex flex-col sm:flex-row gap-4 sm:gap-10">
-          {FP_MEDIO.map((f) => (
-            <li key={f.titulo} className="flex items-baseline gap-3">
-              <span className="text-primary" aria-hidden>▸</span>
-              <span>
-                <span className="block text-gray-700 dark:text-gray-300">{f.titulo}</span>
-                <span className="block text-xs text-gray-500 dark:text-gray-500">
-                  {f.centro} · {f.anio}
-                </span>
+        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mb-5">
+          Electricidad, mecanizado y carpintería: formación reglada de oficio,
+          anterior al cambio al desarrollo de software.
+        </p>
+        <ul className="grid gap-5 md:grid-cols-3">
+          {FORMACION_TECNICA.map((f) => (
+            <li
+              key={f.titulo}
+              className="border-l-2 border-cyan-400/60 pl-4"
+            >
+              <span className="block font-medium text-gray-800 dark:text-gray-200">
+                {f.titulo}
               </span>
+              <span className="block text-sm text-gray-600 dark:text-gray-400">
+                {f.nivel}
+              </span>
+              <span className="block text-xs text-gray-500 dark:text-gray-500">
+                {f.centro} · {f.anio}
+              </span>
+              {f.nota && (
+                <span className="block mt-1 text-xs text-primary">{f.nota}</span>
+              )}
             </li>
           ))}
         </ul>

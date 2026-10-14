@@ -76,7 +76,7 @@ portfolio/
 │   ├── src/components/          layout/ · sections/ · ui/
 │   ├── src/hooks/               useCardHolo · useFadeInOnScroll
 │   ├── functions/api/           API por dominio (auth, blog, tracker…)
-│   ├── public/cv/               Los dos PDF de currículum
+│   ├── public/cv/               Los dos PDF de currículum (programador y técnico)
 │   ├── public/games/            Minijuegos HTML standalone
 │   └── schema.sql               Tablas base
 ├── migrations/                  Cambios de datos versionados, un fichero por cambio
@@ -144,10 +144,14 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
 6. **El orden de la sección de proyectos es editorial, no cronológico.** Lo fija
    `ORDEN_SLUGS` en `Proyectos.tsx`, no `featured` ni `created_at` de D1. Orden
    actual: REXIA · BAKO · ayudas_gv · Unyona · Diamadmin.
-7. **Dos CV, mismos nombres de fichero para siempre.** `backend-sector-publico` y
-   `fullstack-producto` en `/cv/`. Al actualizarlos se sustituye el contenido pero
-   nunca el nombre, porque las URLs están en el sitemap, en la redirección 301 de
-   la ruta antigua y posiblemente enlazadas desde fuera.
+7. **Dos CV: `programador` y `tecnico`, con nombres de fichero estables.**
+   `borja-olazabal-programador.pdf` y `borja-olazabal-tecnico.pdf` en `/cv/`.
+   Al actualizarlos se sustituye el contenido pero nunca el nombre. Los nombres
+   anteriores (`backend-sector-publico`, `fullstack-producto` y la ruta raíz
+   `borja-olazabal-programador-web-cv.pdf`) redirigen con 301 al de programador
+   en `_redirects` y no deben retirarse: pueden estar enlazados desde fuera.
+   Cambio del 14 oct 2026: los dos CV de programación se fundieron en uno y se
+   añadió el técnico.
 8. **Un solo `<h1>` por página**, el del hero. Las secciones son `<h2>`.
 9. **Cumplimiento del EU AI Act.** Todo contenido generado con IA lleva aviso
    visible: artículos del blog y descripciones de juegos.

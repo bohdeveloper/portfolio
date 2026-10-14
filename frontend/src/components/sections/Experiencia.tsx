@@ -6,9 +6,9 @@ interface Empleo {
   empresa: string;
   puesto: string;
   fecha: string;
-  ubicacion: string;
+  ubicacion?: string;
   cliente?: string;
-  link: string;
+  link?: string;
   tareas: React.ReactNode[];
 }
 
@@ -147,21 +147,55 @@ const tabs: Empleo[] = [
   },
 ];
 
-/* Etapa anterior al cambio de carrera. Va agrupada y no como pestañas: son
-   seis puestos que no aportan nada técnico y, en una lista de pestañas,
-   diluirían los cuatro que sí cuentan. Es la misma separación que hace el CV. */
-const PREVIA = [
-  { empresa: "Puertas Jokin",  puesto: "Carpintero de puertas",                        fecha: "sep 2020 ┉ nov 2020" },
-  { empresa: "Muebles Amets",  puesto: "Carpintero y montador de muebles y cocina",    fecha: "may 2019 ┉ ago 2019" },
-  { empresa: "Likale",         puesto: "Especialista en torno convencional",           fecha: "dic 2018 ┉ may 2019" },
-  { empresa: "W. Diamant",     puesto: "Operario fabricante · herramientas de diamante", fecha: "nov 2016 ┉ nov 2018" },
+/* Experiencia de oficio, previa al cambio de carrera. Mismos puestos y fechas
+   que el CV técnico (invariante 5: la web no afirma más que el CV). Sin
+   enlace ni ubicación: el CV no los recoge y no se inventan. */
+const TECNICA: Empleo[] = [
+  {
+    empresa: "Puertas Jokin",
+    puesto: "Carpintero de puertas",
+    fecha: "Septiembre ┉ Noviembre 2020",
+    tareas: [<>Fabricación y montaje de puertas.</>],
+  },
+  {
+    empresa: "Muebles Amets",
+    puesto: "Carpintero y montador",
+    fecha: "Mayo ┉ Agosto 2019",
+    tareas: [<>Montaje de muebles y cocinas.</>],
+  },
+  {
+    empresa: "Likale",
+    puesto: "Especialista en torno convencional",
+    fecha: "Diciembre 2018 ┉ Mayo 2019",
+    tareas: [<>Mecanizado de piezas en torno convencional.</>],
+  },
+  {
+    empresa: "W. Diamant",
+    puesto: "Operario fabricante",
+    fecha: "Noviembre 2016 ┉ Noviembre 2018",
+    tareas: [<>Fabricación de herramientas de diamante.</>],
+  },
+];
+
+type Perfil = "programacion" | "tecnica";
+
+const PERFILES: { id: Perfil; etiqueta: string }[] = [
+  { id: "programacion", etiqueta: "Programación" },
+  { id: "tecnica", etiqueta: "Técnica" },
 ];
 
 export default function Experiencia() {
   // Índice del array, no un id correlativo: añadir o reordenar empleos
   // no obliga a renumerar nada.
+  const [perfil, setPerfil] = useState<Perfil>("programacion");
   const [active, setActive] = useState(0);
-  const empleo = tabs[active];
+  const lista = perfil === "programacion" ? tabs : TECNICA;
+  const empleo = lista[active];
+
+  function cambiarPerfil(p: Perfil) {
+    setPerfil(p);
+    setActive(0);
+  }
 
   return (
     <section id="experiencia" className="max-w-6xl mx-auto px-6 py-32 mb-40">
@@ -170,7 +204,43 @@ export default function Experiencia() {
         Experiencia profesional
       </h2>
 
+      {/* CONMUTADOR DE PERFIL — programación (por defecto) o técnica */}
+      <div
+        role="group"
+        aria-label="Tipo de experiencia"
+        className="inline-flex mb-10 rounded border border-cyan-400/60 overflow-hidden"
+      >
+        {PERFILES.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => cambiarPerfil(p.id)}
+            aria-pressed={perfil === p.id}
+            className={`px-5 py-2 text-sm font-medium transition ${
+              perfil === p.id
+                ? "bg-cyan-400 text-black"
+                : "text-primary hover:bg-cyan-400/10"
+            }`}
+          >
+            {p.etiqueta}
+          </button>
+        ))}
+      </div>
+
+      {perfil === "tecnica" && (
+        <p className="max-w-3xl mb-10 text-gray-700 dark:text-gray-300">
+          Técnico en Instalaciones Eléctricas y Automáticas y Técnico en
+          Mecanizado, con experiencia en taller como tornero y operario de
+          fabricación, y como carpintero montador. Formación en el apartado{" "}
+          <a href="#aprendizaje" className="text-primary hover:underline">
+            Formación
+          </a>
+          .
+        </p>
+      )}
+
       {/* MARCO EJIE — el argumento más fuerte del perfil, antes de las pestañas */}
+      {perfil === "programacion" && (
       <div className="max-w-3xl mb-10 pl-5 border-l-2 border-primary">
         <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
           Entre <strong>noviembre de 2021 y julio de 2026</strong> he trabajado de
@@ -197,11 +267,12 @@ export default function Experiencia() {
           ))}
         </div>
       </div>
+      )}
 
       <div className="flex flex-col md:flex-row gap-12">
         {/* TABS */}
         <div className="flex flex-col gap-4 md:w-1/4 w-full">
-          {tabs.map((tab, i) => (
+          {lista.map((tab, i) => (
             <button
               key={tab.empresa}
               onClick={() => setActive(i)}
@@ -223,19 +294,22 @@ export default function Experiencia() {
             <h3 className="text-xl font-semibold">
               {empleo.puesto} · {empleo.empresa}
             </h3>
-            <a
-              href={empleo.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-              aria-label={`Web de ${empleo.empresa}`}
-            >
-              ↗
-            </a>
+            {empleo.link && (
+              <a
+                href={empleo.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+                aria-label={`Web de ${empleo.empresa}`}
+              >
+                ↗
+              </a>
+            )}
           </div>
 
           <p className="text-gray-600 dark:text-gray-400">
-            {empleo.fecha} · {empleo.ubicacion}
+            {empleo.fecha}
+            {empleo.ubicacion && ` · ${empleo.ubicacion}`}
           </p>
 
           {empleo.cliente && (
@@ -253,50 +327,37 @@ export default function Experiencia() {
         </div>
       </div>
 
-      {/* EXPERIENCIA PREVIA — antes del cambio de carrera */}
-      <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-5">
-          Experiencia previa · industria y carpintería
-        </h3>
-
-        <ul className="space-y-2.5 max-w-3xl">
-          {PREVIA.map((p) => (
-            <li
-              key={p.empresa}
-              className="flex flex-col sm:flex-row sm:items-baseline sm:gap-4 text-sm"
-            >
-              <span className="font-medium text-gray-700 dark:text-gray-300 sm:w-40 flex-shrink-0">
-                {p.empresa}
-              </span>
-              <span className="text-gray-600 dark:text-gray-400 flex-1">
-                {p.puesto}
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-500 sm:text-right flex-shrink-0">
-                {p.fecha}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <p className="mt-5 text-sm text-gray-600 dark:text-gray-400 max-w-3xl">
+      {perfil === "programacion" && (
+        <p className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400 max-w-3xl">
           Cambio de carrera al desarrollo de software en 2020, con formación por
-          cuenta propia y certificación oficial de nivel 3.
+          cuenta propia y certificación oficial de nivel 3. Antes, cuatro años de
+          oficio en taller y carpintería:{" "}
+          <button
+            type="button"
+            onClick={() => cambiarPerfil("tecnica")}
+            className="text-primary hover:underline"
+          >
+            ver experiencia técnica
+          </button>
+          .
         </p>
-      </div>
+      )}
 
-      {/* TEXTO SEO SECUNDARIO COLAPSABLE */}
-      <details className="mt-12 max-w-3xl">
-        <summary className="cursor-pointer text-sm text-primary hover:underline">
-          Ver contexto profesional
-        </summary>
-        <p className="mt-4 text-gray-700 dark:text-gray-300">
-          Esta trayectoria como <strong>programador web</strong> en proyectos de{" "}
-          <strong>Administración Pública</strong> se complementa con proyectos
-          propios, formación continua y especialización en tecnologías modernas de
-          desarrollo web. Busco posiciones de <strong>backend o fullstack con Java,
-          Spring y Spring Boot</strong> en el norte de España o en remoto.
-        </p>
-      </details>
+      {/* TEXTO SEO SECUNDARIO COLAPSABLE — solo con el perfil de programación */}
+      {perfil === "programacion" && (
+        <details className="mt-12 max-w-3xl">
+          <summary className="cursor-pointer text-sm text-primary hover:underline">
+            Ver contexto profesional
+          </summary>
+          <p className="mt-4 text-gray-700 dark:text-gray-300">
+            Esta trayectoria como <strong>programador web</strong> en proyectos de{" "}
+            <strong>Administración Pública</strong> se complementa con proyectos
+            propios, formación continua y especialización en tecnologías modernas de
+            desarrollo web. Busco posiciones de <strong>backend o fullstack con Java,
+            Spring y Spring Boot</strong> en el norte de España o en remoto.
+          </p>
+        </details>
+      )}
 
       {/* CV — selector de versión */}
       <div className="mt-10">

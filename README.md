@@ -41,7 +41,7 @@ Cloudflare Pages (CDN global, ~300 PoPs)
 
 ### Portfolio público
 Landing con experiencia, proyectos, formación y contacto · selector de CV con dos
-versiones · case studies en `/projects?slug=xxx` · modo claro/oscuro · tarjetas con
+versiones (programador y técnico) · experiencia y formación técnicas · case studies en `/projects?slug=xxx` · modo claro/oscuro · tarjetas con
 efecto holográfico · SEO técnico con JSON-LD.
 
 ### Blog técnico — `/blog`
@@ -82,7 +82,7 @@ portfolio/
 │   │   ├── admin/_middleware.ts Protección de /admin/*
 │   │   └── api/                 auth · blog · tracker · moneta ·
 │   │                            bioptima · tintai · projects · games · admin
-│   ├── public/cv/               Los dos PDF de currículum
+│   ├── public/cv/               Los dos PDF de currículum (programador y técnico)
 │   ├── public/games/            Minijuegos HTML standalone
 │   └── schema.sql               Tablas base
 ├── migrations/                  Cambios de datos versionados
