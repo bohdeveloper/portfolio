@@ -46,6 +46,16 @@ export default function Hero() {
         </span>
       </div>
 
+      {/* PERFIL TÉCNICO — subordinado al de programación (invariante 1): una
+          línea discreta, sin tocar el h1 ni el stack. */}
+      <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 max-w-2xl">
+        Doble perfil: también técnico industrial (electricidad, mecanizado y
+        carpintería).{" "}
+        <a href="#experiencia" className="text-primary hover:underline">
+          Ver experiencia técnica
+        </a>
+      </p>
+
       {/* Mismo distintivo que la cabecera de los CV, para que el criterio sea
           el mismo en los dos documentos. Va después del stack y de la
           disponibilidad, no por delante: es un complemento, no el titular. */}

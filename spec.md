@@ -171,6 +171,12 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
     porque Spring Boot no se haya usado; si se actualizan los CV en el futuro,
     conviene añadir Spring Boot ahí también.
 
+14. **El perfil técnico es secundario en la home.** Desde el 14 oct 2026 el
+    Hero y «Acerca de mí» mencionan el perfil técnico (electricidad,
+    mecanizado, carpintería), pero el `<h1>`, el stack del hero y el orden de
+    prioridades del invariante 1 no cambian: el perfil técnico va en una línea
+    discreta y en su propio grupo de etiquetas, nunca por delante.
+
 ---
 
 ## 4. Sistema de diseño y convenciones UI

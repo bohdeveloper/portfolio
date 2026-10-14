@@ -59,6 +59,12 @@ búsqueda de empleo.
       «Formación reglada previa» pasa a «Formación técnica» con Electricidad
       (REBT), Mecanizado y Carpintería y Mueble (cursado, pendiente del
       módulo de prácticas). Invariante 7 reescrito en spec.md.
+- [x] **Perfil técnico en Hero y «Acerca de mí» (14 oct 2026).** Una línea
+      de «doble perfil» en `Hero.tsx` (h1 y stack intactos) y, en
+      `QuienSoy.tsx`, la titulación técnica en el párrafo de la transición,
+      un párrafo sobre el perfil técnico y un tercer grupo de etiquetas con
+      las competencias del CV técnico. Decisión registrada en spec.md §3
+      (invariante 14).
 - [x] **Aviso de Search Console "Bloqueada por robots.txt".** El bloqueo de
       `/admin/` es intencionado; las URLs afectadas son casi seguro
       `/admin/login` y `/admin/dashboard`, descubiertas por los dos enlaces

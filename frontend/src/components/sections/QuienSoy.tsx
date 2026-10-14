@@ -10,6 +10,13 @@ const STACK_PROFESIONAL = [
   "SVN", "Eclipse", "Maven", "JUnit",
 ];
 
+/* Perfil técnico: mismas competencias que el CV técnico (invariante 5). */
+const PERFIL_TECNICO = [
+  "Instalaciones de baja tensión", "Cuadros eléctricos", "Automatismos industriales",
+  "Domótica", "Torno convencional", "Fresado", "CNC", "Metrología",
+  "Lectura de planos", "Montaje de muebles y cocinas",
+];
+
 const STACK_PROPIO = [
   "Angular", "React", "Next.js", "TypeScript", "Tailwind", "Node.js",
   "Express", "PostgreSQL", "MongoDB", "Docker", "Kubernetes", "Cloudflare", "Git",
@@ -87,10 +94,21 @@ export default function QuienSoy() {
         </p>
 
         <p>
-          Llegué al desarrollo desde la industria. En 2019 empecé un curso de
-          publicación web, hice las prácticas en 2020 y obtuve el certificado de
-          profesionalidad de nivel 3 en 2021.{" "}
+          Llegué al desarrollo desde la industria: soy Técnico en Instalaciones
+          Eléctricas y Automáticas y Técnico en Mecanizado, y trabajé como
+          tornero, operario de fabricación y carpintero montador. En 2019 empecé
+          un curso de publicación web, hice las prácticas en 2020 y obtuve el
+          certificado de profesionalidad de nivel 3 en 2021.{" "}
           <u>No fue un impulso: fueron dos años de transición planificada</u>.
+        </p>
+
+        <p>
+          Ese perfil técnico sigue vigente: también busco puestos de
+          instalaciones eléctricas, mantenimiento o automatización, y tengo un{" "}
+          <a href="#experiencia" className="text-primary hover:underline">
+            CV técnico
+          </a>{" "}
+          aparte.
         </p>
 
         <p>
@@ -122,6 +140,22 @@ export default function QuienSoy() {
                 <li
                   key={t}
                   className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
+                >
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-3">
+              Perfil técnico · oficio
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {PERFIL_TECNICO.map((t) => (
+                <li
+                  key={t}
+                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
                 >
                   {t}
                 </li>
