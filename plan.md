@@ -74,6 +74,27 @@ búsqueda de empleo.
       laboratorio de la ruta (migración + FALLBACK). La sección se divide en
       «Formación realizada» y «Hoja de ruta». Migración
       `projects-ayudas-gv-laboratorio-ruta.sql` ejecutada en remoto.
+- [x] **Reorganización de la home hacia «Java senior → IA» (21 oct 2026).**
+      Fases:
+      1. Hero: trayectoria Industria → Desarrollo Java → IA aplicada; fuera
+         «doble perfil» y el distintivo «Potenciado por Claude».
+      2. «Acerca de mí»: enlace a Bilbomática, badges en cian y «Perfil
+         técnico» al final.
+      3. Orden de secciones (navbar y home): Formación → Experiencia →
+         Proyectos → IA.
+      4. Formación: técnica → transición → realizada en fila con flecha
+         (IFCD0112 destacada) → hoja de ruta en una línea con ficha emergente.
+      5. Proyectos: fuera Diamadmin (D1 `published = 0`); Unyona separada en
+         landing (terminada) y app (en desarrollo); secciones «Terminados» y
+         «En desarrollo» agrupadas por tecnología con enlace a la hoja de ruta.
+      6. Sección IA reconvertida en prueba de uso real, compacta.
+      7. Fuera juegos y panel lateral; blog archivado (URLs vivas, enlace en
+         el pie).
+      Datos en `migrations/projects-reorganizacion-oct-2026.sql`. Invariantes
+      1, 2, 3, 6, 8, 12, 14 y 15 actualizados en spec.md.
+      Bloque «Arquitectura de software» ampliado a petición de Borja: SOLID,
+      patrones de diseño, arquitecturas modernas, arquitectura de IA y agentes
+      e ingeniería de prompts, con recursos gratuitos verificados.
 - [x] **Aviso de Search Console "Bloqueada por robots.txt".** El bloqueo de
       `/admin/` es intencionado; las URLs afectadas son casi seguro
       `/admin/login` y `/admin/dashboard`, descubiertas por los dos enlaces

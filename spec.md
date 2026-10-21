@@ -125,25 +125,34 @@ diario en Bioptima se escribe una nota automática en el tracker.
 
 Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
 
-1. **El portfolio se posiciona como Java / Spring Boot / sector público.** El
-   argumento central son los cinco años continuados para EJIE (Gobierno Vasco).
-   Ante cualquier duda de contenido, gana lo que demuestre stack de administración
-   pública sobre lo que demuestre stack moderno.
+1. **El portfolio se posiciona como Java senior / sector público, con dirección
+   hacia la IA aplicada.** El argumento central son los cinco años continuados
+   para EJIE (Gobierno Vasco), y el `<h1>` sigue siendo «programador web». Desde
+   el 21 oct 2026 el hero declara una dirección: la trayectoria Industria →
+   Desarrollo Java → Ingeniería de IA aplicada. La IA es el siguiente paso, no
+   experiencia acreditada. Ante cualquier duda de contenido, gana lo que
+   demuestre stack de administración pública.
 2. **La separación entre stack profesional y stack de proyectos propios es
-   explícita y visible.** En «Acerca de mí» son dos grupos con tratamiento visual
-   distinto. El motivo es evitar que en una entrevista se dé por supuesto que
+   explícita y visible.** En «Acerca de mí» son grupos separados con su propio
+   título (desde el 21 oct 2026, todos en cian a petición de Borja; la
+   separación la marcan los títulos, no el color). El motivo es evitar que en una entrevista se dé por supuesto que
    React o Docker se han usado profesionalmente.
-3. **La IA es un complemento, no el titular.** Puede aparecer en el hero como
-   distintivo discreto —para unificar criterio con la cabecera de los CV— pero
-   nunca por delante del stack ni de la disponibilidad. La sección de IA va por
-   debajo de proyectos y formación.
+3. **La IA es dirección y prueba, no el titular.** En el hero aparece solo como
+   tercer tramo de la trayectoria («Siguiente paso»), nunca en el `<h1>` ni por
+   delante del stack. El distintivo «Potenciado por Claude» se retiró del hero
+   el 21 oct 2026 (el CV de programador aún lo lleva). La sección «IA en la
+   práctica» va por debajo de proyectos y formación y solo recoge uso real.
 4. **Nunca se publica un enlace roto.** Un proyecto sin repositorio muestra
    «Repositorio próximamente» en lugar de un botón que lleve a un 404.
 5. **La web no afirma más de lo que afirma el CV.** Si el CV dice que un producto
    está en validación, la web no lo describe como operativo.
-6. **El orden de la sección de proyectos es editorial, no cronológico.** Lo fija
-   `ORDEN_SLUGS` en `Proyectos.tsx`, no `featured` ni `created_at` de D1. Orden
-   actual: REXIA · BAKO · ayudas_gv · Unyona · Diamadmin.
+6. **Proyectos: estado real y agrupación editorial.** Dos secciones,
+   «Terminados» y «En desarrollo», según `ESTADO` en `Proyectos.tsx` (no se
+   deduce de la landing). Dentro, grupos por stack fijados en `GRUPOS`, cada
+   uno enlazado a sus bloques de la hoja de ruta (`#ruta-N`). Actual: Java y
+   Spring (REXIA, ayudas_gv) · IA (BAKO) · JavaScript full stack (Unyona app,
+   Unyona landing). Diamadmin despublicado y Nitflex/DevHelper aparcados
+   (21 oct 2026).
 7. **Dos CV: `programador` y `tecnico`, con nombres de fichero estables.**
    `borja-olazabal-programador.pdf` y `borja-olazabal-tecnico.pdf` en `/cv/`.
    Al actualizarlos se sustituye el contenido pero nunca el nombre. Los nombres
@@ -153,14 +162,19 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
    Cambio del 14 oct 2026: los dos CV de programación se fundieron en uno y se
    añadió el técnico.
 8. **Un solo `<h1>` por página**, el del hero. Las secciones son `<h2>`.
+   Orden de la home y del menú: Hero · Acerca de mí · Formación · Experiencia ·
+   Proyectos · IA · Contacto (21 oct 2026).
 9. **Cumplimiento del EU AI Act.** Todo contenido generado con IA lleva aviso
    visible: artículos del blog y descripciones de juegos.
 10. **Sin SSR.** Se evaluó y se descartó por riesgo de romper el despliegue en
     Cloudflare para el beneficio real que aportaba.
 11. **Sin librerías de gráficas.** Las visualizaciones de Moneta y Bioptima son
     SVG escrito a mano.
-12. **Los minijuegos son HTML standalone**, sin dependencias, comunicándose con el
-    panel lateral por `postMessage`.
+12. **Juegos fuera de la web pública; blog archivado.** Desde el 21 oct 2026
+    se retiró el panel lateral (`BlogPanel.tsx`) con blog y juegos. Los juegos
+    siguen en `public/games/` y en D1 para el admin, pero sin enlace público.
+    El blog sale del menú y queda enlazado solo desde el pie: sus URLs siguen
+    vivas porque los artículos están indexados.
 13. **Java, Spring y Spring Boot son los tres profesionales.** Los CV de sep 2026
     solo mencionan «Spring» en la experiencia profesional, pero Borja confirmó
     (16 sep 2026) que también ha usado Spring Boot en el puesto, junto con
@@ -171,16 +185,18 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
     porque Spring Boot no se haya usado; si se actualizan los CV en el futuro,
     conviene añadir Spring Boot ahí también.
 
-14. **El perfil técnico es secundario en la home.** Desde el 14 oct 2026 el
-    Hero y «Acerca de mí» mencionan el perfil técnico (electricidad,
-    mecanizado, carpintería), pero el `<h1>`, el stack del hero y el orden de
-    prioridades del invariante 1 no cambian: el perfil técnico va en una línea
-    discreta y en su propio grupo de etiquetas, nunca por delante.
+14. **El oficio es el origen, no un segundo perfil.** Desde el 21 oct 2026 el
+    hero no habla de «doble perfil»: la industria (mecanizado, electricidad,
+    carpintería) es el primer tramo de la trayectoria. En «Acerca de mí» el
+    grupo «Perfil técnico · oficio» va el último. El CV técnico sigue
+    existiendo para puestos de oficio.
 
-15. **Formación en dos partes: realizada y hoja de ruta.** Desde el 21 oct
-    2026, «Formación» separa lo terminado (certificado, cursos, formación
-    técnica) de la «Ruta hacia desarrollador senior» (`RutaSenior.tsx`): 10
-    bloques ordenados por peso en ofertas reales, solo recursos gratuitos.
+15. **Formación como recorrido y hoja de ruta.** Orden: formación técnica →
+    cambio de sector → formación en desarrollo realizada (IFCD0112 destacada),
+    ambas filas cronológicas con flecha → hoja de ruta «Del backend senior a
+    la IA aplicada» (`HojaDeRuta.tsx`). La hoja de ruta tiene 10 bloques
+    ordenados por peso en ofertas reales, solo con recursos gratuitos, en una
+    línea con ficha emergente por bloque.
     Un bloque solo cambia de `pendiente` a `en-curso` o `completado` (verde,
     con check y fecha) cuando lo está de verdad. Los bloques se practican en
     proyectos propios; ayudas_gv es el laboratorio principal.

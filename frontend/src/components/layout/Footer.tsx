@@ -9,6 +9,11 @@ export default function Footer() {
         <span className="block mt-1 text-xs text-gray-500 dark:text-gray-500">
           Programador web · Portfolio profesional
         </span>
+        {/* Blog archivado: sin entrada en el menú, pero sus URLs siguen vivas
+            porque los artículos están indexados. */}
+        <a href="/blog" className="inline-block mt-3 text-xs text-gray-500 dark:text-gray-500 hover:text-primary hover:underline">
+          Blog (archivo)
+        </a>
       </div>
     </footer>
   );

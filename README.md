@@ -40,19 +40,21 @@ Cloudflare Pages (CDN global, ~300 PoPs)
 ## Qué incluye
 
 ### Portfolio público
-Landing con experiencia, proyectos, formación y contacto · selector de CV con dos
-versiones (programador y técnico) · experiencia y formación técnicas · case studies en `/projects?slug=xxx` · modo claro/oscuro · tarjetas con
-efecto holográfico · SEO técnico con JSON-LD.
+Landing con trayectoria (industria → desarrollo Java → IA aplicada), formación
+con hoja de ruta interactiva, experiencia, proyectos por estado y stack, IA en
+la práctica y contacto · selector de CV con dos versiones (programador y
+técnico) · case studies en `/projects?slug=xxx` · modo claro/oscuro · tarjetas
+con efecto holográfico · SEO técnico con JSON-LD.
 
-### Blog técnico — `/blog`
+### Blog técnico — `/blog` (archivado)
 Editor WYSIWYG TipTap con portada comprimida en Canvas · filtro por tags ·
 reacciones emoji · comentarios con moderación y baneo de IPs · aviso de contenido
 generado con IA conforme al EU AI Act.
 
-### Minijuegos — `/games`
+### Minijuegos — retirados de la web pública
 Snake · Tetris · 2048 · Wordle (ES) · Flappy Bird. HTML standalone sin
-dependencias, controles de teclado y táctiles, récord en localStorage y
-comunicación con el panel lateral por `postMessage`.
+dependencias en `public/games/`, gestionables desde el admin pero sin enlace
+público desde octubre de 2026.
 
 ### Panel de administración — `/admin/dashboard`
 

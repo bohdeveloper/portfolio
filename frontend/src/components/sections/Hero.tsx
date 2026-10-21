@@ -1,5 +1,29 @@
 import CVDownload from "@/components/ui/CVDownload";
 
+/* Pasado (oficio), presente (desarrollo Java) y futuro (IA aplicada). El
+   futuro es una dirección declarada, no experiencia: no se le añaden
+   tecnologías como si ya se dominaran (invariante 5). */
+const TRAYECTORIA: { periodo: string; etapa: string; detalle: string; tipo: "pasado" | "presente" | "futuro" }[] = [
+  {
+    periodo: "2010 – 2020",
+    etapa: "Industria",
+    detalle: "Mecanizado, electricidad y carpintería: planos, tolerancias y piezas que tienen que encajar.",
+    tipo: "pasado",
+  },
+  {
+    periodo: "2021 – 2026",
+    etapa: "Desarrollo Java",
+    detalle: "Cinco años construyendo aplicaciones para el Gobierno Vasco.",
+    tipo: "presente",
+  },
+  {
+    periodo: "Siguiente paso",
+    etapa: "Ingeniería de IA aplicada",
+    detalle: "IA integrada en sistemas Java: Spring AI, RAG, MCP y agentes.",
+    tipo: "futuro",
+  },
+];
+
 export default function Hero() {
   return (
     /* Altura con tope: Googlebot renderiza con un viewport tan alto como la
@@ -46,37 +70,58 @@ export default function Hero() {
         </span>
       </div>
 
-      {/* PERFIL TÉCNICO — subordinado al de programación (invariante 1): una
-          línea discreta, sin tocar el h1 ni el stack. */}
-      <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 max-w-2xl">
-        Doble perfil: también técnico industrial (electricidad, mecanizado y
-        carpintería).{" "}
-        <a href="#experiencia" className="text-primary hover:underline">
-          Ver experiencia técnica
-        </a>
-      </p>
-
-      {/* Mismo distintivo que la cabecera de los CV, para que el criterio sea
-          el mismo en los dos documentos. Va después del stack y de la
-          disponibilidad, no por delante: es un complemento, no el titular. */}
-      <div className="flex items-center gap-2.5 mt-6">
-        <svg
-          viewBox="0 0 100 100"
-          className="w-5 h-5 text-primary flex-shrink-0"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <rect x="44" y="8" width="12" height="84" rx="6" />
-          <rect x="44" y="8" width="12" height="84" rx="6" transform="rotate(60, 50, 50)" />
-          <rect x="44" y="8" width="12" height="84" rx="6" transform="rotate(120, 50, 50)" />
-        </svg>
-        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none">
-          Potenciado por{" "}
-          <span className="font-semibold text-gray-700 dark:text-gray-300 normal-case tracking-normal">
-            Claude — Anthropic
-          </span>
-        </p>
-      </div>
+      {/* TRAYECTORIA — de dónde vengo, qué soy y hacia dónde voy. Sustituye
+          al antiguo «doble perfil» y al distintivo «Potenciado por Claude»:
+          la IA aparece como dirección, no como titular (invariante 3), y el
+          oficio como origen, no como segundo perfil (invariante 14). */}
+      <ol className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-0 max-w-3xl" aria-label="Trayectoria profesional">
+        {TRAYECTORIA.map((t, i) => (
+          <li key={t.etapa} className="relative flex sm:block items-start gap-3 sm:pr-6">
+            {/* Pista: tramo sólido hasta el presente, discontinuo hacia el futuro */}
+            <div className="hidden sm:flex items-center mb-3" aria-hidden="true">
+              <span
+                className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                  t.tipo === "futuro"
+                    ? "border-2 border-primary bg-transparent claude-pulse motion-reduce:animate-none"
+                    : t.tipo === "presente"
+                      ? "bg-primary shadow-[0_0_10px_rgba(34,211,238,0.7)]"
+                      : "bg-gray-400 dark:bg-gray-600"
+                }`}
+              />
+              {i < TRAYECTORIA.length - 1 && (
+                <span
+                  className={`flex-1 ml-2 border-t-2 ${
+                    TRAYECTORIA[i + 1].tipo === "futuro"
+                      ? "border-dashed border-primary/60"
+                      : "border-solid border-gray-400 dark:border-gray-600"
+                  }`}
+                />
+              )}
+            </div>
+            <span
+              className={`sm:hidden mt-1.5 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                t.tipo === "pasado" ? "bg-gray-400 dark:bg-gray-600" : t.tipo === "presente" ? "bg-primary" : "border-2 border-primary"
+              }`}
+              aria-hidden="true"
+            />
+            <div>
+              <p className="text-[11px] uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                {t.periodo}
+              </p>
+              <p
+                className={`font-semibold leading-snug ${
+                  t.tipo === "pasado" ? "text-gray-700 dark:text-gray-300" : "text-primary"
+                }`}
+              >
+                {t.etapa}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
+                {t.detalle}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
 
       <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-8 text-base sm:text-lg md:text-xl leading-relaxed">
         Especializado en <strong>aplicaciones web empresariales</strong>, diseñando, desarrollando y manteniendo:

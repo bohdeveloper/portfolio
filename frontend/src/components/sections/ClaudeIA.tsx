@@ -1,14 +1,13 @@
 "use client";
 
 /* ============================
-   IA — bloque compacto
+   IA EN LA PRÁCTICA
 
-   Sigue siendo un diferencial, pero ocupa el lugar que le corresponde:
-   después de proyectos y formación, sin ocupar pantalla completa.
-   graphify quedó retirado del flujo real (migrado a codebase-memory-mcp,
-   11 ago 2026): mantenerlo aquí habría afirmado algo que ya no es cierto.
-   En su lugar, solo se citan las skills propias sin profundizar en cada
-   una — es una mención, no una segunda sección de fondo.
+   Prueba de uso real que respalda la dirección del hero («Ingeniería de IA
+   aplicada»). La hoja de ruta de Formación dice lo que voy a aprender; esta
+   franja dice lo que ya hago. Solo hechos comprobables: lo que está en
+   desarrollo se marca como tal (invariante 5). Va después de proyectos y
+   formación (invariante 3).
 ============================ */
 
 const SKILLS_PROPIAS = [
@@ -20,85 +19,90 @@ const SKILLS_PROPIAS = [
   "spec-driven",
 ];
 
+const PRUEBAS: { titulo: string; donde: string; texto: string; tags: string[]; enDesarrollo?: boolean }[] = [
+  {
+    titulo: "Agentes de código",
+    donde: "A diario",
+    texto: "Claude Code sobre el repositorio, con hooks, subagentes, memoria y skills propias para tareas recurrentes.",
+    tags: ["Claude Code", "hooks", "subagentes", "skills"],
+  },
+  {
+    titulo: "Spec-Driven Development",
+    donde: "Este portfolio",
+    texto: "Especificación y plan vivos que el agente lee antes de tocar código, con invariantes que no puede saltarse.",
+    tags: ["spec.md", "plan.md", "agentes"],
+  },
+  {
+    titulo: "Servidores MCP",
+    donde: "Mis repositorios",
+    texto: "Grafo de código consultable por el agente con codebase-memory-mcp, en vez de releer archivos enteros.",
+    tags: ["MCP", "codebase-memory-mcp"],
+  },
+  {
+    titulo: "Orquestación de LLM",
+    donde: "BAKO",
+    texto: "Failover entre Ollama local y Groq, transcripción con Whisper y capa de privacidad que fuerza lo sensible a local.",
+    tags: ["Ollama", "Groq", "Whisper"],
+  },
+  {
+    titulo: "RAG con Spring AI",
+    donde: "ayudas_gv",
+    texto: "Asistente que responde dudas sobre una ayuda usando la normativa como fuente.",
+    tags: ["Spring AI", "RAG"],
+    enDesarrollo: true,
+  },
+];
+
 export default function ClaudeIA() {
   return (
     <section id="ia" className="max-w-6xl mx-auto px-6 py-24">
-
       <h2 className="text-3xl font-bold text-black dark:text-white mb-4 flex items-center gap-3">
         <span className="text-primary text-4xl">⌁</span>
-        IA en mi flujo de trabajo
+        IA en la práctica
       </h2>
 
-      <p className="text-gray-700 dark:text-gray-300 max-w-3xl mb-4 leading-relaxed">
-        Integro <strong>Claude de Anthropic</strong> en mi desarrollo diario:
-        exploración de código, generación asistida, refactor y automatización de
-        tareas repetitivas mediante hooks y agentes.
-      </p>
-
-      <p className="text-gray-600 dark:text-gray-400 max-w-3xl mb-12 leading-relaxed">
+      <p className="text-gray-700 dark:text-gray-300 max-w-3xl leading-relaxed">
         La IA me ha hecho más productivo escribiendo código. Donde sigo aportando
         es en <strong className="text-black dark:text-white">decidir qué construir</strong> y en{" "}
         <strong className="text-black dark:text-white">validar que lo generado es correcto y mantenible</strong>.
+        Esto es lo que ya uso hoy; lo que viene está en la{" "}
+        <a href="#ruta-ia-aplicada" className="text-primary hover:underline">
+          hoja de ruta
+        </a>
+        .
       </p>
 
-      {/* HERRAMIENTA PROPIA */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Franja de pruebas: cinco columnas en escritorio, separadas por una
+          línea vertical en vez de tarjetas, para que se lea como un registro */}
+      <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5 lg:gap-0">
+        {PRUEBAS.map((p) => (
+          <li key={p.titulo} className="lg:px-5 lg:first:pl-0 lg:border-l lg:first:border-l-0 border-gray-200 dark:border-gray-800">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-gray-500 dark:text-gray-400">
+              {p.donde}
+              {p.enDesarrollo && <span className="text-primary"> · en desarrollo</span>}
+            </p>
+            <h3 className="mt-1 font-semibold text-black dark:text-white">{p.titulo}</h3>
+            <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{p.texto}</p>
+            <div className="flex flex-wrap gap-1 mt-3">
+              {p.tags.map((t) => (
+                <span key={t} className="px-1.5 py-0.5 text-[11px] font-mono rounded border border-cyan-400/40 text-primary">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
 
-        {/* Skills propias — mención breve, sin profundizar en cada una */}
-        <div className="p-5 rounded-lg border border-cyan-400/20 bg-white dark:bg-[#0d0d0d] hover:border-primary/40 transition-colors">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-primary font-mono text-base leading-none">✳</span>
-            <h3 className="font-semibold text-black dark:text-white text-sm">Skills propias</h3>
-            <span className="ml-auto text-xs font-mono px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 text-gray-400">
-              Claude Code
-            </span>
-          </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-            Skills a medida para tareas recurrentes de mi flujo de trabajo, desde
-            arquitectura hasta contenido:
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {SKILLS_PROPIAS.map(skill => (
-              <span
-                key={skill}
-                className="px-2 py-0.5 text-xs font-mono text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-800 rounded"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Claude Code */}
-        <div className="p-5 rounded-lg border border-cyan-400/20 bg-white dark:bg-[#0d0d0d] hover:border-primary/40 transition-colors">
-          <div className="flex items-center gap-2 mb-3">
-            <svg viewBox="0 0 100 100" className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" aria-hidden="true">
-              <rect x="44" y="8"  width="12" height="84" rx="6" />
-              <rect x="44" y="8"  width="12" height="84" rx="6" transform="rotate(60,50,50)" />
-              <rect x="44" y="8"  width="12" height="84" rx="6" transform="rotate(120,50,50)" />
-            </svg>
-            <h3 className="font-semibold text-black dark:text-white text-sm">Claude Code</h3>
-            <span className="ml-auto text-xs font-mono px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 text-gray-400">CLI</span>
-          </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-            Agente que opera directamente sobre el repositorio: lee, edita y ejecuta
-            código. Hooks personalizados que automatizan tareas al inicio y al final
-            de cada sesión, manteniendo el contexto del proyecto siempre vigente.
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {["hooks", "subagentes", "MCP servers", "memory", "skills"].map(tag => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 text-xs font-mono text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-800 rounded"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-
-      </div>
-
+      <p className="mt-10 text-xs text-gray-500 dark:text-gray-400">
+        Skills propias para Claude Code:{" "}
+        {SKILLS_PROPIAS.map((s, i) => (
+          <span key={s}>
+            <span className="font-mono text-gray-600 dark:text-gray-300">{s}</span>
+            {i < SKILLS_PROPIAS.length - 1 ? " · " : ""}
+          </span>
+        ))}
+      </p>
     </section>
   );
 }

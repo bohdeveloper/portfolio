@@ -11,15 +11,15 @@ export default function Home() {
     <>
       <Hero />
       <QuienSoy />
+      {/* Formación antes que experiencia: cuenta el recorrido en orden
+          (oficio → reconversión → desarrollo) y la hoja de ruta enlaza
+          después con los proyectos donde se practica. */}
+      <Aprendizaje />
       <Experiencia />
       <Proyectos />
-      <Aprendizaje />
-      {/* La IA va después de proyectos y formación: es un complemento del
-          perfil, no el titular. */}
+      {/* La IA va después de proyectos y formación: es la prueba de uso
+          real que respalda la dirección del hero, no el titular. */}
       <ClaudeIA />
-      {/* Los juegos ya no tienen sección propia en la home: solo son
-          accesibles desde el panel lateral (BlogPanel), para no competir
-          con el contenido profesional en la primera pantalla. */}
       <Contacto />
     </>
   );

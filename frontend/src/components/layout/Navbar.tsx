@@ -81,9 +81,9 @@ export default function Navbar() {
           <div className="links hidden md:flex items-center gap-8">
             <ul className="flex items-center gap-8 text-lg font-medium">
               <li><a href={onHome ? '#quien-soy' : '/#quien-soy'} className="hover:text-primary transition">Quién soy</a></li>
+              <li><a href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="hover:text-primary transition">Formación</a></li>
               <li><a href={onHome ? '#experiencia' : '/#experiencia'} className="hover:text-primary transition">Experiencia</a></li>
               <li><a href={onHome ? '#proyectos' : '/#proyectos'} className="hover:text-primary transition">Proyectos</a></li>
-              <li><a href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="hover:text-primary transition">Formación</a></li>
               <li><a href={onHome ? '#ia' : '/#ia'} className="hover:text-primary transition">IA</a></li>
               <li><a href={onHome ? '#contacto' : '/#contacto'} className="hover:text-primary transition">Contacto</a></li>
             </ul>
@@ -130,9 +130,9 @@ export default function Navbar() {
               Reutilizan la misma lógica onHome que el menú desktop. */}
           <ul className="flex flex-col flex-1 justify-center px-8 gap-8 text-xl font-medium text-black dark:text-white">
             <li><a onClick={() => setOpen(false)} href={onHome ? '#quien-soy' : '/#quien-soy'} className="block hover:text-primary transition">Quién soy</a></li>
+            <li><a onClick={() => setOpen(false)} href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="block hover:text-primary transition">Formación</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#experiencia' : '/#experiencia'} className="block hover:text-primary transition">Experiencia</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#proyectos' : '/#proyectos'} className="block hover:text-primary transition">Proyectos</a></li>
-            <li><a onClick={() => setOpen(false)} href={onHome ? '#aprendizaje' : '/#aprendizaje'} className="block hover:text-primary transition">Formación</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#ia' : '/#ia'} className="block hover:text-primary transition">IA</a></li>
             <li><a onClick={() => setOpen(false)} href={onHome ? '#contacto' : '/#contacto'} className="block hover:text-primary transition">Contacto</a></li>
             <li className="pt-4">

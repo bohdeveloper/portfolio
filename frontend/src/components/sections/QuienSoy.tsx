@@ -1,8 +1,9 @@
 "use client";
 import { useFadeInOnScroll } from "@/hooks/useFadeInOnScroll";
 
-/* Dos grupos deliberadamente separados: lo usado en cliente real y lo usado
-   en proyectos propios. Mezclarlos daría a entender experiencia profesional
+/* Grupos deliberadamente separados: lo usado en cliente real, lo usado en
+   proyectos propios y, al final, el oficio. Mismo color para los tres; la
+   separación la marcan los títulos de grupo (invariante 2). Mezclarlos daría a entender experiencia profesional
    con stack que solo he aplicado en mis propios proyectos. */
 const STACK_PROFESIONAL = [
   "Java", "Spring", "Spring Boot", "Oracle SQL", "PL/SQL", "WebLogic", "JSP", "JSTL", "Tiles",
@@ -61,7 +62,16 @@ export default function QuienSoy() {
           >
             EJIE
           </a>
-          , la sociedad informática del Gobierno Vasco, a través de Bilbomática e{" "}
+          , la sociedad informática del Gobierno Vasco, a través de{" "}
+          <a
+            href="https://www.bilbomatica.es/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Bilbomática
+          </a>{" "}
+          e{" "}
           <a
             href="https://www.inetum.com/es/servicios/ingenieria-de-software/"
             target="_blank"
@@ -144,13 +154,13 @@ export default function QuienSoy() {
 
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
-              Perfil técnico · oficio
+              Proyectos propios
             </p>
             <ul className="flex flex-wrap gap-2">
-              {PERFIL_TECNICO.map((t) => (
+              {STACK_PROPIO.map((t) => (
                 <li
                   key={t}
-                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
                 >
                   {t}
                 </li>
@@ -160,13 +170,13 @@ export default function QuienSoy() {
 
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
-              Proyectos propios
+              Perfil técnico · oficio
             </p>
             <ul className="flex flex-wrap gap-2">
-              {STACK_PROPIO.map((t) => (
+              {PERFIL_TECNICO.map((t) => (
                 <li
                   key={t}
-                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
                 >
                   {t}
                 </li>
