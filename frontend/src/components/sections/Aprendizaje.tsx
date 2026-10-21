@@ -1,6 +1,7 @@
 "use client";
 
 import { useCardHolo } from "@/hooks/useCardHolo";
+import RutaSenior from "@/components/sections/RutaSenior";
 
 /* Titulación oficial: va destacada y aparte del resto de cursos, porque es
    lo único con validez académica del bloque y antes se presentaba como
@@ -50,47 +51,6 @@ const FORMACION_TECNICA = [
   },
 ];
 
-/* Cursos de IA aplicada al stack Java, en el orden en que se van a hacer.
-   Estado «Planificado»: aún no empezados, no se presentan como en curso
-   (invariante 5). Enlaces comprobados; ninguno es un 404 (invariante 4). */
-const FORMACION_IA = [
-  {
-    curso: "Claude Code in Action",
-    plataforma: "Anthropic Academy",
-    coste: "Gratis · certificado de finalización",
-    link: "https://anthropic.skilljar.com/claude-code-in-action",
-    estado: "Planificado",
-  },
-  {
-    curso: "Introduction to Model Context Protocol",
-    plataforma: "Anthropic Academy",
-    coste: "Gratis",
-    link: "https://anthropic.skilljar.com/introduction-to-model-context-protocol",
-    estado: "Planificado",
-  },
-  {
-    curso: "Spring AI",
-    plataforma: "Documentación oficial de Spring",
-    coste: "Gratis",
-    link: "https://docs.spring.io/spring-ai/reference/",
-    estado: "Planificado",
-  },
-  {
-    curso: "Spec-Driven Development with Coding Agents",
-    plataforma: "DeepLearning.AI · JetBrains",
-    coste: "Gratis",
-    link: "https://www.deeplearning.ai/short-courses/spec-driven-development-with-coding-agents/",
-    estado: "Planificado",
-  },
-  {
-    curso: "AI Agents Course",
-    plataforma: "Hugging Face",
-    coste: "Gratis · certificado gratuito",
-    link: "https://huggingface.co/learn/agents-course",
-    estado: "Planificado",
-  },
-];
-
 export default function Aprendizaje() {
   const holo = useCardHolo();
   const cursos = [
@@ -123,59 +83,7 @@ export default function Aprendizaje() {
       ],
       link: "/images/diploma_PLSQL_udemy.jpg",
     },
-    {
-      titulo: "Universidad Java – Cero a Experto – Udemy",
-      descripcion:
-        "Formación avanzada en Java y su ecosistema, desde fundamentos hasta frameworks.",
-      tecnologias: [
-        "Java",
-        "Spring",
-        "JSP / JDBC / Thymeleaf",
-        "Lombok / Maven",
-        "Angular",
-        "Struts",
-      ],
-      link: "https://www.udemy.com/course/universidad-java-especialista-en-java-desde-cero-a-master/",
-      estado: "en-curso",
-    },
   ];
-
-  const aprendiendo1 = {
-    titulo: "React y stack NoSQL",
-    descripcion:
-      "Tecnologías aplicadas en proyectos personales como Unyona y BAKO:",
-    tecnologias: ["React", "TypeScript", "MongoDB", "Express", "Tailwind"],
-    estado: "en-curso",
-  };
-
-  const aprendiendo2 = {
-    titulo: "Angular y Spring Boot",
-    descripcion:
-      "Tecnologías utilizadas en el desarrollo de la aplicación Diamadmin:",
-    tecnologias: [
-      "Angular",
-      "Spring Boot",
-      "PostgreSQL",
-      "Arquitectura modular",
-    ],
-    estado: "en-curso",
-  };
-
-  /* Hueco detectado frente a ofertas reales del sector (sept. 2026): cloud,
-     arquitectura hexagonal/microservicios y disciplina formal de TDD/DDD. */
-  const aprendiendo3 = {
-    titulo: "Arquitectura de microservicios y cloud",
-    descripcion:
-      "Ampliación en curso a partir de requisitos habituales en ofertas del sector:",
-    tecnologias: [
-      "AWS",
-      "Arquitectura hexagonal",
-      "Microservicios",
-      "Apache Kafka",
-      "TDD / DDD",
-    ],
-    estado: "en-curso",
-  };
 
   return (
     <section id="aprendizaje" className="max-w-6xl mx-auto px-6 py-32">
@@ -188,9 +96,20 @@ export default function Aprendizaje() {
       <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mb-12">
         Mi formación en <strong>desarrollo web</strong> combina una titulación
         oficial de nivel 3, formación técnica especializada en{" "}
-        <strong>Java y bases de datos relacionales</strong> y aprendizaje
-        autodidacta continuo, aplicado directamente en proyectos reales.
+        <strong>Java y bases de datos relacionales</strong> y una ruta de
+        aprendizaje hacia <strong>desarrollador senior</strong> (arquitectura,
+        Kafka, Kubernetes, AWS e IA aplicada) que iré practicando en proyectos
+        propios.
       </p>
+
+      {/* La sección se divide en dos: lo terminado (arriba) y la hoja de ruta
+          de lo que viene (abajo, RutaSenior). */}
+      <h3 className="text-sm font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-6 flex items-center gap-2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} className="w-4 h-4" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Formación realizada
+      </h3>
 
       {/* CERTIFICADO DE PROFESIONALIDAD — titulación oficial */}
       <a
@@ -232,7 +151,7 @@ export default function Aprendizaje() {
         </ul>
       </a>
 
-      <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-10 md:grid-cols-2">
         {/* CURSOS */}
         {cursos.map((c, i) => (
           <a
@@ -246,7 +165,7 @@ export default function Aprendizaje() {
             <span className="card-holo-shine" aria-hidden />
             <span className="card-holo-noise"  aria-hidden />
             <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
-              {c.estado === "en-curso" ? "En curso" : "Completado"}
+              Completado
             </span>
 
             <div className="flex gap-3 items-start mt-6">
@@ -291,97 +210,11 @@ export default function Aprendizaje() {
           </a>
         ))}
 
-        {/* CONOCIMIENTOS ACTUALES */}
-        {[aprendiendo1, aprendiendo2, aprendiendo3].map((a, i) => (
-          <div
-            key={i}
-            {...holo}
-            className="card-holo border border-cyan-400 rounded-lg p-6 bg-white dark:bg-[#0d0d0d]"
-          >
-            <span className="card-holo-shine" aria-hidden />
-            <span className="card-holo-noise"  aria-hidden />
-            <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full border border-cyan-400 text-primary bg-cyan-400/10">
-              {a.estado === "en-curso" ? "En curso" : "Completado"}
-            </span>
-
-            {/* ICONO DESARROLLO */}
-            <div className="flex gap-3 items-start mt-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                className="w-6 h-6 text-primary"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M16 18l6-6-6-6M8 6l-6 6 6 6"
-                />
-              </svg>
-
-              <h3 className="text-lg font-semibold text-black dark:text-white">
-                {a.titulo}
-              </h3>
-            </div>
-
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              {a.descripcion}
-            </p>
-
-            <ul className="list-disc pl-5 mt-4 space-y-1 text-gray-700 dark:text-gray-300">
-              {a.tecnologias.map((t, idx) => (
-                <li key={idx}>{t}</li>
-              ))}
-            </ul>
-            <span className="mt-1 ml-2 inline-block text-lg text-primary font-medium">
-              ...
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* FORMACIÓN EN IA — filas compactas, sin tarjetas holo: la IA es
-          complemento del stack, no titular (invariante 3) */}
-      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-          Formación en IA
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mb-4">
-          IA aplicada al stack Java: trabajar con agentes de código, MCP y
-          Spring AI. Ruta planificada, en este orden; no todos los cursos emiten certificado.
-        </p>
-        <ol className="space-y-3">
-          {FORMACION_IA.map((c, i) => (
-            <li key={c.curso} className="flex items-baseline gap-3">
-              <span className="text-primary font-mono text-sm" aria-hidden>
-                {i + 1}
-              </span>
-              <span className="flex-1">
-                <a
-                  href={c.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary underline-offset-4 hover:underline"
-                >
-                  {c.curso}
-                </a>
-                <span className="block text-xs text-gray-500">
-                  {c.plataforma} · {c.coste}
-                </span>
-              </span>
-              <span className="shrink-0 text-xs px-2.5 py-0.5 rounded-full border border-gray-400 dark:border-gray-600 text-gray-500 dark:text-gray-400">
-                {c.estado}
-              </span>
-            </li>
-          ))}
-        </ol>
       </div>
 
       {/* FORMACIÓN TÉCNICA — oficio, previa a la reconversión. Va completa y
           no en una línea: es la base del perfil técnico del CV. */}
-      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+      <div className="mt-12">
         <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
           Formación técnica
         </h3>
@@ -421,6 +254,11 @@ export default function Aprendizaje() {
           ))}
         </ul>
       </div>
+
+      {/* RUTA HACIA SENIOR — sustituye a las antiguas tarjetas «En curso» y a
+          la lista de formación en IA, que pasa a ser un bloque más (invariante 3) */}
+      <RutaSenior />
+
     </section>
   );
 }

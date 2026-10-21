@@ -65,6 +65,15 @@ búsqueda de empleo.
       un párrafo sobre el perfil técnico y un tercer grupo de etiquetas con
       las competencias del CV técnico. Decisión registrada en spec.md §3
       (invariante 14).
+- [x] **Ruta hacia desarrollador senior en «Formación» (21 oct 2026).** Sustituir las tres
+      tarjetas «En curso» (ninguna lo estaba, invariante 5) y la lista
+      «Formación en IA» por una ruta de 10 bloques ordenada por peso en
+      ofertas reales (Java senior, sector público y banca, oct 2026), solo con
+      recursos gratuitos. Cada bloque tiene estado pendiente / en curso /
+      completado y cambia de aspecto al avanzar. ayudas_gv pasa a ser el
+      laboratorio de la ruta (migración + FALLBACK). La sección se divide en
+      «Formación realizada» y «Hoja de ruta». Migración
+      `projects-ayudas-gv-laboratorio-ruta.sql` ejecutada en remoto.
 - [x] **Aviso de Search Console "Bloqueada por robots.txt".** El bloqueo de
       `/admin/` es intencionado; las URLs afectadas son casi seguro
       `/admin/login` y `/admin/dashboard`, descubiertas por los dos enlaces

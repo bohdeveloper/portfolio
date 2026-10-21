@@ -177,6 +177,14 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
     prioridades del invariante 1 no cambian: el perfil técnico va en una línea
     discreta y en su propio grupo de etiquetas, nunca por delante.
 
+15. **Formación en dos partes: realizada y hoja de ruta.** Desde el 21 oct
+    2026, «Formación» separa lo terminado (certificado, cursos, formación
+    técnica) de la «Ruta hacia desarrollador senior» (`RutaSenior.tsx`): 10
+    bloques ordenados por peso en ofertas reales, solo recursos gratuitos.
+    Un bloque solo cambia de `pendiente` a `en-curso` o `completado` (verde,
+    con check y fecha) cuando lo está de verdad. Los bloques se practican en
+    proyectos propios; ayudas_gv es el laboratorio principal.
+
 ---
 
 ## 4. Sistema de diseño y convenciones UI
