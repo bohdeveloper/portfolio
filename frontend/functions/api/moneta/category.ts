@@ -40,8 +40,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       `).bind(profile_id, name, planned_amount, type, parent_id ?? null, sort_order).run();
     }
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
+  } catch {
+    const msg = 'Database error'; // el detalle de D1 no sale al cliente
     return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
   }
 };
@@ -65,8 +65,8 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
 
     await env.DB.prepare('DELETE FROM moneta_categories WHERE id=?').bind(id).run();
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
+  } catch {
+    const msg = 'Database error'; // el detalle de D1 no sale al cliente
     return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
   }
 };

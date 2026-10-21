@@ -46,8 +46,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     await touchLastModified(env.DB, profile_id, year, month);
 
     return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
+  } catch {
+    const msg = 'Database error'; // el detalle de D1 no sale al cliente
     return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
   }
 };
@@ -78,13 +78,13 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
 
     // Actualizar last_modified en el resumen mensual del ítem modificado
     const item = await env.DB.prepare(
-      'SELECT profile_id, year, month FROM moneta_items WHERE id=?'
-    ).bind(id).first<{ profile_id: number; year: number; month: number }>();
+      'SELECT profile_id, year, month FROM moneta_items WHERE id=? AND profile_id IN (SELECT id FROM moneta_profiles WHERE user_id=?)'
+    ).bind(id, auth.user_id).first<{ profile_id: number; year: number; month: number }>();
     if (item) await touchLastModified(env.DB, item.profile_id, item.year, item.month);
 
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
+  } catch {
+    const msg = 'Database error'; // el detalle de D1 no sale al cliente
     return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
   }
 };
@@ -111,8 +111,8 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
     if (item) await touchLastModified(env.DB, item.profile_id, item.year, item.month);
 
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: H });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
+  } catch {
+    const msg = 'Database error'; // el detalle de D1 no sale al cliente
     return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
   }
 };

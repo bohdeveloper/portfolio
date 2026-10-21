@@ -460,6 +460,9 @@ function PostView({ slug }: { slug: string }) {
     if (w.marked) { render(); return; }
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js';
+    // SRI: si el CDN sirviera un fichero distinto, el navegador no lo ejecuta
+    s.integrity = 'sha384-odPBjvtXVM/5hOYIr3A1dB+flh0c3wAT3bSesIOqEGmyUA4JoKf/YTWy0XKOYAY7';
+    s.crossOrigin = 'anonymous';
     s.onload = render;
     document.head.appendChild(s);
   }, [post]);

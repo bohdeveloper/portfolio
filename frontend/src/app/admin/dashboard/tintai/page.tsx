@@ -57,7 +57,10 @@ function MarkdownView({ content }: { content: string }) {
     const w = window as unknown as { marked?: { parse: (s: string) => string } };
     if (w.marked) { setReady(true); return; }
     const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/marked@12/marked.min.js';
+    s.src = 'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js';
+    // SRI: si el CDN sirviera un fichero distinto, el navegador no lo ejecuta
+    s.integrity = 'sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi';
+    s.crossOrigin = 'anonymous';
     s.onload = () => setReady(true);
     document.head.appendChild(s);
   }, []);

@@ -20,7 +20,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
     if (!token) return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
     try {
       const { jwtVerify } = await import('jose');
-      await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
+      const { payload } = await jwtVerify(token, new TextEncoder().encode(env.JWT_SECRET));
+      // El modo admin incluye borradores: solo para super_admin, no para cualquier cuenta del panel
+      if (payload.role !== 'super_admin') throw new Error('forbidden');
     } catch {
       return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 401, headers });
     }

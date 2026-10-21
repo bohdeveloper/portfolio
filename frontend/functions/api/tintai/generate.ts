@@ -19,6 +19,9 @@ const CATEGORY_COLORS: Record<string, string> = {
 const VALID_LEVELS    = ['principiante', 'intermedio', 'avanzado', 'experto'];
 const VALID_LANGUAGES = ['español', 'inglés', 'francés', 'alemán', 'italiano', 'portugués', 'catalán'];
 const MAX_CHAPTERS    = 30;
+// Cuota diaria de libros por usuario: cada libro son hasta 31 llamadas de pago a
+// la API de Anthropic. Sin tope, una cuenta comprometida vaciaría el saldo.
+const MAX_LIBROS_DIA  = 5;
 
 // Haiku 4.5 — significativamente más rápido que Sonnet, ideal para generación en Workers
 async function callClaude(apiKey: string, userPrompt: string): Promise<string> {
@@ -92,6 +95,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       if (description && !validateStr(description, 0, 2000))
         return new Response(JSON.stringify({ ok: false, error: 'description: máximo 2000 caracteres' }), { status: 400, headers: H });
 
+      const hoy = await env.DB.prepare(
+        "SELECT COUNT(*) AS n FROM tintai_books WHERE user_id = ? AND created_at > datetime('now', '-1 day')"
+      ).bind(auth.user_id).first<{ n: number }>();
+      if ((hoy?.n ?? 0) >= MAX_LIBROS_DIA)
+        return new Response(JSON.stringify({ ok: false, error: `Límite de ${MAX_LIBROS_DIA} libros al día alcanzado` }), { status: 429, headers: H });
+
       // Las instrucciones del usuario pueden ser texto libre o XML estructurado.
       // Se inyectan en una sección dedicada para que Claude las aplique con precisión.
       const instrBlock = description
@@ -150,6 +159,10 @@ Devuelve ÚNICAMENTE este JSON válido, sin texto adicional ni bloques de códig
         return new Response(JSON.stringify({ ok: false, error: 'Libro no encontrado' }), { status: 404, headers: H });
 
       const toc: string[]  = JSON.parse(book.toc ?? '[]');
+      // Solo capítulos que existen en el índice: un índice libre permitiría
+      // generar capítulos (y llamadas de pago) sin límite sobre el mismo libro.
+      if (validateInt(chapter_index, 0, Math.max(0, toc.length - 1)) === null)
+        return new Response(JSON.stringify({ ok: false, error: 'chapter_index fuera del índice' }), { status: 400, headers: H });
       const chapterTitle   = toc[chapter_index] ?? `Capítulo ${chapter_index + 1}`;
 
       // Inyectar instrucciones del usuario también en cada capítulo
@@ -170,7 +183,7 @@ Escribe ahora el capítulo: "${chapterTitle}". Entre 400-600 palabras, subtítul
       } catch (err: unknown) {
         // Almacenar detalle en BD (uso interno) pero no exponerlo al cliente
         const internalMsg = err instanceof Error ? err.message : 'Error generando capítulo';
-        await env.DB.prepare("UPDATE tintai_books SET status='error', error_msg=? WHERE id=?").bind(internalMsg, book_id).run();
+        await env.DB.prepare("UPDATE tintai_books SET status='error', error_msg=? WHERE id=? AND user_id=?").bind(internalMsg, book_id, auth.user_id).run();
         return new Response(JSON.stringify({ ok: false, error: 'Error generando capítulo. Inténtalo de nuevo.' }), { status: 500, headers: H });
       }
 
@@ -192,8 +205,9 @@ Escribe ahora el capítulo: "${chapterTitle}". Entre 400-600 palabras, subtítul
         return new Response(JSON.stringify({ ok: false, error: 'book_id requerido' }), { status: 400, headers: H });
 
       const { results } = await env.DB.prepare(
-        'SELECT COALESCE(SUM(word_count), 0) AS total FROM tintai_chapters WHERE book_id = ?'
-      ).bind(book_id).all<{ total: number }>();
+        `SELECT COALESCE(SUM(c.word_count), 0) AS total FROM tintai_chapters c
+         JOIN tintai_books b ON b.id = c.book_id WHERE c.book_id = ? AND b.user_id = ?`
+      ).bind(book_id, auth.user_id).all<{ total: number }>();
 
       await env.DB.prepare(
         "UPDATE tintai_books SET status='ready', word_count=? WHERE id=? AND user_id=?"

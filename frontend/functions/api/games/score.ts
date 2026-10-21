@@ -53,56 +53,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
   }
 };
 
-/* ── POST /api/games/score — enviar puntuación ── */
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  let body: { game_id?: number; visitor_id?: number; score?: number };
-  try { body = await request.json(); } catch {
-    return new Response(JSON.stringify({ ok: false, error: 'Invalid JSON' }), { status: 400, headers: H });
-  }
-
-  const { game_id, visitor_id, score } = body;
-  if (!game_id || !visitor_id || score === undefined) {
-    return new Response(JSON.stringify({ ok: false, error: 'Missing fields' }), { status: 400, headers: H });
-  }
-  if (score < 0 || score > 999999) {
-    return new Response(JSON.stringify({ ok: false, error: 'Invalid score' }), { status: 400, headers: H });
-  }
-
-  try {
-    // Verificar que el juego y el visitante existen
-    const [game, visitor] = await Promise.all([
-      env.DB.prepare('SELECT id FROM games WHERE id = ?').bind(game_id).first(),
-      env.DB.prepare('SELECT id FROM game_visitors WHERE id = ?').bind(visitor_id).first(),
-    ]);
-    if (!game)    return new Response(JSON.stringify({ ok: false, error: 'Game not found' }), { status: 404, headers: H });
-    if (!visitor) return new Response(JSON.stringify({ ok: false, error: 'Visitor not found' }), { status: 404, headers: H });
-
-    // Insertar puntuación
-    await env.DB.prepare('INSERT INTO game_scores (game_id, visitor_id, score) VALUES (?, ?, ?)')
-      .bind(game_id, visitor_id, score).run();
-
-    // Calcular rango del jugador (posición basada en su mejor puntuación)
-    const rankRow = await env.DB.prepare(`
-      SELECT COUNT(*) + 1 AS rank
-      FROM (
-        SELECT MAX(score) AS best
-        FROM game_scores
-        WHERE game_id = ?
-        GROUP BY visitor_id
-        HAVING MAX(score) > (
-          SELECT MAX(score) FROM game_scores WHERE game_id = ? AND visitor_id = ?
-        )
-      )
-    `).bind(game_id, game_id, visitor_id).first<{ rank: number }>();
-
-    const rank = rankRow?.rank ?? 1;
-    const isRecord = rank === 1;
-
-    return new Response(JSON.stringify({ ok: true, rank, isRecord }), { status: 200, headers: H });
-  } catch {
-    return new Response(JSON.stringify({ ok: false, error: 'Database error' }), { status: 500, headers: H });
-  }
-};
+/* POST retirado (21 oct 2026): los juegos ya no están en la web pública y un
+   endpoint de escritura anónimo sin uso solo servía para llenar D1 de basura. */
 
 /* ── DELETE /api/games/score?visitor_id=N&game_id=M — eliminar puntuación (admin) ── */
 export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {

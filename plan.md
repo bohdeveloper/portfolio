@@ -74,6 +74,14 @@ búsqueda de empleo.
       laboratorio de la ruta (migración + FALLBACK). La sección se divide en
       «Formación realizada» y «Hoja de ruta». Migración
       `projects-ayudas-gv-laboratorio-ruta.sql` ejecutada en remoto.
+- [x] **Auditoría de seguridad completa (21 oct 2026).** Informe en
+      `SECURITY_AUDIT_2026-10-21.md`. Correcciones: endpoints públicos de
+      juegos sin uso retirados, cuota diaria y validación en TintAI, errores
+      de D1 sin filtrar al cliente, ownership en Moneta/TintAI, SRI en los
+      scripts de CDN, CSP, borradores solo para super_admin y dependencias
+      actualizadas (Next 15.5.28, TipTap 3.32). Pendientes de decisión:
+      revocación de sesiones, rate limit por usuario, política de
+      contraseñas y sal secreta del hash de IP.
 - [x] **Reorganización de la home hacia «Java senior → IA» (21 oct 2026).**
       Fases:
       1. Hero: trayectoria Industria → Desarrollo Java → IA aplicada; fuera

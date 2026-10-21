@@ -1586,6 +1586,9 @@ export default function TrackerPage() {
     } else {
       const s = document.createElement('script');
       s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+      // SRI: si el CDN sirviera un fichero distinto, el navegador no lo ejecuta
+      s.integrity = 'sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG';
+      s.crossOrigin = 'anonymous';
       s.onload = initTracker;
       document.head.appendChild(s);
     }

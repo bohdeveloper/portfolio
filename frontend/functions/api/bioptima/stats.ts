@@ -125,8 +125,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       bioHistory,
     }), { status: 200, headers: H });
 
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Database error';
+  } catch {
+    const msg = 'Database error'; // el detalle de D1 no sale al cliente
     return new Response(JSON.stringify({ ok: false, error: msg }), { status: 500, headers: H });
   }
 };
