@@ -74,6 +74,22 @@ búsqueda de empleo.
       laboratorio de la ruta (migración + FALLBACK). La sección se divide en
       «Formación realizada» y «Hoja de ruta». Migración
       `projects-ayudas-gv-laboratorio-ruta.sql` ejecutada en remoto.
+- [x] **CV de programador alineado con el portfolio (21 oct 2026, solo texto).**
+      Generador en `cv-src/generar_cv.py` (ReportLab; `python
+      cv-src/generar_cv.py programador --out <carpeta>`). La línea base
+      reproducía el PDF publicado palabra por palabra; tras el cambio, la
+      pág. 1 no se mueve (135,9) y la pág. 2 acaba en 220,5. Criterio acordado:
+      se conservan los datos propios de CV (idiomas, carnet, contacto,
+      competencias, herramientas de stack) y se corrige lo que el portfolio
+      contradice o ha retirado.
+      *Programador:* «Potenciado por Claude» → «Siguiente paso · Ingeniería
+      de IA aplicada»; disponibilidad → «remoto ya · presencial desde enero»;
+      perfil y stack profesional con Spring Boot (invariante 13); Spring AI
+      en IA/LLM de proyectos propios; «Formación continua» → hoja de ruta;
+      proyectos con los mismos 5 huecos: Portfolio personal → Unyona app,
+      Unyona → Unyona landing, Diamadmin → REXIA, y ayudas_gv con su texto
+      de laboratorio; añadir PL/SQL (Udemy, 2025) a Formación.
+      *Técnico:* no se modifica (decisión de Borja, 21 oct 2026).
 - [x] **Ajustes de móvil (21 oct 2026).** Hero: párrafo y lista de
       especialidades más pequeños. «Acerca de mí»: badges y títulos de grupo
       reducidos. Experiencia: en móvil cada empresa abre su ficha en un modal

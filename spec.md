@@ -154,6 +154,8 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
    en `_redirects` y no deben retirarse: pueden estar enlazados desde fuera.
    Cambio del 14 oct 2026: los dos CV de programación se fundieron en uno y se
    añadió el técnico.
+   Se generan con `cv-src/generar_cv.py` (ReportLab). El CV de programador
+   sigue al portfolio; el técnico (`generar_tecnico`) no se modifica.
 8. **Un solo `<h1>` por página**, el del hero. Las secciones son `<h2>`.
    Orden de la home y del menú: Hero · Acerca de mí · Formación · Experiencia ·
    Proyectos · IA · Contacto (21 oct 2026).
@@ -176,7 +178,7 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
     hay distinción entre prosa visible y metadato indexable — el desajuste con
     el CV queda documentado aquí porque el CV es más corto por espacio, no
     porque Spring Boot no se haya usado; si se actualizan los CV en el futuro,
-    conviene añadir Spring Boot ahí también.
+    conviene añadir Spring Boot ahí también. Hecho en el CV de programador el 21 oct 2026.
 
 14. **El oficio es el origen, no un segundo perfil.** Desde el 21 oct 2026 el
     hero no habla de «doble perfil»: la industria (mecanizado, electricidad,
