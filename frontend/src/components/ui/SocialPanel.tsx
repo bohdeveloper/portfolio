@@ -106,30 +106,6 @@ export default function SocialPanel() {
               </svg>
             </a>
           </li>
-          {/* Admin — candado discreto */}
-          <li>
-            <a
-              href="/admin/login"
-              rel="nofollow"
-              aria-label="admin"
-              className="group transition"
-              style={{ opacity: 0.18 }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.45')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '0.18')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <rect x="5" y="11" width="14" height="10" rx="2" />
-                <path strokeLinecap="round" d="M8 11V7a4 4 0 018 0v4" />
-              </svg>
-            </a>
-          </li>
         </ul>
       </div>
 
@@ -244,28 +220,6 @@ export default function SocialPanel() {
           </svg>
         </a>
 
-        {/* Admin — candado discreto */}
-        <a
-          href="/admin/login"
-          rel="nofollow"
-          aria-label="admin"
-          className="transition"
-          style={{ opacity: 0.18 }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = '0.45')}
-          onMouseLeave={e => (e.currentTarget.style.opacity = '0.18')}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5 text-gray-500 dark:text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <rect x="5" y="11" width="14" height="10" rx="2" />
-            <path strokeLinecap="round" d="M8 11V7a4 4 0 018 0v4" />
-          </svg>
-        </a>
       </div>
     </>
   );

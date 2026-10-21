@@ -74,6 +74,30 @@ búsqueda de empleo.
       laboratorio de la ruta (migración + FALLBACK). La sección se divide en
       «Formación realizada» y «Hoja de ruta». Migración
       `projects-ayudas-gv-laboratorio-ruta.sql` ejecutada en remoto.
+- [x] **Ajustes de móvil (21 oct 2026).** Hero: párrafo y lista de
+      especialidades más pequeños. «Acerca de mí»: badges y títulos de grupo
+      reducidos. Experiencia: en móvil cada empresa abre su ficha en un modal
+      a pantalla completa (escritorio sin cambios), con el marco EJIE más
+      compacto.
+- [x] **Borrado de datos personales en D1 (21 oct 2026).** Tras retirar el
+      panel quedan sin uso tablas con datos personales: `bioptima_*` (salud),
+      `moneta_*` (finanzas), `admin_users` (hashes bcrypt) y los `ip_hash`
+      reversibles de `blog_comments` y `blog_banned_ips`. Se conservaron por
+      decisión de Borja (21 oct 2026). Opciones: exportarlas y borrarlas con
+      una migración, o al menos poner `ip_hash` a `NULL` (RGPD, minimización).
+      Resuelto el mismo día a petición de Borja: DROP de 24 tablas (202 filas)
+      e `ip_hash` vaciado en los comentarios, en
+      `migrations/borrado-datos-personales-oct-2026.sql`. Borrado también
+      `frontend/.dev.vars` y revocada la API key de Anthropic.
+- [x] **Retirada del panel de administración (21 oct 2026).** Borja no usa
+      `/admin` (tracker sin uso desde junio, TintAI y Bioptima vacíos). Fuera
+      la UI de `/admin`, login, las cuatro apps, la gestión de usuarios,
+      blog, proyectos y juegos, y sus APIs. Comentarios del blog cerrados
+      (sin moderación posible); reacciones y comentarios aprobados se
+      mantienen. Los datos de D1 se conservan intactos. El contenido se sigue
+      editando con migraciones. Retiradas `jose`, `bcryptjs` y TipTap;
+      `src/` queda sin errores de tipos. Manual: borrar `JWT_SECRET` y
+      `ANTHROPIC_API_KEY` en Cloudflare.
 - [x] **Auditoría de seguridad completa (21 oct 2026).** Informe en
       `SECURITY_AUDIT_2026-10-21.md`. Correcciones: endpoints públicos de
       juegos sin uso retirados, cuota diaria y validación en TintAI, errores

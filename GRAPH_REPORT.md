@@ -2,7 +2,13 @@
 
 > Grafo de conocimiento estructural generado con **codebase-memory-mcp**
 > Proyecto indexado: `C-aplic-portfolio` · Índice local en `~/.cache/codebase-memory-mcp`
-> Última indexación: 11 de agosto de 2026
+> Última indexación: 21 de octubre de 2026 (381 nodos · 743 aristas)
+>
+> ⚠️ **Informe desactualizado.** Lo que sigue describe el grafo del 11 ago 2026,
+> con el panel `/admin`, `verifyAuth` como nodo más conectado y las apps
+> privadas. Todo eso se retiró el 21 oct 2026. Para el estado actual, consultar
+> el grafo directamente (`get_architecture`, `search_graph`) o regenerar este
+> informe con `/grafo-designer`.
 
 ---
 

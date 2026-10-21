@@ -195,7 +195,32 @@ Ninguno.
 | `npm audit --omit=dev` | 33 → 2 vulnerabilidades (0 críticas) |
 | `npm run build` con Next 15.5.28 | 17/17 páginas exportadas |
 
-**Pendiente de verificar tras el despliegue:**
-- Cabecera `Content-Security-Policy` en producción, sin errores de CSP en
-  consola, en la home, `/blog`, `/admin/dashboard/tracker` y `tintai`.
-- `POST /api/games/visitor` devuelve 404/405.
+**Verificado tras el despliegue** (commit `9564236`):
+- `Content-Security-Policy` presente en producción.
+- `POST /api/games/visitor` y `/api/games/score` responden 405.
+
+**Pendiente de verificar tras retirar el panel:**
+- La CSP ajustada (`frame-src 'none'`, sin jsdelivr) no da errores en
+  consola en la home ni en los posts de `/blog`.
+
+## Addendum — retirada del panel (21 oct 2026, mismo día)
+
+Tras la auditoría se retiró el panel de administración completo (`/admin`,
+login, las cuatro apps y sus 38 endpoints), junto con `jose`, `bcryptjs` y
+TipTap. Efecto sobre los pendientes:
+
+- **Revocación de sesiones, rate limit del login por usuario y política de
+  contraseñas** → **Ya no aplican**: no hay login.
+- **`innerHTML` con datos propios en el panel** y **`jwtVerify` sin fijar
+  algoritmos** → **Ya no aplican**: el código se ha eliminado.
+- **Hash de IP de comentarios con sal fija** → los comentarios están cerrados,
+  así que no se generan hashes nuevos. **Corregido**: `ip_hash` vaciado y
+  `blog_banned_ips` eliminada, junto con todas las tablas con datos
+  personales de las apps retiradas
+  (`migrations/borrado-datos-personales-oct-2026.sql`).
+- **Secretos**: `JWT_SECRET` y `ANTHROPIC_API_KEY` borrados de Cloudflare
+  (comprobado con `wrangler pages secret list`: producción y preview vacíos),
+  API key de Anthropic revocada y `frontend/.dev.vars` borrado.
+
+La superficie pública queda en 6 endpoints de lectura más las reacciones del
+blog (anónimas, con lista blanca de emojis y contador acotado).

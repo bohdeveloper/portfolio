@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CVDownload from "@/components/ui/CVDownload";
 
 interface Empleo {
@@ -184,17 +184,115 @@ const PERFILES: { id: Perfil; etiqueta: string }[] = [
   { id: "tecnica", etiqueta: "Técnica" },
 ];
 
+/* Ficha de un empleo: la misma en el panel de escritorio y en el modal móvil. */
+function Detalle({ empleo, tituloId }: { empleo: Empleo; tituloId?: string }) {
+  return (
+    <div className="space-y-3 md:space-y-4">
+      <div className="flex items-center gap-2 flex-wrap">
+        <h3 id={tituloId} className="text-lg md:text-xl font-semibold">
+          {empleo.puesto} · {empleo.empresa}
+        </h3>
+        {empleo.link && (
+          <a
+            href={empleo.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+            aria-label={`Web de ${empleo.empresa}`}
+          >
+            ↗
+          </a>
+        )}
+      </div>
+
+      <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+        {empleo.fecha}
+        {empleo.ubicacion && ` · ${empleo.ubicacion}`}
+      </p>
+
+      {empleo.cliente && (
+        <p className="text-xs md:text-sm">
+          <span className="text-gray-500 dark:text-gray-500">Cliente: </span>
+          <span className="text-primary font-medium">{empleo.cliente}</span>
+        </p>
+      )}
+
+      <ul className="list-disc pl-5 md:pl-6 space-y-2 md:space-y-3 text-sm md:text-base text-gray-700 dark:text-gray-300">
+        {empleo.tareas.map((t, i) => (
+          <li key={i}>{t}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* Modal móvil: a pantalla completa y centrado (§4), con cierre por botón,
+   fondo y Escape, scroll de la página bloqueado y foco al botón de cerrar. */
+function ModalEmpleo({ empleo, onClose }: { empleo: Empleo; onClose: () => void }) {
+  const cerrarRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    cerrarRef.current?.focus();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose]);
+
+  return (
+    <div className="md:hidden fixed inset-0 z-[80] flex items-center justify-center p-4" role="presentation">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="empleo-titulo"
+        className="relative w-full max-h-[85vh] overflow-y-auto rounded-lg border border-cyan-400/60 bg-white dark:bg-[#0d0d0d] p-5 shadow-2xl"
+      >
+        <button
+          ref={cerrarRef}
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="absolute top-3 right-3 p-1.5 rounded text-gray-500 hover:text-primary"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div className="pr-8">
+          <Detalle empleo={empleo} tituloId="empleo-titulo" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Experiencia() {
   // Índice del array, no un id correlativo: añadir o reordenar empleos
   // no obliga a renumerar nada.
   const [perfil, setPerfil] = useState<Perfil>("programacion");
   const [active, setActive] = useState(0);
+  // Solo en móvil: la ficha se abre en un modal en vez de debajo de la lista
+  const [modal, setModal] = useState(false);
+  // Referencia estable: el efecto del modal depende de onClose
+  const cerrarModal = useCallback(() => setModal(false), []);
   const lista = perfil === "programacion" ? tabs : TECNICA;
   const empleo = lista[active];
 
   function cambiarPerfil(p: Perfil) {
     setPerfil(p);
     setActive(0);
+  }
+
+  function seleccionar(i: number) {
+    setActive(i);
+    if (window.matchMedia("(max-width: 767px)").matches) setModal(true);
   }
 
   return (
@@ -242,7 +340,7 @@ export default function Experiencia() {
       {/* MARCO EJIE — el argumento más fuerte del perfil, antes de las pestañas */}
       {perfil === "programacion" && (
       <div className="max-w-3xl mb-10 pl-5 border-l-2 border-primary">
-        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+        <p className="text-sm sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
           Entre <strong>noviembre de 2021 y julio de 2026</strong> he trabajado de
           forma continuada para{" "}
           <a
@@ -256,11 +354,11 @@ export default function Experiencia() {
           , la sociedad informática del Gobierno Vasco, a través de dos consultoras
           y en tres departamentos distintos.
         </p>
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-4">
           {["5 años continuados", "3 departamentos", "2 consultoras", "Java · Spring · Spring Boot · Oracle"].map((d) => (
             <span
               key={d}
-              className="px-2.5 py-1 text-xs font-medium rounded-full border border-cyan-400/50 bg-cyan-400/5 text-primary"
+              className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-medium rounded-full border border-cyan-400/50 bg-cyan-400/5 text-primary"
             >
               {d}
             </span>
@@ -269,63 +367,38 @@ export default function Experiencia() {
       </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-12">
-        {/* TABS */}
-        <div className="flex flex-col gap-4 md:w-1/4 w-full">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-12">
+        {/* TABS — en móvil cada empresa abre su ficha en un modal */}
+        <div className="flex flex-col gap-2 md:gap-4 md:w-1/4 w-full">
           {lista.map((tab, i) => (
             <button
               key={tab.empresa}
-              onClick={() => setActive(i)}
+              onClick={() => seleccionar(i)}
               aria-pressed={active === i}
-              className={`text-left px-4 py-2 border-l-4 transition-all ${
+              className={`flex items-center justify-between gap-3 text-left px-4 py-2 border-l-4 transition-all ${
                 active === i
-                  ? "border-cyan-400 text-primary"
+                  ? "md:border-cyan-400 md:text-primary border-gray-400 dark:border-gray-700"
                   : "border-gray-400 dark:border-gray-700 hover:border-cyan-400"
               }`}
             >
-              {tab.empresa}
+              <span>
+                <span className="block text-sm md:text-base">{tab.empresa}</span>
+                <span className="md:hidden block text-[11px] text-gray-500 dark:text-gray-400">
+                  {tab.puesto} · {tab.fecha}
+                </span>
+              </span>
+              <span className="md:hidden text-primary" aria-hidden="true">›</span>
             </button>
           ))}
         </div>
 
-        {/* CONTENIDO */}
-        <div className="md:w-3/4 space-y-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-xl font-semibold">
-              {empleo.puesto} · {empleo.empresa}
-            </h3>
-            {empleo.link && (
-              <a
-                href={empleo.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-                aria-label={`Web de ${empleo.empresa}`}
-              >
-                ↗
-              </a>
-            )}
-          </div>
-
-          <p className="text-gray-600 dark:text-gray-400">
-            {empleo.fecha}
-            {empleo.ubicacion && ` · ${empleo.ubicacion}`}
-          </p>
-
-          {empleo.cliente && (
-            <p className="text-sm">
-              <span className="text-gray-500 dark:text-gray-500">Cliente: </span>
-              <span className="text-primary font-medium">{empleo.cliente}</span>
-            </p>
-          )}
-
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300">
-            {empleo.tareas.map((t, i) => (
-              <li key={i}>{t}</li>
-            ))}
-          </ul>
+        {/* CONTENIDO — solo escritorio */}
+        <div className="hidden md:block md:w-3/4">
+          <Detalle empleo={empleo} />
         </div>
       </div>
+
+      {modal && <ModalEmpleo empleo={empleo} onClose={cerrarModal} />}
 
       {perfil === "programacion" && (
         <p className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400 max-w-3xl">

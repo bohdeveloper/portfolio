@@ -7,10 +7,6 @@ proyectos de Administración Pública autonómica. Frontend estático servido de
 CDN global de Cloudflare, API en el edge con Pages Functions y base de datos
 SQLite distribuida (D1). Sin servidor central.
 
-Detrás de `/admin` corre además una suite de aplicaciones personales de uso
-diario: tracker de rutinas, control presupuestal, seguimiento dietético-deportivo
-y un generador de ebooks con la API de Claude.
-
 **Estado:** en producción y en mantenimiento — todas las fases de desarrollo
 cerradas desde junio de 2026.
 
@@ -21,11 +17,8 @@ cerradas desde junio de 2026.
 | Capa | Tecnología |
 |---|---|
 | Frontend | Next.js 15 (`output: "export"`) · React 18 · TypeScript · Tailwind CSS |
-| API | Cloudflare Pages Functions — serverless en el edge |
+| API | Cloudflare Pages Functions — lecturas públicas en el edge |
 | Base de datos | Cloudflare D1 — SQLite distribuido |
-| Auth | JWT (`jose`) · `bcryptjs` · cookie httpOnly |
-| Editor | TipTap (WYSIWYG) |
-| IA | Claude API — Haiku 4.5, vía fetch nativo |
 | Deploy | Cloudflare Pages — `git push` → despliegue automático |
 
 ```
@@ -47,27 +40,13 @@ técnico) · case studies en `/projects?slug=xxx` · modo claro/oscuro · tarjet
 con efecto holográfico · SEO técnico con JSON-LD.
 
 ### Blog técnico — `/blog` (archivado)
-Editor WYSIWYG TipTap con portada comprimida en Canvas · filtro por tags ·
-reacciones emoji · comentarios con moderación y baneo de IPs · aviso de contenido
-generado con IA conforme al EU AI Act.
+Filtro por tags · reacciones emoji · comentarios aprobados en solo lectura ·
+aviso de contenido generado con IA conforme al EU AI Act.
 
-### Minijuegos — retirados de la web pública
-Snake · Tetris · 2048 · Wordle (ES) · Flappy Bird. HTML standalone sin
-dependencias en `public/games/`, gestionables desde el admin pero sin enlace
-público desde octubre de 2026.
-
-### Panel de administración — `/admin/dashboard`
-
-| App | Descripción |
-|---|---|
-| **Tracker** | Rutinas y hábitos semanales, horario visual, estadísticas |
-| **Blog** | Editor TipTap, posts, comentarios y moderación |
-| **Moneta** | Presupuesto mensual previsto contra real, dos perfiles, exportación CSV |
-| **Bioptima** | Biometría, IMC, % de grasa, TMB, TDEE y balance calórico |
-| **TintAI** | Generador de ebooks con Claude API y lector con paginación |
-| **Proyectos** | Case studies con editor TipTap |
-| **Juegos** | Gestión de los minijuegos publicados |
-| **Usuarios** | Multiusuario con roles `super_admin` / `user` |
+### Retirado en octubre de 2026
+El panel `/admin` (tracker, Moneta, Bioptima, TintAI, gestión de contenidos y
+usuarios) y los minijuegos. El código sigue en el historial de git; los datos personales
+se borraron de D1.
 
 ---
 
@@ -80,15 +59,12 @@ portfolio/
 │   ├── src/components/          layout/ · sections/ · ui/
 │   ├── src/hooks/               useCardHolo · useFadeInOnScroll
 │   ├── functions/
-│   │   ├── _middleware.ts       Cabeceras de seguridad
-│   │   ├── admin/_middleware.ts Protección de /admin/*
-│   │   └── api/                 auth · blog · tracker · moneta ·
-│   │                            bioptima · tintai · projects · games · admin
+│   │   ├── _middleware.ts       Cabeceras de seguridad y CSP
+│   │   └── api/                 blog · projects (lecturas públicas)
 │   ├── public/cv/               Los dos PDF de currículum (programador y técnico)
-│   ├── public/games/            Minijuegos HTML standalone
 │   └── schema.sql               Tablas base
 ├── migrations/                  Cambios de datos versionados
-├── schema-*.sql                 Esquemas por app
+├── schema-*.sql                 Esquemas de las apps retiradas
 ├── .claude/agents/              Agentes del proyecto
 └── .mcp.json                    Grafo de código (codebase-memory-mcp)
 ```
@@ -104,21 +80,11 @@ npm run dev      # desarrollo
 npm run build    # build estático → frontend/out/
 ```
 
-Crear `frontend/.dev.vars`:
-
-```
-JWT_SECRET=tu_secreto_local
-ANTHROPIC_API_KEY=sk-ant-...   # solo necesario para TintAI
-```
-
 ### Base de datos
 
 ```bash
 # Esquemas iniciales
 wrangler d1 execute bohdeveloper-admin --remote --file=frontend/schema.sql
-wrangler d1 execute bohdeveloper-admin --remote --file=schema-moneta.sql
-wrangler d1 execute bohdeveloper-admin --remote --file=schema-bioptima.sql
-wrangler d1 execute bohdeveloper-admin --remote --file=schema-tintai.sql
 
 # Cambios posteriores — siempre versionados en migrations/
 wrangler d1 execute bohdeveloper-admin --remote --file=./migrations/<fichero>.sql

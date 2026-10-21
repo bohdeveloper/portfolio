@@ -123,13 +123,13 @@ export default function Hero() {
         ))}
       </ol>
 
-      <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-8 text-base sm:text-lg md:text-xl leading-relaxed">
+      <p className="text-gray-700 dark:text-gray-300 max-w-2xl mt-8 text-sm sm:text-lg md:text-xl leading-relaxed">
         Especializado en <strong>aplicaciones web empresariales</strong>, diseñando, desarrollando y manteniendo:
       </p>
 
       <ul className="
-        list-disc list-inside mt-4 font-medium text-primary
-        text-xs sm:text-sm md:text-base
+        list-disc pl-4 sm:pl-0 sm:list-inside mt-3 sm:mt-4 space-y-0.5 font-medium text-primary
+        text-[11px] leading-snug sm:text-sm md:text-base
       ">
         <li>Aplicaciones web empresariales con Java, Spring y Spring Boot.</li>
         <li>Sistemas de gestión y tramitación de datos.</li>

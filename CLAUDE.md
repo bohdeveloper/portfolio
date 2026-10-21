@@ -31,7 +31,7 @@ proyecto `C-aplic-portfolio`).
 - **Nunca inventar una relación.** Si `search_graph` no la encuentra, decirlo.
 - Tras cambios estructurales grandes, reindexar con `index_repository`.
 - Antes de dar por buena una refactorización, `detect_changes` para ver el blast
-  radius real. Obligatorio si se toca `verifyAuth`: 54 llamadas dependen de él.
+  radius real.
 - Visión general en [GRAPH_REPORT.md](GRAPH_REPORT.md).
 
 ---

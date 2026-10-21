@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense, useMemo, useCallback } from 'react';
+import { useEffect, useState, useRef, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 interface Post {
@@ -251,7 +251,7 @@ function fmtRelative(iso: string): string {
   return fmtDate(iso);
 }
 
-function CommentItem({ c, onReply, isReply }: { c: Comment; onReply?: () => void; isReply?: boolean }) {
+function CommentItem({ c }: { c: Comment }) {
   return (
     <div className="flex gap-3">
       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-semibold">
@@ -263,148 +263,47 @@ function CommentItem({ c, onReply, isReply }: { c: Comment; onReply?: () => void
           <span className="text-xs text-gray-400">{fmtRelative(c.created_at)}</span>
         </div>
         <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">{c.body}</p>
-        {!isReply && onReply && (
-          <button onClick={onReply} className="mt-1 text-xs text-gray-400 hover:text-primary transition">
-            ↩ Responder
-          </button>
-        )}
       </div>
     </div>
   );
 }
 
+/* Comentarios cerrados desde el 21 oct 2026: sin panel de administración no
+   hay quien los modere. Se muestran solo los ya aprobados; si un post no
+   tiene ninguno, la sección no aparece. */
 function CommentsSection({ slug }: { slug: string }) {
-  const [comments,   setComments]   = useState<Comment[]>([]);
-  const [loading,    setLoading]    = useState(true);
-  const [form,       setForm]       = useState({ alias: '', body: '' });
-  const [replyTo,    setReplyTo]    = useState<{ id: number; alias: string } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted,  setSubmitted]  = useState(false);
-  const [error,      setError]      = useState('');
-  const formRef = useRef<HTMLFormElement>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
 
-  const load = useCallback(() => {
+  useEffect(() => {
+    // Al cambiar de post se vacía la lista y se descarta la respuesta del
+    // anterior si llega tarde, para no mostrar comentarios de otro artículo.
+    let vigente = true;
+    setComments([]);
     fetch('/api/blog/comments?slug=' + encodeURIComponent(slug))
       .then(r => r.json())
-      .then((res: { ok: boolean; data?: Comment[] }) => { if (res.ok) setComments(res.data ?? []); })
-      .finally(() => setLoading(false));
+      .then((res: { ok: boolean; data?: Comment[] }) => { if (vigente && res.ok) setComments(res.data ?? []); })
+      .catch(() => {});
+    return () => { vigente = false; };
   }, [slug]);
 
-  useEffect(() => { load(); }, [load]);
-
-  // Resetear estado al cambiar de post
-  useEffect(() => {
-    setSubmitted(false);
-    setReplyTo(null);
-    setError('');
-  }, [slug]);
-
-  // Persist alias in localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('blog_alias');
-      if (saved) setForm(f => ({ ...f, alias: saved }));
-    } catch {}
-  }, []);
+  if (comments.length === 0) return null;
 
   const topLevel = comments.filter(c => !c.parent_id);
   const replies  = (pid: number) => comments.filter(c => c.parent_id === pid);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.alias.trim() || !form.body.trim()) return;
-    setSubmitting(true); setError('');
-    try {
-      const res = await fetch('/api/blog/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, alias: form.alias, body: form.body, parent_id: replyTo?.id ?? null }),
-      });
-      const data: { ok: boolean; error?: string } = await res.json();
-      if (data.ok) {
-        try { localStorage.setItem('blog_alias', form.alias.trim()); } catch {}
-        setForm(f => ({ ...f, body: '' }));
-        setReplyTo(null);
-        setSubmitted(true);
-      } else {
-        setError(data.error ?? 'Error al enviar');
-      }
-    } catch {
-      setError('Error de conexión. Inténtalo de nuevo.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const startReply = (id: number, alias: string) => {
-    setReplyTo({ id, alias });
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   return (
     <section className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-      <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-6">
-        💬 {loading ? 'Comentarios' : comments.length > 0 ? `${comments.length} comentario${comments.length !== 1 ? 's' : ''}` : 'Comentarios'}
+      <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
+        💬 {comments.length} comentario{comments.length !== 1 ? 's' : ''}
       </h2>
-
-      {/* Form */}
-      {submitted ? (
-        <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3 mb-8 text-sm text-green-700 dark:text-green-400">
-          ✓ Comentario enviado — aparecerá tras la moderación. ¡Gracias!
-          <button onClick={() => setSubmitted(false)} className="ml-3 underline text-xs opacity-70">Escribir otro</button>
-        </div>
-      ) : (
-        <form ref={formRef} onSubmit={submit} className="mb-10 space-y-3">
-          {replyTo && (
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-              <span>↩ Respondiendo a <strong className="text-gray-700 dark:text-gray-200">{replyTo.alias}</strong></span>
-              <button type="button" onClick={() => setReplyTo(null)} className="text-gray-400 hover:text-primary">× cancelar</button>
-            </div>
-          )}
-          <input
-            type="text"
-            placeholder="Nombre o alias *"
-            value={form.alias}
-            onChange={e => setForm(f => ({ ...f, alias: e.target.value }))}
-            maxLength={50}
-            required
-            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary transition"
-          />
-          <textarea
-            placeholder="Escribe tu comentario... *"
-            value={form.body}
-            onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
-            maxLength={2000}
-            rows={3}
-            required
-            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary transition resize-none"
-          />
-          {error && <p className="text-xs text-red-500">{error}</p>}
-          <div className="flex justify-between items-center">
-            <p className="text-xs text-gray-400 dark:text-gray-500">Los comentarios se publican tras moderación.</p>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-4 py-2 text-sm rounded-lg bg-primary text-black font-medium hover:opacity-90 disabled:opacity-50 transition"
-            >
-              {submitting ? 'Enviando...' : 'Enviar comentario'}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* List */}
-      {loading && <p className="text-sm text-gray-400">Cargando comentarios...</p>}
-      {!loading && comments.length === 0 && !submitted && (
-        <p className="text-sm text-gray-400 dark:text-gray-500 italic">Sé el primero en comentar.</p>
-      )}
+      <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">Comentarios cerrados.</p>
       <div className="space-y-6">
         {topLevel.map(c => (
           <div key={c.id}>
-            <CommentItem c={c} onReply={() => startReply(c.id, c.alias)} />
+            <CommentItem c={c} />
             {replies(c.id).length > 0 && (
               <div className="ml-11 mt-3 space-y-4 pl-4 border-l-2 border-gray-100 dark:border-gray-800">
-                {replies(c.id).map(r => <CommentItem key={r.id} c={r} isReply />)}
+                {replies(c.id).map(r => <CommentItem key={r.id} c={r} />)}
               </div>
             )}
           </div>
@@ -535,7 +434,7 @@ function PostView({ slug }: { slug: string }) {
       </div>
 
       <ReactionsBar slug={post.slug} />
-      <CommentsSection slug={post.slug} />
+      <CommentsSection key={post.slug} slug={post.slug} />
     </article>
   );
 }

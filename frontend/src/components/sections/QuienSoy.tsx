@@ -137,14 +137,14 @@ export default function QuienSoy() {
         {/* TECNOLOGÍAS — dos grupos etiquetados */}
         <div className="space-y-4 pt-1">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
+            <p className="font-semibold uppercase tracking-widest text-black dark:text-white mb-1.5 sm:mb-2 text-[11px] sm:text-sm">
               Experiencia profesional
             </p>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="flex flex-wrap gap-1 sm:gap-2">
               {STACK_PROFESIONAL.map((t) => (
                 <li
                   key={t}
-                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
+                  className="px-1.5 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
                 >
                   {t}
                 </li>
@@ -153,14 +153,14 @@ export default function QuienSoy() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
+            <p className="font-semibold uppercase tracking-widest text-black dark:text-white mb-1.5 sm:mb-2 text-[11px] sm:text-sm">
               Proyectos propios
             </p>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="flex flex-wrap gap-1 sm:gap-2">
               {STACK_PROPIO.map((t) => (
                 <li
                   key={t}
-                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
+                  className="px-1.5 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
                 >
                   {t}
                 </li>
@@ -169,14 +169,14 @@ export default function QuienSoy() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
+            <p className="font-semibold uppercase tracking-widest text-black dark:text-white mb-1.5 sm:mb-2 text-[11px] sm:text-sm">
               Perfil técnico · oficio
             </p>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="flex flex-wrap gap-1 sm:gap-2">
               {PERFIL_TECNICO.map((t) => (
                 <li
                   key={t}
-                  className="px-2.5 py-1 text-xs sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
+                  className="px-1.5 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-sm font-medium rounded border border-cyan-400/60 bg-cyan-400/10 text-primary"
                 >
                   {t}
                 </li>

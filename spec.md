@@ -26,11 +26,13 @@ siempre «norte de España» en vez de una ciudad concreta; no fijar una localid
 hasta que el destino esté decidido de verdad (actualizado 16 sep 2026, antes
 decía Vigo).
 
-**Suite de aplicaciones personales (privada).** Tras `/admin`, un conjunto de apps
-de uso cotidiano del propietario: tracker de rutinas, control presupuestal,
-seguimiento dietético-deportivo, generador de ebooks y gestión de contenidos del
-propio portfolio. No son demos: son las aplicaciones que el autor usa a diario, y
-esa es precisamente su credibilidad como muestra de trabajo.
+**Sin panel de administración desde el 21 oct 2026.** Hasta esa fecha, tras
+`/admin` vivía una suite de apps personales (tracker, Moneta, Bioptima, TintAI) y
+la gestión de contenidos. Se retiró porque no se usaba: el tracker no tenía
+registros desde junio y TintAI y Bioptima estaban vacíos. El código sigue en el
+historial de git. Los datos personales de esas apps se borraron de D1 ese mismo
+día (`migrations/borrado-datos-personales-oct-2026.sql`). El sitio es ahora
+solo público y de solo lectura: el contenido se edita con migraciones.
 
 | | |
 |---|---|
@@ -45,13 +47,10 @@ esa es precisamente su credibilidad como muestra de trabajo.
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | Next.js 15.1.6 (`output: "export"`) · React 18 · TypeScript · Tailwind CSS 3 |
-| API | Cloudflare Pages Functions — serverless en el edge, TypeScript |
+| Frontend | Next.js 15.5.28 (`output: "export"`) · React 18 · TypeScript · Tailwind CSS 3 |
+| API | Cloudflare Pages Functions — solo lecturas públicas (blog, proyectos) y reacciones del blog |
 | Base de datos | Cloudflare D1 — SQLite distribuido, base única `bohdeveloper-admin` |
-| Auth | JWT (`jose`) + `bcryptjs`, cookie httpOnly `admin_token` |
-| Editor | TipTap — WYSIWYG en blog y proyectos |
-| IA | Claude API (Haiku 4.5) vía fetch nativo, solo en TintAI |
-| Gráficas | SVG a mano — sin Chart.js ni librerías de charting |
+| Auth | Ninguna: no hay zona privada desde el 21 oct 2026 |
 | Deploy | Cloudflare Pages · `git push origin main` → despliegue automático |
 
 ### Arquitectura
@@ -63,9 +62,8 @@ Cloudflare Pages (CDN global, ~300 PoPs)
     └── D1 (bohdeveloper-admin)           → datos junto al código
 ```
 
-Sin servidor central. `frontend/functions/admin/_middleware.ts` protege todo
-`/admin/*`; `frontend/functions/_middleware.ts` aplica cabeceras de seguridad
-globales.
+Sin servidor central. `frontend/functions/_middleware.ts` aplica las cabeceras de
+seguridad globales, CSP incluida.
 
 ### Estructura del repositorio
 
@@ -75,49 +73,44 @@ portfolio/
 │   ├── src/app/                 Páginas (App Router, exportadas a estático)
 │   ├── src/components/          layout/ · sections/ · ui/
 │   ├── src/hooks/               useCardHolo · useFadeInOnScroll
-│   ├── functions/api/           API por dominio (auth, blog, tracker…)
+│   ├── functions/api/           blog (list, post, comments, reactions) · projects (list, post)
 │   ├── public/cv/               Los dos PDF de currículum (programador y técnico)
-│   ├── public/games/            Minijuegos HTML standalone
 │   └── schema.sql               Tablas base
 ├── migrations/                  Cambios de datos versionados, un fichero por cambio
-├── schema-*.sql                 Esquemas por app (moneta, bioptima, tintai)
+├── schema-*.sql                 Esquemas de las apps retiradas (moneta, bioptima, tintai)
 ├── .claude/agents/              Agentes del proyecto (§6)
 └── .mcp.json                    Grafo de código (codebase-memory-mcp)
 ```
 
 ### Patrones establecidos
 
-- **Auth centralizada.** `functions/api/_auth-util.ts` expone `verifyAuth` y
-  `checkRole`. Es el nodo más conectado del grafo (fan-in 54): **todo endpoint
-  autenticado pasa por él**. Cualquier cambio en su firma exige `detect_changes`
-  antes de darlo por bueno.
-- **Validación centralizada.** `functions/api/_security.ts` expone `validateStr`,
-  `validateInt`, `validateFloat`, `validateHttpsUrl`, `validateHexColor` y
-  `dbError`. Todo endpoint nuevo valida su entrada con estos helpers; nunca
-  se escribe validación ad hoc ni se devuelve el error de D1 en crudo.
+- **API mínima y de solo lectura.** Los únicos endpoints son lecturas
+  públicas y las reacciones anónimas del blog. Si alguna vez vuelve a haber
+  zona privada, el código de auth (`_auth-util.ts`, `verifyAuth`) y de
+  validación (`_security.ts`) está en el historial de git, antes del 21 oct 2026.
+  Nunca se devuelve el error de D1 en crudo.
 - **Caché de edge en lecturas públicas.** Los endpoints públicos usan
   `caches.default` con TTL (p. ej. 300 s en `/api/projects/list`) para que los
   bots no agoten la cuota de D1. Consecuencia práctica: tras escribir en D1, los
   cambios tardan hasta el TTL en verse; para verificar al instante, añadir una
   query string distinta.
-- **Contenido en D1, no en el código.** Proyectos, posts y juegos viven en base de
-  datos y se gestionan desde `/admin`. Los arrays `FALLBACK` del código solo se
-  usan si la API falla, y hay que mantenerlos sincronizados.
+- **Contenido en D1, no en el código.** Proyectos y posts viven en base de datos
+  y se editan con migraciones en `migrations/` (ya no hay panel). Los arrays
+  `FALLBACK` del código solo se usan si la API falla, y hay que mantenerlos
+  sincronizados.
 - **Query params en vez de rutas dinámicas.** `output: "export"` no genera rutas
   dinámicas, así que el detalle se sirve como `/blog?slug=xxx` y
   `/projects?slug=xxx`.
-- **CSS variables por ámbito.** `--primary` / `--bg` / `--text` en el sitio
-  público; `--adm-*` en el panel de administración.
+- **CSS variables.** `--primary` / `--bg` / `--text`.
 
 ### Modelo de dominio
 
-Una sola base D1 con tablas agrupadas por app. `admin_users` (con `role`:
-`super_admin` o `user`) es la raíz de la autenticación y el criterio de filtrado
-de datos por usuario. `projects`, `blog_posts` y `games` alimentan el sitio
-público —con sus tablas satélite de reacciones, comentarios y votos—. `tracker_*`,
-`moneta_*`, `bioptima_*` y `tintai_*` son los cuatro dominios de las apps
-privadas, independientes entre sí salvo una integración: al guardar el balance
-diario en Bioptima se escribe una nota automática en el tracker.
+Una sola base D1. El sitio solo lee `projects` y `blog_posts`, con sus tablas
+satélite `blog_reactions` (escritura anónima acotada) y `blog_comments` (solo
+lectura de los aprobados; comentarios cerrados). Las tablas de las apps
+retiradas se eliminaron el 21 oct 2026 por RGPD; solo quedan `projects`,
+`blog_posts`, `blog_reactions`, `blog_comments` (sin hash de IP), `games` y
+`game_reactions`. Recuperar una app exige recrear su esquema con `schema-*.sql`.
 
 ---
 
@@ -165,16 +158,16 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
    Orden de la home y del menú: Hero · Acerca de mí · Formación · Experiencia ·
    Proyectos · IA · Contacto (21 oct 2026).
 9. **Cumplimiento del EU AI Act.** Todo contenido generado con IA lleva aviso
-   visible: artículos del blog y descripciones de juegos.
+   visible, como los artículos del blog.
 10. **Sin SSR.** Se evaluó y se descartó por riesgo de romper el despliegue en
     Cloudflare para el beneficio real que aportaba.
-11. **Sin librerías de gráficas.** Las visualizaciones de Moneta y Bioptima son
-    SVG escrito a mano.
-12. **Juegos fuera de la web pública; blog archivado.** Desde el 21 oct 2026
-    se retiró el panel lateral (`BlogPanel.tsx`) con blog y juegos. Los juegos
-    siguen en `public/games/` y en D1 para el admin, pero sin enlace público.
-    El blog sale del menú y queda enlazado solo desde el pie: sus URLs siguen
-    vivas porque los artículos están indexados.
+11. **Sin librerías de gráficas.** Cualquier visualización se hace en SVG
+    escrito a mano (las de Moneta y Bioptima lo eran).
+12. **Sin panel, sin juegos; blog archivado y comentarios cerrados.** Desde el
+    21 oct 2026 no existe `/admin` ni login, y los juegos se retiraron del todo
+    (también `public/games/`). El blog queda enlazado solo desde el pie: sus
+    URLs siguen vivas porque los artículos están indexados. Muestra los
+    comentarios aprobados, pero no acepta nuevos, porque nadie puede moderarlos.
 13. **Java, Spring y Spring Boot son los tres profesionales.** Los CV de sep 2026
     solo mencionan «Spring» en la experiencia profesional, pero Borja confirmó
     (16 sep 2026) que también ha usado Spring Boot en el puesto, junto con
@@ -213,7 +206,6 @@ Decisiones ya tomadas. No se reabren sin decisión explícita del usuario.
 | `--bg` | `#fdfefe` | `#0d0d0d` |
 | `--text` | `#1a1a1a` | `#f5f5f5` |
 
-El panel de administración usa su propio juego de variables `--adm-*`.
 
 ### Componentes y patrones
 
@@ -231,7 +223,7 @@ El panel de administración usa su propio juego de variables `--adm-*`.
 ### Prohibiciones
 
 - ❌ Librerías de gráficas (Chart.js, Recharts…) — SVG a mano
-- ❌ Dependencias por CDN externo salvo las ya existentes (`marked.js` en TintAI)
+- ❌ Dependencias por CDN externo salvo `marked.js` en el blog (con SRI)
 - ❌ Rutas dinámicas de Next — incompatibles con `output: "export"`
 - ❌ Más de un `<h1>` por página
 - ❌ Enlaces a repositorios o recursos que no existen todavía
@@ -249,12 +241,7 @@ npm run dev          # Next.js en desarrollo
 npm run build        # build estático → frontend/out/
 ```
 
-`frontend/.dev.vars` (nunca versionado):
-
-```
-JWT_SECRET=...
-ANTHROPIC_API_KEY=sk-ant-...   # solo para TintAI
-```
+Sin variables de entorno: desde la retirada del panel no hay secretos.
 
 ### Base de datos
 
@@ -275,13 +262,15 @@ environment», hay que reautenticar con `wrangler login`.
 - Despliegue: `git push origin main`. Cloudflare Pages construye y publica.
 - Verificación: tras el push, el despliegue tarda unos minutos; conviene
   comprobar contra la URL real antes de dar algo por hecho.
-- Variables: `JWT_SECRET` y `ANTHROPIC_API_KEY` en el panel de Cloudflare.
+- Variables: ninguna. `JWT_SECRET` y `ANTHROPIC_API_KEY` se pueden borrar del panel de Cloudflare.
 - Redirecciones y cabeceras: `frontend/public/_redirects`.
 
 ### Deuda aceptada deliberadamente
 
 - `NEXT_DISABLE_TYPECHECK=1` en el build y `ignoreBuildErrors` en `next.config.js`.
   El typecheck no bloquea el despliegue; hay que ejecutarlo aparte si se quiere.
+  Desde la retirada del panel (21 oct 2026), `src/` no tiene errores de tipos,
+  así que se podría volver a activar.
 - `backend/` solo contiene `node_modules` — carpeta muerta de una etapa anterior.
 - La página del blog concentra vista pública, comentarios y panel lateral, lo que
   se refleja en la cohesión más baja del grafo (0,692).
@@ -307,7 +296,8 @@ environment», hay que reautenticar con `wrangler login`.
 ### Durante el desarrollo
 
 - Comentarios técnicos **en español** en las partes complejas, no en lo obvio.
-- Todo endpoint nuevo: `verifyAuth` / `checkRole` + validación con `_security.ts`.
+- Endpoint nuevo: solo lectura pública por defecto. Uno que escriba o que
+  necesite auth reabre la decisión del invariante 12 y exige `/security-review`.
 - Contenido nuevo del sitio → D1 mediante `migrations/`, y sincronizar el
   `FALLBACK` correspondiente del componente.
 
@@ -343,8 +333,6 @@ Instalados en `.claude/agents/` y versionados con el repositorio.
 | `/simplify` | Al cerrar una fase, para limpiar duplicación y complejidad. |
 | `/grafo-designer` | Reindexar el grafo tras cambios estructurales grandes. |
 | `/spec-driven` | Mantener sincronizados spec.md y plan.md. |
-| `/dataviz` | Antes de tocar las gráficas SVG de Moneta o Bioptima. |
-| `/claude-api` | Antes de tocar la integración de TintAI con la API de Claude. |
 | `/run` | Levantar la aplicación para comprobar un cambio de verdad. |
 
 ---
