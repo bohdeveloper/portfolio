@@ -25,19 +25,21 @@ const CERTIFICADO = {
 /* Formación técnica reglada, previa a la reconversión al desarrollo. Misma
    información que el CV técnico (invariante 5): Carpintería está cursada pero
    sin el módulo de prácticas, y así se dice. */
+/* Orden cronológico, del título más antiguo al más reciente: la lista se
+   pinta de izquierda a derecha con una flecha que marca el sentido. */
 const FORMACION_TECNICA = [
+  {
+    titulo: "Técnico en Mecanizado",
+    nivel: "F.P. Grado Medio",
+    centro: "Irungo La Salle",
+    anio: "2010",
+  },
   {
     titulo: "Técnico en Instalaciones Eléctricas y Automáticas",
     nivel: "F.P. Grado Medio",
     centro: "Irungo La Salle",
     anio: "2012-2014",
     nota: "Título válido para trabajar como instalador en baja tensión (REBT)",
-  },
-  {
-    titulo: "Técnico en Mecanizado",
-    nivel: "F.P. Grado Medio",
-    centro: "Irungo La Salle",
-    anio: "2010",
   },
   {
     titulo: "Carpintería y Mueble",
@@ -387,6 +389,16 @@ export default function Aprendizaje() {
           Electricidad, mecanizado y carpintería: formación reglada de oficio,
           anterior al cambio al desarrollo de software.
         </p>
+        {/* Flecha de sentido cronológico — solo escritorio, donde las tarjetas
+            van en fila; en móvil la lista ya se lee de arriba abajo. */}
+        <div className="hidden md:flex items-center gap-3 mb-4 text-xs text-gray-500 dark:text-gray-400" aria-hidden="true">
+          <span>2010</span>
+          <span className="flex-1 h-px bg-cyan-400/60" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 -ml-3 text-primary">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6l6 6-6 6" />
+          </svg>
+          <span>2018</span>
+        </div>
         <ul className="grid gap-5 md:grid-cols-3">
           {FORMACION_TECNICA.map((f) => (
             <li
